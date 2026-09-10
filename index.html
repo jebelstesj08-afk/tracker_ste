@@ -39,7 +39,6 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main);
       transition: background-color 0.3s, color 0.3s; 
-      /* iPhone 13/15 Safe Area fix for scrolling */
       padding-bottom: calc(120px + env(safe-area-inset-bottom));
     }
 
@@ -48,7 +47,10 @@
 
     .balance-section { padding: 0 20px 20px; }
     .balance-label { font-size: 15px; color: var(--text-muted); font-weight: 500; margin-bottom: 4px; display: block; }
-    .balance-amount { font-size: 42px; font-weight: 700; letter-spacing: -1px; margin: 0; }
+    .balance-amount { font-size: 42px; font-weight: 700; letter-spacing: -1px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: font-size 0.2s; }
+    
+    /* Dynamically shrinks the text when showing two columns in the Insights tab */
+    .balance-amount.small { font-size: 28px; }
 
     .tab-content { display: none; padding: 0 20px; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
     .active-tab { display: block; }
@@ -78,12 +80,7 @@
     .cat-name { font-size: 13px; font-weight: 500; opacity: 0.9; }
     .cat-amt { font-size: 18px; font-weight: 700; margin-top: 4px; }
 
-    /* iPhone 13/15 Safe Area fix for Navigation Menu */
-    .nav-wrapper { 
-      position: fixed; 
-      bottom: calc(20px + env(safe-area-inset-bottom)); 
-      left: 0; width: 100%; display: flex; justify-content: center; z-index: 1000; pointer-events: none; 
-    }
+    .nav-wrapper { position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); left: 0; width: 100%; display: flex; justify-content: center; z-index: 1000; pointer-events: none; }
     .nav-pill { background: var(--nav-bg); padding: 6px; border-radius: 30px; display: flex; gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); pointer-events: auto; }
     .nav-pill button { background: transparent; border: none; color: #888; font-size: 13px; font-weight: 600; padding: 12px 24px; border-radius: 24px; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.3s ease; }
     .nav-pill button.active-nav { background: #333333; color: #ffffff; }
@@ -98,9 +95,19 @@
     <button class="header-btn" onclick="forceSync()">🔄</button>
   </div>
 
+  <!-- DYNAMIC BALANCE SECTION -->
   <div class="balance-section">
-    <span class="balance-label" id="topLabel">Main balance</span>
-    <h1 class="balance-amount" id="topBalance">₹ 0</h1>
+    <div style="display: flex; gap: 15px;">
+      <div style="flex: 1; overflow: hidden;">
+        <span class="balance-label" id="topLabel">Main balance</span>
+        <h1 class="balance-amount" id="topBalance">₹ 0</h1>
+      </div>
+      <!-- EARNINGS BLOCK (Hidden on main pages, shown on insights) -->
+      <div id="secondaryBalanceBlock" style="flex: 1; display: none; overflow: hidden;">
+        <span class="balance-label" id="secondaryLabel">Total earnings</span>
+        <h1 class="balance-amount small" id="secondaryBalance" style="color: var(--accent-inc);">₹ 0</h1>
+      </div>
+    </div>
   </div>
 
   <!-- EXPENSE TAB -->
@@ -200,8 +207,8 @@
     <div class="input-group">
       <select id="filterUser" onchange="generateInsights()" style="font-weight:700; background:var(--card-bg);">
         <option value="Both">Household (Jebel & Reshma)</option>
-        <option value="Jebel">Jebel's Spending</option>
-        <option value="Reshma">Reshma's Spending</option>
+        <option value="Jebel">Jebel's Data</option>
+        <option value="Reshma">Reshma's Data</option>
       </select>
     </div>
 
@@ -266,9 +273,19 @@
 
       if(tabName === 'Insights') {
         document.getElementById('topLabel').innerText = "Total spending";
+        
+        // Add styling for 2-column layout
+        document.getElementById('topBalance').classList.add('small');
+        document.getElementById('secondaryBalanceBlock').style.display = "block";
+        
         generateInsights(); 
       } else {
         document.getElementById('topLabel').innerText = "Main balance";
+        
+        // Revert styling to large 1-column layout
+        document.getElementById('topBalance').classList.remove('small');
+        document.getElementById('secondaryBalanceBlock').style.display = "none";
+        
         calculateTopBalance();
       }
     }
@@ -292,7 +309,6 @@
       return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(amount);
     }
 
-    // A smart date parser that understands old DD/MM/YYYY sheet dates
     function parseSafeDate(dateStr) {
       let d = new Date(dateStr);
       if (isNaN(d.getTime()) && typeof dateStr === 'string' && dateStr.includes('/')) {
@@ -383,6 +399,7 @@
       let endDate = new Date(endStr + 'T23:59:59');
 
       let totalExp = 0;
+      let totalInc = 0;
       let categoryTotals = {};
 
       for(let i = 1; i < allTransactions.length; i++) {
@@ -392,19 +409,26 @@
         let cat = String(row[2]).trim();
         let amount = parseFloat(row[3]) || 0;
         
-        // Ensure older rows without a user default correctly
         let rowUser = row.length > 5 && row[5] ? String(row[5]).trim() : 'Jebel'; 
         
         if(rowDate >= startDate && rowDate <= endDate) {
-          // This ensures ONLY expenses are calculated for the insights page
-          if((selectedUser === 'Both' || rowUser === selectedUser) && type === 'Expense') {
-            totalExp += amount;
-            categoryTotals[cat] = (categoryTotals[cat] || 0) + amount;
+          if(selectedUser === 'Both' || rowUser === selectedUser) {
+            
+            // Calculate BOTH Expenses and Income for the Insights page
+            if (type === 'Expense') {
+              totalExp += amount;
+              categoryTotals[cat] = (categoryTotals[cat] || 0) + amount;
+            } else if (type === 'Income') {
+              totalInc += amount;
+            }
+            
           }
         }
       }
 
+      // Update Both Top Headers
       document.getElementById('topBalance').innerText = formatINR(totalExp);
+      document.getElementById('secondaryBalance').innerText = formatINR(totalInc);
 
       let sortedCategories = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
       let labels = sortedCategories.map(item => item[0]);
