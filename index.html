@@ -219,7 +219,7 @@
         <label>Log Type</label>
         <select id="fuelLogType" onchange="toggleFuelFields()" style="font-weight: 700;">
           <option value="Fuel">⛽ Fuel Fill-up</option>
-          <option value="Service">🔧 Maintenance / Service</option>
+          <option value="Service">🔧 Service</option>
         </select>
       </div>
       <div class="input-group">
@@ -233,6 +233,12 @@
           <option value="Qualis">Qualis</option>
         </select>
       </div>
+    </div>
+
+    <!-- Last Service Odometer Info Card -->
+    <div id="lastServiceCard" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 16px; font-size: 14px; display: flex; justify-content: space-between; align-items: center;">
+      <span style="color: var(--text-muted); font-weight: 600;">Last Service Odometer:</span>
+      <span id="lastServiceOdoText" style="font-weight: 800; color: var(--accent-blue);">Not recorded</span>
     </div>
 
     <div class="two-col">
@@ -262,10 +268,16 @@
       <input type="number" id="fuelOdo" placeholder="Current km reading..." oninput="calculateMileagePreview()">
     </div>
 
-    <!-- Mileage & Distance Calculation Live Preview Box -->
+    <!-- Live Service Progress & Mileage Preview Box -->
     <div id="mileagePreviewBox" style="display: none; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px; font-size: 14px;">
-      <div style="font-weight: 700; color: var(--accent-blue); margin-bottom: 4px;">📊 Trip Analytics</div>
-      <div id="mileagePreviewText" style="color: var(--text-muted); font-weight: 500;"></div>
+      <div style="font-weight: 700; color: var(--accent-blue); margin-bottom: 6px;">📊 Trip Analytics & Service Status</div>
+      <div id="serviceProgressContainer" style="margin-bottom: 8px;">
+        <div id="serviceProgressText" style="font-weight: 600; margin-bottom: 4px; font-size: 13px;"></div>
+        <div style="background: var(--input-bg); border-radius: 6px; height: 8px; width: 100%; overflow: hidden;">
+          <div id="serviceProgressBar" style="height: 100%; width: 0%; border-radius: 6px; transition: width 0.3s ease;"></div>
+        </div>
+      </div>
+      <div id="mileagePreviewText" style="color: var(--text-muted); font-weight: 500; font-size: 13px; border-top: 1px solid var(--border-color); padding-top: 6px; margin-top: 6px;"></div>
     </div>
 
     <div class="input-group">
@@ -319,7 +331,7 @@
     <div class="two-col" style="align-items: center; gap: 8px; margin-bottom: 12px;">
       <div class="input-group" style="flex: 2; margin-bottom: 0;">
         <select id="filterUser" onchange="generateInsights()" style="font-weight:700; background:var(--card-bg);">
-          <option value="Both">Both</option>
+          <option value="Both">Both (Jebel & Reshma)</option>
           <option value="Jebel">Jebel</option>
           <option value="Reshma">Reshma</option>
         </select>
@@ -412,6 +424,8 @@
     let allTransactions = JSON.parse(localStorage.getItem('trackerData')) || [];
     let receiptBase64 = "";
     let currentTxType = 'Expense';
+
+    const bikesList = ['Hornet 2.0', 'Yamaha FZ', 'Dio'];
 
     const expenseCategories = `
       <option value="" disabled selected>Select Category...</option>
@@ -527,7 +541,7 @@
       let type = document.getElementById('fuelLogType').value;
       if(type === 'Service') {
         document.getElementById('litresGroup').style.display = 'none';
-        document.getElementById('vehicleLogBtn').innerText = "Log Maintenance";
+        document.getElementById('vehicleLogBtn').innerText = "Log Service";
         document.getElementById('mileagePreviewBox').style.display = 'none';
       } else {
         document.getElementById('litresGroup').style.display = 'block';
@@ -536,22 +550,76 @@
       }
     }
 
-    function calculateMileagePreview() {
-      let logType = document.getElementById('fuelLogType').value;
-      if(logType === 'Service') return;
+    function getLastServiceOdo(vehicleName) {
+      let lastOdo = null;
+      for(let i = allTransactions.length - 1; i >= 1; i--) {
+        let type = String(allTransactions[i][1]).trim();
+        let cat = String(allTransactions[i][2]).trim();
+        if(type === 'Service' && cat === vehicleName) {
+          let odo = parseFloat(allTransactions[i][8]) || 0;
+          if(odo > 0) {
+            lastOdo = odo;
+            break;
+          }
+        }
+      }
+      return lastOdo;
+    }
 
+    function calculateMileagePreview() {
       let vehicle = document.getElementById('fuelVehicle').value;
       let currentOdo = parseFloat(document.getElementById('fuelOdo').value) || 0;
       let currentLitres = parseFloat(document.getElementById('fuelLitres').value) || 0;
-      let previewBox = document.getElementById('mileagePreviewBox');
-      let previewText = document.getElementById('mileagePreviewText');
+      let logType = document.getElementById('fuelLogType').value;
 
-      if(currentOdo <= 0) {
-        previewBox.style.display = 'none';
+      // 1. Update Last Service Display Card
+      let lastServOdo = getLastServiceOdo(vehicle);
+      let serviceTextElem = document.getElementById('lastServiceOdoText');
+      if(lastServOdo !== null) {
+        serviceTextElem.innerText = `${lastServOdo} km`;
+      } else {
+        serviceTextElem.innerText = `None recorded`;
+      }
+
+      if(logType === 'Service') {
+        document.getElementById('mileagePreviewBox').style.display = 'none';
         return;
       }
 
-      // Find last recorded fuel entry for this vehicle
+      let previewBox = document.getElementById('mileagePreviewBox');
+      let progressText = document.getElementById('serviceProgressText');
+      let progressBar = document.getElementById('serviceProgressBar');
+      let mileageText = document.getElementById('mileagePreviewText');
+
+      // 2. Calculate Service Progress if Odo entered
+      if(currentOdo > 0 && lastServOdo !== null) {
+        let kmSinceService = currentOdo - lastServOdo;
+        let threshold = bikesList.includes(vehicle) ? 3000 : 10000;
+        let kmLeft = threshold - kmSinceService;
+        let pct = Math.min(Math.max((kmSinceService / threshold) * 100, 0), 100);
+
+        let barColor = 'var(--accent-blue)';
+        if(pct >= 90) barColor = 'var(--accent-red)';
+        else if(pct >= 75) barColor = '#ff9f0a';
+
+        progressBar.style.width = `${pct}%`;
+        progressBar.style.background = barColor;
+
+        if(kmLeft > 0) {
+          progressText.innerHTML = `🔧 <b>${kmLeft} km left</b> for service (${kmSinceService} / ${threshold} km run)`;
+        } else {
+          progressText.innerHTML = `⚠️ <b>Service overdue by ${Math.abs(kmLeft)} km!</b>`;
+        }
+        document.getElementById('serviceProgressContainer').style.display = 'block';
+      } else if (currentOdo > 0 && lastServOdo === null) {
+        progressText.innerHTML = `🔧 No previous service record found for interval tracking.`;
+        progressBar.style.width = `0%`;
+        document.getElementById('serviceProgressContainer').style.display = 'block';
+      } else {
+        document.getElementById('serviceProgressContainer').style.display = 'none';
+      }
+
+      // 3. Find last recorded fuel entry for mileage calculation
       let lastFuelOdo = null;
       for(let i = allTransactions.length - 1; i >= 1; i--) {
         let type = String(allTransactions[i][1]).trim();
@@ -572,7 +640,13 @@
           let mileage = (kmDriven / currentLitres).toFixed(2);
           mileageMsg += ` | Calculated Mileage: <b>${mileage} km/L</b>`;
         }
-        previewText.innerHTML = mileageMsg;
+        mileageText.innerHTML = mileageMsg;
+        mileageText.style.display = 'block';
+      } else {
+        mileageText.style.display = 'none';
+      }
+
+      if (currentOdo > 0 || (lastFuelOdo !== null && currentOdo > lastFuelOdo)) {
         previewBox.style.display = 'block';
       } else {
         previewBox.style.display = 'none';
@@ -743,7 +817,7 @@
         odometer: document.getElementById('fuelOdo').value,
         litres: isService ? "" : document.getElementById('fuelLitres').value
       };
-      executeSave(payload, isService ? "Logging maintenance..." : "Logging fuel...", isService ? "Service recorded!" : "Fuel logged!");
+      executeSave(payload, isService ? "Logging service..." : "Logging fuel...", isService ? "Service recorded!" : "Fuel logged!");
     }
 
     function saveSavingsData() {
