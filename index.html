@@ -65,7 +65,7 @@
     
     .amount-wrapper { position: relative; }
     .amount-wrapper span { position: absolute; left: 16px; top: 16px; font-size: 18px; font-weight: 700; color: var(--text-muted); }
-    .amount-wrapper input { padding-left: 35px; font-size: 24px; font-weight: 700; border: none; background: var(--card-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+    .amount-wrapper input { padding-left: 24px; font-size: 24px; font-weight: 700; border: none; background: var(--card-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
 
     button.save-btn { width: 100%; padding: 18px; border: none; border-radius: var(--radius-md); font-size: 17px; font-weight: 700; cursor: pointer; transition: transform 0.1s, opacity 0.2s; box-shadow: 0 8px 20px rgba(0,0,0,0.08); margin-top: 10px; }
     button.save-btn:active { transform: scale(0.97); }
@@ -146,7 +146,9 @@
     <button class="header-btn" onclick="toggleTheme()">🌓</button>
     <div style="display:flex; gap:10px;">
       <button class="header-btn" onclick="openSearchModal()">🔍</button>
-      <button class="header-btn" ondblclick="window.location.reload(true)" onclick="forceSync()">🔄</button>
+      <button class="header-btn" ondblclick="window.location.reload(true)" onclick="forceSync()" title="Sync Data">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.73-5.73"></path></svg>
+      </button>
     </div>
   </div>
 
@@ -154,11 +156,11 @@
     <div style="display: flex; gap: 15px;">
       <div style="flex: 1; overflow: hidden;">
         <span class="balance-label" id="topLabel">Main balance</span>
-        <h1 class="balance-amount" id="topBalance">₹ 0</h1>
+        <h1 class="balance-amount" id="topBalance">0</h1>
       </div>
       <div id="secondaryBalanceBlock" style="flex: 1; display: none; overflow: hidden;">
         <span class="balance-label" id="secondaryLabel">Total earnings</span>
-        <h1 class="balance-amount small" id="secondaryBalance" style="color: var(--accent-green);">₹ 0</h1>
+        <h1 class="balance-amount small" id="secondaryBalance" style="color: var(--accent-green);">0</h1>
       </div>
     </div>
   </div>
@@ -290,9 +292,10 @@
       </div>
     </div>
     <div class="input-group">
-      <label>Savings Vehicle / Type</label>
+      <label>Savings Type</label>
       <select id="savCat">
-        <option value="" disabled selected>Select Investment Type...</option>
+        <option value="" disabled selected>Select Savings Type...</option>
+        <option value="Savings">Savings</option>
         <option value="Chit">Chit</option>
         <option value="Gold Chit">Gold Chit</option>
         <option value="Mutual Funds">Mutual Funds</option>
@@ -322,11 +325,21 @@
       <div class="input-group"><input type="date" id="startDate" onchange="generateInsights()"></div>
       <div class="input-group"><input type="date" id="endDate" onchange="generateInsights()"></div>
     </div>
+
+    <!-- Section View Selector -->
+    <div class="input-group">
+      <label>View Mode</label>
+      <select id="insightsViewMode" onchange="generateInsights()" style="font-weight: 700;">
+        <option value="records">📋 Period Records</option>
+        <option value="categories">🏷️ Top Categories Breakdown</option>
+        <option value="savings">💰 Savings Summary</option>
+      </select>
+    </div>
     
     <div id="loadingIndicator">Syncing data...</div>
 
-    <div class="balance-label" style="margin-bottom:12px; margin-top:10px;">Top Categories Breakdown</div>
-    <div class="category-grid" id="categoryGrid"></div>
+    <!-- Dynamic Section Container -->
+    <div id="insightsDynamicContainer"></div>
   </div>
 
   <!-- NAVIGATION BAR -->
@@ -425,7 +438,8 @@
     const appColors = ['#007aff', '#34c759', '#5856d6', '#ff9f0a', '#ff3b30', '#32ade6', '#ff2d55', '#af52de'];
     const emojis = {
       'Hornet 2.0': '🏍️', 'Yamaha FZ': '🏍️', 'Dio': '🛵', 'i20': '🚗', 'XUV 500': '🚙', 'Qualis': '🚐',
-      'Housing / Rent': '🏠', 'Food - Groceries': '🛒', 'Food - Dining Out': '🍿', 'Transportation - Maintenance': '🔧', 'Utilities - Electricity': '⚡', 'Utilities - Internet': '🌐', 'Utilities - Phone': '📱', 'Construction - Structure': '🏗️', 'Hardware / Equipment': '💻'
+      'Housing / Rent': '🏠', 'Food - Groceries': '🛒', 'Food - Dining Out': '🍿', 'Transportation - Maintenance': '🔧', 'Utilities - Electricity': '⚡', 'Utilities - Internet': '🌐', 'Utilities - Phone': '📱', 'Construction - Structure': '🏗️', 'Hardware / Equipment': '💻',
+      'Savings': '💵', 'Chit': '📜', 'Gold Chit': '🪙', 'Mutual Funds': '📈', 'Fixed Deposit': '🏦', 'Stocks': '📊', 'Other Investment': '💎'
     };
 
     window.onload = function() {
@@ -548,7 +562,7 @@
     }
 
     const formatINR = (amount) => {
-      return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(amount);
+      return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2 }).format(amount);
     }
 
     function parseSafeDate(dateStr) {
@@ -709,29 +723,46 @@
       let startStr = document.getElementById('startDate').value;
       let endStr = document.getElementById('endDate').value;
       let selectedUser = document.getElementById('filterUser').value;
+      let viewMode = document.getElementById('insightsViewMode').value;
       
       let startDate = new Date(startStr + 'T00:00:00');
       let endDate = new Date(endStr + 'T23:59:59');
 
-      let totalExp = 0; let totalInc = 0; let categoryTotals = {};
+      let totalExp = 0; let totalInc = 0; let totalSavingsPeriod = 0;
+      let categoryTotals = {};
+      let savingsPortfolio = {};
+      let periodRecords = [];
 
       let sortedTxs = [...allTransactions.slice(1)].map(row => ({
         date: parseSafeDate(String(row[0])), type: String(row[1]).trim(),
         cat: String(row[2]).trim(), amount: parseFloat(row[3]) || 0,
         desc: String(row[4] || ''), user: String(row[5] || 'Jebel').trim(),
         project: String(row[6] || 'General').trim(),
+        receipt: String(row[7] || ''),
         odo: parseFloat(row[8]) || 0, litres: parseFloat(row[9]) || 0
-      })).sort((a, b) => a.date - b.date);
+      })).sort((a, b) => b.date - a.date);
 
       for(let tx of sortedTxs) {
+        // Track overall savings portfolio (all-time or period based - let's collect total cumulative or period cumulative as requested)
+        if (tx.type === 'Savings') {
+          if(selectedUser === 'Both' || tx.user === selectedUser) {
+            savingsPortfolio[tx.cat] = (savingsPortfolio[tx.cat] || 0) + tx.amount;
+          }
+        }
+
         if(tx.date >= startDate && tx.date <= endDate) {
           if(selectedUser === 'Both' || tx.user === selectedUser) {
             if (tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') {
               totalExp += tx.amount;
               let displayCat = (tx.type === 'Fuel' || tx.type === 'Service') ? `Veh - ${tx.cat}` : tx.cat;
               categoryTotals[displayCat] = (categoryTotals[displayCat] || 0) + tx.amount;
+              periodRecords.push(tx);
             } else if (tx.type === 'Income') {
               totalInc += tx.amount;
+              periodRecords.push(tx);
+            } else if (tx.type === 'Savings') {
+              totalSavingsPeriod += tx.amount;
+              periodRecords.push(tx);
             }
           }
         }
@@ -740,33 +771,98 @@
       document.getElementById('topBalance').innerText = formatINR(totalExp);
       document.getElementById('secondaryBalance').innerText = formatINR(totalInc);
 
-      buildCategoryGrid(Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(i => i[0]), Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(i => i[1]));
-    }
+      const container = document.getElementById('insightsDynamicContainer');
+      container.innerHTML = '';
 
-    function buildCategoryGrid(labels, data) {
-      const grid = document.getElementById('categoryGrid');
-      grid.innerHTML = '';
-      
-      if(labels.length === 0) {
-        grid.innerHTML = '<div style="color:var(--text-muted); font-size:14px; grid-column: span 2;">No records found.</div>';
-        return;
-      }
-
-      labels.forEach((catName, index) => {
-        let color = appColors[index % appColors.length];
-        let emoji = emojis[catName.replace('Veh - ', '')] || emojis[catName] || '🏷️';
-        let amount = formatINR(data[index]);
-
-        grid.innerHTML += `
-          <div class="cat-card" data-category="${catName}" onclick="showCategoryDetails(this.dataset.category)">
-            <div>
-              <div class="cat-icon" style="background: ${color}20;">${emoji}</div>
-              <div class="cat-name">${catName}</div>
+      if (viewMode === 'records') {
+        let html = `<div class="balance-label" style="margin-bottom:12px;">Period Records (${periodRecords.length})</div>`;
+        if (periodRecords.length === 0) {
+          html += '<div style="color:var(--text-muted); font-size:14px; text-align:center; padding:20px;">No records found for this period.</div>';
+        } else {
+          html += `<div style="background: var(--card-bg); border-radius: var(--radius-lg); padding: 16px; border: 1px solid var(--border-color);">`;
+          periodRecords.forEach(row => {
+            let dateStr = row.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+            let amtStr = formatINR(row.amount);
+            let subText = `${row.type} • ${row.cat}`;
+            if(row.desc) subText += ` • ${row.desc}`;
+            html += `
+              <div class="transaction-item">
+                <div class="tx-left">
+                  <span class="tx-desc">${subText}</span>
+                  <span class="tx-meta">${dateStr} • ${row.user}</span>
+                </div>
+                <div class="tx-amt">${amtStr}</div>
+              </div>
+            `;
+          });
+          html += `</div>`;
+        }
+        container.innerHTML = html;
+      } else if (viewMode === 'categories') {
+        let labels = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(i => i[0]);
+        let data = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(i => i[1]);
+        
+        let html = `<div class="balance-label" style="margin-bottom:12px;">Top Categories Breakdown</div>`;
+        if(labels.length === 0) {
+          html += '<div style="color:var(--text-muted); font-size:14px; text-align:center; padding:20px;">No records found.</div>';
+        } else {
+          html += `<div class="category-grid" id="categoryGrid">`;
+          labels.forEach((catName, index) => {
+            let color = appColors[index % appColors.length];
+            let emoji = emojis[catName.replace('Veh - ', '')] || emojis[catName] || '🏷️';
+            let amount = formatINR(data[index]);
+            html += `
+              <div class="cat-card" data-category="${catName}" onclick="showCategoryDetails(this.dataset.category)">
+                <div>
+                  <div class="cat-icon" style="background: ${color}20;">${emoji}</div>
+                  <div class="cat-name">${catName}</div>
+                </div>
+                <div class="cat-amt">${amount}</div>
+              </div>
+            `;
+          });
+          html += `</div>`;
+        }
+        container.innerHTML = html;
+      } else if (viewMode === 'savings') {
+        let totalCumulativeSavings = Object.values(savingsPortfolio).reduce((a, b) => a + b, 0);
+        let html = `
+          <div class="cat-card" style="margin-bottom: 16px; background: var(--accent-green); border:none;" onclick="showCategoryDetails('All Savings')">
+            <div style="display:flex; justify-content: space-between; align-items: center;">
+              <div style="display:flex; align-items: center; gap: 12px;">
+                <div class="cat-icon" style="margin:0; background: rgba(0,0,0,0.15); color: white;">💰</div>
+                <div>
+                  <div class="cat-name" style="color: rgba(255,255,255,0.8);">Total Savings</div>
+                  <div class="cat-amt" style="font-size: 22px; color: white;">${formatINR(totalCumulativeSavings)}</div>
+                </div>
+              </div>
             </div>
-            <div class="cat-amt">${amount}</div>
           </div>
+          <div class="balance-label" style="margin-bottom:12px;">Savings Summary by Type</div>
         `;
-      });
+        
+        let entries = Object.entries(savingsPortfolio).sort((a, b) => b[1] - a[1]);
+        if(entries.length === 0) {
+          html += '<div style="color:var(--text-muted); font-size:14px; text-align:center; padding:20px;">No savings records available.</div>';
+        } else {
+          html += `<div class="category-grid">`;
+          entries.forEach(([catName, amt], index) => {
+            let color = appColors[index % appColors.length];
+            let emoji = emojis[catName] || '📈';
+            html += `
+              <div class="cat-card" data-category="${catName}" onclick="showCategoryDetails(this.dataset.category)">
+                <div>
+                  <div class="cat-icon" style="background: ${color}20;">${emoji}</div>
+                  <div class="cat-name">${catName}</div>
+                </div>
+                <div class="cat-amt">${formatINR(amt)}</div>
+              </div>
+            `;
+          });
+          html += `</div>`;
+        }
+        container.innerHTML = html;
+      }
     }
 
     function openSearchModal() {
@@ -813,10 +909,17 @@
           let txCat = String(row[2]).trim();
           let txUser = String(row[5]).trim();
 
-          let matchesCat = (categoryName.startsWith('Veh - ') && (txType === 'Fuel' || txType === 'Service') && txCat === categoryName.replace('Veh - ', '')) || 
-                           (!categoryName.startsWith('Veh - ') && txCat === categoryName);
+          let matchesCat = false;
+          if (categoryName === 'All Savings') {
+            matchesCat = (txType === 'Savings');
+          } else if (categoryName.startsWith('Veh - ')) {
+            matchesCat = (txType === 'Fuel' || txType === 'Service') && txCat === categoryName.replace('Veh - ', '');
+          } else {
+            matchesCat = (txCat === categoryName);
+          }
           
-          let dateCondition = (txDate >= startDate && txDate <= endDate);
+          let isSavingsPortfolio = ['All Savings', 'Savings', 'Chit', 'Gold Chit', 'Mutual Funds', 'Fixed Deposit', 'Stocks', 'Other Investment'].includes(categoryName);
+          let dateCondition = isSavingsPortfolio ? true : (txDate >= startDate && txDate <= endDate);
           
           return dateCondition && (selectedUser === 'Both' || txUser === selectedUser) && matchesCat;
         }).reverse();
