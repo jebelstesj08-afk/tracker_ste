@@ -6,8 +6,7 @@
   <title>Premium Shared Tracker</title>
   <link rel="manifest" href="manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <!-- FIX 1: Changed to default so it doesn't render under the iPhone clock -->
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
@@ -36,25 +35,21 @@
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-    html, body {
+    body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main);
-      height: 100%; height: 100dvh; overflow: hidden; 
+      transition: background-color 0.3s, color 0.3s; 
+      padding-bottom: calc(120px + env(safe-area-inset-bottom));
     }
 
-    /* FIX 2: Reduced the excessive bottom padding */
-    .app-container {
-      height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch;
-      padding-bottom: calc(100px + env(safe-area-inset-bottom)); 
-    }
-
-    /* FIX 3: Added a hard minimum top padding so it always clears the Dynamic Island */
-    .header { padding: 15px 20px; padding-top: max(40px, env(safe-area-inset-top)); display: flex; justify-content: space-between; align-items: center; }
+    .header { padding: 20px; padding-top: max(20px, env(safe-area-inset-top)); display: flex; justify-content: space-between; align-items: center; }
     .header-btn { background: var(--card-bg); border: none; color: var(--text-main); height: 40px; width: 40px; border-radius: 20px; font-size: 18px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; }
 
     .balance-section { padding: 0 20px 20px; }
     .balance-label { font-size: 15px; color: var(--text-muted); font-weight: 500; margin-bottom: 4px; display: block; }
     .balance-amount { font-size: 42px; font-weight: 700; letter-spacing: -1px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: font-size 0.2s; }
+    
+    /* Dynamically shrinks the text when showing two columns in the Insights tab */
     .balance-amount.small { font-size: 28px; }
 
     .tab-content { display: none; padding: 0 20px; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -80,57 +75,34 @@
     .chart-container { background: var(--card-bg); border-radius: var(--radius-lg); padding: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.04); margin-bottom: 24px; display: flex; justify-content: center; }
     
     .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-    .cat-card { padding: 16px; border-radius: var(--radius-lg); color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between; min-height: 100px; cursor: pointer; transition: transform 0.1s; }
-    .cat-card:active { transform: scale(0.95); }
+    .cat-card { padding: 16px; border-radius: var(--radius-lg); color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between; min-height: 100px; }
     .cat-icon { font-size: 20px; margin-bottom: 8px; background: rgba(255,255,255,0.2); width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
     .cat-name { font-size: 13px; font-weight: 500; opacity: 0.9; }
     .cat-amt { font-size: 18px; font-weight: 700; margin-top: 4px; }
 
-    /* FIX 4: Adjusted pill navigation positioning to sit nicely at the bottom */
-    .nav-wrapper { 
-      position: fixed; bottom: 0; left: 0; width: 100%; display: flex; justify-content: center; z-index: 1000; pointer-events: none; 
-      padding-bottom: max(15px, env(safe-area-inset-bottom));
-      padding-top: 40px; 
-      background: linear-gradient(to top, var(--bg-color) 50%, transparent); 
-    }
+    .nav-wrapper { position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); left: 0; width: 100%; display: flex; justify-content: center; z-index: 1000; pointer-events: none; }
     .nav-pill { background: var(--nav-bg); padding: 6px; border-radius: 30px; display: flex; gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); pointer-events: auto; }
     .nav-pill button { background: transparent; border: none; color: #888; font-size: 13px; font-weight: 600; padding: 12px 24px; border-radius: 24px; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.3s ease; }
     .nav-pill button.active-nav { background: #333333; color: #ffffff; }
-
-    @media screen and (max-height: 650px) { .nav-wrapper { display: none !important; } }
     
     #loadingIndicator { text-align: center; color: var(--text-muted); display: none; margin: 10px 0; font-size: 14px; font-weight: 500; }
-
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; }
-    .modal-overlay.show { display: flex; opacity: 1; }
-    .modal-content { background: var(--bg-color); width: 100%; max-height: 85vh; border-radius: 24px 24px 0 0; padding: 24px; padding-bottom: calc(24px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-    .modal-overlay.show .modal-content { transform: translateY(0); }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .modal-header h3 { margin: 0; font-size: 22px; color: var(--text-main); font-weight: 700; }
-    .close-btn { background: var(--input-bg); border: none; color: var(--text-main); width: 36px; height: 36px; border-radius: 18px; font-size: 16px; font-weight: bold; cursor: pointer; }
-    .transaction-list { overflow-y: auto; flex: 1; padding-bottom: 20px; }
-    .transaction-item { background: var(--card-bg); padding: 16px; border-radius: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid var(--border-color); }
-    .tx-left { display: flex; flex-direction: column; max-width: 65%; }
-    .tx-desc { font-weight: 600; font-size: 15px; color: var(--text-main); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .tx-meta { font-size: 13px; color: var(--text-muted); font-weight: 500; }
-    .tx-amt { font-weight: 700; font-size: 17px; color: var(--text-main); }
   </style>
 </head>
 <body>
 
-<div class="app-container">
-
   <div class="header">
     <button class="header-btn" onclick="toggleTheme()">🌓</button>
-    <button class="header-btn" ondblclick="window.location.reload(true)" onclick="forceSync()">🔄</button>
+    <button class="header-btn" onclick="forceSync()">🔄</button>
   </div>
 
+  <!-- DYNAMIC BALANCE SECTION -->
   <div class="balance-section">
     <div style="display: flex; gap: 15px;">
       <div style="flex: 1; overflow: hidden;">
         <span class="balance-label" id="topLabel">Main balance</span>
         <h1 class="balance-amount" id="topBalance">₹ 0</h1>
       </div>
+      <!-- EARNINGS BLOCK (Hidden on main pages, shown on insights) -->
       <div id="secondaryBalanceBlock" style="flex: 1; display: none; overflow: hidden;">
         <span class="balance-label" id="secondaryLabel">Total earnings</span>
         <h1 class="balance-amount small" id="secondaryBalance" style="color: var(--accent-inc);">₹ 0</h1>
@@ -255,20 +227,6 @@
     <div class="category-grid" id="categoryGrid"></div>
   </div>
 
-</div> <!-- End of app-container -->
-
-  <!-- CATEGORY DETAILS MODAL -->
-  <div id="categoryModal" class="modal-overlay" onclick="closeModal(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <h3 id="modalCategoryTitle">Category Name</h3>
-        <button class="close-btn" onclick="closeModal()">✕</button>
-      </div>
-      <div id="modalTransactionList" class="transaction-list"></div>
-    </div>
-  </div>
-
-  <!-- FIXED NAVIGATION -->
   <div class="nav-wrapper">
     <div class="nav-pill">
       <button id="nav-Expense" class="active-nav" onclick="showTab('Expense')">💸 Exp</button>
@@ -291,6 +249,7 @@
 
     window.onload = function() {
       applySavedTheme();
+      
       let today = new Date();
       let todayStr = today.toISOString().split('T')[0];
       document.getElementById('expDate').value = todayStr;
@@ -312,17 +271,21 @@
       document.querySelectorAll('.nav-pill button').forEach(btn => btn.classList.remove('active-nav'));
       document.getElementById('nav-' + tabName).classList.add('active-nav');
 
-      document.querySelector('.app-container').scrollTop = 0;
-
       if(tabName === 'Insights') {
         document.getElementById('topLabel').innerText = "Total spending";
+        
+        // Add styling for 2-column layout
         document.getElementById('topBalance').classList.add('small');
         document.getElementById('secondaryBalanceBlock').style.display = "block";
+        
         generateInsights(); 
       } else {
         document.getElementById('topLabel').innerText = "Main balance";
+        
+        // Revert styling to large 1-column layout
         document.getElementById('topBalance').classList.remove('small');
         document.getElementById('secondaryBalanceBlock').style.display = "none";
+        
         calculateTopBalance();
       }
     }
@@ -350,7 +313,9 @@
       let d = new Date(dateStr);
       if (isNaN(d.getTime()) && typeof dateStr === 'string' && dateStr.includes('/')) {
         let parts = dateStr.split(' ')[0].split('/');
-        if (parts.length === 3) return new Date(parts[2], parts[1]-1, parts[0]);
+        if (parts.length === 3) {
+          return new Date(parts[2], parts[1]-1, parts[0]);
+        }
       }
       return d;
     }
@@ -376,7 +341,9 @@
 
       if(!amount || !cat || !date) return alert("Date, Amount, and Category are required.");
 
-      if(allTransactions.length === 0) allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User"]);
+      if(allTransactions.length === 0) {
+         allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User"]);
+      }
       allTransactions.push([date, type, cat, amount, desc, user]);
       localStorage.setItem('trackerData', JSON.stringify(allTransactions));
 
@@ -411,8 +378,11 @@
         allTransactions = data; 
         localStorage.setItem('trackerData', JSON.stringify(data));
         
-        if(document.getElementById('Insights').classList.contains('active-tab')) generateInsights();
-        else calculateTopBalance();
+        if(document.getElementById('Insights').classList.contains('active-tab')) {
+           generateInsights();
+        } else {
+           calculateTopBalance();
+        }
       } catch (err) {
         if(showLoading) alert("Could not reach Google Sheets. Showing offline data.");
       } finally {
@@ -428,7 +398,9 @@
       let startDate = new Date(startStr + 'T00:00:00');
       let endDate = new Date(endStr + 'T23:59:59');
 
-      let totalExp = 0; let totalInc = 0; let categoryTotals = {};
+      let totalExp = 0;
+      let totalInc = 0;
+      let categoryTotals = {};
 
       for(let i = 1; i < allTransactions.length; i++) {
         let row = allTransactions[i];
@@ -436,20 +408,25 @@
         let type = String(row[1]).trim();
         let cat = String(row[2]).trim();
         let amount = parseFloat(row[3]) || 0;
+        
         let rowUser = row.length > 5 && row[5] ? String(row[5]).trim() : 'Jebel'; 
         
         if(rowDate >= startDate && rowDate <= endDate) {
           if(selectedUser === 'Both' || rowUser === selectedUser) {
+            
+            // Calculate BOTH Expenses and Income for the Insights page
             if (type === 'Expense') {
               totalExp += amount;
               categoryTotals[cat] = (categoryTotals[cat] || 0) + amount;
             } else if (type === 'Income') {
               totalInc += amount;
             }
+            
           }
         }
       }
 
+      // Update Both Top Headers
       document.getElementById('topBalance').innerText = formatINR(totalExp);
       document.getElementById('secondaryBalance').innerText = formatINR(totalInc);
 
@@ -464,6 +441,7 @@
     function drawChart(labels, data) {
       const ctx = document.getElementById('expenseChart').getContext('2d');
       if (chartInstance) chartInstance.destroy(); 
+      
       let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
 
       if(data.length === 0) {
@@ -477,8 +455,19 @@
 
       chartInstance = new Chart(ctx, {
         type: 'doughnut',
-        data: { labels: labels, datasets: [{ data: data, backgroundColor: appColors, borderWidth: 0, borderRadius: 4 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(context) { return ' ' + formatINR(context.raw); } } } }, cutout: '75%' }
+        data: {
+          labels: labels,
+          datasets: [{ data: data, backgroundColor: appColors, borderWidth: 0, borderRadius: 4 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }, 
+            tooltip: { callbacks: { label: function(context) { return ' ' + formatINR(context.raw); } } }
+          },
+          cutout: '75%'
+        }
       });
     }
 
@@ -497,7 +486,7 @@
         let amount = formatINR(data[index]);
 
         let cardHTML = `
-          <div class="cat-card" style="background-color: ${color};" data-category="${catName}" onclick="showCategoryDetails(this.dataset.category)">
+          <div class="cat-card" style="background-color: ${color};">
             <div>
               <div class="cat-icon">${emoji}</div>
               <div class="cat-name">${catName}</div>
@@ -507,73 +496,6 @@
         `;
         grid.innerHTML += cardHTML;
       });
-    }
-
-    function showCategoryDetails(categoryName) {
-      try {
-        document.getElementById('modalCategoryTitle').innerText = categoryName;
-        const listContainer = document.getElementById('modalTransactionList');
-        listContainer.innerHTML = ''; 
-
-        let startStr = document.getElementById('startDate').value;
-        let endStr = document.getElementById('endDate').value;
-        let selectedUser = document.getElementById('filterUser').value;
-        
-        let startDate = new Date(startStr + 'T00:00:00');
-        let endDate = new Date(endStr + 'T23:59:59');
-
-        let filteredTxs = [];
-
-        for(let i = 1; i < allTransactions.length; i++) {
-          let row = allTransactions[i];
-          let rowDate = parseSafeDate(String(row[0]));
-          let type = String(row[1]).trim();
-          let cat = String(row[2]).trim();
-          let amount = parseFloat(row[3]) || 0;
-          let desc = row.length > 4 && row[4] ? String(row[4]).trim() : 'No note left';
-          let rowUser = row.length > 5 && row[5] ? String(row[5]).trim() : 'Jebel'; 
-          
-          if(rowDate >= startDate && rowDate <= endDate) {
-            if((selectedUser === 'Both' || rowUser === selectedUser) && type === 'Expense' && cat === categoryName) {
-              filteredTxs.push({ date: rowDate, amount: amount, desc: desc, user: rowUser });
-            }
-          }
-        }
-
-        filteredTxs.sort((a, b) => b.date - a.date);
-
-        if(filteredTxs.length === 0) {
-          listContainer.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 30px;">No details found.</div>';
-        } else {
-          filteredTxs.forEach(tx => {
-            let dateOptions = { day: 'numeric', month: 'short', year: 'numeric' };
-            let dateStr = tx.date.toLocaleDateString('en-IN', dateOptions);
-            
-            listContainer.innerHTML += `
-              <div class="transaction-item">
-                <div class="tx-left">
-                  <span class="tx-desc">${tx.desc}</span>
-                  <span class="tx-meta">${dateStr} • ${tx.user}</span>
-                </div>
-                <div class="tx-amt">${formatINR(tx.amount)}</div>
-              </div>
-            `;
-          });
-        }
-
-        const modal = document.getElementById('categoryModal');
-        modal.style.display = 'flex';
-        setTimeout(() => modal.classList.add('show'), 10);
-      } catch(e) {
-        alert("Failed to load details: " + e.message);
-      }
-    }
-
-    function closeModal(event) {
-      if(event && event.target.id !== 'categoryModal') return; 
-      const modal = document.getElementById('categoryModal');
-      modal.classList.remove('show');
-      setTimeout(() => modal.style.display = 'none', 300);
     }
   </script>
 </body>
