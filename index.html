@@ -142,16 +142,16 @@
 <div class="app-container">
 
   <div class="header">
-    <div style="display: flex; align-items: center; gap: 8px;">
-      <span style="font-size: 15px; font-weight: 700; color: var(--text-muted);">Hello,</span>
-      <select id="globalUserSelect" onchange="onGlobalUserChange()" style="padding: 6px 12px; border-radius: 12px; font-size: 15px; font-weight: 700; background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color); width: auto; display: inline-block;">
-        <option value="Jebel">Jebel</option>
-        <option value="Reshma">Reshma</option>
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">Hello,</span>
+      <select id="globalUserSelect" onchange="onGlobalUserChange()" style="padding: 4px 8px; border-radius: 10px; font-size: 15px; font-weight: 700; background: transparent; color: var(--text-main); border: none; outline: none; cursor: pointer; width: auto; display: inline-block;">
+        <option value="Jebel" style="background: var(--card-bg); color: var(--text-main);">Jebel</option>
+        <option value="Reshma" style="background: var(--card-bg); color: var(--text-main);">Reshma</option>
       </select>
     </div>
     <div style="display:flex; gap:10px; align-items: center;">
-      <button class="header-btn" onclick="openSearchModal()">🔍</button>
-      <button class="header-btn" onclick="toggleTheme()">🌓</button>
+      <button class="header-btn" onclick="openSearchModal()" title="Search History">🔍</button>
+      <button class="header-btn" onclick="toggleTheme()" title="Toggle Theme">🌓</button>
       <button class="header-btn" ondblclick="window.location.reload(true)" onclick="forceSync()" title="Sync Data">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.73-5.73"></path></svg>
       </button>
@@ -159,9 +159,13 @@
   </div>
 
   <div class="balance-section">
-    <div style="display: flex; gap: 15px;">
+    <div style="display: flex; gap: 15px; align-items: flex-start;">
       <div style="flex: 1; overflow: hidden;" id="mainBalanceHeaderContainer">
-        <span class="balance-label" id="topLabel">Main balance</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span class="balance-label" id="topLabel" style="margin-bottom: 0;">Main balance</span>
+          <!-- Reset button for 1st & 3rd sections -->
+          <button id="sectionResetBtn" onclick="resetActiveTabFields()" style="background: transparent; border: none; cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 8px; color: var(--text-muted);" title="Clear fields">↺</button>
+        </div>
         <h1 class="balance-amount" id="topBalance">0</h1>
       </div>
       <div id="secondaryBalanceBlock" style="flex: 1; display: none; overflow: hidden;">
@@ -271,8 +275,12 @@
     </div>
 
     <div class="input-group">
-      <label>Odometer Reading (km)</label>
-      <input type="number" id="fuelOdo" placeholder="Current km reading..." oninput="calculateMileagePreview()">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <label style="margin-bottom: 0;">Odometer Reading (km)</label>
+        <!-- Tiny reset icon for odometer / fuel section -->
+        <button onclick="resetFuelFields()" style="background: transparent; border: none; cursor: pointer; font-size: 13px; color: var(--text-muted); padding: 0 4px;" title="Reset Odometer & fields">↺ Reset</button>
+      </div>
+      <input type="number" id="fuelOdo" placeholder="Current km reading..." oninput="calculateMileagePreview()" style="padding: 10px 16px; font-size: 15px;">
     </div>
 
     <!-- Live Service Progress & Mileage Preview Box -->
@@ -522,6 +530,44 @@
       document.getElementById('savUser').value = user;
     }
 
+    function resetActiveTabFields() {
+      let activeTabId = document.querySelector('.tab-content.active-tab').id;
+      let todayStr = new Date().toISOString().split('T')[0];
+      let currentUser = document.getElementById('globalUserSelect').value;
+
+      if(activeTabId === 'Transactions') {
+        document.getElementById('txAmount').value = '';
+        document.getElementById('txDate').value = todayStr;
+        document.getElementById('txUser').value = currentUser;
+        document.getElementById('txCat').selectedIndex = 0;
+        document.getElementById('txDesc').value = '';
+        receiptBase64 = "";
+        const btn = document.getElementById('cameraBtnDisplay');
+        btn.innerText = "📸";
+        btn.style.backgroundColor = "var(--card-bg)";
+        btn.style.color = "var(--text-main)";
+        btn.style.border = "1px solid var(--border-color)";
+      } else if(activeTabId === 'Savings') {
+        document.getElementById('savAmount').value = '';
+        document.getElementById('savDate').value = todayStr;
+        document.getElementById('savUser').value = currentUser;
+        document.getElementById('savCat').selectedIndex = 0;
+        document.getElementById('savDesc').value = '';
+      }
+    }
+
+    function resetFuelFields() {
+      let todayStr = new Date().toISOString().split('T')[0];
+      let currentUser = document.getElementById('globalUserSelect').value;
+      document.getElementById('fuelDate').value = todayStr;
+      document.getElementById('fuelUser').value = currentUser;
+      document.getElementById('fuelAmount').value = '';
+      document.getElementById('fuelLitres').value = '';
+      document.getElementById('fuelOdo').value = '';
+      document.getElementById('fuelDesc').value = '';
+      document.getElementById('mileagePreviewBox').style.display = 'none';
+    }
+
     function setTxType(type) {
       currentTxType = type;
       let expBtn = document.getElementById('typeExpBtn');
@@ -686,11 +732,13 @@
       window.scrollTo(0, 0);
 
       let mainBalanceContainer = document.getElementById('mainBalanceHeaderContainer');
+      let resetBtn = document.getElementById('sectionResetBtn');
 
       if(tabName === 'Insights') {
         document.getElementById('topLabel').innerText = "Total spending";
         document.getElementById('topBalance').classList.add('small');
         document.getElementById('secondaryBalanceBlock').style.display = "block";
+        resetBtn.style.display = "none";
         generateInsights(); 
       } else if(tabName === 'Fuel') {
         mainBalanceContainer.style.display = "none";
@@ -701,6 +749,7 @@
         document.getElementById('topLabel').innerText = "Main balance";
         document.getElementById('topBalance').classList.remove('small');
         document.getElementById('secondaryBalanceBlock').style.display = "none";
+        resetBtn.style.display = "inline-block";
         calculateTopBalance();
       }
     }
