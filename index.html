@@ -1,73 +1,366 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>My Tracker</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
+  <title>Expense Tracker</title>
   <link rel="manifest" href="manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <!-- Include Chart.js for the Insights tab -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f9; text-align: center; }
-    .tab-content { display: none; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 60px; }
-    .active { display: block; }
-    input { margin: 10px 0; padding: 15px; width: 90%; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; box-sizing: border-box; }
-    button.save-btn { padding: 15px; width: 100%; background-color: #28a745; color: white; border: none; border-radius: 5px; font-size: 18px; margin-top: 10px; }
-    button.save-btn.income { background-color: #007bff; }
-    .nav { display: flex; justify-content: space-around; position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
-    .nav button { background: none; border: none; font-size: 16px; font-weight: bold; color: #555; width: 33%; }
+    /* iOS Style CSS Variables */
+    :root {
+      --bg-color: #f2f2f7;
+      --card-bg: #ffffff;
+      --text-main: #000000;
+      --text-muted: #8e8e93;
+      --border-color: #e5e5ea;
+      --accent-exp: #ff3b30;
+      --accent-inc: #34c759;
+      --accent-blue: #007aff;
+      --nav-bg: rgba(255, 255, 255, 0.9);
+    }
+    
+    [data-theme="dark"] {
+      --bg-color: #000000;
+      --card-bg: #1c1c1e;
+      --text-main: #ffffff;
+      --text-muted: #aeaeb2;
+      --border-color: #38383a;
+      --nav-bg: rgba(28, 28, 30, 0.9);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      transition: background-color 0.3s, color 0.3s;
+      padding-bottom: 90px; /* Space for nav bar */
+    }
+
+    .header {
+      padding: 20px;
+      padding-top: env(safe-area-inset-top, 20px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .theme-toggle {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .tab-content {
+      display: none;
+      padding: 0 20px;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .active-tab { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      border: 1px solid var(--border-color);
+    }
+
+    .input-group { margin-bottom: 15px; text-align: left; }
+    .input-group label { display: block; font-size: 14px; color: var(--text-muted); margin-bottom: 5px; font-weight: 500; }
+    
+    input, select {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-size: 16px;
+      box-sizing: border-box;
+      -webkit-appearance: none;
+    }
+    
+    .amount-wrapper { position: relative; }
+    .amount-wrapper span { position: absolute; left: 14px; top: 14px; font-size: 16px; color: var(--text-muted); }
+    .amount-wrapper input { padding-left: 35px; font-weight: 600; }
+
+    button.save-btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    button.save-btn:active { transform: scale(0.98); }
+    .btn-expense { background-color: var(--accent-exp); }
+    .btn-income { background-color: var(--accent-inc); }
+    .btn-action { background-color: var(--accent-blue); }
+
+    /* Insights Tab specifics */
+    .date-filters { display: flex; gap: 10px; margin-bottom: 15px; }
+    .date-filters .input-group { flex: 1; margin-bottom: 0; }
+    
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .summary-box { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
+    .summary-box h4 { margin: 0; font-size: 13px; color: var(--text-muted); font-weight: 500; }
+    .summary-box p { margin: 5px 0 0 0; font-size: 20px; font-weight: 700; }
+    .box-inc p { color: var(--accent-inc); }
+    .box-exp p { color: var(--accent-exp); }
+    .box-bal p { color: var(--text-main); }
+    .box-bal { grid-column: span 2; }
+
+    /* Bottom Navigation */
+    .nav {
+      position: fixed;
+      bottom: 0; left: 0; width: 100%;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-around;
+      padding: 15px 0 calc(15px + env(safe-area-inset-bottom));
+      z-index: 1000;
+    }
+
+    .nav button {
+      background: none; border: none; font-size: 12px; font-weight: 600;
+      color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .nav button.active-nav { color: var(--accent-blue); }
+    .nav-icon { font-size: 22px; }
+    
+    #loadingIndicator { text-align: center; color: var(--text-muted); display: none; margin: 20px 0; }
   </style>
 </head>
 <body>
-  <h2>My Tracker</h2>
 
-  <!-- Expense Tab -->
-  <div id="Expense" class="tab-content active">
-    <h3 style="color: #28a745">Add Expense</h3>
-    <input type="date" id="expDate">
-    <input type="number" id="expAmount" placeholder="Amount (e.g. 50)">
-    <input type="text" id="expCat" placeholder="Category (e.g. Food)">
-    <input type="text" id="expDesc" placeholder="Description (Optional)">
-    <button class="save-btn" onclick="saveData('Expense')">Save Expense</button>
+  <div class="header">
+    <h1>Tracker</h1>
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
   </div>
 
-  <!-- Income Tab -->
+  <!-- EXPENSE TAB -->
+  <div id="Expense" class="tab-content active-tab">
+    <div class="card">
+      <div class="input-group">
+        <label>Date</label>
+        <input type="date" id="expDate">
+      </div>
+      <div class="input-group">
+        <label>Amount</label>
+        <div class="amount-wrapper">
+          <span>₹</span>
+          <input type="number" id="expAmount" placeholder="0.00" step="0.01">
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Category</label>
+        <select id="expCat">
+          <option value="" disabled selected>Select Category</option>
+          <option value="Housing / Rent">Housing / Rent</option>
+          <option value="Food - Groceries">Food - Groceries</option>
+          <option value="Food - Dining Out">Food - Dining Out</option>
+          <option value="Food - HungerBox">Food - HungerBox</option>
+          <option value="Transportation - Fuel">Transportation - Fuel</option>
+          <option value="Transportation - Maintenance">Transportation - Maintenance</option>
+          <option value="Utilities - Electricity">Utilities - Electricity</option>
+          <option value="Utilities - Internet (BSNL)">Utilities - Internet (BSNL)</option>
+          <option value="Utilities - Phone">Utilities - Phone</option>
+          <option value="Home Automation & Solar">Home Automation & Solar</option>
+          <option value="Health & Medical">Health & Medical</option>
+          <option value="Entertainment">Entertainment</option>
+          <option value="Shopping">Shopping</option>
+          <option value="Personal Care">Personal Care</option>
+          <option value="Education & Certifications">Education & Certifications</option>
+          <option value="Debt / Loan EMI">Debt / Loan EMI</option>
+          <option value="Miscellaneous">Miscellaneous</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Note (Optional)</label>
+        <input type="text" id="expDesc" placeholder="What was this for?">
+      </div>
+      <button class="save-btn btn-expense" onclick="saveData('Expense')">Save Expense</button>
+    </div>
+  </div>
+
+  <!-- INCOME TAB -->
   <div id="Income" class="tab-content">
-    <h3 style="color: #007bff">Add Income</h3>
-    <input type="date" id="incDate">
-    <input type="number" id="incAmount" placeholder="Amount (e.g. 1000)">
-    <input type="text" id="incCat" placeholder="Category (e.g. Salary)">
-    <input type="text" id="incDesc" placeholder="Description (Optional)">
-    <button class="save-btn income" onclick="saveData('Income')">Save Income</button>
+    <div class="card">
+      <div class="input-group">
+        <label>Date</label>
+        <input type="date" id="incDate">
+      </div>
+      <div class="input-group">
+        <label>Amount</label>
+        <div class="amount-wrapper">
+          <span>₹</span>
+          <input type="number" id="incAmount" placeholder="0.00" step="0.01">
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Category</label>
+        <select id="incCat">
+          <option value="" disabled selected>Select Source</option>
+          <option value="Salary">Salary</option>
+          <option value="Business / Freelance">Business / Freelance</option>
+          <option value="Investments / Returns">Investments / Returns</option>
+          <option value="Gifts / Refunds">Gifts / Refunds</option>
+          <option value="Other Income">Other Income</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Note (Optional)</label>
+        <input type="text" id="incDesc" placeholder="Source details?">
+      </div>
+      <button class="save-btn btn-income" onclick="saveData('Income')">Save Income</button>
+    </div>
   </div>
 
-  <!-- Insights Tab -->
+  <!-- INSIGHTS TAB -->
   <div id="Insights" class="tab-content">
-    <h3>Insights</h3>
-    <p>Your transactions are saving securely to Google Sheets.</p>
+    
+    <div class="date-filters">
+      <div class="input-group">
+        <label>Start Date</label>
+        <input type="date" id="startDate">
+      </div>
+      <div class="input-group">
+        <label>End Date</label>
+        <input type="date" id="endDate">
+      </div>
+    </div>
+    
+    <button class="save-btn btn-action" onclick="fetchInsights()" style="margin-bottom: 20px;">Generate Insights</button>
+    
+    <div id="loadingIndicator">Fetching your data...</div>
+
+    <div class="summary-grid">
+      <div class="summary-box box-inc">
+        <h4>Total Income</h4>
+        <p id="lblIncome">₹ 0</p>
+      </div>
+      <div class="summary-box box-exp">
+        <h4>Total Expense</h4>
+        <p id="lblExpense">₹ 0</p>
+      </div>
+      <div class="summary-box box-bal">
+        <h4>Net Balance</h4>
+        <p id="lblBalance">₹ 0</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top: 0; font-size: 16px; font-weight: 600;">Expense Breakdown</h3>
+      <canvas id="expenseChart" width="400" height="400"></canvas>
+    </div>
   </div>
 
-  <!-- Bottom Navigation -->
+  <!-- BOTTOM NAVIGATION -->
   <div class="nav">
-    <button onclick="showTab('Expense')">Expense</button>
-    <button onclick="showTab('Income')">Income</button>
-    <button onclick="showTab('Insights')">Insights</button>
+    <button id="nav-Expense" class="active-nav" onclick="showTab('Expense')">
+      <span class="nav-icon">💸</span>
+      <span>Expense</span>
+    </button>
+    <button id="nav-Income" onclick="showTab('Income')">
+      <span class="nav-icon">💰</span>
+      <span>Income</span>
+    </button>
+    <button id="nav-Insights" onclick="showTab('Insights')">
+      <span class="nav-icon">📊</span>
+      <span>Insights</span>
+    </button>
   </div>
 
   <script>
-    // REPLACE THE LINK BELOW WITH YOUR GOOGLE WEB APP URL
-    const URL = "https://script.google.com/macros/s/AKfycbyHiPGGnoqL_hrmZ2dW0tnXCiZK9x-axSpXjefF1zXBzL8KanbhVX_FcfdcyWz5Q9PB/exec";
+    // --- APP CONFIGURATION ---
+    const URL = "https://script.google.com/macros/s/AKfycbyHiPGGnoqL_hrmZ2dW0tnXCiZK9x-axSpXjefF1zXBzL8KanbhVX_FcfdcyWz5Q9PB/exec"; 
+    let chartInstance = null;
 
-    // Auto-fill today's date when the app loads
+    // --- INITIALIZATION ---
     window.onload = function() {
-      let today = new Date().toISOString().split('T')[0];
-      document.getElementById('expDate').value = today;
-      document.getElementById('incDate').value = today;
+      applySavedTheme();
+      
+      // Set default dates for Expense/Income inputs (Today)
+      let today = new Date();
+      let todayStr = today.toISOString().split('T')[0];
+      document.getElementById('expDate').value = todayStr;
+      document.getElementById('incDate').value = todayStr;
+
+      // Set default date range for Insights (First and Last day of Current Month)
+      let firstDay = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+      let lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
+      document.getElementById('startDate').value = firstDay;
+      document.getElementById('endDate').value = lastDay;
     };
 
+    // --- NAVIGATION ---
     function showTab(tabName) {
-      document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
-      document.getElementById(tabName).style.display = 'block';
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active-tab'));
+      document.getElementById(tabName).classList.add('active-tab');
+      
+      document.querySelectorAll('.nav button').forEach(btn => btn.classList.remove('active-nav'));
+      document.getElementById('nav-' + tabName).classList.add('active-nav');
+
+      if(tabName === 'Insights' && document.getElementById('lblIncome').innerText === "₹ 0") {
+        fetchInsights(); // Auto-fetch first time insights is opened
+      }
     }
 
+    // --- NIGHT MODE ---
+    function toggleTheme() {
+      let currentTheme = document.documentElement.getAttribute('data-theme');
+      let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      document.querySelector('.theme-toggle').innerText = newTheme === 'dark' ? '☀️' : '🌙';
+      
+      // Redraw chart to update text colors
+      if(chartInstance) fetchInsights(); 
+    }
+
+    function applySavedTheme() {
+      let savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      document.querySelector('.theme-toggle').innerText = savedTheme === 'dark' ? '☀️' : '🌙';
+    }
+
+    // --- CURRENCY FORMATTER ---
+    const formatINR = (amount) => {
+      return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(amount);
+    }
+
+    // --- SAVE DATA ---
     function saveData(type) {
       let prefix = type === 'Expense' ? 'exp' : 'inc';
       let date = document.getElementById(prefix + 'Date').value;
@@ -75,24 +368,136 @@
       let cat = document.getElementById(prefix + 'Cat').value;
       let desc = document.getElementById(prefix + 'Desc').value;
 
-      if(!amount || !cat || !date) return alert("Please enter a date, amount, and category.");
+      if(!amount || !cat || !date) return alert("Date, Amount, and Category are required.");
 
       let btn = event.target;
       let originalText = btn.innerText;
       btn.innerText = "Saving...";
+      btn.style.opacity = "0.7";
 
       fetch(URL, {
         method: 'POST',
         body: JSON.stringify({ date: date, type: type, category: cat, amount: amount, description: desc })
       }).then(() => {
-        alert(type + " Saved Successfully!");
-        btn.innerText = originalText;
-        document.getElementById(prefix + 'Amount').value = '';
-        document.getElementById(prefix + 'Cat').value = '';
-        document.getElementById(prefix + 'Desc').value = '';
+        btn.innerText = "✓ Saved!";
+        btn.style.backgroundColor = "#34c759";
+        
+        setTimeout(() => {
+          btn.innerText = originalText;
+          btn.style.backgroundColor = "";
+          btn.style.opacity = "1";
+          document.getElementById(prefix + 'Amount').value = '';
+          document.getElementById(prefix + 'Cat').selectedIndex = 0;
+          document.getElementById(prefix + 'Desc').value = '';
+        }, 1500);
       }).catch(err => {
-        alert("Error saving data.");
+        alert("Error saving data. Check connection.");
         btn.innerText = originalText;
+        btn.style.opacity = "1";
+      });
+    }
+
+    // --- FETCH INSIGHTS & CHART ---
+    async function fetchInsights() {
+      document.getElementById('loadingIndicator').style.display = 'block';
+      
+      let startStr = document.getElementById('startDate').value;
+      let endStr = document.getElementById('endDate').value;
+      let startDate = new Date(startStr);
+      let endDate = new Date(endStr);
+      endDate.setHours(23, 59, 59, 999); // Include full last day
+
+      try {
+        let response = await fetch(URL);
+        let data = await response.json(); 
+        
+        let totalInc = 0;
+        let totalExp = 0;
+        let categoryTotals = {};
+
+        // Loop through Google Sheet rows (skip header row 0)
+        for(let i = 1; i < data.length; i++) {
+          let row = data[i];
+          let rowDateStr = String(row[0]);
+          let type = row[1];
+          let cat = row[2];
+          let amount = parseFloat(row[3]) || 0;
+
+          let rowDate = new Date(rowDateStr);
+          
+          if(rowDate >= startDate && rowDate <= endDate) {
+            if(type === 'Income') {
+              totalInc += amount;
+            } else if (type === 'Expense') {
+              totalExp += amount;
+              categoryTotals[cat] = (categoryTotals[cat] || 0) + amount;
+            }
+          }
+        }
+
+        // Update Summary Cards
+        document.getElementById('lblIncome').innerText = formatINR(totalInc);
+        document.getElementById('lblExpense').innerText = formatINR(totalExp);
+        document.getElementById('lblBalance').innerText = formatINR(totalInc - totalExp);
+
+        drawChart(categoryTotals);
+        
+      } catch (err) {
+        alert("Failed to load insights. Ensure your Google Apps Script is deployed properly.");
+      } finally {
+        document.getElementById('loadingIndicator').style.display = 'none';
+      }
+    }
+
+    function drawChart(categoryTotals) {
+      const ctx = document.getElementById('expenseChart').getContext('2d');
+      if (chartInstance) chartInstance.destroy(); // Clear old chart
+
+      const labels = Object.keys(categoryTotals);
+      const data = Object.values(categoryTotals);
+      
+      let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      let textColor = isDark ? '#ffffff' : '#000000';
+
+      if(data.length === 0) {
+        // Dummy data if no expenses exist for date range
+        chartInstance = new Chart(ctx, {
+          type: 'doughnut',
+          data: { labels: ['No Expenses'], datasets: [{ data: [1], backgroundColor: ['#e5e5ea'] }] },
+          options: { plugins: { legend: { labels: { color: textColor } } } }
+        });
+        return;
+      }
+
+      // iOS vibrant color palette
+      const colors = ['#ff3b30', '#ff9500', '#ffcc00', '#4cd964', '#5ac8fa', '#007aff', '#5856d6', '#ff2d55', '#a2845e', '#8e8e93'];
+
+      chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: colors,
+            borderWidth: isDark ? 0 : 2,
+            borderColor: isDark ? 'transparent' : '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: textColor, padding: 15, font: { family: '-apple-system', size: 12 } } },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  let val = context.raw;
+                  return ' ' + formatINR(val);
+                }
+              }
+            }
+          },
+          cutout: '65%'
+        }
       });
     }
   </script>
