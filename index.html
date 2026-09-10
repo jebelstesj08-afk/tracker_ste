@@ -81,13 +81,6 @@
 
     .two-col { display: flex; gap: 12px; margin-bottom: 16px; }
     .two-col .input-group { flex: 1; margin-bottom: 0; }
-    
-    .chart-container { background: var(--card-bg); border-radius: var(--radius-lg); padding: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid var(--border-color); }
-    .chart-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
-    .chart-legend-dots { display: flex; gap: 12px; font-size: 12px; color: var(--text-muted); font-weight: 500; }
-    .dot { width: 8px; height: 8px; border-radius: 4px; display: inline-block; margin-right: 4px; }
-    .dot.green { background-color: var(--accent-green); }
-    .dot.blue { background-color: var(--accent-blue); }
 
     .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
     .cat-card { padding: 16px; border-radius: var(--radius-lg); background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); box-shadow: 0 4px 12px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; min-height: 100px; cursor: pointer; transition: transform 0.1s; }
@@ -95,11 +88,6 @@
     .cat-icon { font-size: 20px; margin-bottom: 12px; background: var(--input-bg); width: 40px; height: 40px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
     .cat-name { font-size: 13px; font-weight: 600; color: var(--text-muted); }
     .cat-amt { font-size: 18px; font-weight: 800; margin-top: 4px; }
-
-    .budget-bar-container { background: var(--input-bg); border-radius: 8px; height: 8px; width: 100%; overflow: hidden; margin-top: 8px; }
-    .budget-bar-fill { height: 100%; border-radius: 8px; transition: width 0.3s ease; }
-    .budget-item { margin-bottom: 16px; }
-    .budget-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--text-main); }
 
     .nav-wrapper { 
       position: fixed; 
@@ -226,24 +214,25 @@
 
   <!-- VEHICLE / FUEL TAB -->
   <div id="Fuel" class="tab-content">
-    <div class="input-group">
-      <label>Log Type</label>
-      <select id="fuelLogType" onchange="toggleFuelFields()" style="font-weight: 700;">
-        <option value="Fuel">⛽ Fuel Fill-up</option>
-        <option value="Service">🔧 Maintenance / Service</option>
-      </select>
-    </div>
-
-    <div class="input-group">
-      <label>Select Vehicle</label>
-      <select id="fuelVehicle">
-        <option value="Hornet 2.0">Hornet 2.0</option>
-        <option value="Yamaha FZ">Yamaha FZ</option>
-        <option value="Dio">Dio</option>
-        <option value="i20">i20</option>
-        <option value="XUV 500">XUV 500</option>
-        <option value="Qualis">Qualis</option>
-      </select>
+    <div class="two-col">
+      <div class="input-group">
+        <label>Log Type</label>
+        <select id="fuelLogType" onchange="toggleFuelFields()" style="font-weight: 700;">
+          <option value="Fuel">⛽ Fuel Fill-up</option>
+          <option value="Service">🔧 Maintenance / Service</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Select Vehicle</label>
+        <select id="fuelVehicle">
+          <option value="Hornet 2.0">Hornet 2.0</option>
+          <option value="Yamaha FZ">Yamaha FZ</option>
+          <option value="Dio">Dio</option>
+          <option value="i20">i20</option>
+          <option value="XUV 500">XUV 500</option>
+          <option value="Qualis">Qualis</option>
+        </select>
+      </div>
     </div>
 
     <div class="two-col">
@@ -336,35 +325,7 @@
     
     <div id="loadingIndicator">Syncing data...</div>
 
-    <div class="chart-container">
-      <div class="chart-header">
-        <div>
-          <div class="balance-label" style="margin-bottom: 2px;">Cashflow Overview</div>
-          <div style="font-size: 13px; color: var(--text-muted); font-weight: 500;" id="chartDateRange">Jan 1 - Dec 31</div>
-        </div>
-        <div class="chart-legend-dots">
-          <div><span class="dot green"></span>In</div>
-          <div><span class="dot blue"></span>Out</div>
-        </div>
-      </div>
-      <canvas id="financialBarChart" width="250" height="180" style="max-height: 180px;"></canvas>
-    </div>
-
-    <div class="chart-container" id="budgetContainer">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-        <div class="balance-label" style="margin-bottom: 0;">Monthly Budgets</div>
-        <button onclick="openBudgetModal()" style="background:none; border:none; color:var(--accent-blue); font-weight:700; cursor:pointer;">Edit</button>
-      </div>
-      <div id="budgetBarsList"></div>
-    </div>
-
-    <div class="balance-label" style="margin-bottom:12px;">Capital Projects Ledger (All-Time)</div>
-    <div class="category-grid" id="projectGrid"></div>
-
-    <div class="balance-label" style="margin-bottom:12px;">Cumulative Portfolios (All-Time)</div>
-    <div class="category-grid" id="savingsGrid"></div>
-
-    <div class="balance-label" style="margin-bottom:12px; margin-top:24px;">Top Categories Breakdown</div>
+    <div class="balance-label" style="margin-bottom:12px; margin-top:10px;">Top Categories Breakdown</div>
     <div class="category-grid" id="categoryGrid"></div>
   </div>
 
@@ -387,18 +348,6 @@
   </div>
 
 </div> 
-
-  <!-- BUDGET SETTINGS MODAL -->
-  <div id="budgetModal" class="modal-overlay" onclick="closeBudgetModal(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <h3 style="font-size:24px;">Set Monthly Budgets</h3>
-        <button class="close-btn" onclick="closeBudgetModal()">✕</button>
-      </div>
-      <div id="budgetInputs" class="transaction-list"></div>
-      <button class="save-btn btn-expense" onclick="saveBudgets()" style="margin-top: 10px;">Save Budgets</button>
-    </div>
-  </div>
 
   <!-- SEARCH MODAL -->
   <div id="searchModal" class="modal-overlay" onclick="closeSearchModal(event)">
@@ -437,7 +386,6 @@
   <script>
     const URL = "https://script.google.com/macros/s/AKfycbwETC4mZPqfomKjCKmIjdXbFktmKBqplCREtHWgoBPET2OCfPcqlCt-QVFMRdFonFytfA/exec"; 
     
-    let barChartInstance = null;
     let allTransactions = JSON.parse(localStorage.getItem('trackerData')) || [];
     let receiptBase64 = "";
     let currentTxType = 'Expense';
@@ -477,14 +425,7 @@
     const appColors = ['#007aff', '#34c759', '#5856d6', '#ff9f0a', '#ff3b30', '#32ade6', '#ff2d55', '#af52de'];
     const emojis = {
       'Hornet 2.0': '🏍️', 'Yamaha FZ': '🏍️', 'Dio': '🛵', 'i20': '🚗', 'XUV 500': '🚙', 'Qualis': '🚐',
-      'Housing / Rent': '🏠', 'Food - Groceries': '🛒', 'Food - Dining Out': '🍿', 'Transportation - Maintenance': '🔧', 'Utilities - Electricity': '⚡', 'Utilities - Internet': '🌐', 'Utilities - Phone': '📱', 'Construction - Structure': '🏗️', 'Hardware / Equipment': '💻',
-      'Chit': '📜', 'Gold Chit': '🪙', 'Mutual Funds': '📈', 'Fixed Deposit': '🏦', 'Stocks': '📊', 'Other Investment': '💎', 'House Construction': '🏗️', 'Home Automation & Network': '🌐', 'Automotive': '🏎️'
-    };
-
-    const defaultBudgets = {
-      'Food - Groceries': 12000,
-      'Food - Dining Out': 4000,
-      'Utilities - Electricity': 3000
+      'Housing / Rent': '🏠', 'Food - Groceries': '🛒', 'Food - Dining Out': '🍿', 'Transportation - Maintenance': '🔧', 'Utilities - Electricity': '⚡', 'Utilities - Internet': '🌐', 'Utilities - Phone': '📱', 'Construction - Structure': '🏗️', 'Hardware / Equipment': '💻'
     };
 
     window.onload = function() {
@@ -771,13 +712,8 @@
       
       let startDate = new Date(startStr + 'T00:00:00');
       let endDate = new Date(endStr + 'T23:59:59');
-      
-      let startDateDisplay = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      let endDateDisplay = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      document.getElementById('chartDateRange').innerText = `${startDateDisplay} - ${endDateDisplay}`;
 
-      let totalExp = 0; let totalInc = 0; let totalSav = 0; let categoryTotals = {};
-      let lifetimeSav = 0; let savingsPortfolio = {}; let projectTotals = {};
+      let totalExp = 0; let totalInc = 0; let categoryTotals = {};
 
       let sortedTxs = [...allTransactions.slice(1)].map(row => ({
         date: parseSafeDate(String(row[0])), type: String(row[1]).trim(),
@@ -788,17 +724,6 @@
       })).sort((a, b) => a.date - b.date);
 
       for(let tx of sortedTxs) {
-        if (tx.type === 'Savings') {
-          lifetimeSav += tx.amount;
-          if(selectedUser === 'Both' || tx.user === selectedUser) {
-            savingsPortfolio[tx.cat] = (savingsPortfolio[tx.cat] || 0) + tx.amount;
-          }
-        }
-
-        if(tx.project !== 'General' && tx.project !== 'General / None' && tx.project !== 'Investments' && tx.type === 'Expense') {
-            projectTotals[tx.project] = (projectTotals[tx.project] || 0) + tx.amount;
-        }
-
         if(tx.date >= startDate && tx.date <= endDate) {
           if(selectedUser === 'Both' || tx.user === selectedUser) {
             if (tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') {
@@ -807,8 +732,6 @@
               categoryTotals[displayCat] = (categoryTotals[displayCat] || 0) + tx.amount;
             } else if (tx.type === 'Income') {
               totalInc += tx.amount;
-            } else if (tx.type === 'Savings') {
-              totalSav += tx.amount;
             }
           }
         }
@@ -817,171 +740,7 @@
       document.getElementById('topBalance').innerText = formatINR(totalExp);
       document.getElementById('secondaryBalance').innerText = formatINR(totalInc);
 
-      drawCleanBarChart(totalInc, totalExp, totalSav);
-      buildSavingsGrid(savingsPortfolio, lifetimeSav);
-      buildProjectGrid(projectTotals);
       buildCategoryGrid(Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(i => i[0]), Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(i => i[1]));
-      
-      buildBudgetBars(categoryTotals);
-    }
-
-    function openBudgetModal() {
-        let container = document.getElementById('budgetInputs');
-        container.innerHTML = '';
-        let cats = ['Food - Groceries', 'Food - Dining Out', 'Utilities - Electricity', 'Transportation - Maintenance', 'Shopping', 'Personal Care'];
-        let current = JSON.parse(localStorage.getItem('userBudgets')) || defaultBudgets;
-        
-        cats.forEach(c => {
-           let val = current[c] || '';
-           container.innerHTML += `
-             <div class="input-group">
-               <label>${c}</label>
-               <input type="number" data-cat="${c}" value="${val}" placeholder="0" style="padding:12px;">
-             </div>
-           `;
-        });
-        
-        document.getElementById('budgetModal').style.display = 'flex';
-        setTimeout(() => document.getElementById('budgetModal').classList.add('show'), 10);
-    }
-
-    function closeBudgetModal(e) {
-        if(e && e.target.id !== 'budgetModal') return;
-        const modal = document.getElementById('budgetModal');
-        modal.classList.remove('show');
-        setTimeout(() => modal.style.display = 'none', 300);
-    }
-
-    function saveBudgets() {
-        let newBudgets = {};
-        let inputs = document.querySelectorAll('#budgetInputs input');
-        inputs.forEach(input => {
-           if(input.value && Number(input.value) > 0) {
-              newBudgets[input.getAttribute('data-cat')] = Number(input.value);
-           }
-        });
-        localStorage.setItem('userBudgets', JSON.stringify(newBudgets));
-        closeBudgetModal();
-        generateInsights(); 
-    }
-
-    function buildBudgetBars(categoryTotals) {
-      let container = document.getElementById('budgetBarsList');
-      container.innerHTML = '';
-      
-      let userBudgets = JSON.parse(localStorage.getItem('userBudgets')) || defaultBudgets;
-      let hasBudgets = false;
-
-      for (const [cat, limit] of Object.entries(userBudgets)) {
-        hasBudgets = true;
-        let spent = categoryTotals[cat] || 0;
-        let pct = Math.min((spent / limit) * 100, 100);
-        let color = pct >= 90 ? 'var(--accent-red)' : (pct >= 75 ? '#ff9f0a' : 'var(--accent-blue)');
-        
-        container.innerHTML += `
-          <div class="budget-item">
-            <div class="budget-header">
-              <span>${cat}</span>
-              <span>${formatINR(spent)} / ${formatINR(limit)}</span>
-            </div>
-            <div class="budget-bar-container">
-              <div class="budget-bar-fill" style="width: ${pct}%; background: ${color};"></div>
-            </div>
-          </div>
-        `;
-      }
-      
-      if(!hasBudgets) {
-        container.innerHTML = '<div style="color:var(--text-muted); font-size:14px; text-align:center;">No budgets set yet. Click Edit to define limits.</div>';
-      }
-    }
-
-    function drawCleanBarChart(salary, expense, savings) {
-      const ctx = document.getElementById('financialBarChart').getContext('2d');
-      if (barChartInstance) barChartInstance.destroy(); 
-
-      barChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Salary', 'Expense', 'Savings'],
-          datasets: [{
-            data: [salary, expense, savings],
-            backgroundColor: ['#34c759', '#007aff', '#111111'], 
-            borderRadius: 6,
-            borderSkipped: false,
-            barThickness: 30
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { display: false, grid: { display: false } },
-            x: { ticks: { color: '#8e8e93', font: { weight: '600' } }, grid: { display: false }, border: { display: false } }
-          },
-          layout: { padding: { top: 20 } }
-        }
-      });
-    }
-
-    function buildSavingsGrid(portfolio, totalCumulative) {
-      const grid = document.getElementById('savingsGrid');
-      grid.innerHTML = '';
-
-      let combinedCard = `
-        <div class="cat-card" style="grid-column: span 2; background: #34c759; border:none;" onclick="showCategoryDetails('All Savings')">
-          <div style="display:flex; justify-content: space-between; align-items: center;">
-            <div style="display:flex; align-items: center; gap: 12px;">
-              <div class="cat-icon" style="margin:0; background: rgba(0,0,0,0.15); color: white;">💰</div>
-              <div>
-                <div class="cat-name" style="color: rgba(255,255,255,0.8);">Total Portfolio Value</div>
-                <div class="cat-amt" style="font-size: 22px; color: white;">${formatINR(totalCumulative)}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      grid.innerHTML += combinedCard;
-
-      let entries = Object.entries(portfolio).sort((a, b) => b[1] - a[1]);
-      entries.forEach(([catName, amt], index) => {
-        let color = appColors[index % appColors.length];
-        let emoji = emojis[catName] || '📈';
-        grid.innerHTML += `
-          <div class="cat-card" data-category="${catName}" onclick="showCategoryDetails(this.dataset.category)">
-            <div>
-              <div class="cat-icon" style="background: ${color}20;">${emoji}</div>
-              <div class="cat-name">${catName}</div>
-            </div>
-            <div class="cat-amt">${formatINR(amt)}</div>
-          </div>
-        `;
-      });
-    }
-
-    function buildProjectGrid(projectTotals) {
-      const grid = document.getElementById('projectGrid');
-      grid.innerHTML = '';
-      let entries = Object.entries(projectTotals).sort((a, b) => b[1] - a[1]);
-
-      if(entries.length === 0) {
-        grid.innerHTML = '<div style="color:var(--text-muted); font-size:14px; grid-column: span 2;">No project capital recorded.</div>';
-        return;
-      }
-
-      entries.forEach(([catName, amt], index) => {
-        let color = appColors[index % appColors.length];
-        let emoji = emojis[catName] || '🏗️';
-        grid.innerHTML += `
-          <div class="cat-card" data-category="${catName}" onclick="showCategoryDetails(this.dataset.category, true)">
-            <div>
-              <div class="cat-icon" style="background: ${color}20;">${emoji}</div>
-              <div class="cat-name">${catName}</div>
-            </div>
-            <div class="cat-amt">${formatINR(amt)}</div>
-          </div>
-        `;
-      });
     }
 
     function buildCategoryGrid(labels, data) {
@@ -1034,7 +793,7 @@
       renderTxList(list, results, true);
     }
 
-    function showCategoryDetails(categoryName, isProject = false) {
+    function showCategoryDetails(categoryName) {
       try {
         document.getElementById('modalCategoryTitle').innerText = categoryName;
         const listContainer = document.getElementById('modalTransactionList');
@@ -1053,18 +812,11 @@
           let txType = String(row[1]).trim();
           let txCat = String(row[2]).trim();
           let txUser = String(row[5]).trim();
-          let txProj = String(row[6]).trim();
 
-          if(isProject) {
-              return txProj === categoryName; 
-          }
-
-          let matchesCat = (categoryName === 'All Savings' && txType === 'Savings') || 
-                           (categoryName.startsWith('Veh - ') && (txType === 'Fuel' || txType === 'Service') && txCat === categoryName.replace('Veh - ', '')) || 
+          let matchesCat = (categoryName.startsWith('Veh - ') && (txType === 'Fuel' || txType === 'Service') && txCat === categoryName.replace('Veh - ', '')) || 
                            (!categoryName.startsWith('Veh - ') && txCat === categoryName);
           
-          let isSavingsPortfolio = ['All Savings', 'Chit', 'Gold Chit', 'Mutual Funds', 'Fixed Deposit', 'Stocks', 'Other Investment'].includes(categoryName);
-          let dateCondition = isSavingsPortfolio ? true : (txDate >= startDate && txDate <= endDate);
+          let dateCondition = (txDate >= startDate && txDate <= endDate);
           
           return dateCondition && (selectedUser === 'Both' || txUser === selectedUser) && matchesCat;
         }).reverse();
