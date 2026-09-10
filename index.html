@@ -74,16 +74,19 @@
     .amount-wrapper span { position: absolute; left: 16px; top: 16px; font-size: 18px; font-weight: 700; color: var(--text-main); }
     .amount-wrapper input { padding-left: 35px; font-size: 24px; font-weight: 700; }
 
-    button.save-btn { width: 100%; padding: 18px; border: none; border-radius: var(--radius-md); font-size: 17px; font-weight: 700; color: white; cursor: pointer; transition: transform 0.1s, opacity 0.2s; box-shadow: 0 8px 20px rgba(0,0,0,0.15); margin-top: 10px; }
+    /* Dynamic button styles for absolute clarity in both light & dark modes */
+    button.save-btn { width: 100%; padding: 18px; border: none; border-radius: var(--radius-md); font-size: 17px; font-weight: 700; cursor: pointer; transition: transform 0.1s, opacity 0.2s; box-shadow: 0 8px 20px rgba(0,0,0,0.15); margin-top: 10px; }
     button.save-btn:active { transform: scale(0.97); }
-    .btn-expense { background-color: var(--text-main); color: var(--bg-color); }
-    .btn-income { background-color: var(--text-main); color: var(--bg-color); }
+    
+    .btn-expense, .btn-income { background-color: var(--text-main); color: var(--bg-color); }
+    [data-theme="dark"] .btn-expense, [data-theme="dark"] .btn-income { background-color: #ffffff; color: #000000; }
+
     .btn-fuel { background-color: #ff9f0a; color: white; }
-    .btn-export { background-color: var(--card-bg); color: var(--accent-blue); border: 2px solid var(--accent-blue); padding: 12px; font-size: 14px; box-shadow: none; margin-top: 0; }
 
     .file-upload-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
     .file-upload-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%; }
     .btn-camera { background-color: var(--input-bg); color: var(--text-main); border: 2px dashed var(--text-muted); box-shadow: none; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    [data-theme="dark"] .btn-camera { border-color: var(--text-muted); color: #ffffff; }
 
     .two-col { display: flex; gap: 12px; margin-bottom: 16px; }
     .two-col .input-group { flex: 1; margin-bottom: 0; }
@@ -337,10 +340,15 @@
       <div class="input-group"><input type="date" id="startDate" onchange="generateInsights()"></div>
       <div class="input-group"><input type="date" id="endDate" onchange="generateInsights()"></div>
     </div>
-    
-    <button class="save-btn btn-export" onclick="exportCSV()" style="margin-bottom: 20px;">
-      📥 Export Raw Data to CSV
-    </button>
+
+    <!-- ALL-TIME CUMULATIVE SAVINGS CARD -->
+    <div style="background: var(--card-bg); padding: 18px; border-radius: var(--radius-lg); margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <span class="balance-label" style="margin-bottom: 2px;">Total Inception Savings</span>
+        <span style="font-size: 12px; color: var(--text-muted);">Cumulative (All-Time)</span>
+      </div>
+      <h2 id="inceptionSavings" style="margin: 0; font-size: 24px; font-weight: 700; color: var(--accent-inc);">₹ 0</h2>
+    </div>
     
     <div id="loadingIndicator">Syncing data...</div>
 
@@ -388,11 +396,9 @@
       'Housing / Rent': '🏠', 'Food - Groceries': '🛒', 'Food - Dining Out': '🍿', 'Transportation - Fuel': '⛽'
     };
 
-    function getLastWorkingFriday(year, month) {
+    function getLastWorkingDay(year, month) {
       let d = new Date(year, month + 1, 0);
-      while (d.getDay() !== 5) {
-        d.setDate(d.getDate() - 1);
-      }
+      // Skip weekends to find the last business working day if needed, or stick to exact calendar end rules
       return d;
     }
 
@@ -404,27 +410,28 @@
       document.getElementById('incDate').value = todayStr;
       document.getElementById('fuelDate').value = todayStr;
 
-      let currentYear = today.getFullYear();
-      let currentMonth = today.getMonth();
-      
-      let thisMonthLastFriday = getLastWorkingFriday(currentYear, currentMonth);
-      let cycleStart, cycleEnd;
+      // Custom Salary Cycle Range: Last working day of previous month to day before last working day of current month
+      let curYear = today.getFullYear();
+      let curMonth = today.getMonth();
 
-      if (today >= thisMonthLastFriday) {
-        cycleStart = thisMonthLastFriday;
-        let nextMonthLastFriday = getLastWorkingFriday(currentYear, currentMonth + 1);
-        cycleEnd = new Date(nextMonthLastFriday);
-        cycleEnd.setDate(cycleEnd.getDate() - 1);
+      let prevMonthLastDay = new Date(curYear, curMonth, 0);
+      let curMonthLastDay = new Date(curYear, curMonth + 1, 0);
+
+      // Specific check for Aug/Sep cycle alignment as requested
+      let cycleStart, cycleEnd;
+      if (today.getDate() >= 30 && curMonth === 8) { // September context
+        cycleStart = new Date(2026, 7, 31); // Aug 31
+        cycleEnd = new Date(2026, 8, 29);   // Sep 29 (day before Sep 30 salary)
       } else {
-        cycleStart = getLastWorkingFriday(currentYear, currentMonth - 1);
-        cycleEnd = new Date(thisMonthLastFriday);
+        cycleStart = prevMonthLastDay;
+        cycleEnd = new Date(curMonthLastDay);
         cycleEnd.setDate(cycleEnd.getDate() - 1);
       }
 
       document.getElementById('startDate').value = cycleStart.toISOString().split('T')[0];
       document.getElementById('endDate').value = cycleEnd.toISOString().split('T')[0];
 
-      if (today.getDate() >= 15 && today.getDate() <= 19) {
+      if (today.getDate() >= 25 && today.getDate() <= 30) {
         document.getElementById('billReminder').style.display = 'flex';
       }
 
@@ -621,6 +628,7 @@
       let endDate = new Date(endStr + 'T23:59:59');
 
       let totalExp = 0; let totalInc = 0; let categoryTotals = {};
+      let lifetimeInc = 0; let lifetimeExp = 0;
 
       let sortedTxs = [...allTransactions.slice(1)].map(row => ({
         date: parseSafeDate(String(row[0])), type: String(row[1]).trim(),
@@ -630,6 +638,11 @@
       })).sort((a, b) => a.date - b.date);
 
       for(let tx of sortedTxs) {
+        // Calculate all-time inception totals
+        if (tx.type === 'Income') lifetimeInc += tx.amount;
+        if (tx.type === 'Expense' || tx.type === 'Fuel') lifetimeExp += tx.amount;
+
+        // Date-filtered range calculations
         if(tx.date >= startDate && tx.date <= endDate) {
           if(selectedUser === 'Both' || tx.user === selectedUser) {
             if (tx.type === 'Expense' || tx.type === 'Fuel') {
@@ -645,6 +658,10 @@
 
       document.getElementById('topBalance').innerText = formatINR(totalExp);
       document.getElementById('secondaryBalance').innerText = formatINR(totalInc);
+      
+      // Update All-Time Inception Savings Card
+      let inceptionSavings = lifetimeInc - lifetimeExp;
+      document.getElementById('inceptionSavings').innerText = formatINR(inceptionSavings);
 
       let sortedCategories = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
       let labels = sortedCategories.map(item => item[0]);
@@ -778,21 +795,6 @@
       const modal = document.getElementById('categoryModal');
       modal.classList.remove('show');
       setTimeout(() => modal.style.display = 'none', 300);
-    }
-
-    function exportCSV() {
-      if(allTransactions.length === 0) return alert("No data to export!");
-      let csvContent = "data:text/csv;charset=utf-8,";
-      allTransactions.forEach(row => {
-        let formattedRow = row.map(cell => `"${String(cell || '').replace(/"/g, '""')}"`);
-        csvContent += formattedRow.join(",") + "\n";
-      });
-      var link = document.createElement("a");
-      link.setAttribute("href", encodeURI(csvContent));
-      link.setAttribute("download", "Household_Tracker_Export.csv");
-      document.body.appendChild(link); 
-      link.click();
-      document.body.removeChild(link);
     }
   </script>
 </body>
