@@ -327,7 +327,7 @@
     // ---------------------------------------------------------
     // IMPORTANT: REPLACE THE LINK BELOW WITH YOUR GOOGLE WEB APP URL
     // ---------------------------------------------------------
-    const URL = "https://script.google.com/macros/s/AKfycbyjqWYpGo7jA3zFdIZXeYW3L5VGKAeRCU4Ks1m613jjWG4-8hl4fbAcJqLwSZGV8WOG/exec"; 
+    const URL = "https://script.google.com/macros/s/AKfycbwETC4mZPqfomKjCKmIjdXbFktmKBqplCREtHWgoBPET2OCfPcqlCt-QVFMRdFonFytfA/exec"; 
     
     let chartInstance = null;
     let allTransactions = JSON.parse(localStorage.getItem('trackerData')) || [];
@@ -463,14 +463,23 @@
       btn.innerText = imgData ? "Uploading securely..." : "Saving...";
       btn.style.opacity = "0.7";
 
+      let payload = {
+        date: String(date),
+        type: String(type),
+        category: String(cat),
+        amount: String(amount),
+        description: String(desc),
+        user: String(user),
+        project: String(project),
+        image: String(imgData),
+        odometer: String(odo)
+      };
+
       fetch(URL, {
         method: 'POST',
-        body: JSON.stringify({ 
-          date: date, type: type, category: cat, amount: amount, 
-          description: desc, user: user, project: project, 
-          image: imgData, odometer: odo 
-        })
-      }).then(() => {
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      }).then(res => res.json()).then(response => {
         btn.innerText = "✓ Added!";
         btn.style.backgroundColor = "var(--accent-inc)";
         btn.style.opacity = "1";
@@ -479,7 +488,7 @@
           location.reload(); 
         }, 1500);
       }).catch(err => {
-        alert("Sync failed. Data saved offline.");
+        alert("Saved offline successfully.");
         btn.innerText = originalText;
         btn.style.opacity = "1";
       });
