@@ -74,12 +74,11 @@
     .amount-wrapper span { position: absolute; left: 16px; top: 16px; font-size: 18px; font-weight: 700; color: var(--text-main); }
     .amount-wrapper input { padding-left: 35px; font-size: 24px; font-weight: 700; }
 
-    /* Dynamic button styles for absolute clarity in both light & dark modes */
     button.save-btn { width: 100%; padding: 18px; border: none; border-radius: var(--radius-md); font-size: 17px; font-weight: 700; cursor: pointer; transition: transform 0.1s, opacity 0.2s; box-shadow: 0 8px 20px rgba(0,0,0,0.15); margin-top: 10px; }
     button.save-btn:active { transform: scale(0.97); }
     
-    .btn-expense, .btn-income { background-color: var(--text-main); color: var(--bg-color); }
-    [data-theme="dark"] .btn-expense, [data-theme="dark"] .btn-income { background-color: #ffffff; color: #000000; }
+    .btn-expense, .btn-income, .btn-sav { background-color: var(--text-main); color: var(--bg-color); }
+    [data-theme="dark"] .btn-expense, [data-theme="dark"] .btn-income, [data-theme="dark"] .btn-sav { background-color: #ffffff; color: #000000; }
 
     .btn-fuel { background-color: #ff9f0a; color: white; }
 
@@ -109,10 +108,10 @@
     } 
     .nav-pill { 
       background: var(--nav-bg); padding: 8px 12px; border-radius: 30px; 
-      display: flex; gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); 
+      display: flex; gap: 6px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); 
       pointer-events: auto; overflow-x: auto; max-width: 95%; 
     }
-    .nav-pill button { background: transparent; border: none; color: #888; font-size: 12px; font-weight: 600; padding: 10px 16px; border-radius: 20px; white-space: nowrap; cursor: pointer; transition: all 0.3s ease; }
+    .nav-pill button { background: transparent; border: none; color: #888; font-size: 11px; font-weight: 600; padding: 10px 12px; border-radius: 20px; white-space: nowrap; cursor: pointer; transition: all 0.3s ease; }
     .nav-pill button.active-nav { background: #333333; color: #ffffff; }
 
     @media screen and (max-height: 650px) { .nav-wrapper { display: none !important; } }
@@ -201,6 +200,7 @@
       <label>Category</label>
       <select id="expCat">
         <option value="" disabled selected>Select Category...</option>
+        <option value="Savings this month">Savings this month</option>
         <option value="Housing / Rent">Housing / Rent</option>
         <option value="Food - Groceries">Food - Groceries</option>
         <option value="Food - Dining Out">Food - Dining Out</option>
@@ -326,6 +326,47 @@
     <button class="save-btn btn-fuel" onclick="saveFuelData()">Log Fuel Fill</button>
   </div>
 
+  <!-- SAVINGS INVESTMENTS TAB -->
+  <div id="Savings" class="tab-content">
+    <div class="input-group">
+      <label>Amount</label>
+      <div class="amount-wrapper">
+        <span>₹</span>
+        <input type="number" id="savAmount" placeholder="0" step="0.01">
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="input-group">
+        <label>User</label>
+        <select id="savUser">
+          <option value="Jebel">Jebel</option>
+          <option value="Reshma">Reshma</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Date</label>
+        <input type="date" id="savDate">
+      </div>
+    </div>
+    <div class="input-group">
+      <label>Savings Vehicle / Type</label>
+      <select id="savCat">
+        <option value="" disabled selected>Select Investment Type...</option>
+        <option value="Chit">Chit</option>
+        <option value="Gold Chit">Gold Chit</option>
+        <option value="Mutual Funds">Mutual Funds</option>
+        <option value="Fixed Deposit">Fixed Deposit</option>
+        <option value="Stocks">Stocks</option>
+        <option value="Other Investment">Other Investment</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label>Details</label>
+      <input type="text" id="savDesc" placeholder="e.g. Monthly installment note">
+    </div>
+    <button class="save-btn btn-sav" onclick="saveSavingsData()">Record Investment</button>
+  </div>
+
   <!-- INSIGHTS TAB -->
   <div id="Insights" class="tab-content">
     <div class="input-group">
@@ -345,18 +386,22 @@
     <div style="background: var(--card-bg); padding: 18px; border-radius: var(--radius-lg); margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center;">
       <div>
         <span class="balance-label" style="margin-bottom: 2px;">Total Inception Savings</span>
-        <span style="font-size: 12px; color: var(--text-muted);">Cumulative (All-Time)</span>
+        <span style="font-size: 12px; color: var(--text-muted);">Cumulative (All-Time Cashflow)</span>
       </div>
       <h2 id="inceptionSavings" style="margin: 0; font-size: 24px; font-weight: 700; color: var(--accent-inc);">₹ 0</h2>
     </div>
     
     <div id="loadingIndicator">Syncing data...</div>
 
+    <!-- REPLACED PIE CHART WITH BAR GRAPH (Salary, Expense, Savings) -->
     <div class="chart-container">
-      <canvas id="expenseChart" width="250" height="250" style="max-height: 250px;"></canvas>
+      <canvas id="financialBarChart" width="250" height="220" style="max-height: 220px;"></canvas>
     </div>
 
-    <div class="balance-label" style="margin-bottom:12px;">Top spending & fuel categories</div>
+    <div class="balance-label" style="margin-bottom:12px;">Cumulative Asset Portfolios (Savings)</div>
+    <div class="category-grid" id="savingsGrid"></div>
+
+    <div class="balance-label" style="margin-bottom:12px; margin-top:20px;">Top spending & fuel categories</div>
     <div class="category-grid" id="categoryGrid"></div>
   </div>
 
@@ -366,6 +411,7 @@
       <button id="nav-Expense" class="active-nav" onclick="showTab('Expense')">💸 Exp</button>
       <button id="nav-Income" onclick="showTab('Income')">💰 Inc</button>
       <button id="nav-Fuel" onclick="showTab('Fuel')">⛽ Fuel</button>
+      <button id="nav-Savings" onclick="showTab('Savings')">📈 Save</button>
       <button id="nav-Insights" onclick="showTab('Insights')">📊 Data</button>
     </div>
   </div>
@@ -393,14 +439,9 @@
     const appColors = ['#5e5ce6', '#007aff', '#34c759', '#ff9f0a', '#ff3b30', '#bf5af2', '#ff2d55', '#32ade6'];
     const emojis = {
       'Hornet 2.0': '🏍️', 'Yamaha FZ': '🏍️', 'Dio': '🛵', 'i20': '🚗', 'XUV 500': '🚙', 'Qualis': '🚐',
-      'Housing / Rent': '🏠', 'Food - Groceries': '🛒', 'Food - Dining Out': '🍿', 'Transportation - Fuel': '⛽'
+      'Housing / Rent': '🏠', 'Food - Groceries': '🛒', 'Food - Dining Out': '🍿', 'Transportation - Fuel': '⛽',
+      'Chit': '📜', 'Gold Chit': '🪙', 'Mutual Funds': '📈', 'Fixed Deposit': '🏦', 'Stocks': '📊', 'Other Investment': '💎'
     };
-
-    function getLastWorkingDay(year, month) {
-      let d = new Date(year, month + 1, 0);
-      // Skip weekends to find the last business working day if needed, or stick to exact calendar end rules
-      return d;
-    }
 
     window.onload = function() {
       applySavedTheme();
@@ -409,26 +450,26 @@
       document.getElementById('expDate').value = todayStr;
       document.getElementById('incDate').value = todayStr;
       document.getElementById('fuelDate').value = todayStr;
+      document.getElementById('savDate').value = todayStr;
 
-      // Custom Salary Cycle Range: Last working day of previous month to day before last working day of current month
+      // Salary cycle logic: last working day of prev month to 1 day before last working day of current month
       let curYear = today.getFullYear();
       let curMonth = today.getMonth();
 
-      let prevMonthLastDay = new Date(curYear, curMonth, 0);
-      let curMonthLastDay = new Date(curYear, curMonth + 1, 0);
-
-      // Specific check for Aug/Sep cycle alignment as requested
-      let cycleStart, cycleEnd;
-      if (today.getDate() >= 30 && curMonth === 8) { // September context
-        cycleStart = new Date(2026, 7, 31); // Aug 31
-        cycleEnd = new Date(2026, 8, 29);   // Sep 29 (day before Sep 30 salary)
-      } else {
-        cycleStart = prevMonthLastDay;
-        cycleEnd = new Date(curMonthLastDay);
-        cycleEnd.setDate(cycleEnd.getDate() - 1);
+      function getLastWorkingDay(y, m) {
+        let d = new Date(y, m + 1, 0);
+        while(d.getDay() === 0 || d.getDay() === 6) {
+          d.setDate(d.getDate() - 1);
+        }
+        return d;
       }
 
-      document.getElementById('startDate').value = cycleStart.toISOString().split('T')[0];
+      let prevMonthLast = getLastWorkingDay(curYear, curMonth - 1);
+      let curMonthLast = getLastWorkingDay(curYear, curMonth);
+      let cycleEnd = new Date(curMonthLast);
+      cycleEnd.setDate(cycleEnd.getDate() - 1);
+
+      document.getElementById('startDate').value = prevMonthLast.toISOString().split('T')[0];
       document.getElementById('endDate').value = cycleEnd.toISOString().split('T')[0];
 
       if (today.getDate() >= 25 && today.getDate() <= 30) {
@@ -490,14 +531,22 @@
     }
 
     function calculateTopBalance() {
-      let totalInc = 0; let totalExp = 0;
+      let totalInc = 0; let totalExp = 0; let totalSav = 0;
       for(let i = 1; i < allTransactions.length; i++) {
         let type = String(allTransactions[i][1]).trim();
         let amount = parseFloat(allTransactions[i][3]) || 0;
         if(type === 'Income') totalInc += amount;
         if(type === 'Expense' || type === 'Fuel') totalExp += amount;
+        if(type === 'Savings') totalSav += amount;
       }
-      document.getElementById('topBalance').innerText = formatINR(totalInc - totalExp);
+      // Include carried-forward savings from previous month if categorized under 'Savings this month'
+      let carriedSavings = 0;
+      for(let i = 1; i < allTransactions.length; i++) {
+        if(String(allTransactions[i][1]).trim() === 'Expense' && String(allTransactions[i][2]).trim() === 'Savings this month') {
+          carriedSavings += parseFloat(allTransactions[i][3]) || 0;
+        }
+      }
+      document.getElementById('topBalance').innerText = formatINR(totalInc + carriedSavings - totalExp - totalSav);
     }
 
     function updateCameraBtn() {
@@ -600,6 +649,47 @@
       });
     }
 
+    function saveSavingsData() {
+      let user = document.getElementById('savUser').value;
+      let date = document.getElementById('savDate').value;
+      let amount = document.getElementById('savAmount').value;
+      let cat = document.getElementById('savCat').value;
+      let desc = document.getElementById('savDesc').value;
+
+      if(!amount || !cat || !date) return alert("Date, Amount, and Investment Type are required.");
+
+      if(allTransactions.length === 0) {
+        allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres"]);
+      }
+
+      allTransactions.push([date, "Savings", cat, amount, desc, user, "Investments", "", "", ""]);
+      localStorage.setItem('trackerData', JSON.stringify(allTransactions));
+      calculateTopBalance();
+
+      let btn = event.target;
+      btn.innerText = "Recording...";
+      btn.style.opacity = "0.7";
+
+      let payload = {
+        date: String(date), type: "Savings", category: String(cat),
+        amount: String(amount), description: String(desc), user: String(user),
+        project: "Investments", image: "", odometer: "", litres: ""
+      };
+
+      fetch(URL, {
+        method: 'POST',
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      }).then(res => res.json()).then(() => {
+        btn.innerText = "✓ Recorded!";
+        btn.style.backgroundColor = "var(--accent-inc)";
+        setTimeout(() => location.reload(), 1200);
+      }).catch(() => {
+        alert("Investment saved offline.");
+        location.reload();
+      });
+    }
+
     function forceSync() { syncWithGoogle(true); }
 
     async function syncWithGoogle(showLoading = false) {
@@ -627,8 +717,8 @@
       let startDate = new Date(startStr + 'T00:00:00');
       let endDate = new Date(endStr + 'T23:59:59');
 
-      let totalExp = 0; let totalInc = 0; let categoryTotals = {};
-      let lifetimeInc = 0; let lifetimeExp = 0;
+      let totalExp = 0; let totalInc = 0; let totalSav = 0; let categoryTotals = {};
+      let lifetimeInc = 0; let lifetimeExp = 0; let lifetimeSav = 0; let savingsPortfolio = {};
 
       let sortedTxs = [...allTransactions.slice(1)].map(row => ({
         date: parseSafeDate(String(row[0])), type: String(row[1]).trim(),
@@ -638,11 +728,17 @@
       })).sort((a, b) => a.date - b.date);
 
       for(let tx of sortedTxs) {
-        // Calculate all-time inception totals
+        // Lifetime cumulative totals
         if (tx.type === 'Income') lifetimeInc += tx.amount;
         if (tx.type === 'Expense' || tx.type === 'Fuel') lifetimeExp += tx.amount;
+        if (tx.type === 'Savings') {
+          lifetimeSav += tx.amount;
+          if(selectedUser === 'Both' || tx.user === selectedUser) {
+            savingsPortfolio[tx.cat] = (savingsPortfolio[tx.cat] || 0) + tx.amount;
+          }
+        }
 
-        // Date-filtered range calculations
+        // Filtered range totals
         if(tx.date >= startDate && tx.date <= endDate) {
           if(selectedUser === 'Both' || tx.user === selectedUser) {
             if (tx.type === 'Expense' || tx.type === 'Fuel') {
@@ -651,6 +747,8 @@
               categoryTotals[displayCat] = (categoryTotals[displayCat] || 0) + tx.amount;
             } else if (tx.type === 'Income') {
               totalInc += tx.amount;
+            } else if (tx.type === 'Savings') {
+              totalSav += tx.amount;
             }
           }
         }
@@ -658,37 +756,61 @@
 
       document.getElementById('topBalance').innerText = formatINR(totalExp);
       document.getElementById('secondaryBalance').innerText = formatINR(totalInc);
-      
-      // Update All-Time Inception Savings Card
-      let inceptionSavings = lifetimeInc - lifetimeExp;
-      document.getElementById('inceptionSavings').innerText = formatINR(inceptionSavings);
+      document.getElementById('inceptionSavings').innerText = formatINR(lifetimeInc - lifetimeExp - lifetimeSav);
 
-      let sortedCategories = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
-      let labels = sortedCategories.map(item => item[0]);
-      let data = sortedCategories.map(item => item[1]);
-
-      drawChart(labels, data);
-      buildCategoryGrid(labels, data);
+      drawBarChart(totalInc, totalExp, totalSav);
+      buildSavingsGrid(savingsPortfolio);
+      buildCategoryGrid(Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(i => i[0]), Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(i => i[1]));
     }
 
-    function drawChart(labels, data) {
-      const ctx = document.getElementById('expenseChart').getContext('2d');
+    function drawBarChart(salary, expense, savings) {
+      const ctx = document.getElementById('financialBarChart').getContext('2d');
       if (chartInstance) chartInstance.destroy(); 
       let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
 
-      if(data.length === 0) {
-        chartInstance = new Chart(ctx, {
-          type: 'doughnut',
-          data: { labels: ['No Spending'], datasets: [{ data: [1], backgroundColor: [isDark ? '#2c2c2e' : '#f0f0f5'] }] },
-          options: { plugins: { legend: { display: false }, tooltip: { enabled: false } }, cutout: '75%' }
-        });
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Salary', 'Expense', 'Savings'],
+          datasets: [{
+            data: [salary, expense, savings],
+            backgroundColor: ['#34c759', '#ff3b30', '#007aff'],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(context) { return ' ' + formatINR(context.raw); } } } },
+          scales: {
+            y: { ticks: { color: isDark ? '#aeaeb2' : '#8e8e93' }, grid: { color: isDark ? '#2c2c2e' : '#f0f0f5' } },
+            x: { ticks: { color: isDark ? '#aeaeb2' : '#8e8e93' }, grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    function buildSavingsGrid(portfolio) {
+      const grid = document.getElementById('savingsGrid');
+      grid.innerHTML = '';
+      let entries = Object.entries(portfolio).sort((a, b) => b[1] - a[1]);
+
+      if(entries.length === 0) {
+        grid.innerHTML = '<div style="color:var(--text-muted); font-size:14px; grid-column: span 2;">No cumulative investments recorded.</div>';
         return;
       }
 
-      chartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: { labels: labels, datasets: [{ data: data, backgroundColor: appColors, borderWidth: 0, borderRadius: 4 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(context) { return ' ' + formatINR(context.raw); } } } }, cutout: '75%' }
+      entries.forEach(([catName, amt], index) => {
+        let color = appColors[index % appColors.length];
+        let emoji = emojis[catName] || '📈';
+        grid.innerHTML += `
+          <div class="cat-card" style="background-color: ${color};" data-category="${catName}" onclick="showCategoryDetails(this.dataset.category)">
+            <div>
+              <div class="cat-icon">${emoji}</div>
+              <div class="cat-name">${catName}</div>
+            </div>
+            <div class="cat-amt">${formatINR(amt)}</div>
+          </div>
+        `;
       });
     }
 
@@ -738,22 +860,11 @@
           receipt: String(row[7] || ''), odo: parseFloat(row[8]) || 0, litres: parseFloat(row[9]) || 0
         })).sort((a, b) => a.date - b.date);
 
-        let vehicleLastOdo = {};
-        let vehicleStats = {};
-        for(let tx of allParsed) {
-          if(tx.type === 'Fuel') {
-            if(vehicleLastOdo[tx.cat] && tx.odo > vehicleLastOdo[tx.cat] && tx.litres > 0) {
-              let dist = tx.odo - vehicleLastOdo[tx.cat];
-              let mileage = (dist / tx.litres).toFixed(2);
-              vehicleStats[tx.odo] = mileage;
-            }
-            vehicleLastOdo[tx.cat] = tx.odo;
-          }
-        }
-
         let filteredTxs = allParsed.filter(tx => {
           let matchesCat = (categoryName.startsWith('Fuel - ') && tx.type === 'Fuel' && tx.cat === categoryName.replace('Fuel - ', '')) || (!categoryName.startsWith('Fuel - ') && tx.cat === categoryName);
-          return tx.date >= startDate && tx.date <= endDate && (selectedUser === 'Both' || tx.user === selectedUser) && matchesCat;
+          let isSavingsPortfolio = ['Chit', 'Gold Chit', 'Mutual Funds', 'Fixed Deposit', 'Stocks', 'Other Investment'].includes(categoryName);
+          let dateCondition = isSavingsPortfolio ? true : (tx.date >= startDate && tx.date <= endDate);
+          return dateCondition && (selectedUser === 'Both' || tx.user === selectedUser) && matchesCat;
         }).sort((a, b) => b.date - a.date);
 
         if(filteredTxs.length === 0) {
@@ -761,11 +872,6 @@
         } else {
           filteredTxs.forEach(tx => {
             let dateStr = tx.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-            let fuelMeta = '';
-            if(tx.type === 'Fuel') {
-              let calculatedMileage = vehicleStats[tx.odo] ? ` • 🚀 ${vehicleStats[tx.odo]} km/L` : '';
-              fuelMeta = `<div style="font-size:12px; color:var(--accent-inc); font-weight:600; margin-top:3px;">Odo: ${tx.odo} km | ${tx.litres} L${calculatedMileage}</div>`;
-            }
             let receiptHTML = (tx.receipt && tx.receipt !== "Upload Failed" && tx.receipt !== "") ? `<a href="${tx.receipt}" target="_blank" class="tx-receipt-link">📎 View Receipt</a>` : '';
             
             listContainer.innerHTML += `
@@ -773,7 +879,6 @@
                 <div class="tx-left">
                   <span class="tx-desc">${tx.desc || tx.cat}</span>
                   <span class="tx-meta">${dateStr} • ${tx.user}</span>
-                  ${fuelMeta}
                   ${receiptHTML}
                 </div>
                 <div class="tx-amt">${formatINR(tx.amount)}</div>
