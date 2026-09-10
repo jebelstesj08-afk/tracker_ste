@@ -7,11 +7,9 @@
   <link rel="manifest" href="manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <!-- Include Chart.js for the Insights tab -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    /* iOS Style CSS Variables */
     :root {
       --bg-color: #f2f2f7;
       --card-bg: #ffffff;
@@ -40,7 +38,7 @@
       background-color: var(--bg-color);
       color: var(--text-main);
       transition: background-color 0.3s, color 0.3s;
-      padding-bottom: 90px; /* Space for nav bar */
+      padding-bottom: 90px;
     }
 
     .header {
@@ -57,7 +55,12 @@
       font-weight: 700;
     }
 
-    .theme-toggle {
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .icon-btn {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       color: var(--text-main);
@@ -66,69 +69,32 @@
       font-size: 16px;
       cursor: pointer;
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .tab-content {
-      display: none;
-      padding: 0 20px;
-      animation: fadeIn 0.3s ease-in-out;
-    }
-
+    .tab-content { display: none; padding: 0 20px; animation: fadeIn 0.3s ease-in-out; }
     .active-tab { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      border: 1px solid var(--border-color);
-    }
-
+    .card { background: var(--card-bg); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border-color); }
     .input-group { margin-bottom: 15px; text-align: left; }
     .input-group label { display: block; font-size: 14px; color: var(--text-muted); margin-bottom: 5px; font-weight: 500; }
     
-    input, select {
-      width: 100%;
-      padding: 14px;
-      border-radius: 10px;
-      border: 1px solid var(--border-color);
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      font-size: 16px;
-      box-sizing: border-box;
-      -webkit-appearance: none;
-    }
-    
+    input, select { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-main); font-size: 16px; box-sizing: border-box; -webkit-appearance: none; }
     .amount-wrapper { position: relative; }
     .amount-wrapper span { position: absolute; left: 14px; top: 14px; font-size: 16px; color: var(--text-muted); }
     .amount-wrapper input { padding-left: 35px; font-weight: 600; }
 
-    button.save-btn {
-      width: 100%;
-      padding: 16px;
-      border: none;
-      border-radius: 12px;
-      font-size: 17px;
-      font-weight: 600;
-      color: white;
-      cursor: pointer;
-      transition: transform 0.1s;
-    }
+    button.save-btn { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 17px; font-weight: 600; color: white; cursor: pointer; transition: transform 0.1s; }
     button.save-btn:active { transform: scale(0.98); }
     .btn-expense { background-color: var(--accent-exp); }
     .btn-income { background-color: var(--accent-inc); }
     .btn-action { background-color: var(--accent-blue); }
 
-    /* Insights Tab specifics */
     .date-filters { display: flex; gap: 10px; margin-bottom: 15px; }
     .date-filters .input-group { flex: 1; margin-bottom: 0; }
-    
     .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
     .summary-box { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
     .summary-box h4 { margin: 0; font-size: 13px; color: var(--text-muted); font-weight: 500; }
@@ -138,24 +104,8 @@
     .box-bal p { color: var(--text-main); }
     .box-bal { grid-column: span 2; }
 
-    /* Bottom Navigation */
-    .nav {
-      position: fixed;
-      bottom: 0; left: 0; width: 100%;
-      background: var(--nav-bg);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-top: 1px solid var(--border-color);
-      display: flex;
-      justify-content: space-around;
-      padding: 15px 0 calc(15px + env(safe-area-inset-bottom));
-      z-index: 1000;
-    }
-
-    .nav button {
-      background: none; border: none; font-size: 12px; font-weight: 600;
-      color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 4px;
-    }
+    .nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--nav-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 15px 0 calc(15px + env(safe-area-inset-bottom)); z-index: 1000; }
+    .nav button { background: none; border: none; font-size: 12px; font-weight: 600; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 4px; }
     .nav button.active-nav { color: var(--accent-blue); }
     .nav-icon { font-size: 22px; }
     
@@ -166,7 +116,11 @@
 
   <div class="header">
     <h1>Tracker</h1>
-    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    <div class="header-actions">
+      <!-- NEW REFRESH BUTTON -->
+      <button class="icon-btn" onclick="location.reload()">🔄</button>
+      <button class="icon-btn theme-toggle" onclick="toggleTheme()">🌙</button>
+    </div>
   </div>
 
   <!-- EXPENSE TAB -->
@@ -249,7 +203,6 @@
 
   <!-- INSIGHTS TAB -->
   <div id="Insights" class="tab-content">
-    
     <div class="date-filters">
       <div class="input-group">
         <label>Start Date</label>
@@ -262,7 +215,6 @@
     </div>
     
     <button class="save-btn btn-action" onclick="fetchInsights()" style="margin-bottom: 20px;">Generate Insights</button>
-    
     <div id="loadingIndicator">Fetching your data...</div>
 
     <div class="summary-grid">
@@ -303,28 +255,22 @@
   </div>
 
   <script>
-    // --- APP CONFIGURATION ---
     const URL = "https://script.google.com/macros/s/AKfycbyHiPGGnoqL_hrmZ2dW0tnXCiZK9x-axSpXjefF1zXBzL8KanbhVX_FcfdcyWz5Q9PB/exec"; 
     let chartInstance = null;
 
-    // --- INITIALIZATION ---
     window.onload = function() {
       applySavedTheme();
-      
-      // Set default dates for Expense/Income inputs (Today)
       let today = new Date();
       let todayStr = today.toISOString().split('T')[0];
       document.getElementById('expDate').value = todayStr;
       document.getElementById('incDate').value = todayStr;
 
-      // Set default date range for Insights (First and Last day of Current Month)
       let firstDay = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
       let lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
       document.getElementById('startDate').value = firstDay;
       document.getElementById('endDate').value = lastDay;
     };
 
-    // --- NAVIGATION ---
     function showTab(tabName) {
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active-tab'));
       document.getElementById(tabName).classList.add('active-tab');
@@ -333,19 +279,16 @@
       document.getElementById('nav-' + tabName).classList.add('active-nav');
 
       if(tabName === 'Insights' && document.getElementById('lblIncome').innerText === "₹ 0") {
-        fetchInsights(); // Auto-fetch first time insights is opened
+        fetchInsights(); 
       }
     }
 
-    // --- NIGHT MODE ---
     function toggleTheme() {
       let currentTheme = document.documentElement.getAttribute('data-theme');
       let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
       document.querySelector('.theme-toggle').innerText = newTheme === 'dark' ? '☀️' : '🌙';
-      
-      // Redraw chart to update text colors
       if(chartInstance) fetchInsights(); 
     }
 
@@ -355,12 +298,10 @@
       document.querySelector('.theme-toggle').innerText = savedTheme === 'dark' ? '☀️' : '🌙';
     }
 
-    // --- CURRENCY FORMATTER ---
     const formatINR = (amount) => {
       return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(amount);
     }
 
-    // --- SAVE DATA ---
     function saveData(type) {
       let prefix = type === 'Expense' ? 'exp' : 'inc';
       let date = document.getElementById(prefix + 'Date').value;
@@ -381,7 +322,6 @@
       }).then(() => {
         btn.innerText = "✓ Saved!";
         btn.style.backgroundColor = "#34c759";
-        
         setTimeout(() => {
           btn.innerText = originalText;
           btn.style.backgroundColor = "";
@@ -397,15 +337,13 @@
       });
     }
 
-    // --- FETCH INSIGHTS & CHART ---
     async function fetchInsights() {
       document.getElementById('loadingIndicator').style.display = 'block';
-      
       let startStr = document.getElementById('startDate').value;
       let endStr = document.getElementById('endDate').value;
       let startDate = new Date(startStr);
       let endDate = new Date(endStr);
-      endDate.setHours(23, 59, 59, 999); // Include full last day
+      endDate.setHours(23, 59, 59, 999); 
 
       try {
         let response = await fetch(URL);
@@ -415,7 +353,6 @@
         let totalExp = 0;
         let categoryTotals = {};
 
-        // Loop through Google Sheet rows (skip header row 0)
         for(let i = 1; i < data.length; i++) {
           let row = data[i];
           let rowDateStr = String(row[0]);
@@ -435,13 +372,11 @@
           }
         }
 
-        // Update Summary Cards
         document.getElementById('lblIncome').innerText = formatINR(totalInc);
         document.getElementById('lblExpense').innerText = formatINR(totalExp);
         document.getElementById('lblBalance').innerText = formatINR(totalInc - totalExp);
 
         drawChart(categoryTotals);
-        
       } catch (err) {
         alert("Failed to load insights. Ensure your Google Apps Script is deployed properly.");
       } finally {
@@ -451,7 +386,7 @@
 
     function drawChart(categoryTotals) {
       const ctx = document.getElementById('expenseChart').getContext('2d');
-      if (chartInstance) chartInstance.destroy(); // Clear old chart
+      if (chartInstance) chartInstance.destroy(); 
 
       const labels = Object.keys(categoryTotals);
       const data = Object.values(categoryTotals);
@@ -460,7 +395,6 @@
       let textColor = isDark ? '#ffffff' : '#000000';
 
       if(data.length === 0) {
-        // Dummy data if no expenses exist for date range
         chartInstance = new Chart(ctx, {
           type: 'doughnut',
           data: { labels: ['No Expenses'], datasets: [{ data: [1], backgroundColor: ['#e5e5ea'] }] },
@@ -469,32 +403,19 @@
         return;
       }
 
-      // iOS vibrant color palette
       const colors = ['#ff3b30', '#ff9500', '#ffcc00', '#4cd964', '#5ac8fa', '#007aff', '#5856d6', '#ff2d55', '#a2845e', '#8e8e93'];
 
       chartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
           labels: labels,
-          datasets: [{
-            data: data,
-            backgroundColor: colors,
-            borderWidth: isDark ? 0 : 2,
-            borderColor: isDark ? 'transparent' : '#ffffff'
-          }]
+          datasets: [{ data: data, backgroundColor: colors, borderWidth: isDark ? 0 : 2, borderColor: isDark ? 'transparent' : '#ffffff' }]
         },
         options: {
           responsive: true,
           plugins: {
             legend: { position: 'bottom', labels: { color: textColor, padding: 15, font: { family: '-apple-system', size: 12 } } },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  let val = context.raw;
-                  return ' ' + formatINR(val);
-                }
-              }
-            }
+            tooltip: { callbacks: { label: function(context) { return ' ' + formatINR(context.raw); } } }
           },
           cutout: '65%'
         }
