@@ -13,144 +13,124 @@
 
   <style>
     :root {
-      --bg-color: #f2f3f7; /* Cooler, softer gray from the reference */
+      --bg-color: #f2f2f7; /* True iOS grouped background */
       --card-bg: #ffffff;
-      --text-main: #111111;
+      --text-main: #000000;
       --text-muted: #8e8e93;
-      --input-bg: #f7f8fa;
+      --input-bg: #f2f2f7;
       --nav-bg: #1c1c1e;
       --accent-green: #34c759;
       --accent-blue: #007aff;
       --accent-red: #ff3b30;
-      --border-color: #eaecef;
-      --radius-lg: 24px;
-      --radius-md: 16px;
+      --accent-orange: #ff9f0a;
+      --border-color: rgba(0,0,0,0.05);
+      --radius-lg: 20px;
+      --radius-md: 14px;
     }
     
     [data-theme="dark"] {
       --bg-color: #000000;
       --card-bg: #1c1c1e;
       --text-main: #ffffff;
-      --text-muted: #aeaeb2;
+      --text-muted: #98989d;
       --input-bg: #2c2c2e;
-      --nav-bg: #1a1a1a;
-      --border-color: #38383a;
+      --nav-bg: #2c2c2e;
+      --border-color: rgba(255,255,255,0.05);
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     html, body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main);
       min-height: 100%; overflow-x: hidden;
     }
 
-    .app-container {
-      min-height: 100vh;
-      padding-bottom: 120px; 
-    }
+    .app-container { min-height: 100vh; padding-bottom: 120px; }
+    #Insights { padding-bottom: 160px !important; }
 
-    #Insights {
-      padding-bottom: 150px !important;
-    }
+    /* Header & Typography */
+    .header { padding: 15px 20px; padding-top: max(50px, env(safe-area-inset-top)); display: flex; justify-content: space-between; align-items: center; }
+    .header-btn { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); height: 44px; width: 44px; border-radius: 22px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
 
-    .header { padding: 15px 20px; padding-top: max(40px, env(safe-area-inset-top)); display: flex; justify-content: space-between; align-items: center; }
-    .header-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); height: 40px; width: 40px; border-radius: 20px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .balance-section { padding: 10px 20px 20px; }
+    .balance-label { font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .balance-amount { font-size: 48px; font-weight: 800; letter-spacing: -1.5px; margin: 0; color: var(--text-main); }
+    .balance-amount.small { font-size: 28px; letter-spacing: -1px; }
 
-    .balance-section { padding: 10px 20px 25px; }
-    .balance-label { font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
-    .balance-amount { font-size: 46px; font-weight: 800; letter-spacing: -1.5px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); }
-    .balance-amount.small { font-size: 32px; letter-spacing: -1px; }
-
-    .tab-content { display: none; padding: 0 20px; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    /* Cards & Forms */
+    .tab-content { display: none; padding: 0 20px; animation: fadeInSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
     .active-tab { display: block; }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInSlideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .ui-card { background: var(--card-bg); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border-color); }
 
     .input-group { margin-bottom: 16px; }
+    .input-group:last-child { margin-bottom: 0; }
     .input-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-    input, select { width: 100%; padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-main); font-size: 16px; font-weight: 500; -webkit-appearance: none; outline: none; }
+    
+    input, select { width: 100%; padding: 16px; border-radius: var(--radius-md); border: none; background-color: var(--input-bg); color: var(--text-main); font-size: 16px; font-weight: 600; outline: none; -webkit-appearance: none; }
     
     .amount-wrapper { position: relative; }
     .amount-wrapper span { position: absolute; left: 16px; top: 16px; font-size: 18px; font-weight: 700; color: var(--text-muted); }
-    .amount-wrapper input { padding-left: 35px; font-size: 24px; font-weight: 700; border: none; background: var(--card-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
-
-    button.save-btn { width: 100%; padding: 18px; border: none; border-radius: var(--radius-md); font-size: 17px; font-weight: 700; cursor: pointer; transition: transform 0.1s, opacity 0.2s; box-shadow: 0 8px 20px rgba(0,0,0,0.08); margin-top: 10px; }
-    button.save-btn:active { transform: scale(0.97); }
-    
-    .btn-expense, .btn-income, .btn-sav { background-color: var(--text-main); color: var(--bg-color); }
-    [data-theme="dark"] .btn-expense, [data-theme="dark"] .btn-income, [data-theme="dark"] .btn-sav { background-color: #ffffff; color: #000000; }
-    .btn-fuel { background-color: #ff9f0a; color: white; }
-
-    .file-upload-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
-    .file-upload-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%; }
-    .btn-camera { background-color: var(--card-bg); color: var(--text-main); border: 1px dashed var(--text-muted); box-shadow: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; }
+    .amount-wrapper input { padding-left: 35px; font-size: 28px; font-weight: 800; background: transparent; border: 1px solid var(--border-color); }
 
     .two-col { display: flex; gap: 12px; margin-bottom: 16px; }
     .two-col .input-group { flex: 1; margin-bottom: 0; }
-    
-    /* Re-styled Chart Container */
-    .chart-container { background: var(--card-bg); border-radius: var(--radius-lg); padding: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid var(--border-color); }
-    
-    .chart-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
-    .chart-legend-dots { display: flex; gap: 12px; font-size: 12px; color: var(--text-muted); font-weight: 500; }
-    .dot { width: 8px; height: 8px; border-radius: 4px; display: inline-block; margin-right: 4px; }
-    .dot.green { background-color: var(--accent-green); }
-    .dot.blue { background-color: var(--accent-blue); }
+
+    /* Buttons */
+    button.save-btn { width: 100%; padding: 18px; border: none; border-radius: var(--radius-md); font-size: 17px; font-weight: 700; cursor: pointer; transition: transform 0.1s; margin-top: 10px; color: white; }
+    button.save-btn:active { transform: scale(0.96); }
+    .btn-expense, .btn-income, .btn-sav { background-color: var(--text-main); color: var(--bg-color); }
+    [data-theme="dark"] .btn-expense, [data-theme="dark"] .btn-income, [data-theme="dark"] .btn-sav { background-color: #ffffff; color: #000000; }
+    .btn-fuel { background-color: var(--accent-orange); }
+
+    .file-upload-wrapper { position: relative; overflow: hidden; width: 100%; margin-top: 10px; }
+    .file-upload-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%; }
+    .btn-camera { background-color: var(--input-bg); color: var(--text-main); border: none; font-size: 15px; margin-top: 0; }
+
+    /* Insights UI Styling */
+    .spend-segments { display: flex; height: 12px; border-radius: 6px; overflow: hidden; gap: 3px; margin: 16px 0; background: var(--input-bg); }
+    .segment-legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: var(--text-muted); font-weight: 600; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 5px; display: inline-block; margin-right: 6px; }
 
     .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-    .cat-card { padding: 16px; border-radius: var(--radius-lg); background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); box-shadow: 0 4px 12px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; min-height: 100px; cursor: pointer; transition: transform 0.1s; }
-    .cat-card:active { transform: scale(0.95); }
-    .cat-icon { font-size: 20px; margin-bottom: 12px; background: var(--input-bg); width: 40px; height: 40px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
-    .cat-name { font-size: 13px; font-weight: 600; color: var(--text-muted); }
-    .cat-amt { font-size: 18px; font-weight: 800; margin-top: 4px; }
+    .cat-card { background: var(--card-bg); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: space-between; min-height: 105px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+    .cat-icon { font-size: 20px; margin-bottom: 12px; width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+    .cat-name { font-size: 13px; font-weight: 600; color: var(--text-muted); line-height: 1.2; }
+    .cat-amt { font-size: 18px; font-weight: 800; margin-top: 6px; color: var(--text-main); letter-spacing: -0.5px; }
 
-    /* Floating Navigation matching the reference */
-    .nav-wrapper { 
-      position: fixed; bottom: 16px; left: 0; width: 100%; 
-      display: flex; justify-content: center; z-index: 1000; 
-      pointer-events: none; 
-      padding-bottom: env(safe-area-inset-bottom); 
-    } 
-    .nav-pill { 
-      background: var(--nav-bg); padding: 8px; border-radius: 30px; 
-      display: flex; gap: 4px; box-shadow: 0 12px 35px rgba(0,0,0,0.25); 
-      pointer-events: auto; overflow-x: auto; max-width: 95%; 
-    }
-    .nav-pill button { background: transparent; border: none; color: #a1a1a6; font-size: 12px; font-weight: 600; padding: 10px 16px; border-radius: 20px; white-space: nowrap; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 6px; }
-    .nav-pill button.active-nav { background: #333333; color: #ffffff; }
+    /* Floating Nav */
+    .nav-wrapper { position: fixed; bottom: 20px; left: 0; width: 100%; display: flex; justify-content: center; z-index: 1000; pointer-events: none; padding-bottom: env(safe-area-inset-bottom); } 
+    .nav-pill { background: var(--nav-bg); padding: 8px; border-radius: 30px; display: flex; gap: 4px; box-shadow: 0 16px 32px rgba(0,0,0,0.25); pointer-events: auto; overflow-x: auto; max-width: 95%; }
+    .nav-pill button { background: transparent; border: none; color: #8e8e93; font-size: 12px; font-weight: 600; padding: 12px 16px; border-radius: 20px; white-space: nowrap; cursor: pointer; transition: all 0.2s ease; }
+    .nav-pill button.active-nav { background: #3a3a3c; color: #ffffff; }
 
     @media screen and (max-height: 650px) { .nav-wrapper { display: none !important; } }
-    
-    #loadingIndicator { text-align: center; color: var(--text-muted); display: none; margin: 10px 0; font-size: 14px; font-weight: 500; }
 
-    /* Success / Processing Modal */
-    .status-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 3000; animation: fadeIn 0.2s ease; }
-    .status-card { background: var(--card-bg); width: 85%; max-width: 300px; padding: 40px 20px; border-radius: 32px; text-align: center; box-shadow: 0 24px 48px rgba(0,0,0,0.15); transform: scale(0.9); animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; border: 1px solid var(--border-color); }
-    .status-icon { font-size: 56px; margin-bottom: 20px; }
-    .status-title { font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; letter-spacing: -0.5px; }
-    .status-subtitle { font-size: 14px; color: var(--text-muted); font-weight: 500; }
-
+    /* High-End Status Popups */
+    .status-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 3000; animation: fadeIn 0.2s ease; }
+    .status-card { background: var(--card-bg); width: 85%; max-width: 320px; padding: 40px 20px; border-radius: 32px; text-align: center; box-shadow: 0 24px 48px rgba(0,0,0,0.2); transform: scale(0.9); animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .status-icon { margin-bottom: 20px; display: flex; justify-content: center; }
+    .status-title { font-size: 24px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; letter-spacing: -0.5px; }
+    .status-subtitle { font-size: 15px; color: var(--text-muted); font-weight: 500; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-    /* Transaction List Modal */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; }
+    /* Clean Transaction List */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: flex-end; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; }
     .modal-overlay.show { display: flex; opacity: 1; }
     .modal-content { background: var(--bg-color); width: 100%; max-height: 85vh; border-radius: 32px 32px 0 0; padding: 24px; padding-bottom: calc(24px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
     .modal-overlay.show .modal-content { transform: translateY(0); }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .modal-header h3 { margin: 0; font-size: 22px; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .modal-header h3 { margin: 0; font-size: 24px; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px; }
     .close-btn { background: var(--input-bg); border: none; color: var(--text-main); width: 36px; height: 36px; border-radius: 18px; font-size: 16px; font-weight: bold; cursor: pointer; }
     .transaction-list { overflow-y: auto; flex: 1; padding-bottom: 20px; }
-    
-    /* Restyled Transaction List Items */
-    .transaction-item { background: transparent; padding: 16px 0; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
-    .transaction-item:last-child { border-bottom: none; }
-    .tx-left { display: flex; flex-direction: column; max-width: 65%; }
-    .tx-desc { font-weight: 700; font-size: 16px; color: var(--text-main); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.3px;}
-    .tx-meta { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+    .transaction-item { background: var(--card-bg); padding: 16px 20px; border-radius: var(--radius-md); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+    .tx-desc { font-weight: 700; font-size: 16px; color: var(--text-main); margin-bottom: 4px; letter-spacing: -0.3px;}
+    .tx-meta { font-size: 13px; color: var(--text-muted); font-weight: 600; }
     .tx-amt { font-weight: 800; font-size: 18px; color: var(--text-main); letter-spacing: -0.5px;}
-    .tx-receipt-link { font-size: 12px; color: var(--accent-blue); text-decoration: none; margin-top: 6px; display: inline-block; font-weight: 600; background: var(--input-bg); padding: 4px 10px; border-radius: 12px;}
+    .tx-receipt-link { font-size: 12px; color: var(--accent-blue); text-decoration: none; margin-top: 6px; display: inline-block; font-weight: 700; background: rgba(0,122,255,0.1); padding: 6px 12px; border-radius: 12px;}
   </style>
 </head>
 <body>
@@ -164,84 +144,63 @@
 
   <div class="balance-section">
     <div style="display: flex; gap: 15px;">
-      <div style="flex: 1; overflow: hidden;">
-        <span class="balance-label" id="topLabel">Main balance</span>
-        <h1 class="balance-amount" id="topBalance">₹ 0</h1>
-      </div>
-      <div id="secondaryBalanceBlock" style="flex: 1; display: none; overflow: hidden;">
-        <span class="balance-label" id="secondaryLabel">Total earnings</span>
-        <h1 class="balance-amount small" id="secondaryBalance" style="color: var(--accent-green);">₹ 0</h1>
+      <div style="flex: 1;">
+        <span class="balance-label" id="topLabel">Main Balance</span>
+        <h1 class="balance-amount" id="topBalance">₹0</h1>
       </div>
     </div>
   </div>
 
   <!-- EXPENSE TAB -->
   <div id="Expense" class="tab-content active-tab">
-    <div class="input-group">
-      <label>Amount</label>
-      <div class="amount-wrapper">
-        <span>₹</span>
-        <input type="number" id="expAmount" placeholder="0" step="0.01">
-      </div>
-    </div>
-    <div class="two-col">
+    <div class="ui-card">
       <div class="input-group">
-        <label>User</label>
-        <select id="expUser">
-          <option value="Jebel">Jebel</option>
-          <option value="Reshma">Reshma</option>
+        <label>Amount</label>
+        <div class="amount-wrapper">
+          <span>₹</span>
+          <input type="number" id="expAmount" placeholder="0" step="0.01">
+        </div>
+      </div>
+      
+      <div class="two-col">
+        <div class="input-group">
+          <label>User</label>
+          <select id="expUser">
+            <option value="Jebel">Jebel</option>
+            <option value="Reshma">Reshma</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Date</label>
+          <input type="date" id="expDate">
+        </div>
+      </div>
+      
+      <div class="input-group">
+        <label>Category</label>
+        <select id="expCat">
+          <option value="" disabled selected>Select Category...</option>
+          <option value="Savings this month">Savings this month</option>
+          <option value="Housing / Rent">Housing / Rent</option>
+          <option value="Food - Groceries">Food - Groceries</option>
+          <option value="Food - Dining Out">Food - Dining Out</option>
+          <option value="Transportation - Maintenance">Transportation - Maintenance</option>
+          <option value="Utilities - Bills">Utilities - Bills</option>
+          <option value="Construction - Structure">Construction - Structure</option>
+          <option value="Hardware / Equipment">Hardware / Equipment</option>
+          <option value="Miscellaneous">Miscellaneous</option>
         </select>
       </div>
+
       <div class="input-group">
-        <label>Date</label>
-        <input type="date" id="expDate">
+        <label>Details</label>
+        <input type="text" id="expDesc" placeholder="Add a note (optional)">
       </div>
-    </div>
-    
-    <div class="input-group">
-      <label>Project / Asset Tag (Optional)</label>
-      <select id="expProject">
-        <option value="General">General / None</option>
-        <option value="House Construction">House Construction</option>
-        <option value="Home Automation & Network">Home Automation & Network</option>
-        <option value="Automotive">Automotive</option>
-        <option value="Professional Development">Professional Development</option>
-      </select>
-    </div>
 
-    <div class="input-group">
-      <label>Category</label>
-      <select id="expCat">
-        <option value="" disabled selected>Select Category...</option>
-        <option value="Savings this month">Savings this month</option>
-        <option value="Housing / Rent">Housing / Rent</option>
-        <option value="Food - Groceries">Food - Groceries</option>
-        <option value="Food - Dining Out">Food - Dining Out</option>
-        <option value="Food - HungerBox">Food - HungerBox</option>
-        <option value="Transportation - Maintenance">Transportation - Maintenance</option>
-        <option value="Utilities - Electricity">Utilities - Electricity</option>
-        <option value="Utilities - Internet">Utilities - Internet</option>
-        <option value="Utilities - Phone">Utilities - Phone</option>
-        <option value="Construction - Structure">Construction - Structure</option>
-        <option value="Construction - Plumbing/Pump">Construction - Plumbing/Pump</option>
-        <option value="Hardware / Equipment">Hardware / Equipment</option>
-        <option value="Health & Medical">Health & Medical</option>
-        <option value="Entertainment">Entertainment</option>
-        <option value="Shopping">Shopping</option>
-        <option value="Personal Care">Personal Care</option>
-        <option value="Education">Education</option>
-        <option value="Debt / Loan EMI">Debt / Loan EMI</option>
-        <option value="Miscellaneous">Miscellaneous</option>
-      </select>
-    </div>
-    <div class="input-group">
-      <label>Details</label>
-      <input type="text" id="expDesc" placeholder="Add a note (optional)">
-    </div>
-
-    <div class="input-group file-upload-wrapper">
-      <button class="save-btn btn-camera" id="cameraBtnDisplay">📸 Snap Receipt / Invoice</button>
-      <input type="file" id="expReceipt" accept="image/*" capture="environment" onchange="updateCameraBtn()">
+      <div class="input-group file-upload-wrapper">
+        <button class="save-btn btn-camera" id="cameraBtnDisplay">📎 Attach Receipt</button>
+        <input type="file" id="expReceipt" accept="image/*" capture="environment" onchange="updateCameraBtn()">
+      </div>
     </div>
     
     <button class="save-btn btn-expense" onclick="saveData('Expense')">Add Expense</button>
@@ -249,199 +208,202 @@
 
   <!-- INCOME TAB -->
   <div id="Income" class="tab-content">
-    <div class="input-group">
-      <label>Amount</label>
-      <div class="amount-wrapper">
-        <span>₹</span>
-        <input type="number" id="incAmount" placeholder="0" step="0.01">
-      </div>
-    </div>
-    <div class="two-col">
+    <div class="ui-card">
       <div class="input-group">
-        <label>User</label>
-        <select id="incUser">
-          <option value="Jebel">Jebel</option>
-          <option value="Reshma">Reshma</option>
+        <label>Amount</label>
+        <div class="amount-wrapper">
+          <span>₹</span>
+          <input type="number" id="incAmount" placeholder="0" step="0.01">
+        </div>
+      </div>
+      
+      <div class="two-col">
+        <div class="input-group">
+          <label>User</label>
+          <select id="incUser">
+            <option value="Jebel">Jebel</option>
+            <option value="Reshma">Reshma</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Date</label>
+          <input type="date" id="incDate">
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Source</label>
+        <select id="incCat">
+          <option value="" disabled selected>Select Source...</option>
+          <option value="Salary">Salary</option>
+          <option value="Business / Freelance">Business / Freelance</option>
+          <option value="Other Income">Other Income</option>
         </select>
       </div>
+
       <div class="input-group">
-        <label>Date</label>
-        <input type="date" id="incDate">
+        <label>Details</label>
+        <input type="text" id="incDesc" placeholder="Add a note (optional)">
       </div>
-    </div>
-    <div class="input-group">
-      <label>Source</label>
-      <select id="incCat">
-        <option value="" disabled selected>Select Source...</option>
-        <option value="Salary">Salary</option>
-        <option value="Business / Freelance">Business / Freelance</option>
-        <option value="Investments / Returns">Investments / Returns</option>
-        <option value="Gifts / Refunds">Gifts / Refunds</option>
-        <option value="Other Income">Other Income</option>
-      </select>
-    </div>
-    <div class="input-group">
-      <label>Details</label>
-      <input type="text" id="incDesc" placeholder="Add a note (optional)">
     </div>
     <button class="save-btn btn-income" onclick="saveData('Income')">Add Income</button>
   </div>
 
-  <!-- FUEL TAB -->
-  <div id="Fuel" class="tab-content">
-    <div class="input-group">
-      <label>Select Vehicle</label>
-      <select id="fuelVehicle">
-        <option value="Hornet 2.0">Hornet 2.0</option>
-        <option value="Yamaha FZ">Yamaha FZ</option>
-        <option value="Dio">Dio</option>
-        <option value="i20">i20</option>
-        <option value="XUV 500">XUV 500</option>
-        <option value="Qualis">Qualis</option>
-      </select>
-    </div>
-
-    <div class="two-col">
-      <div class="input-group">
-        <label>User</label>
-        <select id="fuelUser">
-          <option value="Jebel">Jebel</option>
-          <option value="Reshma">Reshma</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <label>Date</label>
-        <input type="date" id="fuelDate">
-      </div>
-    </div>
-
-    <div class="two-col">
-      <div class="input-group">
-        <label>Total Price (₹)</label>
-        <input type="number" id="fuelAmount" placeholder="0" step="0.01">
-      </div>
-      <div class="input-group">
-        <label>Litres Added</label>
-        <input type="number" id="fuelLitres" placeholder="0.00" step="0.01">
-      </div>
-    </div>
-
-    <div class="input-group">
-      <label>Odometer Reading (km)</label>
-      <input type="number" id="fuelOdo" placeholder="Current km reading...">
-    </div>
-
-    <div class="input-group">
-      <label>Details / Station (Optional)</label>
-      <input type="text" id="fuelDesc" placeholder="e.g. NTP Petroleum">
-    </div>
-
-    <button class="save-btn btn-fuel" onclick="saveFuelData()">Log Fuel Fill</button>
-  </div>
-
   <!-- SAVINGS INVESTMENTS TAB -->
   <div id="Savings" class="tab-content">
-    <div class="input-group">
-      <label>Amount</label>
-      <div class="amount-wrapper">
-        <span>₹</span>
-        <input type="number" id="savAmount" placeholder="0" step="0.01">
-      </div>
-    </div>
-    <div class="two-col">
+    <div class="ui-card">
       <div class="input-group">
-        <label>User</label>
-        <select id="savUser">
-          <option value="Jebel">Jebel</option>
-          <option value="Reshma">Reshma</option>
+        <label>Investment Amount</label>
+        <div class="amount-wrapper">
+          <span>₹</span>
+          <input type="number" id="savAmount" placeholder="0" step="0.01">
+        </div>
+      </div>
+      
+      <div class="two-col">
+        <div class="input-group">
+          <label>User</label>
+          <select id="savUser">
+            <option value="Jebel">Jebel</option>
+            <option value="Reshma">Reshma</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Date</label>
+          <input type="date" id="savDate">
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Portfolio Category</label>
+        <select id="savCat">
+          <option value="" disabled selected>Select Investment Type...</option>
+          <option value="Chit">Chit</option>
+          <option value="Gold Chit">Gold Chit</option>
+          <option value="Mutual Funds">Mutual Funds</option>
+          <option value="Fixed Deposit">Fixed Deposit</option>
+          <option value="Stocks">Stocks</option>
         </select>
       </div>
+
       <div class="input-group">
-        <label>Date</label>
-        <input type="date" id="savDate">
+        <label>Details</label>
+        <input type="text" id="savDesc" placeholder="e.g. Monthly installment">
       </div>
-    </div>
-    <div class="input-group">
-      <label>Savings Vehicle / Type</label>
-      <select id="savCat">
-        <option value="" disabled selected>Select Investment Type...</option>
-        <option value="Chit">Chit</option>
-        <option value="Gold Chit">Gold Chit</option>
-        <option value="Mutual Funds">Mutual Funds</option>
-        <option value="Fixed Deposit">Fixed Deposit</option>
-        <option value="Stocks">Stocks</option>
-        <option value="Other Investment">Other Investment</option>
-      </select>
-    </div>
-    <div class="input-group">
-      <label>Details</label>
-      <input type="text" id="savDesc" placeholder="e.g. Monthly installment note">
     </div>
     <button class="save-btn btn-sav" onclick="saveSavingsData()">Record Investment</button>
   </div>
 
-  <!-- INSIGHTS TAB -->
-  <div id="Insights" class="tab-content">
-    <div class="input-group">
-      <select id="filterUser" onchange="generateInsights()" style="font-weight:700; background:var(--card-bg);">
-        <option value="Both">Household (Jebel & Reshma)</option>
-        <option value="Jebel">Jebel's Data</option>
-        <option value="Reshma">Reshma's Data</option>
-      </select>
-    </div>
+  <!-- FUEL TAB -->
+  <div id="Fuel" class="tab-content">
+    <div class="ui-card">
+      <div class="input-group">
+        <label>Select Vehicle</label>
+        <select id="fuelVehicle">
+          <option value="Hornet 2.0">Hornet 2.0</option>
+          <option value="Yamaha FZ">Yamaha FZ</option>
+          <option value="Dio">Dio</option>
+          <option value="i20">i20</option>
+          <option value="XUV 500">XUV 500</option>
+        </select>
+      </div>
 
-    <div class="two-col">
-      <div class="input-group"><input type="date" id="startDate" onchange="generateInsights()"></div>
-      <div class="input-group"><input type="date" id="endDate" onchange="generateInsights()"></div>
-    </div>
-    
-    <div id="loadingIndicator">Syncing data...</div>
-
-    <!-- NEW CLEAN BAR CHART (Image 3 Style) -->
-    <div class="chart-container">
-      <div class="chart-header">
-        <div>
-          <div class="balance-label" style="margin-bottom: 2px;">Cashflow Overview</div>
-          <div style="font-size: 13px; color: var(--text-muted); font-weight: 500;" id="chartDateRange">Jan 1 - Dec 31</div>
+      <div class="two-col">
+        <div class="input-group">
+          <label>Total Price (₹)</label>
+          <input type="number" id="fuelAmount" placeholder="0" step="0.01">
         </div>
-        <div class="chart-legend-dots">
-          <div><span class="dot green"></span>In</div>
-          <div><span class="dot blue"></span>Out</div>
+        <div class="input-group">
+          <label>Litres</label>
+          <input type="number" id="fuelLitres" placeholder="0.00" step="0.01">
         </div>
       </div>
-      <canvas id="financialBarChart" width="250" height="180" style="max-height: 180px;"></canvas>
+
+      <div class="input-group">
+        <label>Odometer Reading (km)</label>
+        <input type="number" id="fuelOdo" placeholder="Current km...">
+      </div>
+      
+      <div class="two-col">
+        <div class="input-group">
+          <label>User</label>
+          <select id="fuelUser"><option value="Jebel">Jebel</option><option value="Reshma">Reshma</option></select>
+        </div>
+        <div class="input-group">
+          <label>Date</label>
+          <input type="date" id="fuelDate">
+        </div>
+      </div>
+    </div>
+    <button class="save-btn btn-fuel" onclick="saveFuelData()">Log Fuel</button>
+  </div>
+
+  <!-- INSIGHTS TAB -->
+  <div id="Insights" class="tab-content">
+    <div class="ui-card" style="padding: 15px;">
+      <div class="two-col" style="margin: 0;">
+        <div class="input-group"><input type="date" id="startDate" onchange="generateInsights()"></div>
+        <div class="input-group"><input type="date" id="endDate" onchange="generateInsights()"></div>
+      </div>
     </div>
 
-    <div class="balance-label" style="margin-bottom:12px;">Cumulative Portfolios (All-Time)</div>
+    <!-- SPEND SEGMENTS UI (Image 10 Style) -->
+    <div class="ui-card">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+        <div>
+          <div class="balance-label">Total Spending</div>
+          <div id="spendTotalLabel" style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">₹0</div>
+        </div>
+      </div>
+      <div class="spend-segments" id="spendSegmentBar"></div>
+      <div class="segment-legend" id="segmentLegend"></div>
+    </div>
+
+    <!-- BAR CHART UI (Image 11 Style) -->
+    <div class="ui-card">
+      <div style="margin-bottom: 20px;">
+        <div class="balance-label">Cashflow Overview</div>
+        <div style="display: flex; gap: 16px; margin-top: 10px;">
+          <div style="font-size: 12px; font-weight: 600;"><span class="legend-dot" style="background:var(--accent-green)"></span>In</div>
+          <div style="font-size: 12px; font-weight: 600;"><span class="legend-dot" style="background:var(--accent-blue)"></span>Out</div>
+          <div style="font-size: 12px; font-weight: 600;"><span class="legend-dot" style="background:var(--text-main)"></span>Saved</div>
+        </div>
+      </div>
+      <div style="height: 180px;">
+        <canvas id="financialBarChart"></canvas>
+      </div>
+    </div>
+
+    <div class="balance-label" style="margin-bottom:12px; margin-top:20px;">Asset Portfolio (All-Time)</div>
     <div class="category-grid" id="savingsGrid"></div>
 
-    <div class="balance-label" style="margin-bottom:12px; margin-top:24px;">Top Categories Breakdown</div>
+    <div class="balance-label" style="margin-bottom:12px; margin-top:20px;">Top Categories</div>
     <div class="category-grid" id="categoryGrid"></div>
   </div>
 
   <!-- FIXED NAVIGATION -->
   <div class="nav-wrapper">
     <div class="nav-pill">
-      <button id="nav-Expense" class="active-nav" onclick="showTab('Expense')">💸 Exp</button>
-      <button id="nav-Income" onclick="showTab('Income')">💰 Inc</button>
-      <button id="nav-Fuel" onclick="showTab('Fuel')">⛽ Fuel</button>
-      <button id="nav-Savings" onclick="showTab('Savings')">📈 Save</button>
-      <button id="nav-Insights" onclick="showTab('Insights')">📊 Data</button>
+      <button id="nav-Expense" class="active-nav" onclick="showTab('Expense')">Exp</button>
+      <button id="nav-Income" onclick="showTab('Income')">Inc</button>
+      <button id="nav-Savings" onclick="showTab('Savings')">Save</button>
+      <button id="nav-Fuel" onclick="showTab('Fuel')">Fuel</button>
+      <button id="nav-Insights" onclick="showTab('Insights')">Insights</button>
     </div>
   </div>
 
 </div> 
 
-  <!-- SUCCESS / PROCESSING POPUP MODAL -->
+  <!-- SUCCESS POPUP MODAL (Image 8 Style) -->
   <div id="statusModal" class="status-modal">
     <div class="status-card">
-      <div class="status-icon" id="statusIcon">🚀</div>
+      <div class="status-icon" id="statusIcon"></div>
       <div class="status-title" id="statusTitle">Processing...</div>
-      <div class="status-subtitle" id="statusSubtitle">Your transfer is processing</div>
+      <div class="status-subtitle" id="statusSubtitle">Please wait</div>
     </div>
   </div>
 
-  <!-- CATEGORY DETAILS MODAL -->
+  <!-- TRANSACTION LIST MODAL -->
   <div id="categoryModal" class="modal-overlay" onclick="closeModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <div class="modal-header">
@@ -459,13 +421,21 @@
     let allTransactions = JSON.parse(localStorage.getItem('trackerData')) || [];
     let receiptBase64 = "";
     
-    // Updated color palette to match the clean UI
-    const appColors = ['#007aff', '#34c759', '#5856d6', '#ff9f0a', '#ff3b30', '#32ade6', '#ff2d55', '#af52de'];
+    const appColors = ['#007aff', '#34c759', '#ff9f0a', '#5856d6', '#ff2d55', '#32ade6', '#af52de'];
     const emojis = {
       'Hornet 2.0': '🏍️', 'Yamaha FZ': '🏍️', 'Dio': '🛵', 'i20': '🚗', 'XUV 500': '🚙', 'Qualis': '🚐',
       'Housing / Rent': '🏠', 'Food - Groceries': '🛒', 'Food - Dining Out': '🍿', 'Transportation - Fuel': '⛽',
-      'Chit': '📜', 'Gold Chit': '🪙', 'Mutual Funds': '📈', 'Fixed Deposit': '🏦', 'Stocks': '📊', 'Other Investment': '💎'
+      'Chit': '📜', 'Gold Chit': '🪙', 'Mutual Funds': '📈', 'Fixed Deposit': '🏦', 'Stocks': '📊', 'Savings this month': '🏦'
     };
+
+    // Strict Last Working Day Logic
+    function getLastWorkingDay(year, month) {
+      let d = new Date(year, month + 1, 0); // Last day of month
+      while(d.getDay() === 0 || d.getDay() === 6) { // 0=Sun, 6=Sat
+        d.setDate(d.getDate() - 1);
+      }
+      return d;
+    }
 
     window.onload = function() {
       applySavedTheme();
@@ -476,23 +446,29 @@
       document.getElementById('fuelDate').value = todayStr;
       document.getElementById('savDate').value = todayStr;
 
+      // Salary cycle logic computation
       let curYear = today.getFullYear();
       let curMonth = today.getMonth();
+      
+      let thisMonthLWD = getLastWorkingDay(curYear, curMonth);
+      let cycleStart, cycleEnd;
+      
+      let todayDateOnly = new Date(curYear, curMonth, today.getDate());
+      let thisMonthLWDDateOnly = new Date(curYear, curMonth, thisMonthLWD.getDate());
 
-      function getLastWorkingDay(y, m) {
-        let d = new Date(y, m + 1, 0);
-        while(d.getDay() === 0 || d.getDay() === 6) {
-          d.setDate(d.getDate() - 1);
-        }
-        return d;
+      // If today is on or past the last working day of THIS month
+      if (todayDateOnly.getTime() >= thisMonthLWDDateOnly.getTime()) {
+         cycleStart = thisMonthLWD;
+         cycleEnd = getLastWorkingDay(curYear, curMonth + 1);
+         cycleEnd.setDate(cycleEnd.getDate() - 1); // 1 day before
+      } else {
+         // Cycle is from PREVIOUS month's last working day
+         cycleStart = getLastWorkingDay(curYear, curMonth - 1);
+         cycleEnd = new Date(thisMonthLWD);
+         cycleEnd.setDate(cycleEnd.getDate() - 1); // 1 day before
       }
 
-      let prevMonthLast = getLastWorkingDay(curYear, curMonth - 1);
-      let curMonthLast = getLastWorkingDay(curYear, curMonth);
-      let cycleEnd = new Date(curMonthLast);
-      cycleEnd.setDate(cycleEnd.getDate() - 1);
-
-      document.getElementById('startDate').value = prevMonthLast.toISOString().split('T')[0];
+      document.getElementById('startDate').value = cycleStart.toISOString().split('T')[0];
       document.getElementById('endDate').value = cycleEnd.toISOString().split('T')[0];
 
       calculateTopBalance();
@@ -509,14 +485,10 @@
       window.scrollTo(0, 0);
 
       if(tabName === 'Insights') {
-        document.getElementById('topLabel').innerText = "Total spending";
-        document.getElementById('topBalance').classList.add('small');
-        document.getElementById('secondaryBalanceBlock').style.display = "block";
+        document.getElementById('topLabel').innerText = "Total Cashflow";
         generateInsights(); 
       } else {
-        document.getElementById('topLabel').innerText = "Main balance";
-        document.getElementById('topBalance').classList.remove('small');
-        document.getElementById('secondaryBalanceBlock').style.display = "none";
+        document.getElementById('topLabel').innerText = "Main Balance";
         calculateTopBalance();
       }
     }
@@ -549,27 +521,33 @@
       return d;
     }
 
+    // Logic: Earnings = Income + (Previous 'Savings this month'). Balance = Earnings - Expenses - Current Investments
     function calculateTopBalance() {
       let totalInc = 0; let totalExp = 0; let totalSav = 0; let carriedSavings = 0;
+      
+      // We carry forward "Savings this month" into the pool of available funds
       for(let i = 1; i < allTransactions.length; i++) {
         let type = String(allTransactions[i][1]).trim();
         let cat = String(allTransactions[i][2]).trim();
         let amount = parseFloat(allTransactions[i][3]) || 0;
+        
         if(type === 'Income') totalInc += amount;
-        if(type === 'Expense' || type === 'Fuel') totalExp += amount;
+        if(type === 'Expense' && cat !== 'Savings this month') totalExp += amount;
+        if(type === 'Fuel') totalExp += amount;
         if(type === 'Savings') totalSav += amount;
-        if(type === 'Expense' && cat === 'Savings this month') carriedSavings += amount;
+        if(type === 'Expense' && cat === 'Savings this month') carriedSavings += amount; 
       }
-      document.getElementById('topBalance').innerText = formatINR(totalInc + carriedSavings - totalExp - totalSav);
+      
+      let balance = (totalInc + carriedSavings) - totalExp - totalSav;
+      document.getElementById('topBalance').innerText = formatINR(balance);
     }
 
     function updateCameraBtn() {
       const file = document.getElementById('expReceipt').files[0];
       if (file) {
-        document.getElementById('cameraBtnDisplay').innerText = "✅ " + file.name.substring(0, 15) + "...";
-        document.getElementById('cameraBtnDisplay').style.backgroundColor = "var(--accent-blue)";
-        document.getElementById('cameraBtnDisplay').style.color = "white";
-        document.getElementById('cameraBtnDisplay').style.border = "none";
+        document.getElementById('cameraBtnDisplay').innerText = "✅ Attached";
+        document.getElementById('cameraBtnDisplay').style.color = "var(--accent-blue)";
+        document.getElementById('cameraBtnDisplay').style.fontWeight = "800";
         
         const reader = new FileReader();
         reader.onload = function(e) { receiptBase64 = e.target.result; };
@@ -577,6 +555,7 @@
       }
     }
 
+    // Advanced UI Animation Modal
     function showStatusModal(isSuccess, message) {
       const modal = document.getElementById('statusModal');
       const icon = document.getElementById('statusIcon');
@@ -584,13 +563,13 @@
       const subtitle = document.getElementById('statusSubtitle');
 
       if (!isSuccess) {
-        icon.innerText = "🚀";
+        icon.innerHTML = `<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
         title.innerText = "Processing...";
-        subtitle.innerText = message || "Your transaction is processing";
+        subtitle.innerText = message || "Please wait while we record this";
       } else {
-        icon.innerHTML = `<svg width="56" height="56" viewBox="0 0 24 24" fill="var(--accent-green)" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1.177-7.86l-2.765-2.767L7 12.431l3.823 3.823 7.916-7.916-1.061-1.061-6.855 6.855z"/></svg>`;
+        icon.innerHTML = `<svg width="72" height="72" viewBox="0 0 24 24" fill="var(--accent-green)" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>`;
         title.innerText = "Success!";
-        subtitle.innerText = message || "Your transfer was successful";
+        subtitle.innerText = message || "Your entry was recorded";
       }
       modal.style.display = 'flex';
     }
@@ -599,20 +578,11 @@
       setTimeout(() => {
         document.getElementById('statusModal').style.display = 'none';
         if(callback) callback();
-      }, 1500);
+      }, 1800);
     }
 
-    function saveData(type) {
-      let prefix = type === 'Expense' ? 'exp' : 'inc';
-      let user = document.getElementById(prefix + 'User').value;
-      let date = document.getElementById(prefix + 'Date').value;
-      let amount = document.getElementById(prefix + 'Amount').value;
-      let cat = document.getElementById(prefix + 'Cat').value;
-      let project = type === 'Expense' ? document.getElementById('expProject').value : 'General';
-      let desc = document.getElementById(prefix + 'Desc').value;
-      let imgData = (type === 'Expense') ? receiptBase64 : '';
-
-      if(!amount || !cat || !date) return alert("Date, Amount, and Category/Source are required.");
+    function executeSave(type, cat, amount, date, user, desc, project, imgData) {
+      if(!amount || !cat || !date) return alert("Date, Amount, and Category are required.");
 
       if(allTransactions.length === 0) {
         allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres"]);
@@ -622,12 +592,11 @@
       localStorage.setItem('trackerData', JSON.stringify(allTransactions));
       calculateTopBalance();
 
-      showStatusModal(false, "Uploading securely...");
+      showStatusModal(false, "Uploading securely to cloud...");
 
       let payload = {
-        date: String(date), type: String(type), category: String(cat),
-        amount: String(amount), description: String(desc), user: String(user),
-        project: String(project), image: String(imgData), odometer: "", litres: ""
+        date: String(date), type: String(type), category: String(cat), amount: String(amount),
+        description: String(desc), user: String(user), project: String(project), image: String(imgData), odometer: "", litres: ""
       };
 
       fetch(URL, {
@@ -635,12 +604,30 @@
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       }).then(res => res.json()).then(() => {
-        showStatusModal(true, "Your entry was recorded successfully!");
+        showStatusModal(true, "Successfully synced!");
         hideStatusModal(() => location.reload());
       }).catch(() => {
         showStatusModal(true, "Saved offline successfully.");
         hideStatusModal(() => location.reload());
       });
+    }
+
+    function saveData(type) {
+      let prefix = type === 'Expense' ? 'exp' : 'inc';
+      executeSave(
+        type, 
+        document.getElementById(prefix + 'Cat').value, 
+        document.getElementById(prefix + 'Amount').value, 
+        document.getElementById(prefix + 'Date').value, 
+        document.getElementById(prefix + 'User').value, 
+        document.getElementById(prefix + 'Desc').value, 
+        type === 'Expense' ? document.getElementById('expProject').value : 'General', 
+        type === 'Expense' ? receiptBase64 : ''
+      );
+    }
+
+    function saveSavingsData() {
+      executeSave("Savings", document.getElementById('savCat').value, document.getElementById('savAmount').value, document.getElementById('savDate').value, document.getElementById('savUser').value, document.getElementById('savDesc').value, "Investments", "");
     }
 
     function saveFuelData() {
@@ -652,71 +639,25 @@
       let odo = document.getElementById('fuelOdo').value;
       let desc = document.getElementById('fuelDesc').value;
 
-      if(!amount || !litres || !odo || !date) return alert("Date, Total Price, Litres, and Odometer are required.");
+      if(!amount || !litres || !odo || !date) return alert("Date, Price, Litres, and Odo required.");
 
-      if(allTransactions.length === 0) {
-        allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres"]);
-      }
+      if(allTransactions.length === 0) allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres"]);
 
       allTransactions.push([date, "Fuel", vehicle, amount, desc, user, "Automotive", "", odo, litres]);
       localStorage.setItem('trackerData', JSON.stringify(allTransactions));
       calculateTopBalance();
 
-      showStatusModal(false, "Logging fuel fill...");
-
-      let payload = {
-        date: String(date), type: "Fuel", category: String(vehicle),
-        amount: String(amount), description: String(desc), user: String(user),
-        project: "Automotive", image: "", odometer: String(odo), litres: String(litres)
-      };
+      showStatusModal(false, "Logging fuel metrics...");
 
       fetch(URL, {
         method: 'POST',
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ date: String(date), type: "Fuel", category: String(vehicle), amount: String(amount), description: String(desc), user: String(user), project: "Automotive", image: "", odometer: String(odo), litres: String(litres) })
       }).then(res => res.json()).then(() => {
-        showStatusModal(true, "Fuel log recorded successfully!");
+        showStatusModal(true, "Fuel logged successfully!");
         hideStatusModal(() => location.reload());
       }).catch(() => {
-        showStatusModal(true, "Fuel entry saved offline.");
-        hideStatusModal(() => location.reload());
-      });
-    }
-
-    function saveSavingsData() {
-      let user = document.getElementById('savUser').value;
-      let date = document.getElementById('savDate').value;
-      let amount = document.getElementById('savAmount').value;
-      let cat = document.getElementById('savCat').value;
-      let desc = document.getElementById('savDesc').value;
-
-      if(!amount || !cat || !date) return alert("Date, Amount, and Investment Type are required.");
-
-      if(allTransactions.length === 0) {
-        allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres"]);
-      }
-
-      allTransactions.push([date, "Savings", cat, amount, desc, user, "Investments", "", "", ""]);
-      localStorage.setItem('trackerData', JSON.stringify(allTransactions));
-      calculateTopBalance();
-
-      showStatusModal(false, "Recording investment...");
-
-      let payload = {
-        date: String(date), type: "Savings", category: String(cat),
-        amount: String(amount), description: String(desc), user: String(user),
-        project: "Investments", image: "", odometer: "", litres: ""
-      };
-
-      fetch(URL, {
-        method: 'POST',
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      }).then(res => res.json()).then(() => {
-        showStatusModal(true, "Investment recorded successfully!");
-        hideStatusModal(() => location.reload());
-      }).catch(() => {
-        showStatusModal(true, "Investment saved offline.");
+        showStatusModal(true, "Fuel saved offline.");
         hideStatusModal(() => location.reload());
       });
     }
@@ -743,17 +684,12 @@
     function generateInsights() {
       let startStr = document.getElementById('startDate').value;
       let endStr = document.getElementById('endDate').value;
-      let selectedUser = document.getElementById('filterUser').value;
       
       let startDate = new Date(startStr + 'T00:00:00');
       let endDate = new Date(endStr + 'T23:59:59');
-      
-      let startDateDisplay = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      let endDateDisplay = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      document.getElementById('chartDateRange').innerText = `${startDateDisplay} - ${endDateDisplay}`;
 
       let totalExp = 0; let totalInc = 0; let totalSav = 0; let categoryTotals = {};
-      let lifetimeInc = 0; let lifetimeExp = 0; let lifetimeSav = 0; let savingsPortfolio = {};
+      let lifetimeSav = 0; let savingsPortfolio = {};
 
       let sortedTxs = [...allTransactions.slice(1)].map(row => ({
         date: parseSafeDate(String(row[0])), type: String(row[1]).trim(),
@@ -763,63 +699,82 @@
       })).sort((a, b) => a.date - b.date);
 
       for(let tx of sortedTxs) {
-        if (tx.type === 'Income') lifetimeInc += tx.amount;
-        if (tx.type === 'Expense' || tx.type === 'Fuel') lifetimeExp += tx.amount;
+        // All-time savings calculation
         if (tx.type === 'Savings') {
           lifetimeSav += tx.amount;
-          if(selectedUser === 'Both' || tx.user === selectedUser) {
-            savingsPortfolio[tx.cat] = (savingsPortfolio[tx.cat] || 0) + tx.amount;
-          }
+          savingsPortfolio[tx.cat] = (savingsPortfolio[tx.cat] || 0) + tx.amount;
+        }
+        if (tx.type === 'Expense' && tx.cat === 'Savings this month') {
+           lifetimeSav += tx.amount; // Also tracking cash carried forward as a physical saving
         }
 
+        // Selected Range Calculation
         if(tx.date >= startDate && tx.date <= endDate) {
-          if(selectedUser === 'Both' || tx.user === selectedUser) {
-            if (tx.type === 'Expense' || tx.type === 'Fuel') {
-              totalExp += tx.amount;
-              let displayCat = tx.type === 'Fuel' ? `Fuel - ${tx.cat}` : tx.cat;
-              categoryTotals[displayCat] = (categoryTotals[displayCat] || 0) + tx.amount;
-            } else if (tx.type === 'Income') {
-              totalInc += tx.amount;
-            } else if (tx.type === 'Savings') {
-              totalSav += tx.amount;
-            }
+          if (tx.type === 'Expense' && tx.cat !== 'Savings this month') {
+            totalExp += tx.amount;
+            categoryTotals[tx.cat] = (categoryTotals[tx.cat] || 0) + tx.amount;
+          } else if (tx.type === 'Fuel') {
+            totalExp += tx.amount;
+            let displayCat = `Fuel - ${tx.cat}`;
+            categoryTotals[displayCat] = (categoryTotals[displayCat] || 0) + tx.amount;
+          } else if (tx.type === 'Income') {
+            totalInc += tx.amount;
+          } else if (tx.type === 'Savings' || (tx.type === 'Expense' && tx.cat === 'Savings this month')) {
+            totalSav += tx.amount;
           }
         }
       }
 
-      document.getElementById('topBalance').innerText = formatINR(totalExp);
-      document.getElementById('secondaryBalance').innerText = formatINR(totalInc);
-
+      document.getElementById('topBalance').innerText = formatINR(totalInc); // Show total cashflow incoming for the selected period
+      
       drawCleanBarChart(totalInc, totalExp, totalSav);
+      buildSpendSegments(categoryTotals, totalExp);
       buildSavingsGrid(savingsPortfolio, lifetimeSav);
       buildCategoryGrid(Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(i => i[0]), Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(i => i[1]));
+    }
+
+    function buildSpendSegments(categoryTotals, totalExp) {
+      const bar = document.getElementById('spendSegmentBar');
+      const legend = document.getElementById('segmentLegend');
+      document.getElementById('spendTotalLabel').innerText = formatINR(totalExp);
+      bar.innerHTML = ''; legend.innerHTML = '';
+
+      let entries = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
+      if(totalExp === 0 || entries.length === 0) {
+        bar.innerHTML = `<div style="width: 100%; background: var(--border-color);"></div>`;
+        return;
+      }
+
+      entries.forEach(([catName, amt], index) => {
+        let pct = (amt / totalExp) * 100;
+        let color = appColors[index % appColors.length];
+        
+        bar.innerHTML += `<div style="width: ${pct}%; background-color: ${color}; height: 100%;" title="${catName}: ${formatINR(amt)}"></div>`;
+        legend.innerHTML += `<div style="display: flex; align-items: center;"><span class="legend-dot" style="background: ${color};"></span>${catName}</div>`;
+      });
     }
 
     function drawCleanBarChart(salary, expense, savings) {
       const ctx = document.getElementById('financialBarChart').getContext('2d');
       if (barChartInstance) barChartInstance.destroy(); 
 
-      // Mapped to look like the Image 3 requested design (Green = In/Save, Blue = Out)
       barChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: ['Salary', 'Expense', 'Savings'],
-          datasets: [{
-            data: [salary, expense, savings],
-            backgroundColor: ['#34c759', '#007aff', '#34c759'], 
-            borderRadius: 6,
-            borderSkipped: false,
-            barThickness: 30
-          }]
+          labels: ['Cashflow'],
+          datasets: [
+            { label: 'Income', data: [salary], backgroundColor: '#34c759', borderRadius: 8, barPercentage: 0.8 },
+            { label: 'Expense', data: [expense], backgroundColor: '#007aff', borderRadius: 8, barPercentage: 0.8 },
+            { label: 'Saved', data: [savings], backgroundColor: '#111111', borderRadius: 8, barPercentage: 0.8 }
+          ]
         },
         options: {
           responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(context) { return ' ' + formatINR(context.raw); } } } },
+          plugins: { legend: { display: false } },
           scales: {
-            y: { display: false, grid: { display: false } }, // Removed grid completely
-            x: { ticks: { color: '#8e8e93', font: { weight: '600' } }, grid: { display: false }, border: { display: false } }
-          },
-          layout: { padding: { top: 20 } }
+            y: { display: false, grid: { display: false } }, 
+            x: { display: false, grid: { display: false } }
+          }
         }
       });
     }
@@ -829,16 +784,15 @@
       grid.innerHTML = '';
 
       let combinedCard = `
-        <div class="cat-card" style="grid-column: span 2;" onclick="showCategoryDetails('All Savings')">
+        <div class="cat-card" style="grid-column: span 2; background: #34c759;" onclick="showCategoryDetails('All Savings')">
           <div style="display:flex; justify-content: space-between; align-items: center;">
-            <div style="display:flex; align-items: center; gap: 12px;">
-              <div class="cat-icon" style="margin:0; background: rgba(52, 199, 89, 0.15); color: #34c759;">💰</div>
+            <div style="display:flex; align-items: center; gap: 16px;">
+              <div class="cat-icon" style="margin:0; background: rgba(255,255,255,0.2); color: white;">💰</div>
               <div>
-                <div class="cat-name">Combined Portfolio Total</div>
-                <div class="cat-amt" style="font-size: 22px; color: var(--text-main);">${formatINR(totalCumulative)}</div>
+                <div class="cat-name" style="color: rgba(255,255,255,0.9);">Total Saved Value</div>
+                <div class="cat-amt" style="font-size: 24px; color: white;">${formatINR(totalCumulative)}</div>
               </div>
             </div>
-            <div style="color: var(--text-muted);">›</div>
           </div>
         </div>
       `;
@@ -864,10 +818,7 @@
       const grid = document.getElementById('categoryGrid');
       grid.innerHTML = '';
       
-      if(labels.length === 0) {
-        grid.innerHTML = '<div style="color:var(--text-muted); font-size:14px; grid-column: span 2;">No records found.</div>';
-        return;
-      }
+      if(labels.length === 0) return;
 
       labels.forEach((catName, index) => {
         let color = appColors[index % appColors.length];
@@ -894,7 +845,6 @@
 
         let startStr = document.getElementById('startDate').value;
         let endStr = document.getElementById('endDate').value;
-        let selectedUser = document.getElementById('filterUser').value;
         let startDate = new Date(startStr + 'T00:00:00');
         let endDate = new Date(endStr + 'T23:59:59');
 
@@ -906,10 +856,12 @@
         })).sort((a, b) => b.date - a.date);
 
         let filteredTxs = allParsed.filter(tx => {
-          let matchesCat = (categoryName === 'All Savings' && tx.type === 'Savings') || (categoryName.startsWith('Fuel - ') && tx.type === 'Fuel' && tx.cat === categoryName.replace('Fuel - ', '')) || (!categoryName.startsWith('Fuel - ') && tx.cat === categoryName);
+          let matchesCat = (categoryName === 'All Savings' && (tx.type === 'Savings' || tx.cat === 'Savings this month')) || 
+                           (categoryName.startsWith('Fuel - ') && tx.type === 'Fuel' && tx.cat === categoryName.replace('Fuel - ', '')) || 
+                           (!categoryName.startsWith('Fuel - ') && tx.cat === categoryName);
           let isSavingsPortfolio = ['All Savings', 'Chit', 'Gold Chit', 'Mutual Funds', 'Fixed Deposit', 'Stocks', 'Other Investment'].includes(categoryName);
           let dateCondition = isSavingsPortfolio ? true : (tx.date >= startDate && tx.date <= endDate);
-          return dateCondition && (selectedUser === 'Both' || tx.user === selectedUser) && matchesCat;
+          return dateCondition && matchesCat;
         }).sort((a, b) => b.date - a.date);
 
         if(filteredTxs.length === 0) {
@@ -917,7 +869,7 @@
         } else {
           filteredTxs.forEach(tx => {
             let dateStr = tx.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-            let receiptHTML = (tx.receipt && tx.receipt !== "Upload Failed" && tx.receipt !== "") ? `<a href="${tx.receipt}" target="_blank" class="tx-receipt-link">📎 View Receipt</a>` : '';
+            let receiptHTML = (tx.receipt && tx.receipt !== "Upload Failed" && tx.receipt !== "") ? `<a href="${tx.receipt}" target="_blank" class="tx-receipt-link">Receipt</a>` : '';
             
             listContainer.innerHTML += `
               <div class="transaction-item">
