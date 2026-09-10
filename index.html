@@ -393,9 +393,14 @@
     
     <div id="loadingIndicator">Syncing data...</div>
 
-    <!-- REPLACED PIE CHART WITH BAR GRAPH (Salary, Expense, Savings) -->
+    <!-- BAR CHART: Salary vs Expense vs Savings -->
     <div class="chart-container">
-      <canvas id="financialBarChart" width="250" height="220" style="max-height: 220px;"></canvas>
+      <canvas id="financialBarChart" width="250" height="200" style="max-height: 200px;"></canvas>
+    </div>
+
+    <!-- DOUGHNUT CHART: Top Spending Categories -->
+    <div class="chart-container">
+      <canvas id="expenseDoughnutChart" width="250" height="200" style="max-height: 200px;"></canvas>
     </div>
 
     <div class="balance-label" style="margin-bottom:12px;">Cumulative Asset Portfolios (Savings)</div>
@@ -432,7 +437,8 @@
   <script>
     const URL = "https://script.google.com/macros/s/AKfycbwETC4mZPqfomKjCKmIjdXbFktmKBqplCREtHWgoBPET2OCfPcqlCt-QVFMRdFonFytfA/exec"; 
     
-    let chartInstance = null;
+    let barChartInstance = null;
+    let doughnutChartInstance = null;
     let allTransactions = JSON.parse(localStorage.getItem('trackerData')) || [];
     let receiptBase64 = "";
     
@@ -507,7 +513,7 @@
       let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
-      if(chartInstance && document.getElementById('Insights').classList.contains('active-tab')) {
+      if(document.getElementById('Insights').classList.contains('active-tab')) {
         generateInsights(); 
       }
     }
@@ -531,20 +537,15 @@
     }
 
     function calculateTopBalance() {
-      let totalInc = 0; let totalExp = 0; let totalSav = 0;
+      let totalInc = 0; let totalExp = 0; let totalSav = 0; let carriedSavings = 0;
       for(let i = 1; i < allTransactions.length; i++) {
         let type = String(allTransactions[i][1]).trim();
+        let cat = String(allTransactions[i][2]).trim();
         let amount = parseFloat(allTransactions[i][3]) || 0;
         if(type === 'Income') totalInc += amount;
         if(type === 'Expense' || type === 'Fuel') totalExp += amount;
         if(type === 'Savings') totalSav += amount;
-      }
-      // Include carried-forward savings from previous month if categorized under 'Savings this month'
-      let carriedSavings = 0;
-      for(let i = 1; i < allTransactions.length; i++) {
-        if(String(allTransactions[i][1]).trim() === 'Expense' && String(allTransactions[i][2]).trim() === 'Savings this month') {
-          carriedSavings += parseFloat(allTransactions[i][3]) || 0;
-        }
+        if(type === 'Expense' && cat === 'Savings this month') carriedSavings += amount;
       }
       document.getElementById('topBalance').innerText = formatINR(totalInc + carriedSavings - totalExp - totalSav);
     }
@@ -728,7 +729,6 @@
       })).sort((a, b) => a.date - b.date);
 
       for(let tx of sortedTxs) {
-        // Lifetime cumulative totals
         if (tx.type === 'Income') lifetimeInc += tx.amount;
         if (tx.type === 'Expense' || tx.type === 'Fuel') lifetimeExp += tx.amount;
         if (tx.type === 'Savings') {
@@ -738,7 +738,6 @@
           }
         }
 
-        // Filtered range totals
         if(tx.date >= startDate && tx.date <= endDate) {
           if(selectedUser === 'Both' || tx.user === selectedUser) {
             if (tx.type === 'Expense' || tx.type === 'Fuel') {
@@ -759,16 +758,17 @@
       document.getElementById('inceptionSavings').innerText = formatINR(lifetimeInc - lifetimeExp - lifetimeSav);
 
       drawBarChart(totalInc, totalExp, totalSav);
-      buildSavingsGrid(savingsPortfolio);
+      drawDoughnutChart(categoryTotals);
+      buildSavingsGrid(savingsPortfolio, lifetimeSav);
       buildCategoryGrid(Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(i => i[0]), Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(i => i[1]));
     }
 
     function drawBarChart(salary, expense, savings) {
       const ctx = document.getElementById('financialBarChart').getContext('2d');
-      if (chartInstance) chartInstance.destroy(); 
+      if (barChartInstance) barChartInstance.destroy(); 
       let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
 
-      chartInstance = new Chart(ctx, {
+      barChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
           labels: ['Salary', 'Expense', 'Savings'],
@@ -789,16 +789,48 @@
       });
     }
 
-    function buildSavingsGrid(portfolio) {
-      const grid = document.getElementById('savingsGrid');
-      grid.innerHTML = '';
-      let entries = Object.entries(portfolio).sort((a, b) => b[1] - a[1]);
+    function drawDoughnutChart(categoryTotals) {
+      const ctx = document.getElementById('expenseDoughnutChart').getContext('2d');
+      if (doughnutChartInstance) doughnutChartInstance.destroy(); 
+      let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
 
-      if(entries.length === 0) {
-        grid.innerHTML = '<div style="color:var(--text-muted); font-size:14px; grid-column: span 2;">No cumulative investments recorded.</div>';
+      let sorted = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
+      let labels = sorted.map(i => i[0]);
+      let data = sorted.map(i => i[1]);
+
+      if(data.length === 0) {
+        doughnutChartInstance = new Chart(ctx, {
+          type: 'doughnut',
+          data: { labels: ['No Spending'], datasets: [{ data: [1], backgroundColor: [isDark ? '#2c2c2e' : '#f0f0f5'] }] },
+          options: { plugins: { legend: { display: false }, tooltip: { enabled: false } }, cutout: '75%' }
+        });
         return;
       }
 
+      doughnutChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: { labels: labels, datasets: [{ data: data, backgroundColor: appColors, borderWidth: 0, borderRadius: 4 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(context) { return ' ' + formatINR(context.raw); } } } }, cutout: '75%' }
+      });
+    }
+
+    function buildSavingsGrid(portfolio, totalCumulative) {
+      const grid = document.getElementById('savingsGrid');
+      grid.innerHTML = '';
+
+      // Combined Total Card first
+      let combinedCard = `
+        <div class="cat-card" style="background-color: #34c759; grid-column: span 2;" onclick="showCategoryDetails('All Savings')">
+          <div>
+            <div class="cat-icon">💰</div>
+            <div class="cat-name">Combined Total Portfolio</div>
+          </div>
+          <div class="cat-amt">${formatINR(totalCumulative)}</div>
+        </div>
+      `;
+      grid.innerHTML += combinedCard;
+
+      let entries = Object.entries(portfolio).sort((a, b) => b[1] - a[1]);
       entries.forEach(([catName, amt], index) => {
         let color = appColors[index % appColors.length];
         let emoji = emojis[catName] || '📈';
@@ -861,8 +893,8 @@
         })).sort((a, b) => a.date - b.date);
 
         let filteredTxs = allParsed.filter(tx => {
-          let matchesCat = (categoryName.startsWith('Fuel - ') && tx.type === 'Fuel' && tx.cat === categoryName.replace('Fuel - ', '')) || (!categoryName.startsWith('Fuel - ') && tx.cat === categoryName);
-          let isSavingsPortfolio = ['Chit', 'Gold Chit', 'Mutual Funds', 'Fixed Deposit', 'Stocks', 'Other Investment'].includes(categoryName);
+          let matchesCat = (categoryName === 'All Savings' && tx.type === 'Savings') || (categoryName.startsWith('Fuel - ') && tx.type === 'Fuel' && tx.cat === categoryName.replace('Fuel - ', '')) || (!categoryName.startsWith('Fuel - ') && tx.cat === categoryName);
+          let isSavingsPortfolio = ['All Savings', 'Chit', 'Gold Chit', 'Mutual Funds', 'Fixed Deposit', 'Stocks', 'Other Investment'].includes(categoryName);
           let dateCondition = isSavingsPortfolio ? true : (tx.date >= startDate && tx.date <= endDate);
           return dateCondition && (selectedUser === 'Both' || tx.user === selectedUser) && matchesCat;
         }).sort((a, b) => b.date - a.date);
