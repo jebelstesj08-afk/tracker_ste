@@ -38,14 +38,14 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main);
-      transition: background-color 0.3s, color 0.3s; padding-bottom: 120px;
+      transition: background-color 0.3s, color 0.3s; 
+      /* iPhone 13/15 Safe Area fix for scrolling */
+      padding-bottom: calc(120px + env(safe-area-inset-bottom));
     }
 
-    /* Top Header */
     .header { padding: 20px; padding-top: max(20px, env(safe-area-inset-top)); display: flex; justify-content: space-between; align-items: center; }
     .header-btn { background: var(--card-bg); border: none; color: var(--text-main); height: 40px; width: 40px; border-radius: 20px; font-size: 18px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; }
 
-    /* Main Balance Display */
     .balance-section { padding: 0 20px 20px; }
     .balance-label { font-size: 15px; color: var(--text-muted); font-weight: 500; margin-bottom: 4px; display: block; }
     .balance-amount { font-size: 42px; font-weight: 700; letter-spacing: -1px; margin: 0; }
@@ -54,7 +54,6 @@
     .active-tab { display: block; }
     @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Premium Input Forms */
     .input-group { margin-bottom: 16px; }
     .input-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
     input, select { width: 100%; padding: 16px; border-radius: var(--radius-md); border: none; background-color: var(--input-bg); color: var(--text-main); font-size: 16px; font-weight: 500; -webkit-appearance: none; outline: none; }
@@ -63,28 +62,28 @@
     .amount-wrapper span { position: absolute; left: 16px; top: 16px; font-size: 18px; font-weight: 700; color: var(--text-main); }
     .amount-wrapper input { padding-left: 35px; font-size: 24px; font-weight: 700; }
 
-    /* Action Buttons */
     button.save-btn { width: 100%; padding: 18px; border: none; border-radius: var(--radius-md); font-size: 17px; font-weight: 700; color: white; cursor: pointer; transition: transform 0.1s, opacity 0.2s; box-shadow: 0 8px 20px rgba(0,0,0,0.15); margin-top: 10px; }
     button.save-btn:active { transform: scale(0.97); }
     .btn-expense { background-color: var(--text-main); color: var(--bg-color); }
     .btn-income { background-color: var(--text-main); color: var(--bg-color); }
 
-    /* Insights Layout matching image */
-    .insights-header { margin-bottom: 24px; }
     .two-col { display: flex; gap: 12px; margin-bottom: 16px; }
     .two-col .input-group { flex: 1; margin-bottom: 0; }
     
     .chart-container { background: var(--card-bg); border-radius: var(--radius-lg); padding: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.04); margin-bottom: 24px; display: flex; justify-content: center; }
     
-    /* Vibrant Category Cards matching Screen 1 & 3 */
     .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
     .cat-card { padding: 16px; border-radius: var(--radius-lg); color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between; min-height: 100px; }
     .cat-icon { font-size: 20px; margin-bottom: 8px; background: rgba(255,255,255,0.2); width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
     .cat-name { font-size: 13px; font-weight: 500; opacity: 0.9; }
     .cat-amt { font-size: 18px; font-weight: 700; margin-top: 4px; }
 
-    /* Floating Pill Navigation */
-    .nav-wrapper { position: fixed; bottom: 30px; left: 0; width: 100%; display: flex; justify-content: center; z-index: 1000; pointer-events: none; }
+    /* iPhone 13/15 Safe Area fix for Navigation Menu */
+    .nav-wrapper { 
+      position: fixed; 
+      bottom: calc(20px + env(safe-area-inset-bottom)); 
+      left: 0; width: 100%; display: flex; justify-content: center; z-index: 1000; pointer-events: none; 
+    }
     .nav-pill { background: var(--nav-bg); padding: 6px; border-radius: 30px; display: flex; gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); pointer-events: auto; }
     .nav-pill button { background: transparent; border: none; color: #888; font-size: 13px; font-weight: 600; padding: 12px 24px; border-radius: 24px; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.3s ease; }
     .nav-pill button.active-nav { background: #333333; color: #ffffff; }
@@ -213,19 +212,14 @@
     
     <div id="loadingIndicator">Syncing data...</div>
 
-    <!-- Chart -->
     <div class="chart-container">
       <canvas id="expenseChart" width="250" height="250" style="max-height: 250px;"></canvas>
     </div>
 
-    <!-- Dynamic Category Grid -->
     <div class="balance-label" style="margin-bottom:12px;">Top spending categories</div>
-    <div class="category-grid" id="categoryGrid">
-      <!-- Generated by JavaScript -->
-    </div>
+    <div class="category-grid" id="categoryGrid"></div>
   </div>
 
-  <!-- FLOATING PILL NAVIGATION -->
   <div class="nav-wrapper">
     <div class="nav-pill">
       <button id="nav-Expense" class="active-nav" onclick="showTab('Expense')">💸 Exp</button>
@@ -243,7 +237,6 @@
     let chartInstance = null;
     let allTransactions = JSON.parse(localStorage.getItem('trackerData')) || [];
     
-    // Fintech vibrant palette from the image
     const appColors = ['#5e5ce6', '#007aff', '#34c759', '#ff9f0a', '#ff3b30', '#bf5af2', '#ff2d55', '#32ade6'];
     const emojis = ['💳', '🚗', '🍿', '🏠', '🛒', '⚡', '💊', '🛍️', '📚'];
 
@@ -299,10 +292,22 @@
       return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(amount);
     }
 
+    // A smart date parser that understands old DD/MM/YYYY sheet dates
+    function parseSafeDate(dateStr) {
+      let d = new Date(dateStr);
+      if (isNaN(d.getTime()) && typeof dateStr === 'string' && dateStr.includes('/')) {
+        let parts = dateStr.split(' ')[0].split('/');
+        if (parts.length === 3) {
+          return new Date(parts[2], parts[1]-1, parts[0]);
+        }
+      }
+      return d;
+    }
+
     function calculateTopBalance() {
       let totalInc = 0; let totalExp = 0;
       for(let i = 1; i < allTransactions.length; i++) {
-        let type = allTransactions[i][1];
+        let type = String(allTransactions[i][1]).trim();
         let amount = parseFloat(allTransactions[i][3]) || 0;
         if(type === 'Income') totalInc += amount;
         if(type === 'Expense') totalExp += amount;
@@ -382,13 +387,16 @@
 
       for(let i = 1; i < allTransactions.length; i++) {
         let row = allTransactions[i];
-        let rowDate = new Date(String(row[0]));
-        let type = row[1];
-        let cat = row[2];
+        let rowDate = parseSafeDate(String(row[0]));
+        let type = String(row[1]).trim();
+        let cat = String(row[2]).trim();
         let amount = parseFloat(row[3]) || 0;
-        let rowUser = row[5] || 'Jebel'; 
+        
+        // Ensure older rows without a user default correctly
+        let rowUser = row.length > 5 && row[5] ? String(row[5]).trim() : 'Jebel'; 
         
         if(rowDate >= startDate && rowDate <= endDate) {
+          // This ensures ONLY expenses are calculated for the insights page
           if((selectedUser === 'Both' || rowUser === selectedUser) && type === 'Expense') {
             totalExp += amount;
             categoryTotals[cat] = (categoryTotals[cat] || 0) + amount;
@@ -396,10 +404,8 @@
         }
       }
 
-      // Update Top Header for Insights
       document.getElementById('topBalance').innerText = formatINR(totalExp);
 
-      // Sort categories highest to lowest
       let sortedCategories = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
       let labels = sortedCategories.map(item => item[0]);
       let data = sortedCategories.map(item => item[1]);
@@ -417,7 +423,7 @@
       if(data.length === 0) {
         chartInstance = new Chart(ctx, {
           type: 'doughnut',
-          data: { labels: ['No Data'], datasets: [{ data: [1], backgroundColor: [isDark ? '#2c2c2e' : '#f0f0f5'] }] },
+          data: { labels: ['No Spending'], datasets: [{ data: [1], backgroundColor: [isDark ? '#2c2c2e' : '#f0f0f5'] }] },
           options: { plugins: { legend: { display: false }, tooltip: { enabled: false } }, cutout: '75%' }
         });
         return;
@@ -433,7 +439,7 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { display: false }, // Hiding legend to use our custom grid instead
+            legend: { display: false }, 
             tooltip: { callbacks: { label: function(context) { return ' ' + formatINR(context.raw); } } }
           },
           cutout: '75%'
@@ -446,7 +452,7 @@
       grid.innerHTML = '';
       
       if(labels.length === 0) {
-        grid.innerHTML = '<div style="color:var(--text-muted); font-size:14px; grid-column: span 2;">No expenses in this period.</div>';
+        grid.innerHTML = '<div style="color:var(--text-muted); font-size:14px; grid-column: span 2;">No expenses tracked in this period.</div>';
         return;
       }
 
