@@ -49,29 +49,13 @@
       align-items: center;
     }
 
-    .header h1 {
-      margin: 0;
-      font-size: 28px;
-      font-weight: 700;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 10px;
-    }
+    .header h1 { margin: 0; font-size: 28px; font-weight: 700; }
+    .header-actions { display: flex; gap: 10px; }
 
     .icon-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 8px 12px;
-      border-radius: 20px;
-      font-size: 16px;
-      cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main);
+      padding: 8px 12px; border-radius: 20px; font-size: 16px; cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center;
     }
 
     .tab-content { display: none; padding: 0 20px; animation: fadeIn 0.3s ease-in-out; }
@@ -109,7 +93,7 @@
     .nav button.active-nav { color: var(--accent-blue); }
     .nav-icon { font-size: 22px; }
     
-    #loadingIndicator { text-align: center; color: var(--text-muted); display: none; margin: 20px 0; }
+    #loadingIndicator { text-align: center; color: var(--text-muted); display: none; margin: 20px 0; font-size: 14px; }
   </style>
 </head>
 <body>
@@ -117,7 +101,8 @@
   <div class="header">
     <h1>Tracker</h1>
     <div class="header-actions">
-      <button class="icon-btn" onclick="location.reload()">🔄</button>
+      <!-- Smart Sync Button -->
+      <button class="icon-btn" onclick="forceSync()">🔄</button>
       <button class="icon-btn theme-toggle" onclick="toggleTheme()">🌙</button>
     </div>
   </div>
@@ -205,16 +190,15 @@
     <div class="date-filters">
       <div class="input-group">
         <label>Start Date</label>
-        <input type="date" id="startDate">
+        <input type="date" id="startDate" onchange="generateInsights()">
       </div>
       <div class="input-group">
         <label>End Date</label>
-        <input type="date" id="endDate">
+        <input type="date" id="endDate" onchange="generateInsights()">
       </div>
     </div>
     
-    <button class="save-btn btn-action" onclick="fetchInsights()" style="margin-bottom: 20px;">Generate Insights</button>
-    <div id="loadingIndicator">Fetching your data...</div>
+    <div id="loadingIndicator">Syncing with Google Sheets...</div>
 
     <div class="summary-grid">
       <div class="summary-box box-inc">
@@ -260,9 +244,13 @@
     const URL = "https://script.google.com/macros/s/AKfycbyHiPGGnoqL_hrmZ2dW0tnXCiZK9x-axSpXjefF1zXBzL8KanbhVX_FcfdcyWz5Q9PB/exec"; 
     
     let chartInstance = null;
+    
+    // Load cached data immediately from phone memory
+    let allTransactions = JSON.parse(localStorage.getItem('trackerData')) || [];
 
     window.onload = function() {
       applySavedTheme();
+      
       let today = new Date();
       let todayStr = today.toISOString().split('T')[0];
       document.getElementById('expDate').value = todayStr;
@@ -272,6 +260,9 @@
       let lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
       document.getElementById('startDate').value = firstDay;
       document.getElementById('endDate').value = lastDay;
+
+      // Silently sync with Google Sheets in the background on load
+      syncWithGoogle(false);
     };
 
     function showTab(tabName) {
@@ -281,8 +272,8 @@
       document.querySelectorAll('.nav button').forEach(btn => btn.classList.remove('active-nav'));
       document.getElementById('nav-' + tabName).classList.add('active-nav');
 
-      if(tabName === 'Insights' && document.getElementById('lblIncome').innerText === "₹ 0") {
-        fetchInsights(); 
+      if(tabName === 'Insights') {
+        generateInsights(); // Instantly load from phone memory!
       }
     }
 
@@ -292,7 +283,7 @@
       document.documentElement.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
       document.querySelector('.theme-toggle').innerText = newTheme === 'dark' ? '☀️' : '🌙';
-      if(chartInstance) fetchInsights(); 
+      if(chartInstance) generateInsights(); 
     }
 
     function applySavedTheme() {
@@ -314,78 +305,92 @@
 
       if(!amount || !cat || !date) return alert("Date, Amount, and Category are required.");
 
+      // 1. Optimistic Local Save (Instant)
+      if(allTransactions.length === 0) {
+         allTransactions.push(["Date", "Type", "Category", "Amount", "Description"]);
+      }
+      allTransactions.push([date, type, cat, amount, desc]);
+      localStorage.setItem('trackerData', JSON.stringify(allTransactions));
+
+      // 2. Update UI (Instant)
       let btn = event.target;
       let originalText = btn.innerText;
-      btn.innerText = "Saving...";
-      btn.style.opacity = "0.7";
+      btn.innerText = "✓ Saved!";
+      btn.style.backgroundColor = "#34c759";
+      
+      setTimeout(() => {
+        btn.innerText = originalText;
+        btn.style.backgroundColor = "";
+        document.getElementById(prefix + 'Amount').value = '';
+        document.getElementById(prefix + 'Cat').selectedIndex = 0;
+        document.getElementById(prefix + 'Desc').value = '';
+      }, 1500);
 
+      // 3. Send to Google Sheets in the background
       fetch(URL, {
         method: 'POST',
         body: JSON.stringify({ date: date, type: type, category: cat, amount: amount, description: desc })
-      }).then(() => {
-        btn.innerText = "✓ Saved!";
-        btn.style.backgroundColor = "#34c759";
-        setTimeout(() => {
-          btn.innerText = originalText;
-          btn.style.backgroundColor = "";
-          btn.style.opacity = "1";
-          document.getElementById(prefix + 'Amount').value = '';
-          document.getElementById(prefix + 'Cat').selectedIndex = 0;
-          document.getElementById(prefix + 'Desc').value = '';
-        }, 1500);
-      }).catch(err => {
-        alert("Error saving data. Check connection.");
-        btn.innerText = originalText;
-        btn.style.opacity = "1";
-      });
+      }).catch(err => console.log("Will sync later."));
     }
 
-    async function fetchInsights() {
-      document.getElementById('loadingIndicator').style.display = 'block';
+    function forceSync() {
+      syncWithGoogle(true);
+    }
+
+    // Connects to Google Sheets to download any updates
+    async function syncWithGoogle(showLoading = false) {
+      if(showLoading) document.getElementById('loadingIndicator').style.display = 'block';
       
-      // FIXED TIMEZONE LOGIC
+      try {
+        let response = await fetch(URL);
+        let data = await response.json(); 
+        allTransactions = data; 
+        localStorage.setItem('trackerData', JSON.stringify(data)); // Save locally
+        
+        if(document.getElementById('Insights').classList.contains('active-tab')) {
+           generateInsights();
+        }
+      } catch (err) {
+        if(showLoading) alert("Could not reach Google Sheets. Showing offline data.");
+      } finally {
+        if(showLoading) document.getElementById('loadingIndicator').style.display = 'none';
+      }
+    }
+
+    // Calculates all insights instantly using local phone memory
+    function generateInsights() {
       let startStr = document.getElementById('startDate').value;
       let endStr = document.getElementById('endDate').value;
       let startDate = new Date(startStr + 'T00:00:00');
       let endDate = new Date(endStr + 'T23:59:59');
 
-      try {
-        let response = await fetch(URL);
-        let data = await response.json(); 
+      let totalInc = 0;
+      let totalExp = 0;
+      let categoryTotals = {};
+
+      for(let i = 1; i < allTransactions.length; i++) {
+        let row = allTransactions[i];
+        let rowDateStr = String(row[0]);
+        let type = row[1];
+        let cat = row[2];
+        let amount = parseFloat(row[3]) || 0;
+        let rowDate = new Date(rowDateStr);
         
-        let totalInc = 0;
-        let totalExp = 0;
-        let categoryTotals = {};
-
-        for(let i = 1; i < data.length; i++) {
-          let row = data[i];
-          let rowDateStr = String(row[0]);
-          let type = row[1];
-          let cat = row[2];
-          let amount = parseFloat(row[3]) || 0;
-
-          let rowDate = new Date(rowDateStr);
-          
-          if(rowDate >= startDate && rowDate <= endDate) {
-            if(type === 'Income') {
-              totalInc += amount;
-            } else if (type === 'Expense') {
-              totalExp += amount;
-              categoryTotals[cat] = (categoryTotals[cat] || 0) + amount;
-            }
+        if(rowDate >= startDate && rowDate <= endDate) {
+          if(type === 'Income') {
+            totalInc += amount;
+          } else if (type === 'Expense') {
+            totalExp += amount;
+            categoryTotals[cat] = (categoryTotals[cat] || 0) + amount;
           }
         }
-
-        document.getElementById('lblIncome').innerText = formatINR(totalInc);
-        document.getElementById('lblExpense').innerText = formatINR(totalExp);
-        document.getElementById('lblBalance').innerText = formatINR(totalInc - totalExp);
-
-        drawChart(categoryTotals);
-      } catch (err) {
-        alert("Failed to load insights. Ensure your Google Apps Script is deployed properly.");
-      } finally {
-        document.getElementById('loadingIndicator').style.display = 'none';
       }
+
+      document.getElementById('lblIncome').innerText = formatINR(totalInc);
+      document.getElementById('lblExpense').innerText = formatINR(totalExp);
+      document.getElementById('lblBalance').innerText = formatINR(totalInc - totalExp);
+
+      drawChart(categoryTotals);
     }
 
     function drawChart(categoryTotals) {
@@ -394,7 +399,6 @@
 
       const labels = Object.keys(categoryTotals);
       const data = Object.values(categoryTotals);
-      
       let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
       let textColor = isDark ? '#ffffff' : '#000000';
 
