@@ -48,7 +48,6 @@
       padding-bottom: 110px; 
     }
 
-    /* Extra bottom clearance specifically for the Insights/Data tab layout */
     #Insights {
       padding-bottom: 140px !important;
     }
@@ -81,6 +80,10 @@
     .btn-income { background-color: var(--text-main); color: var(--bg-color); }
     .btn-fuel { background-color: #ff9f0a; color: white; }
     .btn-export { background-color: var(--card-bg); color: var(--accent-blue); border: 2px solid var(--accent-blue); padding: 12px; font-size: 14px; box-shadow: none; margin-top: 0; }
+
+    .file-upload-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
+    .file-upload-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%; }
+    .btn-camera { background-color: var(--input-bg); color: var(--text-main); border: 2px dashed var(--text-muted); box-shadow: none; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
     .two-col { display: flex; gap: 12px; margin-bottom: 16px; }
     .two-col .input-group { flex: 1; margin-bottom: 0; }
@@ -218,6 +221,11 @@
     <div class="input-group">
       <label>Details</label>
       <input type="text" id="expDesc" placeholder="Add a note (optional)">
+    </div>
+
+    <div class="input-group file-upload-wrapper">
+      <button class="save-btn btn-camera" id="cameraBtnDisplay">📸 Snap Receipt / Invoice</button>
+      <input type="file" id="expReceipt" accept="image/*" capture="environment" onchange="updateCameraBtn()">
     </div>
     
     <button class="save-btn btn-expense" onclick="saveData('Expense')">Add Expense</button>
@@ -372,6 +380,7 @@
     
     let chartInstance = null;
     let allTransactions = JSON.parse(localStorage.getItem('trackerData')) || [];
+    let receiptBase64 = "";
     
     const appColors = ['#5e5ce6', '#007aff', '#34c759', '#ff9f0a', '#ff3b30', '#bf5af2', '#ff2d55', '#32ade6'];
     const emojis = {
@@ -379,11 +388,8 @@
       'Housing / Rent': '🏠', 'Food - Groceries': '🛒', 'Food - Dining Out': '🍿', 'Transportation - Fuel': '⛽'
     };
 
-    // Helper to find the last working Friday of any given year and month
     function getLastWorkingFriday(year, month) {
-      // Start from the last day of the month
       let d = new Date(year, month + 1, 0);
-      // Backtrack until Friday (getDay() === 5)
       while (d.getDay() !== 5) {
         d.setDate(d.getDate() - 1);
       }
@@ -398,9 +404,6 @@
       document.getElementById('incDate').value = todayStr;
       document.getElementById('fuelDate').value = todayStr;
 
-      // Salary-to-salary cycle calculation:
-      // If today is on or after this month's last working Friday, cycle starts this month's last Friday.
-      // Otherwise, cycle starts last month's last working Friday.
       let currentYear = today.getFullYear();
       let currentMonth = today.getMonth();
       
@@ -409,7 +412,6 @@
 
       if (today >= thisMonthLastFriday) {
         cycleStart = thisMonthLastFriday;
-        // End is one day before next month's last working Friday
         let nextMonthLastFriday = getLastWorkingFriday(currentYear, currentMonth + 1);
         cycleEnd = new Date(nextMonthLastFriday);
         cycleEnd.setDate(cycleEnd.getDate() - 1);
@@ -491,6 +493,19 @@
       document.getElementById('topBalance').innerText = formatINR(totalInc - totalExp);
     }
 
+    function updateCameraBtn() {
+      const file = document.getElementById('expReceipt').files[0];
+      if (file) {
+        document.getElementById('cameraBtnDisplay').innerText = "✅ " + file.name.substring(0, 15) + "...";
+        document.getElementById('cameraBtnDisplay').style.backgroundColor = "var(--accent-blue)";
+        document.getElementById('cameraBtnDisplay').style.color = "white";
+        
+        const reader = new FileReader();
+        reader.onload = function(e) { receiptBase64 = e.target.result; };
+        reader.readAsDataURL(file);
+      }
+    }
+
     function saveData(type) {
       let prefix = type === 'Expense' ? 'exp' : 'inc';
       let user = document.getElementById(prefix + 'User').value;
@@ -499,6 +514,7 @@
       let cat = document.getElementById(prefix + 'Cat').value;
       let project = type === 'Expense' ? document.getElementById('expProject').value : 'General';
       let desc = document.getElementById(prefix + 'Desc').value;
+      let imgData = (type === 'Expense') ? receiptBase64 : '';
 
       if(!amount || !cat || !date) return alert("Date, Amount, and Category/Source are required.");
 
@@ -511,13 +527,13 @@
       calculateTopBalance();
 
       let btn = event.target;
-      btn.innerText = "Saving...";
+      btn.innerText = imgData ? "Uploading securely..." : "Saving...";
       btn.style.opacity = "0.7";
 
       let payload = {
         date: String(date), type: String(type), category: String(cat),
         amount: String(amount), description: String(desc), user: String(user),
-        project: String(project), image: "", odometer: "", litres: ""
+        project: String(project), image: String(imgData), odometer: "", litres: ""
       };
 
       fetch(URL, {
@@ -702,7 +718,7 @@
           date: parseSafeDate(String(row[0])), type: String(row[1]).trim(),
           cat: String(row[2]).trim(), amount: parseFloat(row[3]) || 0,
           desc: String(row[4] || 'No note'), user: String(row[5] || 'Jebel').trim(),
-          odo: parseFloat(row[8]) || 0, litres: parseFloat(row[9]) || 0
+          receipt: String(row[7] || ''), odo: parseFloat(row[8]) || 0, litres: parseFloat(row[9]) || 0
         })).sort((a, b) => a.date - b.date);
 
         let vehicleLastOdo = {};
@@ -733,6 +749,7 @@
               let calculatedMileage = vehicleStats[tx.odo] ? ` • 🚀 ${vehicleStats[tx.odo]} km/L` : '';
               fuelMeta = `<div style="font-size:12px; color:var(--accent-inc); font-weight:600; margin-top:3px;">Odo: ${tx.odo} km | ${tx.litres} L${calculatedMileage}</div>`;
             }
+            let receiptHTML = (tx.receipt && tx.receipt !== "Upload Failed" && tx.receipt !== "") ? `<a href="${tx.receipt}" target="_blank" class="tx-receipt-link">📎 View Receipt</a>` : '';
             
             listContainer.innerHTML += `
               <div class="transaction-item">
@@ -740,6 +757,7 @@
                   <span class="tx-desc">${tx.desc || tx.cat}</span>
                   <span class="tx-meta">${dateStr} • ${tx.user}</span>
                   ${fuelMeta}
+                  ${receiptHTML}
                 </div>
                 <div class="tx-amt">${formatINR(tx.amount)}</div>
               </div>
