@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
-  <title>Expense Tracker</title>
+  <title>Shared Tracker</title>
   <link rel="manifest" href="manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -33,30 +33,14 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      transition: background-color 0.3s, color 0.3s;
-      padding-bottom: 90px;
+      margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main);
+      transition: background-color 0.3s, color 0.3s; padding-bottom: 90px;
     }
 
-    .header {
-      padding: 20px;
-      padding-top: env(safe-area-inset-top, 20px);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
+    .header { padding: 20px; padding-top: env(safe-area-inset-top, 20px); display: flex; justify-content: space-between; align-items: center; }
     .header h1 { margin: 0; font-size: 28px; font-weight: 700; }
     .header-actions { display: flex; gap: 10px; }
-
-    .icon-btn {
-      background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main);
-      padding: 8px 12px; border-radius: 20px; font-size: 16px; cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center;
-    }
+    .icon-btn { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 20px; font-size: 16px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; }
 
     .tab-content { display: none; padding: 0 20px; animation: fadeIn 0.3s ease-in-out; }
     .active-tab { display: block; }
@@ -101,7 +85,6 @@
   <div class="header">
     <h1>Tracker</h1>
     <div class="header-actions">
-      <!-- Smart Sync Button -->
       <button class="icon-btn" onclick="forceSync()">🔄</button>
       <button class="icon-btn theme-toggle" onclick="toggleTheme()">🌙</button>
     </div>
@@ -110,6 +93,13 @@
   <!-- EXPENSE TAB -->
   <div id="Expense" class="tab-content active-tab">
     <div class="card">
+      <div class="input-group">
+        <label>User</label>
+        <select id="expUser">
+          <option value="Jebel">Jebel</option>
+          <option value="Reshma">Reshma</option>
+        </select>
+      </div>
       <div class="input-group">
         <label>Date</label>
         <input type="date" id="expDate">
@@ -132,14 +122,14 @@
           <option value="Transportation - Fuel">Transportation - Fuel</option>
           <option value="Transportation - Maintenance">Transportation - Maintenance</option>
           <option value="Utilities - Electricity">Utilities - Electricity</option>
-          <option value="Utilities - Internet (BSNL)">Utilities - Internet (BSNL)</option>
+          <option value="Utilities - Internet">Utilities - Internet</option>
           <option value="Utilities - Phone">Utilities - Phone</option>
           <option value="Home Automation & Solar">Home Automation & Solar</option>
           <option value="Health & Medical">Health & Medical</option>
           <option value="Entertainment">Entertainment</option>
           <option value="Shopping">Shopping</option>
           <option value="Personal Care">Personal Care</option>
-          <option value="Education & Certifications">Education & Certifications</option>
+          <option value="Education">Education</option>
           <option value="Debt / Loan EMI">Debt / Loan EMI</option>
           <option value="Miscellaneous">Miscellaneous</option>
         </select>
@@ -155,6 +145,13 @@
   <!-- INCOME TAB -->
   <div id="Income" class="tab-content">
     <div class="card">
+      <div class="input-group">
+        <label>User</label>
+        <select id="incUser">
+          <option value="Jebel">Jebel</option>
+          <option value="Reshma">Reshma</option>
+        </select>
+      </div>
       <div class="input-group">
         <label>Date</label>
         <input type="date" id="incDate">
@@ -187,6 +184,15 @@
 
   <!-- INSIGHTS TAB -->
   <div id="Insights" class="tab-content">
+    <div class="input-group">
+      <label>Filter by User</label>
+      <select id="filterUser" onchange="generateInsights()">
+        <option value="Both">Combined (Jebel & Reshma)</option>
+        <option value="Jebel">Jebel Only</option>
+        <option value="Reshma">Reshma Only</option>
+      </select>
+    </div>
+
     <div class="date-filters">
       <div class="input-group">
         <label>Start Date</label>
@@ -244,8 +250,6 @@
     const URL = "https://script.google.com/macros/s/AKfycbyHiPGGnoqL_hrmZ2dW0tnXCiZK9x-axSpXjefF1zXBzL8KanbhVX_FcfdcyWz5Q9PB/exec"; 
     
     let chartInstance = null;
-    
-    // Load cached data immediately from phone memory
     let allTransactions = JSON.parse(localStorage.getItem('trackerData')) || [];
 
     window.onload = function() {
@@ -261,7 +265,6 @@
       document.getElementById('startDate').value = firstDay;
       document.getElementById('endDate').value = lastDay;
 
-      // Silently sync with Google Sheets in the background on load
       syncWithGoogle(false);
     };
 
@@ -273,7 +276,7 @@
       document.getElementById('nav-' + tabName).classList.add('active-nav');
 
       if(tabName === 'Insights') {
-        generateInsights(); // Instantly load from phone memory!
+        generateInsights(); 
       }
     }
 
@@ -298,6 +301,7 @@
 
     function saveData(type) {
       let prefix = type === 'Expense' ? 'exp' : 'inc';
+      let user = document.getElementById(prefix + 'User').value;
       let date = document.getElementById(prefix + 'Date').value;
       let amount = document.getElementById(prefix + 'Amount').value;
       let cat = document.getElementById(prefix + 'Cat').value;
@@ -305,14 +309,12 @@
 
       if(!amount || !cat || !date) return alert("Date, Amount, and Category are required.");
 
-      // 1. Optimistic Local Save (Instant)
       if(allTransactions.length === 0) {
-         allTransactions.push(["Date", "Type", "Category", "Amount", "Description"]);
+         allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User"]);
       }
-      allTransactions.push([date, type, cat, amount, desc]);
+      allTransactions.push([date, type, cat, amount, desc, user]);
       localStorage.setItem('trackerData', JSON.stringify(allTransactions));
 
-      // 2. Update UI (Instant)
       let btn = event.target;
       let originalText = btn.innerText;
       btn.innerText = "✓ Saved!";
@@ -326,10 +328,9 @@
         document.getElementById(prefix + 'Desc').value = '';
       }, 1500);
 
-      // 3. Send to Google Sheets in the background
       fetch(URL, {
         method: 'POST',
-        body: JSON.stringify({ date: date, type: type, category: cat, amount: amount, description: desc })
+        body: JSON.stringify({ date: date, type: type, category: cat, amount: amount, description: desc, user: user })
       }).catch(err => console.log("Will sync later."));
     }
 
@@ -337,7 +338,6 @@
       syncWithGoogle(true);
     }
 
-    // Connects to Google Sheets to download any updates
     async function syncWithGoogle(showLoading = false) {
       if(showLoading) document.getElementById('loadingIndicator').style.display = 'block';
       
@@ -345,7 +345,7 @@
         let response = await fetch(URL);
         let data = await response.json(); 
         allTransactions = data; 
-        localStorage.setItem('trackerData', JSON.stringify(data)); // Save locally
+        localStorage.setItem('trackerData', JSON.stringify(data));
         
         if(document.getElementById('Insights').classList.contains('active-tab')) {
            generateInsights();
@@ -357,10 +357,11 @@
       }
     }
 
-    // Calculates all insights instantly using local phone memory
     function generateInsights() {
       let startStr = document.getElementById('startDate').value;
       let endStr = document.getElementById('endDate').value;
+      let selectedUser = document.getElementById('filterUser').value;
+      
       let startDate = new Date(startStr + 'T00:00:00');
       let endDate = new Date(endStr + 'T23:59:59');
 
@@ -374,14 +375,19 @@
         let type = row[1];
         let cat = row[2];
         let amount = parseFloat(row[3]) || 0;
+        let rowUser = row[5] || 'Jebel'; // Default older transactions without a user to Jebel
+        
         let rowDate = new Date(rowDateStr);
         
         if(rowDate >= startDate && rowDate <= endDate) {
-          if(type === 'Income') {
-            totalInc += amount;
-          } else if (type === 'Expense') {
-            totalExp += amount;
-            categoryTotals[cat] = (categoryTotals[cat] || 0) + amount;
+          // Check if the row belongs to the selected user filter
+          if(selectedUser === 'Both' || rowUser === selectedUser) {
+            if(type === 'Income') {
+              totalInc += amount;
+            } else if (type === 'Expense') {
+              totalExp += amount;
+              categoryTotals[cat] = (categoryTotals[cat] || 0) + amount;
+            }
           }
         }
       }
