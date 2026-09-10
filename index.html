@@ -6,8 +6,6 @@
   <title>Household Management System</title>
   <link rel="manifest" href="manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Tracker">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135706.html">
@@ -47,7 +45,7 @@
 
     .app-container {
       height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch;
-      padding-bottom: calc(160px + env(safe-area-inset-bottom)); /* Generous clearance for buttons and navigation */
+      padding-bottom: calc(180px + env(safe-area-inset-bottom)); 
     }
 
     .header { padding: 15px 20px; padding-top: max(40px, env(safe-area-inset-top)); display: flex; justify-content: space-between; align-items: center; }
@@ -92,14 +90,18 @@
     .cat-amt { font-size: 18px; font-weight: 700; margin-top: 4px; }
 
     .nav-wrapper { 
-      position: fixed; bottom: 0; left: 0; width: 100%; 
+      position: fixed; bottom: 8px; left: 0; width: 100%; 
       display: flex; justify-content: center; z-index: 1000; 
       pointer-events: none; 
-      padding-bottom: max(30px, env(safe-area-inset-bottom)); 
-      padding-top: 20px; 
-      background: linear-gradient(to top, var(--bg-color) 75%, transparent); 
+      padding-bottom: env(safe-area-inset-bottom); 
+      padding-top: 10px; 
+      background: transparent; 
     } 
-    .nav-pill { background: var(--nav-bg); padding: 6px; border-radius: 30px; display: flex; gap: 6px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); pointer-events: auto; overflow-x: auto; max-width: 95%; }
+    .nav-pill { 
+      background: var(--nav-bg); padding: 8px 12px; border-radius: 30px; 
+      display: flex; gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); 
+      pointer-events: auto; overflow-x: auto; max-width: 95%; 
+    }
     .nav-pill button { background: transparent; border: none; color: #888; font-size: 12px; font-weight: 600; padding: 10px 16px; border-radius: 20px; white-space: nowrap; cursor: pointer; transition: all 0.3s ease; }
     .nav-pill button.active-nav { background: #333333; color: #ffffff; }
 
