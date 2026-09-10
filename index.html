@@ -76,7 +76,8 @@
 
     .file-upload-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
     .file-upload-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%; }
-    .btn-camera { background-color: var(--card-bg); color: var(--text-main); border: 1px dashed var(--text-muted); box-shadow: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; }
+    .btn-camera { background-color: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color); box-shadow: none; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+    [data-theme="dark"] .btn-camera { border-color: var(--border-color); color: #ffffff; background-color: var(--input-bg); }
 
     .two-col { display: flex; gap: 12px; margin-bottom: 16px; }
     .two-col .input-group { flex: 1; margin-bottom: 0; }
@@ -101,10 +102,12 @@
     .budget-item { margin-bottom: 16px; }
     .budget-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--text-main); }
 
-    .nav-wrapper { position: fixed; bottom: 16px; left: 0; width: 100%; display: flex; justify-content: center; z-index: 1000; pointer-events: none; padding-bottom: env(safe-area-inset-bottom); } 
-    .nav-pill { background: var(--nav-bg); padding: 8px; border-radius: 30px; display: flex; gap: 4px; box-shadow: 0 12px 35px rgba(0,0,0,0.25); pointer-events: auto; overflow-x: auto; max-width: 95%; }
-    .nav-pill button { background: transparent; border: none; color: #a1a1a6; font-size: 12px; font-weight: 600; padding: 10px 16px; border-radius: 20px; white-space: nowrap; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 6px; }
-    .nav-pill button.active-nav { background: #333333; color: #ffffff; }
+    /* Nav Pill fixed to absolute bottom edge */
+    .nav-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; display: flex; justify-content: center; z-index: 1000; pointer-events: none; padding-bottom: max(10px, env(safe-area-inset-bottom)); } 
+    .nav-pill { background: var(--nav-bg); padding: 10px 20px; border-radius: 40px; display: flex; justify-content: space-between; gap: 12px; box-shadow: 0 16px 32px rgba(0,0,0,0.25); pointer-events: auto; width: 90%; max-width: 360px; }
+    .nav-pill button { background: transparent; border: none; color: #8e8e93; padding: 12px; border-radius: 50%; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; }
+    .nav-pill button svg { width: 24px; height: 24px; stroke-width: 2.2px; }
+    .nav-pill button.active-nav { background: #3a3a3c; color: #ffffff; }
 
     @media screen and (max-height: 650px) { .nav-wrapper { display: none !important; } }
     
@@ -223,14 +226,17 @@
         <option value="Miscellaneous">Miscellaneous</option>
       </select>
     </div>
-    <div class="input-group">
-      <label>Details</label>
-      <input type="text" id="expDesc" placeholder="Add a note (optional)">
-    </div>
 
-    <div class="input-group file-upload-wrapper">
-      <button class="save-btn btn-camera" id="cameraBtnDisplay">📸 Snap Receipt / Invoice</button>
-      <input type="file" id="expReceipt" accept="image/*" capture="environment" onchange="updateCameraBtn()">
+    <!-- INLINE DETAILS & COMPACT CAMERA BUTTON -->
+    <div class="two-col" style="align-items: flex-end;">
+      <div class="input-group" style="flex: 4;">
+        <label>Details</label>
+        <input type="text" id="expDesc" placeholder="Add a note (optional)">
+      </div>
+      <div class="input-group file-upload-wrapper" style="flex: 1; margin-bottom: 0;">
+        <button class="save-btn btn-camera" id="cameraBtnDisplay" style="height: 52px; margin-top:0; padding:0; border-radius: var(--radius-md);">📸</button>
+        <input type="file" id="expReceipt" accept="image/*" capture="environment" onchange="updateCameraBtn()">
+      </div>
     </div>
     
     <button class="save-btn btn-expense" onclick="saveData('Expense')">Add Expense</button>
@@ -388,25 +394,6 @@
     
     <div id="loadingIndicator">Syncing data...</div>
 
-    <!-- NEW: Settlement / Split Math -->
-    <div class="chart-container" style="background: var(--nav-bg); color: white; border: none;">
-      <div class="balance-label" style="color: #a1a1a6;">Household Settlement</div>
-      <div style="display:flex; justify-content: space-between; margin-top: 10px; align-items:center;">
-        <div>
-          <div style="font-size:12px; color:#a1a1a6;">Jebel Paid</div>
-          <div style="font-size:18px; font-weight:700;" id="jebelPaidTxt">₹0</div>
-        </div>
-        <div style="font-size:24px;">⚖️</div>
-        <div style="text-align:right;">
-          <div style="font-size:12px; color:#a1a1a6;">Reshma Paid</div>
-          <div style="font-size:18px; font-weight:700;" id="reshmaPaidTxt">₹0</div>
-        </div>
-      </div>
-      <div id="settlementResult" style="margin-top:15px; font-size:14px; font-weight:600; text-align:center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 12px;">
-        Calculating...
-      </div>
-    </div>
-
     <!-- CLEAN BAR CHART -->
     <div class="chart-container">
       <div class="chart-header">
@@ -422,15 +409,18 @@
       <canvas id="financialBarChart" width="250" height="180" style="max-height: 180px;"></canvas>
     </div>
 
-    <!-- NEW: Capital Projects Ledger -->
-    <div class="balance-label" style="margin-bottom:12px;">Capital Projects Ledger (All-Time)</div>
-    <div class="category-grid" id="projectGrid"></div>
-
-    <!-- NEW: Budget Progress Bars -->
+    <!-- BUDGET PROGRESS BARS -->
     <div class="chart-container" id="budgetContainer">
-      <div class="balance-label" style="margin-bottom: 16px;">Monthly Budget Status</div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div class="balance-label" style="margin-bottom: 0;">Monthly Budgets</div>
+        <button onclick="openBudgetModal()" style="background:none; border:none; color:var(--accent-blue); font-weight:700; cursor:pointer;">Edit</button>
+      </div>
       <div id="budgetBarsList"></div>
     </div>
+
+    <!-- CAPITAL PROJECTS -->
+    <div class="balance-label" style="margin-bottom:12px;">Capital Projects Ledger (All-Time)</div>
+    <div class="category-grid" id="projectGrid"></div>
 
     <div class="balance-label" style="margin-bottom:12px;">Cumulative Portfolios (All-Time)</div>
     <div class="category-grid" id="savingsGrid"></div>
@@ -439,18 +429,40 @@
     <div class="category-grid" id="categoryGrid"></div>
   </div>
 
-  <!-- FIXED NAVIGATION -->
+  <!-- ICON-ONLY NAVIGATION BAR -->
   <div class="nav-wrapper">
     <div class="nav-pill">
-      <button id="nav-Expense" class="active-nav" onclick="showTab('Expense')">💸 Exp</button>
-      <button id="nav-Income" onclick="showTab('Income')">💰 Inc</button>
-      <button id="nav-Fuel" onclick="showTab('Fuel')">🚗 Veh</button>
-      <button id="nav-Savings" onclick="showTab('Savings')">📈 Save</button>
-      <button id="nav-Insights" onclick="showTab('Insights')">📊 Data</button>
+      <button id="nav-Expense" class="active-nav" onclick="showTab('Expense')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+      </button>
+      <button id="nav-Income" onclick="showTab('Income')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      </button>
+      <button id="nav-Fuel" onclick="showTab('Fuel')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v16"></path><polyline points="11 13 3 13"></polyline><path d="M15 6h2a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"></path><path d="M19 10v9a2 2 0 0 1-2 2h-2"></path></svg>
+      </button>
+      <button id="nav-Savings" onclick="showTab('Savings')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+      </button>
+      <button id="nav-Insights" onclick="showTab('Insights')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+      </button>
     </div>
   </div>
 
 </div> 
+
+  <!-- BUDGET SETTINGS MODAL -->
+  <div id="budgetModal" class="modal-overlay" onclick="closeBudgetModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 style="font-size:24px;">Set Monthly Budgets</h3>
+        <button class="close-btn" onclick="closeBudgetModal()">✕</button>
+      </div>
+      <div id="budgetInputs" class="transaction-list"></div>
+      <button class="save-btn btn-expense" onclick="saveBudgets()" style="margin-top: 10px;">Save Budgets</button>
+    </div>
+  </div>
 
   <!-- SEARCH MODAL -->
   <div id="searchModal" class="modal-overlay" onclick="closeSearchModal(event)">
@@ -496,15 +508,8 @@
     const appColors = ['#007aff', '#34c759', '#5856d6', '#ff9f0a', '#ff3b30', '#32ade6', '#ff2d55', '#af52de'];
     const emojis = {
       'Hornet 2.0': '🏍️', 'Yamaha FZ': '🏍️', 'Dio': '🛵', 'i20': '🚗', 'XUV 500': '🚙', 'Qualis': '🚐',
-      'Housing / Rent': '🏠', 'Food - Groceries': '🛒', 'Food - Dining Out': '🍿', 'Transportation - Maintenance': '🔧', 'Utilities - Bills': '⚡', 'Construction - Structure': '🏗️', 'Hardware / Equipment': '💻',
+      'Housing / Rent': '🏠', 'Food - Groceries': '🛒', 'Food - Dining Out': '🍿', 'Transportation - Maintenance': '🔧', 'Utilities - Electricity': '⚡', 'Utilities - Internet': '🌐', 'Utilities - Phone': '📱', 'Construction - Structure': '🏗️', 'Hardware / Equipment': '💻',
       'Chit': '📜', 'Gold Chit': '🪙', 'Mutual Funds': '📈', 'Fixed Deposit': '🏦', 'Stocks': '📊', 'Other Investment': '💎', 'House Construction': '🏗️', 'Home Automation & Network': '🌐', 'Automotive': '🏎️'
-    };
-
-    // Standard Monthly Budgets (Adjust these values as needed)
-    const monthlyBudgets = {
-      'Food - Groceries': 12000,
-      'Food - Dining Out': 4000,
-      'Utilities - Electricity': 3000
     };
 
     window.onload = function() {
@@ -616,11 +621,12 @@
 
     function updateCameraBtn() {
       const file = document.getElementById('expReceipt').files[0];
+      const btn = document.getElementById('cameraBtnDisplay');
       if (file) {
-        document.getElementById('cameraBtnDisplay').innerText = "✅ " + file.name.substring(0, 15) + "...";
-        document.getElementById('cameraBtnDisplay').style.backgroundColor = "var(--accent-blue)";
-        document.getElementById('cameraBtnDisplay').style.color = "white";
-        document.getElementById('cameraBtnDisplay').style.border = "none";
+        btn.innerText = "✅";
+        btn.style.backgroundColor = "var(--accent-green)";
+        btn.style.color = "white";
+        btn.style.border = "none";
         
         const reader = new FileReader();
         reader.onload = function(e) { receiptBase64 = e.target.result; };
@@ -641,7 +647,7 @@
       } else {
         icon.innerHTML = `<svg width="56" height="56" viewBox="0 0 24 24" fill="var(--accent-green)" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1.177-7.86l-2.765-2.767L7 12.431l3.823 3.823 7.916-7.916-1.061-1.061-6.855 6.855z"/></svg>`;
         title.innerText = "Success!";
-        subtitle.innerText = message || "Your transfer was successful";
+        subtitle.innerText = message || "Your entry was recorded";
       }
       modal.style.display = 'flex';
     }
@@ -653,14 +659,14 @@
       }, 1500);
     }
 
-    function executeSave(payload, btnElement, loadingMsg, successMsg) {
+    function executeSave(payload, loadingMsg, successMsg) {
       if(!payload.amount || !payload.category || !payload.date) return alert("Date, Amount, and Category are required.");
 
       if(allTransactions.length === 0) {
         allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres"]);
       }
       
-      allTransactions.push([payload.date, payload.type, payload.category, payload.amount, payload.description, payload.user, payload.project, "", payload.odometer, payload.litres]);
+      allTransactions.push([payload.date, payload.type, payload.category, payload.amount, payload.description, payload.user, payload.project, payload.image, payload.odometer, payload.litres]);
       localStorage.setItem('trackerData', JSON.stringify(allTransactions));
       calculateTopBalance();
 
@@ -692,7 +698,7 @@
         image: type === 'Expense' ? receiptBase64 : '',
         odometer: "", litres: ""
       };
-      executeSave(payload, null, "Uploading securely...", "Your entry was recorded!");
+      executeSave(payload, "Uploading securely...", "Your entry was recorded!");
     }
 
     function saveFuelData() {
@@ -709,7 +715,7 @@
         odometer: document.getElementById('fuelOdo').value,
         litres: isService ? "" : document.getElementById('fuelLitres').value
       };
-      executeSave(payload, null, isService ? "Logging maintenance..." : "Logging fuel...", isService ? "Service recorded!" : "Fuel logged!");
+      executeSave(payload, isService ? "Logging maintenance..." : "Logging fuel...", isService ? "Service recorded!" : "Fuel logged!");
     }
 
     function saveSavingsData() {
@@ -723,7 +729,7 @@
         project: "Investments",
         image: "", odometer: "", litres: ""
       };
-      executeSave(payload, null, "Recording investment...", "Investment recorded!");
+      executeSave(payload, "Recording investment...", "Investment recorded!");
     }
 
     function forceSync() { syncWithGoogle(true); }
@@ -760,7 +766,6 @@
       let totalExp = 0; let totalInc = 0; let totalSav = 0; let categoryTotals = {};
       let lifetimeInc = 0; let lifetimeExp = 0; let lifetimeSav = 0; 
       let savingsPortfolio = {}; let projectTotals = {};
-      let jebelPaid = 0; let reshmaPaid = 0;
 
       let sortedTxs = [...allTransactions.slice(1)].map(row => ({
         date: parseSafeDate(String(row[0])), type: String(row[1]).trim(),
@@ -788,13 +793,6 @@
 
         // Date-Range Data
         if(tx.date >= startDate && tx.date <= endDate) {
-          
-          // Settlement Logic (Only count Expenses/Fuel in date range)
-          if(tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') {
-             if(tx.user === 'Jebel') jebelPaid += tx.amount;
-             if(tx.user === 'Reshma') reshmaPaid += tx.amount;
-          }
-
           if(selectedUser === 'Both' || tx.user === selectedUser) {
             if (tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') {
               totalExp += tx.amount;
@@ -817,33 +815,60 @@
       buildSavingsGrid(savingsPortfolio, lifetimeSav);
       buildProjectGrid(projectTotals);
       buildCategoryGrid(Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(i => i[0]), Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(i => i[1]));
-      
-      // Render Settlement
-      document.getElementById('jebelPaidTxt').innerText = formatINR(jebelPaid);
-      document.getElementById('reshmaPaidTxt').innerText = formatINR(reshmaPaid);
-      let diff = Math.abs(jebelPaid - reshmaPaid) / 2;
-      let settleDiv = document.getElementById('settlementResult');
-      if(jebelPaid > reshmaPaid) {
-          settleDiv.innerText = `Reshma owes Jebel ${formatINR(diff)}`;
-          settleDiv.style.color = "var(--accent-red)";
-      } else if (reshmaPaid > jebelPaid) {
-          settleDiv.innerText = `Jebel owes Reshma ${formatINR(diff)}`;
-          settleDiv.style.color = "var(--accent-green)";
-      } else {
-          settleDiv.innerText = `All settled up!`;
-          settleDiv.style.color = "white";
-      }
 
       // Render Budgets
       buildBudgetBars(categoryTotals);
+    }
+
+    // Custom Budget Setting Module
+    function openBudgetModal() {
+        let container = document.getElementById('budgetInputs');
+        container.innerHTML = '';
+        let cats = ['Food - Groceries', 'Food - Dining Out', 'Utilities - Electricity', 'Transportation - Maintenance', 'Shopping', 'Personal Care'];
+        let current = JSON.parse(localStorage.getItem('userBudgets')) || { 'Food - Groceries': 12000, 'Food - Dining Out': 4000 };
+        
+        cats.forEach(c => {
+           let val = current[c] || '';
+           container.innerHTML += `
+             <div class="input-group">
+               <label>${c}</label>
+               <input type="number" data-cat="${c}" value="${val}" placeholder="0" style="padding:12px;">
+             </div>
+           `;
+        });
+        
+        document.getElementById('budgetModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('budgetModal').classList.add('show'), 10);
+    }
+
+    function closeBudgetModal(e) {
+        if(e && e.target.id !== 'budgetModal') return;
+        const modal = document.getElementById('budgetModal');
+        modal.classList.remove('show');
+        setTimeout(() => modal.style.display = 'none', 300);
+    }
+
+    function saveBudgets() {
+        let newBudgets = {};
+        let inputs = document.querySelectorAll('#budgetInputs input');
+        inputs.forEach(input => {
+           if(input.value && Number(input.value) > 0) {
+              newBudgets[input.getAttribute('data-cat')] = Number(input.value);
+           }
+        });
+        localStorage.setItem('userBudgets', JSON.stringify(newBudgets));
+        closeBudgetModal();
+        generateInsights(); // Refresh the UI with new budgets
     }
 
     function buildBudgetBars(categoryTotals) {
       let container = document.getElementById('budgetBarsList');
       container.innerHTML = '';
       
+      let userBudgets = JSON.parse(localStorage.getItem('userBudgets')) || {};
       let hasBudgets = false;
-      for (const [cat, limit] of Object.entries(monthlyBudgets)) {
+
+      for (const [cat, limit] of Object.entries(userBudgets)) {
         hasBudgets = true;
         let spent = categoryTotals[cat] || 0;
         let pct = Math.min((spent / limit) * 100, 100);
@@ -861,8 +886,9 @@
           </div>
         `;
       }
+      
       if(!hasBudgets) {
-        document.getElementById('budgetContainer').style.display = 'none';
+        container.innerHTML = '<div style="color:var(--text-muted); font-size:14px; text-align:center;">No budgets set yet. Click Edit to define limits.</div>';
       }
     }
 
@@ -1027,7 +1053,7 @@
           let txProj = String(row[6]).trim();
 
           if(isProject) {
-              return txProj === categoryName; // Projects ignore date filters by default for all-time view
+              return txProj === categoryName; 
           }
 
           let matchesCat = (categoryName === 'All Savings' && txType === 'Savings') || 
