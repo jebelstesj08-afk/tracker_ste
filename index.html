@@ -4,13 +4,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>My Tracker</title>
   <link rel="manifest" href="manifest.json">
-<meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f9; text-align: center; }
     .tab-content { display: none; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 60px; }
     .active { display: block; }
-    input { margin: 10px 0; padding: 15px; width: 90%; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
-    button.save-btn { padding: 15px; width: 98%; background-color: #28a745; color: white; border: none; border-radius: 5px; font-size: 18px; margin-top: 10px; }
+    input { margin: 10px 0; padding: 15px; width: 90%; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; box-sizing: border-box; }
+    button.save-btn { padding: 15px; width: 100%; background-color: #28a745; color: white; border: none; border-radius: 5px; font-size: 18px; margin-top: 10px; }
     button.save-btn.income { background-color: #007bff; }
     .nav { display: flex; justify-content: space-around; position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
     .nav button { background: none; border: none; font-size: 16px; font-weight: bold; color: #555; width: 33%; }
@@ -22,6 +22,7 @@
   <!-- Expense Tab -->
   <div id="Expense" class="tab-content active">
     <h3 style="color: #28a745">Add Expense</h3>
+    <input type="date" id="expDate">
     <input type="number" id="expAmount" placeholder="Amount (e.g. 50)">
     <input type="text" id="expCat" placeholder="Category (e.g. Food)">
     <input type="text" id="expDesc" placeholder="Description (Optional)">
@@ -31,6 +32,7 @@
   <!-- Income Tab -->
   <div id="Income" class="tab-content">
     <h3 style="color: #007bff">Add Income</h3>
+    <input type="date" id="incDate">
     <input type="number" id="incAmount" placeholder="Amount (e.g. 1000)">
     <input type="text" id="incCat" placeholder="Category (e.g. Salary)">
     <input type="text" id="incDesc" placeholder="Description (Optional)">
@@ -41,7 +43,6 @@
   <div id="Insights" class="tab-content">
     <h3>Insights</h3>
     <p>Your transactions are saving securely to Google Sheets.</p>
-    <p>Open your Google Sheet to view your full history and charts!</p>
   </div>
 
   <!-- Bottom Navigation -->
@@ -53,7 +54,14 @@
 
   <script>
     // REPLACE THE LINK BELOW WITH YOUR GOOGLE WEB APP URL
-    const URL = "https://script.google.com/macros/s/AKfycbyHiPGGnoqL_hrmZ2dW0tnXCiZK9x-axSpXjefF1zXBzL8KanbhVX_FcfdcyWz5Q9PB/exec";
+    const URL = "YOUR_COPIED_WEB_APP_URL_HERE";
+
+    // Auto-fill today's date when the app loads
+    window.onload = function() {
+      let today = new Date().toISOString().split('T')[0];
+      document.getElementById('expDate').value = today;
+      document.getElementById('incDate').value = today;
+    };
 
     function showTab(tabName) {
       document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
@@ -62,20 +70,20 @@
 
     function saveData(type) {
       let prefix = type === 'Expense' ? 'exp' : 'inc';
+      let date = document.getElementById(prefix + 'Date').value;
       let amount = document.getElementById(prefix + 'Amount').value;
       let cat = document.getElementById(prefix + 'Cat').value;
       let desc = document.getElementById(prefix + 'Desc').value;
 
-      if(!amount || !cat) return alert("Please enter an amount and category.");
+      if(!amount || !cat || !date) return alert("Please enter a date, amount, and category.");
 
-      // Show a temporary saving message
       let btn = event.target;
       let originalText = btn.innerText;
       btn.innerText = "Saving...";
 
       fetch(URL, {
         method: 'POST',
-        body: JSON.stringify({ type: type, category: cat, amount: amount, description: desc })
+        body: JSON.stringify({ date: date, type: type, category: cat, amount: amount, description: desc })
       }).then(() => {
         alert(type + " Saved Successfully!");
         btn.innerText = originalText;
