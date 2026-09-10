@@ -8,7 +8,6 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Tracker">
-  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135706.html">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
@@ -45,17 +44,11 @@
       min-height: 100%; overflow-x: hidden;
     }
 
-    .app-container {
-      min-height: 100vh;
-      padding-bottom: 130px; /* Increased to ensure buttons easily scroll above the nav bar */
-    }
-
-    #Insights {
-      padding-bottom: 150px !important;
-    }
+    .app-container { min-height: 100vh; padding-bottom: 120px; }
+    #Insights { padding-bottom: 150px !important; }
 
     .header { padding: 15px 20px; padding-top: max(40px, env(safe-area-inset-top)); display: flex; justify-content: space-between; align-items: center; }
-    .header-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); height: 40px; width: 40px; border-radius: 20px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .header-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); height: 40px; width: 40px; border-radius: 20px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
     .balance-section { padding: 10px 20px 25px; }
     .balance-label { font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -89,7 +82,6 @@
     .two-col .input-group { flex: 1; margin-bottom: 0; }
     
     .chart-container { background: var(--card-bg); border-radius: var(--radius-lg); padding: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid var(--border-color); }
-    
     .chart-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
     .chart-legend-dots { display: flex; gap: 12px; font-size: 12px; color: var(--text-muted); font-weight: 500; }
     .dot { width: 8px; height: 8px; border-radius: 4px; display: inline-block; margin-right: 4px; }
@@ -103,20 +95,14 @@
     .cat-name { font-size: 13px; font-weight: 600; color: var(--text-muted); }
     .cat-amt { font-size: 18px; font-weight: 800; margin-top: 4px; }
 
-    /* Dropped Floating Navigation */
-    .nav-wrapper { 
-      position: fixed; bottom: 0; left: 0; width: 100%; 
-      display: flex; justify-content: center; z-index: 1000; 
-      pointer-events: none; 
-      padding-bottom: calc(8px + env(safe-area-inset-bottom)); 
-      padding-top: 25px;
-      background: linear-gradient(to top, var(--bg-color) 60%, transparent); /* Smooth fade so scroll behind looks clean */
-    } 
-    .nav-pill { 
-      background: var(--nav-bg); padding: 8px; border-radius: 30px; 
-      display: flex; gap: 4px; box-shadow: 0 12px 35px rgba(0,0,0,0.3); 
-      pointer-events: auto; overflow-x: auto; max-width: 95%; 
-    }
+    /* Budget Progress Bars */
+    .budget-bar-container { background: var(--input-bg); border-radius: 8px; height: 8px; width: 100%; overflow: hidden; margin-top: 8px; }
+    .budget-bar-fill { height: 100%; border-radius: 8px; transition: width 0.3s ease; }
+    .budget-item { margin-bottom: 16px; }
+    .budget-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--text-main); }
+
+    .nav-wrapper { position: fixed; bottom: 16px; left: 0; width: 100%; display: flex; justify-content: center; z-index: 1000; pointer-events: none; padding-bottom: env(safe-area-inset-bottom); } 
+    .nav-pill { background: var(--nav-bg); padding: 8px; border-radius: 30px; display: flex; gap: 4px; box-shadow: 0 12px 35px rgba(0,0,0,0.25); pointer-events: auto; overflow-x: auto; max-width: 95%; }
     .nav-pill button { background: transparent; border: none; color: #a1a1a6; font-size: 12px; font-weight: 600; padding: 10px 16px; border-radius: 20px; white-space: nowrap; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 6px; }
     .nav-pill button.active-nav { background: #333333; color: #ffffff; }
 
@@ -124,7 +110,6 @@
     
     #loadingIndicator { text-align: center; color: var(--text-muted); display: none; margin: 10px 0; font-size: 14px; font-weight: 500; }
 
-    /* Success / Processing Modal */
     .status-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 3000; animation: fadeIn 0.2s ease; }
     .status-card { background: var(--card-bg); width: 85%; max-width: 300px; padding: 40px 20px; border-radius: 32px; text-align: center; box-shadow: 0 24px 48px rgba(0,0,0,0.15); transform: scale(0.9); animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; border: 1px solid var(--border-color); }
     .status-icon { font-size: 56px; margin-bottom: 20px; }
@@ -134,17 +119,15 @@
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-    /* Transaction List Modal */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; }
     .modal-overlay.show { display: flex; opacity: 1; }
-    .modal-content { background: var(--bg-color); width: 100%; max-height: 85vh; border-radius: 32px 32px 0 0; padding: 24px; padding-bottom: calc(24px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    .modal-content { background: var(--bg-color); width: 100%; max-height: 85vh; min-height: 50vh; border-radius: 32px 32px 0 0; padding: 24px; padding-bottom: calc(24px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
     .modal-overlay.show .modal-content { transform: translateY(0); }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .modal-header h3 { margin: 0; font-size: 22px; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px; }
-    .close-btn { background: var(--input-bg); border: none; color: var(--text-main); width: 36px; height: 36px; border-radius: 18px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    .close-btn { background: var(--input-bg); border: none; color: var(--text-main); width: 36px; height: 36px; border-radius: 18px; font-size: 16px; font-weight: bold; cursor: pointer; display:flex; justify-content:center; align-items:center; }
     .transaction-list { overflow-y: auto; flex: 1; padding-bottom: 20px; }
     
-    /* Restyled Transaction List Items */
     .transaction-item { background: transparent; padding: 16px 0; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
     .transaction-item:last-child { border-bottom: none; }
     .tx-left { display: flex; flex-direction: column; max-width: 65%; }
@@ -152,6 +135,8 @@
     .tx-meta { font-size: 13px; color: var(--text-muted); font-weight: 500; }
     .tx-amt { font-weight: 800; font-size: 18px; color: var(--text-main); letter-spacing: -0.5px;}
     .tx-receipt-link { font-size: 12px; color: var(--accent-blue); text-decoration: none; margin-top: 6px; display: inline-block; font-weight: 600; background: var(--input-bg); padding: 4px 10px; border-radius: 12px;}
+
+    #searchInput { margin-bottom: 15px; padding: 16px; font-size: 18px; font-weight: 600; border-radius: 16px; border: 1px solid var(--border-color); background: var(--card-bg); width: 100%; color: var(--text-main); }
   </style>
 </head>
 <body>
@@ -160,7 +145,10 @@
 
   <div class="header">
     <button class="header-btn" onclick="toggleTheme()">🌓</button>
-    <button class="header-btn" ondblclick="window.location.reload(true)" onclick="forceSync()">🔄</button>
+    <div style="display:flex; gap:10px;">
+      <button class="header-btn" onclick="openSearchModal()">🔍</button>
+      <button class="header-btn" ondblclick="window.location.reload(true)" onclick="forceSync()">🔄</button>
+    </div>
   </div>
 
   <div class="balance-section">
@@ -288,8 +276,16 @@
     <button class="save-btn btn-income" onclick="saveData('Income')">Add Income</button>
   </div>
 
-  <!-- FUEL TAB -->
+  <!-- VEHICLE / FUEL TAB -->
   <div id="Fuel" class="tab-content">
+    <div class="input-group">
+      <label>Log Type</label>
+      <select id="fuelLogType" onchange="toggleFuelFields()" style="font-weight: 700;">
+        <option value="Fuel">⛽ Fuel Fill-up</option>
+        <option value="Service">🔧 Maintenance / Service</option>
+      </select>
+    </div>
+
     <div class="input-group">
       <label>Select Vehicle</label>
       <select id="fuelVehicle">
@@ -305,10 +301,7 @@
     <div class="two-col">
       <div class="input-group">
         <label>User</label>
-        <select id="fuelUser">
-          <option value="Jebel">Jebel</option>
-          <option value="Reshma">Reshma</option>
-        </select>
+        <select id="fuelUser"><option value="Jebel">Jebel</option><option value="Reshma">Reshma</option></select>
       </div>
       <div class="input-group">
         <label>Date</label>
@@ -321,7 +314,7 @@
         <label>Total Price (₹)</label>
         <input type="number" id="fuelAmount" placeholder="0" step="0.01">
       </div>
-      <div class="input-group">
+      <div class="input-group" id="litresGroup">
         <label>Litres Added</label>
         <input type="number" id="fuelLitres" placeholder="0.00" step="0.01">
       </div>
@@ -334,10 +327,10 @@
 
     <div class="input-group">
       <label>Details / Station (Optional)</label>
-      <input type="text" id="fuelDesc" placeholder="e.g. NTP Petroleum">
+      <input type="text" id="fuelDesc" placeholder="e.g. NTP Petroleum or Oil Change">
     </div>
 
-    <button class="save-btn btn-fuel" onclick="saveFuelData()">Log Fuel Fill</button>
+    <button class="save-btn btn-fuel" id="vehicleLogBtn" onclick="saveVehicleData()">Log Fuel Fill</button>
   </div>
 
   <!-- SAVINGS INVESTMENTS TAB -->
@@ -352,10 +345,7 @@
     <div class="two-col">
       <div class="input-group">
         <label>User</label>
-        <select id="savUser">
-          <option value="Jebel">Jebel</option>
-          <option value="Reshma">Reshma</option>
-        </select>
+        <select id="savUser"><option value="Jebel">Jebel</option><option value="Reshma">Reshma</option></select>
       </div>
       <div class="input-group">
         <label>Date</label>
@@ -381,7 +371,7 @@
     <button class="save-btn btn-sav" onclick="saveSavingsData()">Record Investment</button>
   </div>
 
-  <!-- INSIGHTS TAB -->
+  <!-- INSIGHTS & LEDGER TAB -->
   <div id="Insights" class="tab-content">
     <div class="input-group">
       <select id="filterUser" onchange="generateInsights()" style="font-weight:700; background:var(--card-bg);">
@@ -398,7 +388,26 @@
     
     <div id="loadingIndicator">Syncing data...</div>
 
-    <!-- NEW CLEAN BAR CHART (Image 3 Style) -->
+    <!-- NEW: Settlement / Split Math -->
+    <div class="chart-container" style="background: var(--nav-bg); color: white; border: none;">
+      <div class="balance-label" style="color: #a1a1a6;">Household Settlement</div>
+      <div style="display:flex; justify-content: space-between; margin-top: 10px; align-items:center;">
+        <div>
+          <div style="font-size:12px; color:#a1a1a6;">Jebel Paid</div>
+          <div style="font-size:18px; font-weight:700;" id="jebelPaidTxt">₹0</div>
+        </div>
+        <div style="font-size:24px;">⚖️</div>
+        <div style="text-align:right;">
+          <div style="font-size:12px; color:#a1a1a6;">Reshma Paid</div>
+          <div style="font-size:18px; font-weight:700;" id="reshmaPaidTxt">₹0</div>
+        </div>
+      </div>
+      <div id="settlementResult" style="margin-top:15px; font-size:14px; font-weight:600; text-align:center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 12px;">
+        Calculating...
+      </div>
+    </div>
+
+    <!-- CLEAN BAR CHART -->
     <div class="chart-container">
       <div class="chart-header">
         <div>
@@ -413,6 +422,16 @@
       <canvas id="financialBarChart" width="250" height="180" style="max-height: 180px;"></canvas>
     </div>
 
+    <!-- NEW: Capital Projects Ledger -->
+    <div class="balance-label" style="margin-bottom:12px;">Capital Projects Ledger (All-Time)</div>
+    <div class="category-grid" id="projectGrid"></div>
+
+    <!-- NEW: Budget Progress Bars -->
+    <div class="chart-container" id="budgetContainer">
+      <div class="balance-label" style="margin-bottom: 16px;">Monthly Budget Status</div>
+      <div id="budgetBarsList"></div>
+    </div>
+
     <div class="balance-label" style="margin-bottom:12px;">Cumulative Portfolios (All-Time)</div>
     <div class="category-grid" id="savingsGrid"></div>
 
@@ -420,12 +439,12 @@
     <div class="category-grid" id="categoryGrid"></div>
   </div>
 
-  <!-- DROPPED TO BOTTOM NAVIGATION BAR -->
+  <!-- FIXED NAVIGATION -->
   <div class="nav-wrapper">
     <div class="nav-pill">
       <button id="nav-Expense" class="active-nav" onclick="showTab('Expense')">💸 Exp</button>
       <button id="nav-Income" onclick="showTab('Income')">💰 Inc</button>
-      <button id="nav-Fuel" onclick="showTab('Fuel')">⛽ Fuel</button>
+      <button id="nav-Fuel" onclick="showTab('Fuel')">🚗 Veh</button>
       <button id="nav-Savings" onclick="showTab('Savings')">📈 Save</button>
       <button id="nav-Insights" onclick="showTab('Insights')">📊 Data</button>
     </div>
@@ -433,12 +452,17 @@
 
 </div> 
 
-  <!-- SUCCESS / PROCESSING POPUP MODAL -->
-  <div id="statusModal" class="status-modal">
-    <div class="status-card">
-      <div class="status-icon" id="statusIcon">🚀</div>
-      <div class="status-title" id="statusTitle">Processing...</div>
-      <div class="status-subtitle" id="statusSubtitle">Your transfer is processing</div>
+  <!-- SEARCH MODAL -->
+  <div id="searchModal" class="modal-overlay" onclick="closeSearchModal(event)">
+    <div class="modal-content" style="min-height: 80vh;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 style="font-size:24px;">Search History</h3>
+        <button class="close-btn" onclick="closeSearchModal()">✕</button>
+      </div>
+      <input type="text" id="searchInput" placeholder="Search categories, notes, amounts..." onkeyup="performSearch()">
+      <div id="searchResultsList" class="transaction-list" style="margin-top: 10px;">
+        <div style="text-align:center; color:var(--text-muted); padding:20px;">Type to search all transactions...</div>
+      </div>
     </div>
   </div>
 
@@ -453,6 +477,15 @@
     </div>
   </div>
 
+  <!-- SUCCESS / PROCESSING POPUP MODAL -->
+  <div id="statusModal" class="status-modal">
+    <div class="status-card">
+      <div class="status-icon" id="statusIcon">🚀</div>
+      <div class="status-title" id="statusTitle">Processing...</div>
+      <div class="status-subtitle" id="statusSubtitle">Your transfer is processing</div>
+    </div>
+  </div>
+
   <script>
     const URL = "https://script.google.com/macros/s/AKfycbwETC4mZPqfomKjCKmIjdXbFktmKBqplCREtHWgoBPET2OCfPcqlCt-QVFMRdFonFytfA/exec"; 
     
@@ -460,12 +493,18 @@
     let allTransactions = JSON.parse(localStorage.getItem('trackerData')) || [];
     let receiptBase64 = "";
     
-    // Updated color palette to match the clean UI
     const appColors = ['#007aff', '#34c759', '#5856d6', '#ff9f0a', '#ff3b30', '#32ade6', '#ff2d55', '#af52de'];
     const emojis = {
       'Hornet 2.0': '🏍️', 'Yamaha FZ': '🏍️', 'Dio': '🛵', 'i20': '🚗', 'XUV 500': '🚙', 'Qualis': '🚐',
-      'Housing / Rent': '🏠', 'Food - Groceries': '🛒', 'Food - Dining Out': '🍿', 'Transportation - Fuel': '⛽',
-      'Chit': '📜', 'Gold Chit': '🪙', 'Mutual Funds': '📈', 'Fixed Deposit': '🏦', 'Stocks': '📊', 'Other Investment': '💎'
+      'Housing / Rent': '🏠', 'Food - Groceries': '🛒', 'Food - Dining Out': '🍿', 'Transportation - Maintenance': '🔧', 'Utilities - Bills': '⚡', 'Construction - Structure': '🏗️', 'Hardware / Equipment': '💻',
+      'Chit': '📜', 'Gold Chit': '🪙', 'Mutual Funds': '📈', 'Fixed Deposit': '🏦', 'Stocks': '📊', 'Other Investment': '💎', 'House Construction': '🏗️', 'Home Automation & Network': '🌐', 'Automotive': '🏎️'
+    };
+
+    // Standard Monthly Budgets (Adjust these values as needed)
+    const monthlyBudgets = {
+      'Food - Groceries': 12000,
+      'Food - Dining Out': 4000,
+      'Utilities - Electricity': 3000
     };
 
     window.onload = function() {
@@ -499,6 +538,17 @@
       calculateTopBalance();
       syncWithGoogle(false);
     };
+
+    function toggleFuelFields() {
+      let type = document.getElementById('fuelLogType').value;
+      if(type === 'Service') {
+        document.getElementById('litresGroup').style.display = 'none';
+        document.getElementById('vehicleLogBtn').innerText = "Log Maintenance";
+      } else {
+        document.getElementById('litresGroup').style.display = 'block';
+        document.getElementById('vehicleLogBtn').innerText = "Log Fuel Fill";
+      }
+    }
 
     function showTab(tabName) {
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active-tab'));
@@ -557,7 +607,7 @@
         let cat = String(allTransactions[i][2]).trim();
         let amount = parseFloat(allTransactions[i][3]) || 0;
         if(type === 'Income') totalInc += amount;
-        if(type === 'Expense' || type === 'Fuel') totalExp += amount;
+        if(type === 'Expense' || type === 'Fuel' || type === 'Service') totalExp += amount;
         if(type === 'Savings') totalSav += amount;
         if(type === 'Expense' && cat === 'Savings this month') carriedSavings += amount;
       }
@@ -603,40 +653,25 @@
       }, 1500);
     }
 
-    function saveData(type) {
-      let prefix = type === 'Expense' ? 'exp' : 'inc';
-      let user = document.getElementById(prefix + 'User').value;
-      let date = document.getElementById(prefix + 'Date').value;
-      let amount = document.getElementById(prefix + 'Amount').value;
-      let cat = document.getElementById(prefix + 'Cat').value;
-      let project = type === 'Expense' ? document.getElementById('expProject').value : 'General';
-      let desc = document.getElementById(prefix + 'Desc').value;
-      let imgData = (type === 'Expense') ? receiptBase64 : '';
-
-      if(!amount || !cat || !date) return alert("Date, Amount, and Category/Source are required.");
+    function executeSave(payload, btnElement, loadingMsg, successMsg) {
+      if(!payload.amount || !payload.category || !payload.date) return alert("Date, Amount, and Category are required.");
 
       if(allTransactions.length === 0) {
         allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres"]);
       }
       
-      allTransactions.push([date, type, cat, amount, desc, user, project, "", "", ""]);
+      allTransactions.push([payload.date, payload.type, payload.category, payload.amount, payload.description, payload.user, payload.project, "", payload.odometer, payload.litres]);
       localStorage.setItem('trackerData', JSON.stringify(allTransactions));
       calculateTopBalance();
 
-      showStatusModal(false, "Uploading securely...");
-
-      let payload = {
-        date: String(date), type: String(type), category: String(cat),
-        amount: String(amount), description: String(desc), user: String(user),
-        project: String(project), image: String(imgData), odometer: "", litres: ""
-      };
+      showStatusModal(false, loadingMsg);
 
       fetch(URL, {
         method: 'POST',
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       }).then(res => res.json()).then(() => {
-        showStatusModal(true, "Your entry was recorded successfully!");
+        showStatusModal(true, successMsg);
         hideStatusModal(() => location.reload());
       }).catch(() => {
         showStatusModal(true, "Saved offline successfully.");
@@ -644,82 +679,51 @@
       });
     }
 
-    function saveFuelData() {
-      let vehicle = document.getElementById('fuelVehicle').value;
-      let user = document.getElementById('fuelUser').value;
-      let date = document.getElementById('fuelDate').value;
-      let amount = document.getElementById('fuelAmount').value;
-      let litres = document.getElementById('fuelLitres').value;
-      let odo = document.getElementById('fuelOdo').value;
-      let desc = document.getElementById('fuelDesc').value;
-
-      if(!amount || !litres || !odo || !date) return alert("Date, Total Price, Litres, and Odometer are required.");
-
-      if(allTransactions.length === 0) {
-        allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres"]);
-      }
-
-      allTransactions.push([date, "Fuel", vehicle, amount, desc, user, "Automotive", "", odo, litres]);
-      localStorage.setItem('trackerData', JSON.stringify(allTransactions));
-      calculateTopBalance();
-
-      showStatusModal(false, "Logging fuel fill...");
-
+    function saveData(type) {
+      let prefix = type === 'Expense' ? 'exp' : 'inc';
       let payload = {
-        date: String(date), type: "Fuel", category: String(vehicle),
-        amount: String(amount), description: String(desc), user: String(user),
-        project: "Automotive", image: "", odometer: String(odo), litres: String(litres)
+        date: document.getElementById(prefix + 'Date').value,
+        type: type,
+        category: document.getElementById(prefix + 'Cat').value,
+        amount: document.getElementById(prefix + 'Amount').value,
+        description: document.getElementById(prefix + 'Desc').value,
+        user: document.getElementById(prefix + 'User').value,
+        project: type === 'Expense' ? document.getElementById('expProject').value : 'General',
+        image: type === 'Expense' ? receiptBase64 : '',
+        odometer: "", litres: ""
       };
+      executeSave(payload, null, "Uploading securely...", "Your entry was recorded!");
+    }
 
-      fetch(URL, {
-        method: 'POST',
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      }).then(res => res.json()).then(() => {
-        showStatusModal(true, "Fuel log recorded successfully!");
-        hideStatusModal(() => location.reload());
-      }).catch(() => {
-        showStatusModal(true, "Fuel entry saved offline.");
-        hideStatusModal(() => location.reload());
-      });
+    function saveFuelData() {
+      let isService = document.getElementById('fuelLogType').value === 'Service';
+      let payload = {
+        date: document.getElementById('fuelDate').value,
+        type: isService ? "Service" : "Fuel",
+        category: document.getElementById('fuelVehicle').value,
+        amount: document.getElementById('fuelAmount').value,
+        description: document.getElementById('fuelDesc').value,
+        user: document.getElementById('fuelUser').value,
+        project: "Automotive",
+        image: "",
+        odometer: document.getElementById('fuelOdo').value,
+        litres: isService ? "" : document.getElementById('fuelLitres').value
+      };
+      executeSave(payload, null, isService ? "Logging maintenance..." : "Logging fuel...", isService ? "Service recorded!" : "Fuel logged!");
     }
 
     function saveSavingsData() {
-      let user = document.getElementById('savUser').value;
-      let date = document.getElementById('savDate').value;
-      let amount = document.getElementById('savAmount').value;
-      let cat = document.getElementById('savCat').value;
-      let desc = document.getElementById('savDesc').value;
-
-      if(!amount || !cat || !date) return alert("Date, Amount, and Investment Type are required.");
-
-      if(allTransactions.length === 0) {
-        allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres"]);
-      }
-
-      allTransactions.push([date, "Savings", cat, amount, desc, user, "Investments", "", "", ""]);
-      localStorage.setItem('trackerData', JSON.stringify(allTransactions));
-      calculateTopBalance();
-
-      showStatusModal(false, "Recording investment...");
-
       let payload = {
-        date: String(date), type: "Savings", category: String(cat),
-        amount: String(amount), description: String(desc), user: String(user),
-        project: "Investments", image: "", odometer: "", litres: ""
+        date: document.getElementById('savDate').value,
+        type: "Savings",
+        category: document.getElementById('savCat').value,
+        amount: document.getElementById('savAmount').value,
+        description: document.getElementById('savDesc').value,
+        user: document.getElementById('savUser').value,
+        project: "Investments",
+        image: "", odometer: "", litres: ""
       };
-
-      fetch(URL, {
-        method: 'POST',
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      }).then(res => res.json()).then(() => {
-        showStatusModal(true, "Investment recorded successfully!");
-        hideStatusModal(() => location.reload());
-      }).catch(() => {
-        showStatusModal(true, "Investment saved offline.");
-        hideStatusModal(() => location.reload());
-      });
+      executeSave(payload, null, "Recording investment...", "Investment recorded!");
     }
 
     function forceSync() { syncWithGoogle(true); }
@@ -754,18 +758,22 @@
       document.getElementById('chartDateRange').innerText = `${startDateDisplay} - ${endDateDisplay}`;
 
       let totalExp = 0; let totalInc = 0; let totalSav = 0; let categoryTotals = {};
-      let lifetimeInc = 0; let lifetimeExp = 0; let lifetimeSav = 0; let savingsPortfolio = {};
+      let lifetimeInc = 0; let lifetimeExp = 0; let lifetimeSav = 0; 
+      let savingsPortfolio = {}; let projectTotals = {};
+      let jebelPaid = 0; let reshmaPaid = 0;
 
       let sortedTxs = [...allTransactions.slice(1)].map(row => ({
         date: parseSafeDate(String(row[0])), type: String(row[1]).trim(),
         cat: String(row[2]).trim(), amount: parseFloat(row[3]) || 0,
         desc: String(row[4] || ''), user: String(row[5] || 'Jebel').trim(),
+        project: String(row[6] || 'General').trim(),
         odo: parseFloat(row[8]) || 0, litres: parseFloat(row[9]) || 0
       })).sort((a, b) => a.date - b.date);
 
       for(let tx of sortedTxs) {
+        // Lifetime Data
         if (tx.type === 'Income') lifetimeInc += tx.amount;
-        if (tx.type === 'Expense' || tx.type === 'Fuel') lifetimeExp += tx.amount;
+        if (tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') lifetimeExp += tx.amount;
         if (tx.type === 'Savings') {
           lifetimeSav += tx.amount;
           if(selectedUser === 'Both' || tx.user === selectedUser) {
@@ -773,11 +781,24 @@
           }
         }
 
+        // Project Ledger (All-Time)
+        if(tx.project !== 'General' && tx.project !== 'General / None' && tx.project !== 'Investments' && tx.type === 'Expense') {
+            projectTotals[tx.project] = (projectTotals[tx.project] || 0) + tx.amount;
+        }
+
+        // Date-Range Data
         if(tx.date >= startDate && tx.date <= endDate) {
+          
+          // Settlement Logic (Only count Expenses/Fuel in date range)
+          if(tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') {
+             if(tx.user === 'Jebel') jebelPaid += tx.amount;
+             if(tx.user === 'Reshma') reshmaPaid += tx.amount;
+          }
+
           if(selectedUser === 'Both' || tx.user === selectedUser) {
-            if (tx.type === 'Expense' || tx.type === 'Fuel') {
+            if (tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') {
               totalExp += tx.amount;
-              let displayCat = tx.type === 'Fuel' ? `Fuel - ${tx.cat}` : tx.cat;
+              let displayCat = (tx.type === 'Fuel' || tx.type === 'Service') ? `Veh - ${tx.cat}` : tx.cat;
               categoryTotals[displayCat] = (categoryTotals[displayCat] || 0) + tx.amount;
             } else if (tx.type === 'Income') {
               totalInc += tx.amount;
@@ -791,23 +812,71 @@
       document.getElementById('topBalance').innerText = formatINR(totalExp);
       document.getElementById('secondaryBalance').innerText = formatINR(totalInc);
 
+      // Render Charts & Grids
       drawCleanBarChart(totalInc, totalExp, totalSav);
       buildSavingsGrid(savingsPortfolio, lifetimeSav);
+      buildProjectGrid(projectTotals);
       buildCategoryGrid(Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(i => i[0]), Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(i => i[1]));
+      
+      // Render Settlement
+      document.getElementById('jebelPaidTxt').innerText = formatINR(jebelPaid);
+      document.getElementById('reshmaPaidTxt').innerText = formatINR(reshmaPaid);
+      let diff = Math.abs(jebelPaid - reshmaPaid) / 2;
+      let settleDiv = document.getElementById('settlementResult');
+      if(jebelPaid > reshmaPaid) {
+          settleDiv.innerText = `Reshma owes Jebel ${formatINR(diff)}`;
+          settleDiv.style.color = "var(--accent-red)";
+      } else if (reshmaPaid > jebelPaid) {
+          settleDiv.innerText = `Jebel owes Reshma ${formatINR(diff)}`;
+          settleDiv.style.color = "var(--accent-green)";
+      } else {
+          settleDiv.innerText = `All settled up!`;
+          settleDiv.style.color = "white";
+      }
+
+      // Render Budgets
+      buildBudgetBars(categoryTotals);
+    }
+
+    function buildBudgetBars(categoryTotals) {
+      let container = document.getElementById('budgetBarsList');
+      container.innerHTML = '';
+      
+      let hasBudgets = false;
+      for (const [cat, limit] of Object.entries(monthlyBudgets)) {
+        hasBudgets = true;
+        let spent = categoryTotals[cat] || 0;
+        let pct = Math.min((spent / limit) * 100, 100);
+        let color = pct >= 90 ? 'var(--accent-red)' : (pct >= 75 ? '#ff9f0a' : 'var(--accent-blue)');
+        
+        container.innerHTML += `
+          <div class="budget-item">
+            <div class="budget-header">
+              <span>${cat}</span>
+              <span>${formatINR(spent)} / ${formatINR(limit)}</span>
+            </div>
+            <div class="budget-bar-container">
+              <div class="budget-bar-fill" style="width: ${pct}%; background: ${color};"></div>
+            </div>
+          </div>
+        `;
+      }
+      if(!hasBudgets) {
+        document.getElementById('budgetContainer').style.display = 'none';
+      }
     }
 
     function drawCleanBarChart(salary, expense, savings) {
       const ctx = document.getElementById('financialBarChart').getContext('2d');
       if (barChartInstance) barChartInstance.destroy(); 
 
-      // Mapped to look like the Image 3 requested design (Green = In/Save, Blue = Out)
       barChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
           labels: ['Salary', 'Expense', 'Savings'],
           datasets: [{
             data: [salary, expense, savings],
-            backgroundColor: ['#34c759', '#007aff', '#34c759'], 
+            backgroundColor: ['#34c759', '#007aff', '#111111'], 
             borderRadius: 6,
             borderSkipped: false,
             barThickness: 30
@@ -815,9 +884,9 @@
         },
         options: {
           responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(context) { return ' ' + formatINR(context.raw); } } } },
+          plugins: { legend: { display: false } },
           scales: {
-            y: { display: false, grid: { display: false } }, // Removed grid completely
+            y: { display: false, grid: { display: false } },
             x: { ticks: { color: '#8e8e93', font: { weight: '600' } }, grid: { display: false }, border: { display: false } }
           },
           layout: { padding: { top: 20 } }
@@ -830,16 +899,15 @@
       grid.innerHTML = '';
 
       let combinedCard = `
-        <div class="cat-card" style="grid-column: span 2;" onclick="showCategoryDetails('All Savings')">
+        <div class="cat-card" style="grid-column: span 2; background: #34c759; border:none;" onclick="showCategoryDetails('All Savings')">
           <div style="display:flex; justify-content: space-between; align-items: center;">
             <div style="display:flex; align-items: center; gap: 12px;">
-              <div class="cat-icon" style="margin:0; background: rgba(52, 199, 89, 0.15); color: #34c759;">💰</div>
+              <div class="cat-icon" style="margin:0; background: rgba(0,0,0,0.15); color: white;">💰</div>
               <div>
-                <div class="cat-name">Combined Portfolio Total</div>
-                <div class="cat-amt" style="font-size: 22px; color: var(--text-main);">${formatINR(totalCumulative)}</div>
+                <div class="cat-name" style="color: rgba(255,255,255,0.8);">Total Portfolio Value</div>
+                <div class="cat-amt" style="font-size: 22px; color: white;">${formatINR(totalCumulative)}</div>
               </div>
             </div>
-            <div style="color: var(--text-muted);">›</div>
           </div>
         </div>
       `;
@@ -855,7 +923,32 @@
               <div class="cat-icon" style="background: ${color}20;">${emoji}</div>
               <div class="cat-name">${catName}</div>
             </div>
-            <div class="cat-amt" style="color: var(--text-main);">${formatINR(amt)}</div>
+            <div class="cat-amt">${formatINR(amt)}</div>
+          </div>
+        `;
+      });
+    }
+
+    function buildProjectGrid(projectTotals) {
+      const grid = document.getElementById('projectGrid');
+      grid.innerHTML = '';
+      let entries = Object.entries(projectTotals).sort((a, b) => b[1] - a[1]);
+
+      if(entries.length === 0) {
+        grid.innerHTML = '<div style="color:var(--text-muted); font-size:14px; grid-column: span 2;">No project capital recorded.</div>';
+        return;
+      }
+
+      entries.forEach(([catName, amt], index) => {
+        let color = appColors[index % appColors.length];
+        let emoji = emojis[catName] || '🏗️';
+        grid.innerHTML += `
+          <div class="cat-card" data-category="${catName}" onclick="showCategoryDetails(this.dataset.category, true)">
+            <div>
+              <div class="cat-icon" style="background: ${color}20;">${emoji}</div>
+              <div class="cat-name">${catName}</div>
+            </div>
+            <div class="cat-amt">${formatINR(amt)}</div>
           </div>
         `;
       });
@@ -872,7 +965,7 @@
 
       labels.forEach((catName, index) => {
         let color = appColors[index % appColors.length];
-        let emoji = emojis[catName.replace('Fuel - ', '')] || emojis[catName] || '🏷️';
+        let emoji = emojis[catName.replace('Veh - ', '')] || emojis[catName] || '🏷️';
         let amount = formatINR(data[index]);
 
         grid.innerHTML += `
@@ -881,13 +974,38 @@
               <div class="cat-icon" style="background: ${color}20;">${emoji}</div>
               <div class="cat-name">${catName}</div>
             </div>
-            <div class="cat-amt" style="color: var(--text-main);">${amount}</div>
+            <div class="cat-amt">${amount}</div>
           </div>
         `;
       });
     }
 
-    function showCategoryDetails(categoryName) {
+    // SEARCH & MODAL LOGIC
+    function openSearchModal() {
+      document.getElementById('searchModal').style.display = 'flex';
+      setTimeout(() => document.getElementById('searchModal').classList.add('show'), 10);
+      document.getElementById('searchInput').focus();
+    }
+    function closeSearchModal(event) {
+      if(event && event.target.id !== 'searchModal') return; 
+      const modal = document.getElementById('searchModal');
+      modal.classList.remove('show');
+      setTimeout(() => modal.style.display = 'none', 300);
+    }
+
+    function performSearch() {
+      let query = document.getElementById('searchInput').value.toLowerCase();
+      let list = document.getElementById('searchResultsList');
+      if(query.length < 2) { list.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">Type at least 2 characters...</div>'; return; }
+
+      let results = [...allTransactions.slice(1)].filter(row => {
+        return row.some(cell => String(cell).toLowerCase().includes(query));
+      }).reverse();
+
+      renderTxList(list, results, true);
+    }
+
+    function showCategoryDetails(categoryName, isProject = false) {
       try {
         document.getElementById('modalCategoryTitle').innerText = categoryName;
         const listContainer = document.getElementById('modalTransactionList');
@@ -899,39 +1017,30 @@
         let startDate = new Date(startStr + 'T00:00:00');
         let endDate = new Date(endStr + 'T23:59:59');
 
-        let allParsed = [...allTransactions.slice(1)].map(row => ({
-          date: parseSafeDate(String(row[0])), type: String(row[1]).trim(),
-          cat: String(row[2]).trim(), amount: parseFloat(row[3]) || 0,
-          desc: String(row[4] || 'No note'), user: String(row[5] || 'Jebel').trim(),
-          receipt: String(row[7] || ''), odo: parseFloat(row[8]) || 0, litres: parseFloat(row[9]) || 0
-        })).sort((a, b) => b.date - a.date);
+        let allParsed = [...allTransactions.slice(1)];
 
-        let filteredTxs = allParsed.filter(tx => {
-          let matchesCat = (categoryName === 'All Savings' && tx.type === 'Savings') || (categoryName.startsWith('Fuel - ') && tx.type === 'Fuel' && tx.cat === categoryName.replace('Fuel - ', '')) || (!categoryName.startsWith('Fuel - ') && tx.cat === categoryName);
+        let filteredTxs = allParsed.filter(row => {
+          let txDate = parseSafeDate(String(row[0]));
+          let txType = String(row[1]).trim();
+          let txCat = String(row[2]).trim();
+          let txUser = String(row[5]).trim();
+          let txProj = String(row[6]).trim();
+
+          if(isProject) {
+              return txProj === categoryName; // Projects ignore date filters by default for all-time view
+          }
+
+          let matchesCat = (categoryName === 'All Savings' && txType === 'Savings') || 
+                           (categoryName.startsWith('Veh - ') && (txType === 'Fuel' || txType === 'Service') && txCat === categoryName.replace('Veh - ', '')) || 
+                           (!categoryName.startsWith('Veh - ') && txCat === categoryName);
+          
           let isSavingsPortfolio = ['All Savings', 'Chit', 'Gold Chit', 'Mutual Funds', 'Fixed Deposit', 'Stocks', 'Other Investment'].includes(categoryName);
-          let dateCondition = isSavingsPortfolio ? true : (tx.date >= startDate && tx.date <= endDate);
-          return dateCondition && (selectedUser === 'Both' || tx.user === selectedUser) && matchesCat;
-        }).sort((a, b) => b.date - a.date);
+          let dateCondition = isSavingsPortfolio ? true : (txDate >= startDate && txDate <= endDate);
+          
+          return dateCondition && (selectedUser === 'Both' || txUser === selectedUser) && matchesCat;
+        }).reverse();
 
-        if(filteredTxs.length === 0) {
-          listContainer.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 30px;">No details found.</div>';
-        } else {
-          filteredTxs.forEach(tx => {
-            let dateStr = tx.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-            let receiptHTML = (tx.receipt && tx.receipt !== "Upload Failed" && tx.receipt !== "") ? `<a href="${tx.receipt}" target="_blank" class="tx-receipt-link">📎 View Receipt</a>` : '';
-            
-            listContainer.innerHTML += `
-              <div class="transaction-item">
-                <div class="tx-left">
-                  <span class="tx-desc">${tx.desc || tx.cat}</span>
-                  <span class="tx-meta">${dateStr} • ${tx.user}</span>
-                  ${receiptHTML}
-                </div>
-                <div class="tx-amt">${formatINR(tx.amount)}</div>
-              </div>
-            `;
-          });
-        }
+        renderTxList(listContainer, filteredTxs);
 
         const modal = document.getElementById('categoryModal');
         modal.style.display = 'flex';
@@ -939,6 +1048,37 @@
       } catch(e) {
         alert("Failed to load details: " + e.message);
       }
+    }
+
+    function renderTxList(container, txArray, isSearch = false) {
+       if(txArray.length === 0) {
+          container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 30px;">No records found.</div>';
+          return;
+       }
+       container.innerHTML = '';
+       txArray.forEach(row => {
+          let dateStr = parseSafeDate(row[0]).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+          let cat = String(row[2]);
+          let amt = formatINR(parseFloat(row[3]) || 0);
+          let desc = String(row[4] || cat);
+          let user = String(row[5]);
+          let receipt = String(row[7]);
+          
+          let receiptHTML = (receipt && receipt !== "Upload Failed" && receipt !== "") ? `<a href="${receipt}" target="_blank" class="tx-receipt-link">📎 Receipt</a>` : '';
+          
+          let subTag = isSearch ? `<span style="background:var(--input-bg); padding:2px 6px; border-radius:4px; font-size:10px;">${cat}</span>` : '';
+
+          container.innerHTML += `
+            <div class="transaction-item">
+              <div class="tx-left">
+                <span class="tx-desc">${desc} ${subTag}</span>
+                <span class="tx-meta">${dateStr} • ${user}</span>
+                ${receiptHTML}
+              </div>
+              <div class="tx-amt">${amt}</div>
+            </div>
+          `;
+       });
     }
 
     function closeModal(event) {
