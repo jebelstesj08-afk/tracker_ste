@@ -92,6 +92,10 @@
     
     .chart-container { background: var(--card-bg); border-radius: var(--radius-lg); padding: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.04); margin-bottom: 24px; display: flex; justify-content: center; }
     
+    /* Segment Spend Analysis Bar (Image 3 Style) */
+    .spend-segments { background: var(--card-bg); border-radius: var(--radius-lg); padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 20px; }
+    .segment-bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; gap: 2px; margin: 12px 0 16px 0; background: var(--input-bg); }
+
     .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
     .cat-card { padding: 16px; border-radius: var(--radius-lg); color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between; min-height: 100px; cursor: pointer; transition: transform 0.1s; }
     .cat-card:active { transform: scale(0.95); }
@@ -117,6 +121,16 @@
     @media screen and (max-height: 650px) { .nav-wrapper { display: none !important; } }
     
     #loadingIndicator { text-align: center; color: var(--text-muted); display: none; margin: 10px 0; font-size: 14px; font-weight: 500; }
+
+    /* iOS Style Popup Status Modal (Image 1 & 2 Style) */
+    .status-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 3000; animation: fadeIn 0.2s ease; }
+    .status-card { background: var(--card-bg); width: 85%; max-width: 320px; padding: 30px 20px; border-radius: 28px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3); transform: scale(0.9); animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .status-icon { font-size: 48px; margin-bottom: 16px; }
+    .status-title { font-size: 20px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
+    .status-subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; }
     .modal-overlay.show { display: flex; opacity: 1; }
@@ -382,6 +396,16 @@
       <div class="input-group"><input type="date" id="endDate" onchange="generateInsights()"></div>
     </div>
 
+    <!-- SPEND ANALYSIS SEGMENT BAR (Image 3 Style) -->
+    <div class="spend-segments">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span class="balance-label" style="margin: 0;">Spend Analysis Breakdown</span>
+        <span id="spendTotalLabel" style="font-weight: 700; font-size: 15px;">₹ 0</span>
+      </div>
+      <div class="segment-bar" id="spendSegmentBar"></div>
+      <div id="segmentLegend" style="display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: var(--text-muted);"></div>
+    </div>
+
     <!-- ALL-TIME CUMULATIVE SAVINGS CARD -->
     <div style="background: var(--card-bg); padding: 18px; border-radius: var(--radius-lg); margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center;">
       <div>
@@ -398,7 +422,7 @@
       <canvas id="financialBarChart" width="250" height="200" style="max-height: 200px;"></canvas>
     </div>
 
-    <!-- DOUGHNUT CHART: Top Spending Categories -->
+    <!-- DOUGHNUT CHART: Top Categories Proportion -->
     <div class="chart-container">
       <canvas id="expenseDoughnutChart" width="250" height="200" style="max-height: 200px;"></canvas>
     </div>
@@ -422,6 +446,15 @@
   </div>
 
 </div> 
+
+  <!-- SUCCESS / PROCESSING POPUP MODAL (Image 1 & 2 Style) -->
+  <div id="statusModal" class="status-modal">
+    <div class="status-card">
+      <div class="status-icon" id="statusIcon">🚀</div>
+      <div class="status-title" id="statusTitle">Processing...</div>
+      <div class="status-subtitle" id="statusSubtitle">Your transfer is processing</div>
+    </div>
+  </div>
 
   <!-- CATEGORY DETAILS MODAL -->
   <div id="categoryModal" class="modal-overlay" onclick="closeModal(event)">
@@ -563,6 +596,32 @@
       }
     }
 
+    // iOS Status Modal Animation Helper (Image 1 & 2 Style)
+    function showStatusModal(isSuccess, message) {
+      const modal = document.getElementById('statusModal');
+      const icon = document.getElementById('statusIcon');
+      const title = document.getElementById('statusTitle');
+      const subtitle = document.getElementById('statusSubtitle');
+
+      if (!isSuccess) {
+        icon.innerText = "⏳";
+        title.innerText = "Processing...";
+        subtitle.innerText = message || "Your transaction is processing";
+      } else {
+        icon.innerText = "✅";
+        title.innerText = "Success!";
+        subtitle.innerText = message || "Your transfer was successful";
+      }
+      modal.style.display = 'flex';
+    }
+
+    function hideStatusModal(callback) {
+      setTimeout(() => {
+        document.getElementById('statusModal').style.display = 'none';
+        if(callback) callback();
+      }, 1500);
+    }
+
     function saveData(type) {
       let prefix = type === 'Expense' ? 'exp' : 'inc';
       let user = document.getElementById(prefix + 'User').value;
@@ -583,9 +642,7 @@
       localStorage.setItem('trackerData', JSON.stringify(allTransactions));
       calculateTopBalance();
 
-      let btn = event.target;
-      btn.innerText = imgData ? "Uploading securely..." : "Saving...";
-      btn.style.opacity = "0.7";
+      showStatusModal(false, "Uploading securely...");
 
       let payload = {
         date: String(date), type: String(type), category: String(cat),
@@ -598,12 +655,11 @@
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       }).then(res => res.json()).then(() => {
-        btn.innerText = "✓ Added!";
-        btn.style.backgroundColor = "var(--accent-inc)";
-        setTimeout(() => location.reload(), 1200);
+        showStatusModal(true, "Your entry was recorded successfully!");
+        hideStatusModal(() => location.reload());
       }).catch(() => {
-        alert("Saved offline successfully.");
-        location.reload();
+        showStatusModal(true, "Saved offline successfully.");
+        hideStatusModal(() => location.reload());
       });
     }
 
@@ -626,9 +682,7 @@
       localStorage.setItem('trackerData', JSON.stringify(allTransactions));
       calculateTopBalance();
 
-      let btn = event.target;
-      btn.innerText = "Logging Fuel...";
-      btn.style.opacity = "0.7";
+      showStatusModal(false, "Logging fuel fill...");
 
       let payload = {
         date: String(date), type: "Fuel", category: String(vehicle),
@@ -641,12 +695,11 @@
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       }).then(res => res.json()).then(() => {
-        btn.innerText = "✓ Fuel Logged!";
-        btn.style.backgroundColor = "var(--accent-inc)";
-        setTimeout(() => location.reload(), 1200);
+        showStatusModal(true, "Fuel log recorded successfully!");
+        hideStatusModal(() => location.reload());
       }).catch(() => {
-        alert("Fuel entry saved offline.");
-        location.reload();
+        showStatusModal(true, "Fuel entry saved offline.");
+        hideStatusModal(() => location.reload());
       });
     }
 
@@ -667,9 +720,7 @@
       localStorage.setItem('trackerData', JSON.stringify(allTransactions));
       calculateTopBalance();
 
-      let btn = event.target;
-      btn.innerText = "Recording...";
-      btn.style.opacity = "0.7";
+      showStatusModal(false, "Recording investment...");
 
       let payload = {
         date: String(date), type: "Savings", category: String(cat),
@@ -682,12 +733,11 @@
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       }).then(res => res.json()).then(() => {
-        btn.innerText = "✓ Recorded!";
-        btn.style.backgroundColor = "var(--accent-inc)";
-        setTimeout(() => location.reload(), 1200);
+        showStatusModal(true, "Investment recorded successfully!");
+        hideStatusModal(() => location.reload());
       }).catch(() => {
-        alert("Investment saved offline.");
-        location.reload();
+        showStatusModal(true, "Investment saved offline.");
+        hideStatusModal(() => location.reload());
       });
     }
 
@@ -759,8 +809,32 @@
 
       drawBarChart(totalInc, totalExp, totalSav);
       drawDoughnutChart(categoryTotals);
+      buildSpendSegments(categoryTotals, totalExp);
       buildSavingsGrid(savingsPortfolio, lifetimeSav);
       buildCategoryGrid(Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(i => i[0]), Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(i => i[1]));
+    }
+
+    function buildSpendSegments(categoryTotals, totalExp) {
+      const bar = document.getElementById('spendSegmentBar');
+      const legend = document.getElementById('segmentLegend');
+      document.getElementById('spendTotalLabel').innerText = formatINR(totalExp);
+      bar.innerHTML = '';
+      legend.innerHTML = '';
+
+      let entries = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
+      if(totalExp === 0 || entries.length === 0) {
+        bar.innerHTML = `<div style="width: 100%; background: var(--input-bg);"></div>`;
+        legend.innerHTML = `<span>No spending recorded</span>`;
+        return;
+      }
+
+      entries.forEach(([catName, amt], index) => {
+        let pct = (amt / totalExp) * 100;
+        let color = appColors[index % appColors.length];
+        
+        bar.innerHTML += `<div style="width: ${pct}%; background-color: ${color}; height: 100%;" title="${catName}: ${formatINR(amt)}"></div>`;
+        legend.innerHTML += `<div style="display: flex; align-items: center; gap: 5px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: ${color}; display: inline-block;"></span>${catName} (${pct.toFixed(1)}%)</div>`;
+      });
     }
 
     function drawBarChart(salary, expense, savings) {
@@ -818,7 +892,6 @@
       const grid = document.getElementById('savingsGrid');
       grid.innerHTML = '';
 
-      // Combined Total Card first
       let combinedCard = `
         <div class="cat-card" style="background-color: #34c759; grid-column: span 2;" onclick="showCategoryDetails('All Savings')">
           <div>
