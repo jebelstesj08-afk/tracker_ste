@@ -72,6 +72,7 @@
     button.save-btn:active { transform: scale(0.97); }
     .btn-expense { background-color: var(--text-main); color: var(--bg-color); }
     .btn-income { background-color: var(--text-main); color: var(--bg-color); }
+    .btn-fuel { background-color: #ff9f0a; color: white; }
     .btn-export { background-color: var(--card-bg); color: var(--accent-blue); border: 2px solid var(--accent-blue); padding: 12px; font-size: 14px; box-shadow: none; margin-top: 0; }
 
     .file-upload-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
@@ -91,15 +92,15 @@
     .cat-amt { font-size: 18px; font-weight: 700; margin-top: 4px; }
 
     .nav-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; display: flex; justify-content: center; z-index: 1000; pointer-events: none; padding-bottom: max(15px, env(safe-area-inset-bottom)); padding-top: 40px; background: linear-gradient(to top, var(--bg-color) 50%, transparent); }
-    .nav-pill { background: var(--nav-bg); padding: 6px; border-radius: 30px; display: flex; gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); pointer-events: auto; }
-    .nav-pill button { background: transparent; border: none; color: #888; font-size: 13px; font-weight: 600; padding: 12px 24px; border-radius: 24px; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.3s ease; }
+    .nav-pill { background: var(--nav-bg); padding: 6px; border-radius: 30px; display: flex; gap: 6px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); pointer-events: auto; overflow-x: auto; max-width: 95%; }
+    .nav-pill button { background: transparent; border: none; color: #888; font-size: 12px; font-weight: 600; padding: 10px 16px; border-radius: 20px; white-space: nowrap; cursor: pointer; transition: all 0.3s ease; }
     .nav-pill button.active-nav { background: #333333; color: #ffffff; }
 
     @media screen and (max-height: 650px) { .nav-wrapper { display: none !important; } }
     
     #loadingIndicator { text-align: center; color: var(--text-muted); display: none; margin: 10px 0; font-size: 14px; font-weight: 500; }
 
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; }
     .modal-overlay.show { display: flex; opacity: 1; }
     .modal-content { background: var(--bg-color); width: 100%; max-height: 85vh; border-radius: 24px 24px 0 0; padding: 24px; padding-bottom: calc(24px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
     .modal-overlay.show .modal-content { transform: translateY(0); }
@@ -168,18 +169,13 @@
     
     <div class="input-group">
       <label>Project / Asset Tag (Optional)</label>
-      <select id="expProject" onchange="toggleAssetInputs()">
+      <select id="expProject">
         <option value="General">General / None</option>
         <option value="House Construction">House Construction</option>
         <option value="Home Automation & Network">Home Automation & Network</option>
         <option value="Automotive">Automotive</option>
         <option value="Professional Development">Professional Development</option>
       </select>
-    </div>
-
-    <div class="input-group" id="odometerGroup" style="display: none; animation: slideUp 0.3s ease;">
-      <label>XUV500 Odometer (km)</label>
-      <input type="number" id="expOdo" placeholder="Current reading...">
     </div>
 
     <div class="input-group">
@@ -190,7 +186,6 @@
         <option value="Food - Groceries">Food - Groceries</option>
         <option value="Food - Dining Out">Food - Dining Out</option>
         <option value="Food - HungerBox">Food - HungerBox</option>
-        <option value="Transportation - Fuel">Transportation - Fuel</option>
         <option value="Transportation - Maintenance">Transportation - Maintenance</option>
         <option value="Utilities - Electricity">Utilities - Electricity</option>
         <option value="Utilities - Internet">Utilities - Internet</option>
@@ -212,11 +207,6 @@
       <input type="text" id="expDesc" placeholder="Add a note (optional)">
     </div>
     
-    <div class="input-group file-upload-wrapper">
-      <button class="save-btn btn-camera" id="cameraBtnDisplay">📸 Snap Receipt / Invoice</button>
-      <input type="file" id="expReceipt" accept="image/*" capture="environment" onchange="updateCameraBtn()">
-    </div>
-
     <button class="save-btn btn-expense" onclick="saveData('Expense')">Add Expense</button>
   </div>
 
@@ -253,23 +243,63 @@
         <option value="Other Income">Other Income</option>
       </select>
     </div>
-    
-    <div class="input-group">
-      <label>Project / Asset Tag (Optional)</label>
-      <select id="incProject">
-        <option value="General">General / None</option>
-        <option value="House Construction">House Construction</option>
-        <option value="Home Automation & Network">Home Automation & Network</option>
-        <option value="Automotive">Automotive</option>
-        <option value="Professional Development">Professional Development</option>
-      </select>
-    </div>
-
     <div class="input-group">
       <label>Details</label>
       <input type="text" id="incDesc" placeholder="Add a note (optional)">
     </div>
     <button class="save-btn btn-income" onclick="saveData('Income')">Add Income</button>
+  </div>
+
+  <!-- FUEL TAB -->
+  <div id="Fuel" class="tab-content">
+    <div class="input-group">
+      <label>Select Vehicle</label>
+      <select id="fuelVehicle">
+        <option value="Hornet 2.0">Hornet 2.0</option>
+        <option value="Yamaha FZ">Yamaha FZ</option>
+        <option value="Dio">Dio</option>
+        <option value="i20">i20</option>
+        <option value="XUV 500">XUV 500</option>
+        <option value="Qualis">Qualis</option>
+      </select>
+    </div>
+
+    <div class="two-col">
+      <div class="input-group">
+        <label>User</label>
+        <select id="fuelUser">
+          <option value="Jebel">Jebel</option>
+          <option value="Reshma">Reshma</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Date</label>
+        <input type="date" id="fuelDate">
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="input-group">
+        <label>Total Price (₹)</label>
+        <input type="number" id="fuelAmount" placeholder="0" step="0.01">
+      </div>
+      <div class="input-group">
+        <label>Litres Added</label>
+        <input type="number" id="fuelLitres" placeholder="0.00" step="0.01">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>Odometer Reading (km)</label>
+      <input type="number" id="fuelOdo" placeholder="Current km reading...">
+    </div>
+
+    <div class="input-group">
+      <label>Details / Station (Optional)</label>
+      <input type="text" id="fuelDesc" placeholder="e.g. NTP Petroleum">
+    </div>
+
+    <button class="save-btn btn-fuel" onclick="saveFuelData()">Log Fuel Fill</button>
   </div>
 
   <!-- INSIGHTS TAB -->
@@ -297,7 +327,7 @@
       <canvas id="expenseChart" width="250" height="250" style="max-height: 250px;"></canvas>
     </div>
 
-    <div class="balance-label" style="margin-bottom:12px;">Top spending categories</div>
+    <div class="balance-label" style="margin-bottom:12px;">Top spending & fuel categories</div>
     <div class="category-grid" id="categoryGrid"></div>
   </div>
 
@@ -319,22 +349,22 @@
     <div class="nav-pill">
       <button id="nav-Expense" class="active-nav" onclick="showTab('Expense')">💸 Exp</button>
       <button id="nav-Income" onclick="showTab('Income')">💰 Inc</button>
+      <button id="nav-Fuel" onclick="showTab('Fuel')">⛽ Fuel</button>
       <button id="nav-Insights" onclick="showTab('Insights')">📊 Data</button>
     </div>
   </div>
 
   <script>
-    // ---------------------------------------------------------
-    // IMPORTANT: REPLACE THE LINK BELOW WITH YOUR GOOGLE WEB APP URL
-    // ---------------------------------------------------------
     const URL = "https://script.google.com/macros/s/AKfycbwETC4mZPqfomKjCKmIjdXbFktmKBqplCREtHWgoBPET2OCfPcqlCt-QVFMRdFonFytfA/exec"; 
     
     let chartInstance = null;
     let allTransactions = JSON.parse(localStorage.getItem('trackerData')) || [];
-    let receiptBase64 = "";
     
     const appColors = ['#5e5ce6', '#007aff', '#34c759', '#ff9f0a', '#ff3b30', '#bf5af2', '#ff2d55', '#32ade6'];
-    const emojis = ['💳', '🚗', '🍿', '🏠', '🛒', '⚡', '💊', '🛍️', '📚'];
+    const emojis = {
+      'Hornet 2.0': '🏍️', 'Yamaha FZ': '🏍️', 'Dio': '🛵', 'i20': '🚗', 'XUV 500': '🚙', 'Qualis': '🚐',
+      'Housing / Rent': '🏠', 'Food - Groceries': '🛒', 'Food - Dining Out': '🍿', 'Transportation - Fuel': '⛽'
+    };
 
     window.onload = function() {
       applySavedTheme();
@@ -342,6 +372,7 @@
       let todayStr = today.toISOString().split('T')[0];
       document.getElementById('expDate').value = todayStr;
       document.getElementById('incDate').value = todayStr;
+      document.getElementById('fuelDate').value = todayStr;
 
       let firstDay = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
       let lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
@@ -412,27 +443,9 @@
         let type = String(allTransactions[i][1]).trim();
         let amount = parseFloat(allTransactions[i][3]) || 0;
         if(type === 'Income') totalInc += amount;
-        if(type === 'Expense') totalExp += amount;
+        if(type === 'Expense' || type === 'Fuel') totalExp += amount;
       }
       document.getElementById('topBalance').innerText = formatINR(totalInc - totalExp);
-    }
-
-    function toggleAssetInputs() {
-      const project = document.getElementById('expProject').value;
-      document.getElementById('odometerGroup').style.display = (project === 'Automotive') ? 'block' : 'none';
-    }
-
-    function updateCameraBtn() {
-      const file = document.getElementById('expReceipt').files[0];
-      if (file) {
-        document.getElementById('cameraBtnDisplay').innerText = "✅ " + file.name.substring(0, 15) + "...";
-        document.getElementById('cameraBtnDisplay').style.backgroundColor = "var(--accent-blue)";
-        document.getElementById('cameraBtnDisplay').style.color = "white";
-        
-        const reader = new FileReader();
-        reader.onload = function(e) { receiptBase64 = e.target.result; };
-        reader.readAsDataURL(file);
-      }
     }
 
     function saveData(type) {
@@ -443,54 +456,82 @@
       let cat = document.getElementById(prefix + 'Cat').value;
       let project = document.getElementById(prefix + 'Project').value;
       let desc = document.getElementById(prefix + 'Desc').value;
-      
-      let odo = (type === 'Expense' && project === 'Automotive') ? document.getElementById('expOdo').value : '';
-      let imgData = (type === 'Expense') ? receiptBase64 : '';
 
       if(!amount || !cat || !date) return alert("Date, Amount, and Category are required.");
 
       if(allTransactions.length === 0) {
-        allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer"]);
+        allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres"]);
       }
       
-      allTransactions.push([date, type, cat, amount, desc, user, project, "", odo]);
+      allTransactions.push([date, type, cat, amount, desc, user, project, "", "", ""]);
       localStorage.setItem('trackerData', JSON.stringify(allTransactions));
-
       calculateTopBalance();
 
       let btn = event.target;
-      let originalText = btn.innerText;
-      btn.innerText = imgData ? "Uploading securely..." : "Saving...";
+      btn.innerText = "Saving...";
       btn.style.opacity = "0.7";
 
       let payload = {
-        date: String(date),
-        type: String(type),
-        category: String(cat),
-        amount: String(amount),
-        description: String(desc),
-        user: String(user),
-        project: String(project),
-        image: String(imgData),
-        odometer: String(odo)
+        date: String(date), type: String(type), category: String(cat),
+        amount: String(amount), description: String(desc), user: String(user),
+        project: String(project), image: "", odometer: "", litres: ""
       };
 
       fetch(URL, {
         method: 'POST',
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
-      }).then(res => res.json()).then(response => {
+      }).then(res => res.json()).then(() => {
         btn.innerText = "✓ Added!";
         btn.style.backgroundColor = "var(--accent-inc)";
-        btn.style.opacity = "1";
-        
-        setTimeout(() => {
-          location.reload(); 
-        }, 1500);
-      }).catch(err => {
+        setTimeout(() => location.reload(), 1200);
+      }).catch(() => {
         alert("Saved offline successfully.");
-        btn.innerText = originalText;
-        btn.style.opacity = "1";
+        location.reload();
+      });
+    }
+
+    function saveFuelData() {
+      let vehicle = document.getElementById('fuelVehicle').value;
+      let user = document.getElementById('fuelUser').value;
+      let date = document.getElementById('fuelDate').value;
+      let amount = document.getElementById('fuelAmount').value;
+      let litres = document.getElementById('fuelLitres').value;
+      let odo = document.getElementById('fuelOdo').value;
+      let desc = document.getElementById('fuelDesc').value;
+
+      if(!amount || !litres || !odo || !date) return alert("Date, Total Price, Litres, and Odometer are required.");
+
+      if(allTransactions.length === 0) {
+        allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres"]);
+      }
+
+      // Type is 'Fuel', Category stores the vehicle name
+      allTransactions.push([date, "Fuel", vehicle, amount, desc, user, "Automotive", "", odo, litres]);
+      localStorage.setItem('trackerData', JSON.stringify(allTransactions));
+      calculateTopBalance();
+
+      let btn = event.target;
+      btn.innerText = "Logging Fuel...";
+      btn.style.opacity = "0.7";
+
+      let payload = {
+        date: String(date), type: "Fuel", category: String(vehicle),
+        amount: String(amount), description: String(desc), user: String(user),
+        project: "Automotive", image: "", odometer: String(odo), litres: String(litres)
+      };
+
+      fetch(URL, {
+        method: 'POST',
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      }).then(res => res.json()).then(() => {
+        btn.innerText = "✓ Fuel Logged!";
+        btn.style.backgroundColor = "var(--accent-inc)";
+        setTimeout(() => location.reload(), 1200);
+      }).catch(() => {
+        alert("Fuel entry saved offline.");
+        location.reload();
       });
     }
 
@@ -523,21 +564,26 @@
 
       let totalExp = 0; let totalInc = 0; let categoryTotals = {};
 
-      for(let i = 1; i < allTransactions.length; i++) {
-        let row = allTransactions[i];
-        let rowDate = parseSafeDate(String(row[0]));
-        let type = String(row[1]).trim();
-        let cat = String(row[2]).trim();
-        let amount = parseFloat(row[3]) || 0;
-        let rowUser = row.length > 5 && row[5] ? String(row[5]).trim() : 'Jebel'; 
-        
-        if(rowDate >= startDate && rowDate <= endDate) {
-          if(selectedUser === 'Both' || rowUser === selectedUser) {
-            if (type === 'Expense') {
-              totalExp += amount;
-              categoryTotals[cat] = (categoryTotals[cat] || 0) + amount;
-            } else if (type === 'Income') {
-              totalInc += amount;
+      // Sort all transactions chronologically to calculate accurate milage between fills
+      let sortedTxs = [...allTransactions.slice(1)].map(row => ({
+        date: parseSafeDate(String(row[0])), type: String(row[1]).trim(),
+        cat: String(row[2]).trim(), amount: parseFloat(row[3]) || 0,
+        desc: String(row[4] || ''), user: String(row[5] || 'Jebel').trim(),
+        odo: parseFloat(row[8]) || 0, litres: parseFloat(row[9]) || 0
+      })).sort((a, b) => a.date - b.date);
+
+      // Track last odometer reading per vehicle for mileage calculations
+      let lastVehicleOdo = {};
+
+      for(let tx of sortedTxs) {
+        if(tx.date >= startDate && tx.date <= endDate) {
+          if(selectedUser === 'Both' || tx.user === selectedUser) {
+            if (tx.type === 'Expense' || tx.type === 'Fuel') {
+              totalExp += tx.amount;
+              let displayCat = tx.type === 'Fuel' ? `Fuel - ${tx.cat}` : tx.cat;
+              categoryTotals[displayCat] = (categoryTotals[displayCat] || 0) + tx.amount;
+            } else if (tx.type === 'Income') {
+              totalInc += tx.amount;
             }
           }
         }
@@ -580,13 +626,13 @@
       grid.innerHTML = '';
       
       if(labels.length === 0) {
-        grid.innerHTML = '<div style="color:var(--text-muted); font-size:14px; grid-column: span 2;">No expenses tracked in this period.</div>';
+        grid.innerHTML = '<div style="color:var(--text-muted); font-size:14px; grid-column: span 2;">No records found in this period.</div>';
         return;
       }
 
       labels.forEach((catName, index) => {
         let color = appColors[index % appColors.length];
-        let emoji = emojis[index % emojis.length];
+        let emoji = emojis[catName.replace('Fuel - ', '')] || emojis[catName] || '⛽';
         let amount = formatINR(data[index]);
 
         let cardHTML = `
@@ -611,51 +657,53 @@
         let startStr = document.getElementById('startDate').value;
         let endStr = document.getElementById('endDate').value;
         let selectedUser = document.getElementById('filterUser').value;
-        
         let startDate = new Date(startStr + 'T00:00:00');
         let endDate = new Date(endStr + 'T23:59:59');
 
-        let filteredTxs = [];
+        // Parse and sort all transactions chronologically to compute exact mileage between fills
+        let allParsed = [...allTransactions.slice(1)].map(row => ({
+          date: parseSafeDate(String(row[0])), type: String(row[1]).trim(),
+          cat: String(row[2]).trim(), amount: parseFloat(row[3]) || 0,
+          desc: String(row[4] || 'No note'), user: String(row[5] || 'Jebel').trim(),
+          odo: parseFloat(row[8]) || 0, litres: parseFloat(row[9]) || 0
+        })).sort((a, b) => a.date - b.date);
 
-        for(let i = 1; i < allTransactions.length; i++) {
-          let row = allTransactions[i];
-          let rowDate = parseSafeDate(String(row[0]));
-          let type = String(row[1]).trim();
-          let cat = String(row[2]).trim();
-          let amount = parseFloat(row[3]) || 0;
-          let desc = row.length > 4 && row[4] ? String(row[4]).trim() : 'No note left';
-          let rowUser = row.length > 5 && row[5] ? String(row[5]).trim() : 'Jebel'; 
-          let rowProject = row.length > 6 && row[6] ? String(row[6]).trim() : ''; 
-          let rowReceipt = row.length > 7 && row[7] ? String(row[7]).trim() : ''; 
-          let rowOdo = row.length > 8 && row[8] ? String(row[8]).trim() : ''; 
-          
-          if(rowDate >= startDate && rowDate <= endDate) {
-            if((selectedUser === 'Both' || rowUser === selectedUser) && type === 'Expense' && cat === categoryName) {
-              filteredTxs.push({ date: rowDate, amount: amount, desc: desc, user: rowUser, project: rowProject, receipt: rowReceipt, odo: rowOdo });
+        // Calculate mileage (km/L) for specific vehicles across history
+        let vehicleLastOdo = {};
+        let vehicleStats = {};
+        for(let tx of allParsed) {
+          if(tx.type === 'Fuel') {
+            if(vehicleLastOdo[tx.cat] && tx.odo > vehicleLastOdo[tx.cat] && tx.litres > 0) {
+              let dist = tx.odo - vehicleLastOdo[tx.cat];
+              let mileage = (dist / tx.litres).toFixed(2);
+              vehicleStats[tx.odo] = mileage; // map by current odo reading
             }
+            vehicleLastOdo[tx.cat] = tx.odo;
           }
         }
 
-        filteredTxs.sort((a, b) => b.date - a.date);
+        let filteredTxs = allParsed.filter(tx => {
+          let matchesCat = (categoryName.startsWith('Fuel - ') && tx.type === 'Fuel' && tx.cat === categoryName.replace('Fuel - ', '')) || (!categoryName.startsWith('Fuel - ') && tx.cat === categoryName);
+          return tx.date >= startDate && tx.date <= endDate && (selectedUser === 'Both' || tx.user === selectedUser) && matchesCat;
+        }).sort((a, b) => b.date - a.date);
 
         if(filteredTxs.length === 0) {
           listContainer.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 30px;">No details found.</div>';
         } else {
           filteredTxs.forEach(tx => {
-            let dateOptions = { day: 'numeric', month: 'short', year: 'numeric' };
-            let dateStr = tx.date.toLocaleDateString('en-IN', dateOptions);
-            let projHTML = tx.project && tx.project !== 'General' ? `<div class="tx-project">${tx.project}</div>` : '';
-            let odoHTML = tx.odo ? `<div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Odo: ${tx.odo} km</div>` : '';
-            let receiptHTML = (tx.receipt && tx.receipt !== "Upload Failed" && tx.receipt !== "") ? `<a href="${tx.receipt}" target="_blank" class="tx-receipt-link">📎 View Receipt</a>` : '';
+            let dateStr = tx.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+            let fuelMeta = '';
+            if(tx.type === 'Fuel') {
+              let calculatedMileage = vehicleStats[tx.odo] ? ` • 🚀 ${vehicleStats[tx.odo]} km/L` : '';
+              fuelMeta = `<div style="font-size:12px; color:var(--accent-inc); font-weight:600; margin-top:3px;">Odo: ${tx.odo} km | ${tx.litres} L${calculatedMileage}</div>`;
+            }
             
             listContainer.innerHTML += `
               <div class="transaction-item">
                 <div class="tx-left">
-                  <span class="tx-desc">${tx.desc}</span>
+                  <span class="tx-desc">${tx.desc || tx.cat}</span>
                   <span class="tx-meta">${dateStr} • ${tx.user}</span>
-                  ${projHTML}
-                  ${odoHTML}
-                  ${receiptHTML}
+                  ${fuelMeta}
                 </div>
                 <div class="tx-amt">${formatINR(tx.amount)}</div>
               </div>
@@ -680,26 +728,13 @@
 
     function exportCSV() {
       if(allTransactions.length === 0) return alert("No data to export!");
-      
       let csvContent = "data:text/csv;charset=utf-8,";
-      
-      let headers = [...allTransactions[0]];
-      if(!headers.includes("Project")) headers.push("Project");
-      if(!headers.includes("Receipt")) headers.push("Receipt");
-      if(!headers.includes("Odometer")) headers.push("Odometer");
-      csvContent += headers.join(",") + "\n";
-      
-      allTransactions.slice(1).forEach(row => {
-        let formattedRow = row.map(cell => {
-          let cellData = cell ? String(cell).replace(/"/g, '""') : '';
-          return `"${cellData}"`;
-        });
+      allTransactions.forEach(row => {
+        let formattedRow = row.map(cell => `"${String(cell || '').replace(/"/g, '""')}"`);
         csvContent += formattedRow.join(",") + "\n";
       });
-      
-      var encodedUri = encodeURI(csvContent);
       var link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
+      link.setAttribute("href", encodeURI(csvContent));
       link.setAttribute("download", "Household_Tracker_Export.csv");
       document.body.appendChild(link); 
       link.click();
