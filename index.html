@@ -341,9 +341,8 @@
       document.getElementById('loadingIndicator').style.display = 'block';
       let startStr = document.getElementById('startDate').value;
       let endStr = document.getElementById('endDate').value;
-      let startDate = new Date(startStr);
-      let endDate = new Date(endStr);
-      endDate.setHours(23, 59, 59, 999); 
+      let startDate = new Date(startStr + 'T00:00:00');
+      let endDate = new Date(endStr + 'T23:59:59');
 
       try {
         let response = await fetch(URL);
