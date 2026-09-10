@@ -117,7 +117,6 @@
   <div class="header">
     <h1>Tracker</h1>
     <div class="header-actions">
-      <!-- NEW REFRESH BUTTON -->
       <button class="icon-btn" onclick="location.reload()">🔄</button>
       <button class="icon-btn theme-toggle" onclick="toggleTheme()">🌙</button>
     </div>
@@ -255,7 +254,11 @@
   </div>
 
   <script>
-    const URL = "https://script.google.com/macros/s/AKfycbyHiPGGnoqL_hrmZ2dW0tnXCiZK9x-axSpXjefF1zXBzL8KanbhVX_FcfdcyWz5Q9PB/exec"; 
+    // ---------------------------------------------------------
+    // IMPORTANT: REPLACE THE LINK BELOW WITH YOUR GOOGLE WEB APP URL
+    // ---------------------------------------------------------
+    const URL = "YOUR_COPIED_WEB_APP_URL_HERE"; 
+    
     let chartInstance = null;
 
     window.onload = function() {
@@ -339,6 +342,8 @@
 
     async function fetchInsights() {
       document.getElementById('loadingIndicator').style.display = 'block';
+      
+      // FIXED TIMEZONE LOGIC
       let startStr = document.getElementById('startDate').value;
       let endStr = document.getElementById('endDate').value;
       let startDate = new Date(startStr + 'T00:00:00');
