@@ -120,7 +120,8 @@
 
   <div class="header">
     <button class="header-btn" onclick="toggleTheme()">🌓</button>
-    <button class="header-btn" onclick="forceSync()">🔄</button>
+    <!-- Hidden Trick: Tapping the refresh button twice fast forces a complete HTML code download -->
+    <button class="header-btn" ondblclick="window.location.reload(true)" onclick="forceSync()">🔄</button>
   </div>
 
   <div class="balance-section">
@@ -514,9 +515,8 @@
         let emoji = emojis[index % emojis.length];
         let amount = formatINR(data[index]);
 
-        // Added onclick event to trigger the detailed modal view
         let cardHTML = `
-          <div class="cat-card" style="background-color: ${color};" onclick="showCategoryDetails('${catName}')">
+          <div class="cat-card" style="background-color: ${color};" onclick="showCategoryDetails(this.getAttribute('data-cat'))" data-cat="${catName}">
             <div>
               <div class="cat-icon">${emoji}</div>
               <div class="cat-name">${catName}</div>
@@ -528,74 +528,70 @@
       });
     }
 
-    // --- NEW MODAL LOGIC FOR TRANSACTION DRILL-DOWN ---
     function showCategoryDetails(categoryName) {
-      document.getElementById('modalCategoryTitle').innerText = categoryName;
-      const listContainer = document.getElementById('modalTransactionList');
-      listContainer.innerHTML = ''; // Clear old data
+      try {
+        document.getElementById('modalCategoryTitle').innerText = categoryName;
+        const listContainer = document.getElementById('modalTransactionList');
+        listContainer.innerHTML = ''; 
 
-      let startStr = document.getElementById('startDate').value;
-      let endStr = document.getElementById('endDate').value;
-      let selectedUser = document.getElementById('filterUser').value;
-      
-      let startDate = new Date(startStr + 'T00:00:00');
-      let endDate = new Date(endStr + 'T23:59:59');
-
-      let filteredTxs = [];
-
-      // Filter transactions for this specific category and time frame
-      for(let i = 1; i < allTransactions.length; i++) {
-        let row = allTransactions[i];
-        let rowDate = parseSafeDate(String(row[0]));
-        let type = String(row[1]).trim();
-        let cat = String(row[2]).trim();
-        let amount = parseFloat(row[3]) || 0;
-        let desc = String(row[4]).trim() || 'No description';
-        let rowUser = row.length > 5 && row[5] ? String(row[5]).trim() : 'Jebel'; 
+        let startStr = document.getElementById('startDate').value;
+        let endStr = document.getElementById('endDate').value;
+        let selectedUser = document.getElementById('filterUser').value;
         
-        if(rowDate >= startDate && rowDate <= endDate) {
-          if((selectedUser === 'Both' || rowUser === selectedUser) && type === 'Expense' && cat === categoryName) {
-            filteredTxs.push({ date: rowDate, amount: amount, desc: desc, user: rowUser });
+        let startDate = new Date(startStr + 'T00:00:00');
+        let endDate = new Date(endStr + 'T23:59:59');
+
+        let filteredTxs = [];
+
+        for(let i = 1; i < allTransactions.length; i++) {
+          let row = allTransactions[i];
+          let rowDate = parseSafeDate(String(row[0]));
+          let type = String(row[1]).trim();
+          let cat = String(row[2]).trim();
+          let amount = parseFloat(row[3]) || 0;
+          let desc = row.length > 4 && row[4] ? String(row[4]).trim() : 'No note left';
+          let rowUser = row.length > 5 && row[5] ? String(row[5]).trim() : 'Jebel'; 
+          
+          if(rowDate >= startDate && rowDate <= endDate) {
+            if((selectedUser === 'Both' || rowUser === selectedUser) && type === 'Expense' && cat === categoryName) {
+              filteredTxs.push({ date: rowDate, amount: amount, desc: desc, user: rowUser });
+            }
           }
         }
-      }
 
-      // Sort from newest to oldest
-      filteredTxs.sort((a, b) => b.date - a.date);
+        filteredTxs.sort((a, b) => b.date - a.date);
 
-      if(filteredTxs.length === 0) {
-        listContainer.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 30px;">No details found.</div>';
-      } else {
-        filteredTxs.forEach(tx => {
-          let dateOptions = { day: 'numeric', month: 'short', year: 'numeric' };
-          let dateStr = tx.date.toLocaleDateString('en-IN', dateOptions);
-          
-          listContainer.innerHTML += `
-            <div class="transaction-item">
-              <div class="tx-left">
-                <span class="tx-desc">${tx.desc}</span>
-                <span class="tx-meta">${dateStr} • ${tx.user}</span>
+        if(filteredTxs.length === 0) {
+          listContainer.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 30px;">No details found.</div>';
+        } else {
+          filteredTxs.forEach(tx => {
+            let dateOptions = { day: 'numeric', month: 'short', year: 'numeric' };
+            let dateStr = tx.date.toLocaleDateString('en-IN', dateOptions);
+            
+            listContainer.innerHTML += `
+              <div class="transaction-item">
+                <div class="tx-left">
+                  <span class="tx-desc">${tx.desc}</span>
+                  <span class="tx-meta">${dateStr} • ${tx.user}</span>
+                </div>
+                <div class="tx-amt">${formatINR(tx.amount)}</div>
               </div>
-              <div class="tx-amt">${formatINR(tx.amount)}</div>
-            </div>
-          `;
-        });
-      }
+            `;
+          });
+        }
 
-      // Show the modal with a smooth animation
-      const modal = document.getElementById('categoryModal');
-      modal.style.display = 'flex';
-      setTimeout(() => modal.classList.add('show'), 10);
+        const modal = document.getElementById('categoryModal');
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('show'), 10);
+      } catch(e) {
+        alert("Failed to load details: " + e.message);
+      }
     }
 
     function closeModal(event) {
-      // Only close if they tap the background overlay or the X button
       if(event && event.target.id !== 'categoryModal') return; 
-      
       const modal = document.getElementById('categoryModal');
       modal.classList.remove('show');
-      
-      // Wait for slide-down animation to finish before hiding completely
       setTimeout(() => modal.style.display = 'none', 300);
     }
   </script>
