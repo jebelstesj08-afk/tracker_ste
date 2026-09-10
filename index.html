@@ -7,6 +7,10 @@
   <link rel="manifest" href="manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Tracker">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135706.html"> <!-- Or link your own hosted PNG image icon here -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
@@ -74,10 +78,6 @@
     .btn-income { background-color: var(--text-main); color: var(--bg-color); }
     .btn-fuel { background-color: #ff9f0a; color: white; }
     .btn-export { background-color: var(--card-bg); color: var(--accent-blue); border: 2px solid var(--accent-blue); padding: 12px; font-size: 14px; box-shadow: none; margin-top: 0; }
-
-    .file-upload-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
-    .file-upload-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%; }
-    .btn-camera { background-color: var(--input-bg); color: var(--text-main); border: 2px dashed var(--border-color); box-shadow: none; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
     .two-col { display: flex; gap: 12px; margin-bottom: 16px; }
     .two-col .input-group { flex: 1; margin-bottom: 0; }
@@ -454,10 +454,10 @@
       let date = document.getElementById(prefix + 'Date').value;
       let amount = document.getElementById(prefix + 'Amount').value;
       let cat = document.getElementById(prefix + 'Cat').value;
-      let project = document.getElementById(prefix + 'Project').value;
+      let project = type === 'Expense' ? document.getElementById('expProject').value : 'General';
       let desc = document.getElementById(prefix + 'Desc').value;
 
-      if(!amount || !cat || !date) return alert("Date, Amount, and Category are required.");
+      if(!amount || !cat || !date) return alert("Date, Amount, and Category/Source are required.");
 
       if(allTransactions.length === 0) {
         allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres"]);
@@ -506,7 +506,6 @@
         allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres"]);
       }
 
-      // Type is 'Fuel', Category stores the vehicle name
       allTransactions.push([date, "Fuel", vehicle, amount, desc, user, "Automotive", "", odo, litres]);
       localStorage.setItem('trackerData', JSON.stringify(allTransactions));
       calculateTopBalance();
@@ -564,16 +563,12 @@
 
       let totalExp = 0; let totalInc = 0; let categoryTotals = {};
 
-      // Sort all transactions chronologically to calculate accurate milage between fills
       let sortedTxs = [...allTransactions.slice(1)].map(row => ({
         date: parseSafeDate(String(row[0])), type: String(row[1]).trim(),
         cat: String(row[2]).trim(), amount: parseFloat(row[3]) || 0,
         desc: String(row[4] || ''), user: String(row[5] || 'Jebel').trim(),
         odo: parseFloat(row[8]) || 0, litres: parseFloat(row[9]) || 0
       })).sort((a, b) => a.date - b.date);
-
-      // Track last odometer reading per vehicle for mileage calculations
-      let lastVehicleOdo = {};
 
       for(let tx of sortedTxs) {
         if(tx.date >= startDate && tx.date <= endDate) {
@@ -660,7 +655,6 @@
         let startDate = new Date(startStr + 'T00:00:00');
         let endDate = new Date(endStr + 'T23:59:59');
 
-        // Parse and sort all transactions chronologically to compute exact mileage between fills
         let allParsed = [...allTransactions.slice(1)].map(row => ({
           date: parseSafeDate(String(row[0])), type: String(row[1]).trim(),
           cat: String(row[2]).trim(), amount: parseFloat(row[3]) || 0,
@@ -668,7 +662,6 @@
           odo: parseFloat(row[8]) || 0, litres: parseFloat(row[9]) || 0
         })).sort((a, b) => a.date - b.date);
 
-        // Calculate mileage (km/L) for specific vehicles across history
         let vehicleLastOdo = {};
         let vehicleStats = {};
         for(let tx of allParsed) {
@@ -676,7 +669,7 @@
             if(vehicleLastOdo[tx.cat] && tx.odo > vehicleLastOdo[tx.cat] && tx.litres > 0) {
               let dist = tx.odo - vehicleLastOdo[tx.cat];
               let mileage = (dist / tx.litres).toFixed(2);
-              vehicleStats[tx.odo] = mileage; // map by current odo reading
+              vehicleStats[tx.odo] = mileage;
             }
             vehicleLastOdo[tx.cat] = tx.odo;
           }
