@@ -49,7 +49,6 @@
     .header { padding: 15px 20px; padding-top: max(40px, env(safe-area-inset-top)); display: flex; justify-content: space-between; align-items: center; }
     .header-btn { background: var(--card-bg); border: none; color: var(--text-main); height: 40px; width: 40px; border-radius: 20px; font-size: 18px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; }
 
-    /* Smart Reminder Banner */
     .reminder-banner { background: var(--accent-blue); color: white; padding: 12px 20px; border-radius: 12px; margin: 0 20px 20px; display: none; align-items: center; justify-content: space-between; font-size: 14px; font-weight: 600; box-shadow: 0 4px 12px rgba(0,122,255,0.3); }
 
     .balance-section { padding: 0 20px 20px; }
@@ -75,7 +74,6 @@
     .btn-income { background-color: var(--text-main); color: var(--bg-color); }
     .btn-export { background-color: var(--card-bg); color: var(--accent-blue); border: 2px solid var(--accent-blue); padding: 12px; font-size: 14px; box-shadow: none; margin-top: 0; }
 
-    /* File Upload Styling */
     .file-upload-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
     .file-upload-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%; }
     .btn-camera { background-color: var(--input-bg); color: var(--text-main); border: 2px dashed var(--border-color); box-shadow: none; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -127,7 +125,6 @@
     <button class="header-btn" ondblclick="window.location.reload(true)" onclick="forceSync()">🔄</button>
   </div>
 
-  <!-- SMART REMINDER BANNER -->
   <div class="reminder-banner" id="billReminder">
     <span>💡 Upcoming BSNL Broadband Bill</span>
     <button style="background:none; border:none; color:white; font-size:16px; cursor:pointer;" onclick="this.parentElement.style.display='none'">✕</button>
@@ -180,7 +177,6 @@
       </select>
     </div>
 
-    <!-- DYNAMIC ASSET INPUT: Appears only for Automotive -->
     <div class="input-group" id="odometerGroup" style="display: none; animation: slideUp 0.3s ease;">
       <label>XUV500 Odometer (km)</label>
       <input type="number" id="expOdo" placeholder="Current reading...">
@@ -216,7 +212,6 @@
       <input type="text" id="expDesc" placeholder="Add a note (optional)">
     </div>
     
-    <!-- RECEIPT VAULT CAMERA UPLOAD -->
     <div class="input-group file-upload-wrapper">
       <button class="save-btn btn-camera" id="cameraBtnDisplay">📸 Snap Receipt / Invoice</button>
       <input type="file" id="expReceipt" accept="image/*" capture="environment" onchange="updateCameraBtn()">
@@ -292,7 +287,6 @@
       <div class="input-group"><input type="date" id="endDate" onchange="generateInsights()"></div>
     </div>
     
-    <!-- EXPORT BUTTON -->
     <button class="save-btn btn-export" onclick="exportCSV()" style="margin-bottom: 20px;">
       📥 Export Raw Data to CSV
     </button>
@@ -307,7 +301,7 @@
     <div class="category-grid" id="categoryGrid"></div>
   </div>
 
-</div> <!-- End of app-container -->
+</div> 
 
   <!-- CATEGORY DETAILS MODAL -->
   <div id="categoryModal" class="modal-overlay" onclick="closeModal(event)">
@@ -354,7 +348,6 @@
       document.getElementById('startDate').value = firstDay;
       document.getElementById('endDate').value = lastDay;
 
-      // Smart Reminder Logic (Shows between the 15th and 19th of the month)
       if (today.getDate() >= 15 && today.getDate() <= 19) {
         document.getElementById('billReminder').style.display = 'flex';
       }
@@ -460,7 +453,6 @@
         allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer"]);
       }
       
-      // Save locally (Link will sync from Google later, passing empty string for now)
       allTransactions.push([date, type, cat, amount, desc, user, project, "", odo]);
       localStorage.setItem('trackerData', JSON.stringify(allTransactions));
 
@@ -484,7 +476,7 @@
         btn.style.opacity = "1";
         
         setTimeout(() => {
-          location.reload(); // Reloads to reset inputs & camera
+          location.reload(); 
         }, 1500);
       }).catch(err => {
         alert("Sync failed. Data saved offline.");
@@ -645,7 +637,7 @@
             let dateStr = tx.date.toLocaleDateString('en-IN', dateOptions);
             let projHTML = tx.project && tx.project !== 'General' ? `<div class="tx-project">${tx.project}</div>` : '';
             let odoHTML = tx.odo ? `<div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Odo: ${tx.odo} km</div>` : '';
-            let receiptHTML = (tx.receipt && tx.receipt !== "Upload Failed") ? `<a href="${tx.receipt}" target="_blank" class="tx-receipt-link">📎 View Receipt</a>` : '';
+            let receiptHTML = (tx.receipt && tx.receipt !== "Upload Failed" && tx.receipt !== "") ? `<a href="${tx.receipt}" target="_blank" class="tx-receipt-link">📎 View Receipt</a>` : '';
             
             listContainer.innerHTML += `
               <div class="transaction-item">
