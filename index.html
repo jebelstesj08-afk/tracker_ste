@@ -483,8 +483,37 @@
       .insights-hero { grid-template-columns:1fr; }
       .insights-side { display:grid; grid-template-columns:repeat(3,1fr); }
       .insights-kpi-grid { grid-template-columns:repeat(2,1fr); }
-      .insights-lower { grid-template-columns:1fr; }
+      .insights-lower { grid-template-columns:1fr !important; }
     }
+    /* iPhone 13 / 15 safe layout: never allow the Insights panels to overflow horizontally */
+    #Insights, .insights-page, .insights-lower, .insights-panel, .insight-category-list, .insight-record-list {
+      width:100%;
+      max-width:100%;
+      min-width:0;
+    }
+    .insights-panel { overflow:hidden; }
+    .insights-panel-head { min-width:0; flex-wrap:wrap; }
+    .insights-panel-head > div:first-child { min-width:0; flex:1 1 180px; }
+    .insights-panel-head .insight-small-sub {
+      max-width:42%;
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      text-align:right;
+    }
+    .insight-category-row { width:100%; min-width:0; }
+    .insight-category-name { min-width:0; max-width:100%; }
+    .insight-category-amt { min-width:0; max-width:86px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .insight-record { width:100%; min-width:0; overflow:hidden; }
+    .insight-record-main { min-width:0; max-width:100%; }
+    .insight-record-title { min-width:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .insight-record-amt { flex:0 0 auto; max-width:88px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+    @media(max-width:900px){
+      .insights-lower { grid-template-columns:1fr !important; }
+    }
+
     @media(max-width:520px){
       #Insights { padding-left:10px !important; padding-right:10px !important; }
       .insights-command { align-items:flex-start; }
