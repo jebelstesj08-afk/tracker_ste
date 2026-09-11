@@ -1325,6 +1325,39 @@
       }
     }
 
+    function renderTxList(container, txArray, isSearch = false) {
+       if(txArray.length === 0) {
+          container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 30px;">No records found.</div>';
+          return;
+       }
+       container.innerHTML = '';
+       txArray.forEach(row => {
+          let dateStr = parseSafeDate(row[0]).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+          let cat = String(row[2]);
+          let amt = formatINR(parseFloat(row[3]) || 0);
+          let desc = String(row[4] || cat);
+          let user = String(row[5]);
+          let receipt = String(row[7]);
+          let method = String(row[10] || '');
+          
+          let receiptHTML = (receipt && receipt !== "Upload Failed" && receipt !== "") ? `<a href="${receipt}" target="_blank" class="tx-receipt-link">📎 Receipt</a>` : '';
+          let methodHTML = method ? `<span style="font-size: 11px; background: var(--input-bg); padding: 2px 6px; border-radius: 6px; color: var(--text-muted); margin-left: 6px;">${method}</span>` : '';
+          
+          let subTag = isSearch ? `<span style="background:var(--input-bg); padding:2px 6px; border-radius:4px; font-size:10px;">${cat}</span>` : '';
+
+          container.innerHTML += `
+            <div class="transaction-item" onclick='openRecordDetail(${JSON.stringify({date: row[0], type: row[1], cat: row[2], amount: row[3], desc: row[4], user: row[5], receipt: row[7], paymentMethod: row[10]}).replace(/'/g, "&#39;")})'>
+              <div class="tx-left">
+                <span class="tx-desc">${desc} ${subTag} ${methodHTML}</span>
+                <span class="tx-meta">${dateStr} • ${user}</span>
+                ${receiptHTML}
+              </div>
+              <div class="tx-amt">${amt}</div>
+            </div>
+          `;
+       });
+    }
+
     function closeCategoryModal(event) {
       if(event && event.target.id !== 'categoryModal') return; 
       const modal = document.getElementById('categoryModal');
