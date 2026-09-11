@@ -8,7 +8,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Tracker">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
 function setInsightMode(mode){
   document.querySelectorAll('.insight-mode-btn').forEach(function(btn){
     btn.classList.toggle('active', btn.dataset.mode === mode);
