@@ -66,9 +66,26 @@
     .amount-wrapper { position: relative; }
     .amount-wrapper input { width: 100%; padding: 16px; font-size: 24px; font-weight: 700; border: none; background: var(--card-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
 
-    button.save-btn { width: 100%; padding: 18px; border: none; border-radius: var(--radius-md); font-size: 17px; font-weight: 700; cursor: pointer; transition: transform 0.1s, opacity 0.2s; box-shadow: 0 8px 20px rgba(0,0,0,0.08); margin-top: 10px; }
+    button.save-btn { width: 100%; padding: 18px; border: none; border-radius: var(--radius-md); font-size: 17px; font-weight: 700; cursor: pointer; transition: transform 0.1s, opacity 0.2s; box-shadow: 0 8px 20px rgba(0,0,0,0.08); margin-top: 10px; position: relative; }
     button.save-btn:active { transform: scale(0.97); }
     
+    /* Modern Loading Spinner state for save buttons */
+    button.save-btn.loading { color: transparent !important; pointer-events: none; }
+    button.save-btn.loading::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      top: 50%;
+      left: 50%;
+      margin: -10px 0 0 -10px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #ffffff;
+      animation: button-loading-spinner 0.6s linear infinite;
+    }
+    @keyframes button-loading-spinner { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
     .btn-expense, .btn-income, .btn-sav { background-color: var(--text-main); color: var(--bg-color); }
     [data-theme="dark"] .btn-expense, [data-theme="dark"] .btn-income, [data-theme="dark"] .btn-sav { background-color: #ffffff; color: #000000; }
     .btn-fuel { background-color: #ff9f0a; color: white; }
@@ -106,15 +123,6 @@
     
     #loadingIndicator { text-align: center; color: var(--text-muted); display: none; margin: 10px 0; font-size: 14px; font-weight: 500; }
 
-    .status-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 3000; animation: fadeIn 0.2s ease; }
-    .status-card { background: var(--card-bg); width: 85%; max-width: 300px; padding: 40px 20px; border-radius: 32px; text-align: center; box-shadow: 0 24px 48px rgba(0,0,0,0.15); transform: scale(0.9); animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; border: 1px solid var(--border-color); }
-    .status-icon { font-size: 56px; margin-bottom: 20px; }
-    .status-title { font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; letter-spacing: -0.5px; }
-    .status-subtitle { font-size: 14px; color: var(--text-muted); font-weight: 500; }
-
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; }
     .modal-overlay.show { display: flex; opacity: 1; }
     .modal-content { background: var(--bg-color); width: 100%; max-height: 85vh; min-height: 50vh; border-radius: 32px 32px 0 0; padding: 24px; padding-bottom: calc(24px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -124,7 +132,7 @@
     .close-btn { background: var(--input-bg); border: none; color: var(--text-main); width: 36px; height: 36px; border-radius: 18px; font-size: 16px; font-weight: bold; cursor: pointer; display:flex; justify-content:center; align-items:center; }
     .transaction-list { overflow-y: auto; flex: 1; padding-bottom: 20px; }
     
-    .transaction-item { background: transparent; padding: 16px 0; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+    .transaction-item { background: transparent; padding: 16px 0; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); cursor: pointer; }
     .transaction-item:last-child { border-bottom: none; }
     .tx-left { display: flex; flex-direction: column; max-width: 65%; }
     .tx-desc { font-weight: 700; font-size: 16px; color: var(--text-main); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.3px;}
@@ -213,12 +221,13 @@
       </select>
     </div>
 
-    <!-- Details with Payment Method Icon Parallel to Details Header -->
+    <!-- Details with Payment Method seamless selector parallel to Details Header -->
     <div class="input-group">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
         <label style="margin-bottom: 0;">Details</label>
-        <select id="txPaymentMethod" style="width: auto; padding: 2px 8px; font-size: 12px; font-weight: 600; border-radius: 8px; background: var(--card-bg); color: var(--accent-blue);">
+        <select id="txPaymentMethod" style="width: auto; border: none; outline: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--accent-blue); cursor: pointer; padding: 0;">
           <option value="" disabled selected>💳 Payment Method</option>
+          <option value="Cash">Cash</option>
           <option value="Google pay upi">Google pay upi</option>
           <option value="Axis my zone cc">Axis my zone cc</option>
           <option value="Axis flipkart cc">Axis flipkart cc</option>
@@ -304,12 +313,13 @@
       <div id="mileagePreviewText" style="color: var(--text-muted); font-weight: 500; font-size: 13px; border-top: 1px solid var(--border-color); padding-top: 6px; margin-top: 6px;"></div>
     </div>
 
-    <!-- Details with Payment Method Icon Parallel to Details Header -->
+    <!-- Details with Payment Method seamless selector parallel to Details Header -->
     <div class="input-group">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
         <label style="margin-bottom: 0;">Details / Station</label>
-        <select id="fuelPaymentMethod" style="width: auto; padding: 2px 8px; font-size: 12px; font-weight: 600; border-radius: 8px; background: var(--card-bg); color: var(--accent-blue);">
+        <select id="fuelPaymentMethod" style="width: auto; border: none; outline: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--accent-blue); cursor: pointer; padding: 0;">
           <option value="" disabled selected>💳 Payment Method</option>
+          <option value="Cash">Cash</option>
           <option value="Google pay upi">Google pay upi</option>
           <option value="Axis my zone cc">Axis my zone cc</option>
           <option value="Axis flipkart cc">Axis flipkart cc</option>
@@ -356,12 +366,13 @@
       </select>
     </div>
 
-    <!-- Details with Payment Method Icon Parallel to Details Header -->
+    <!-- Details with Payment Method seamless selector parallel to Details Header -->
     <div class="input-group">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
         <label style="margin-bottom: 0;">Details</label>
-        <select id="savPaymentMethod" style="width: auto; padding: 2px 8px; font-size: 12px; font-weight: 600; border-radius: 8px; background: var(--card-bg); color: var(--accent-blue);">
+        <select id="savPaymentMethod" style="width: auto; border: none; outline: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--accent-blue); cursor: pointer; padding: 0;">
           <option value="" disabled selected>💳 Payment Method</option>
+          <option value="Cash">Cash</option>
           <option value="Google pay upi">Google pay upi</option>
           <option value="Axis my zone cc">Axis my zone cc</option>
           <option value="Axis flipkart cc">Axis flipkart cc</option>
@@ -381,7 +392,7 @@
     <div class="two-col" style="align-items: center; gap: 8px; margin-bottom: 12px;">
       <div class="input-group" style="flex: 2; margin-bottom: 0;">
         <select id="filterUser" onchange="generateInsights()" style="font-weight:700; background:var(--card-bg);">
-          <option value="Both">Both (Jebel & Reshma)</option>
+          <option value="Combined">Combined (Jebel & Reshma)</option>
           <option value="Jebel">Jebel</option>
           <option value="Reshma">Reshma</option>
         </select>
@@ -448,6 +459,19 @@
     </div>
   </div>
 
+  <!-- RECORD DETAILS MODAL -->
+  <div id="recordDetailModal" class="modal-overlay" onclick="closeRecordDetailModal(event)">
+    <div class="modal-content" style="min-height: auto; max-height: 70vh;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Transaction Details</h3>
+        <button class="close-btn" onclick="closeRecordDetailModal()">✕</button>
+      </div>
+      <div id="recordDetailBody" style="font-size: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 20px;">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+  </div>
+
   <!-- CATEGORY DETAILS MODAL -->
   <div id="categoryModal" class="modal-overlay" onclick="closeModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
@@ -456,15 +480,6 @@
         <button class="close-btn" onclick="closeModal()">✕</button>
       </div>
       <div id="modalTransactionList" class="transaction-list"></div>
-    </div>
-  </div>
-
-  <!-- SUCCESS / PROCESSING POPUP MODAL -->
-  <div id="statusModal" class="status-modal">
-    <div class="status-card">
-      <div class="status-icon" id="statusIcon">🚀</div>
-      <div class="status-title" id="statusTitle">Processing...</div>
-      <div class="status-subtitle" id="statusSubtitle">Your transfer is processing</div>
     </div>
   </div>
 
@@ -483,12 +498,10 @@
       <option value="Food - Groceries">Food - Groceries</option>
       <option value="Food - Dining Out">Food - Dining Out</option>
       <option value="Food - HungerBox">Food - HungerBox</option>
-      <option value="Transportation - Maintenance">Transportation - Maintenance</option>
+      <option value="Maintenance">Maintenance</option>
       <option value="Utilities - Electricity">Utilities - Electricity</option>
       <option value="Utilities - Internet">Utilities - Internet</option>
       <option value="Utilities - Phone">Utilities - Phone</option>
-      <option value="Construction - Structure">Construction - Structure</option>
-      <option value="Construction - Plumbing/Pump">Construction - Plumbing/Pump</option>
       <option value="Hardware / Equipment">Hardware / Equipment</option>
       <option value="Health & Medical">Health & Medical</option>
       <option value="Entertainment">Entertainment</option>
@@ -496,6 +509,7 @@
       <option value="Personal Care">Personal Care</option>
       <option value="Education">Education</option>
       <option value="Debt / Loan EMI">Debt / Loan EMI</option>
+      <option value="Trip">Trip</option>
       <option value="Miscellaneous">Miscellaneous</option>
     `;
 
@@ -511,7 +525,7 @@
     const appColors = ['#007aff', '#34c759', '#5856d6', '#ff9f0a', '#ff3b30', '#32ade6', '#ff2d55', '#af52de'];
     const emojis = {
       'Hornet 2.0': '🏍️', 'Yamaha FZ': '🏍️', 'Dio': '🛵', 'i20': '🚗', 'XUV 500': '🚙', 'Qualis': '🚐',
-      'Housing / Rent': '🏠', 'Food - Groceries': '🛒', 'Food - Dining Out': '🍿', 'Transportation - Maintenance': '🔧', 'Utilities - Electricity': '⚡', 'Utilities - Internet': '🌐', 'Utilities - Phone': '📱', 'Construction - Structure': '🏗️', 'Hardware / Equipment': '💻',
+      'Housing / Rent': '🏠', 'Food - Groceries': '🛒', 'Food - Dining Out': '🍿', 'Maintenance': '🔧', 'Trip': '✈️', 'Utilities - Electricity': '⚡', 'Utilities - Internet': '🌐', 'Utilities - Phone': '📱', 'Hardware / Equipment': '💻',
       'Savings this month': '💵', 'Chit': '📜', 'Gold Chit': '🪙', 'Mutual Funds': '📈', 'Fixed Deposit': '🏦', 'Stocks': '📊', 'Other Investment': '💎'
     };
 
@@ -835,33 +849,11 @@
       }
     }
 
-    function showStatusModal(isSuccess, message) {
-      const modal = document.getElementById('statusModal');
-      const icon = document.getElementById('statusIcon');
-      const title = document.getElementById('statusTitle');
-      const subtitle = document.getElementById('statusSubtitle');
-
-      if (!isSuccess) {
-        icon.innerText = "🚀";
-        title.innerText = "Processing...";
-        subtitle.innerText = message || "Your transaction is processing";
-      } else {
-        icon.innerHTML = `<svg width="56" height="56" viewBox="0 0 24 24" fill="var(--accent-green)" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1.177-7.86l-2.765-2.767L7 12.431l3.823 3.823 7.916-7.916-1.061-1.061-6.855 6.855z"/></svg>`;
-        title.innerText = "Success!";
-        subtitle.innerText = message || "Your entry was recorded";
-      }
-      modal.style.display = 'flex';
-    }
-
-    function hideStatusModal(callback) {
-      setTimeout(() => {
-        document.getElementById('statusModal').style.display = 'none';
-        if(callback) callback();
-      }, 1500);
-    }
-
-    function executeSave(payload, loadingMsg, successMsg) {
+    function executeSave(payload, btnId) {
       if(!payload.amount || !payload.category || !payload.date) return alert("Date, Amount, and Category/Source are required.");
+
+      const btn = document.getElementById(btnId);
+      btn.classList.add('loading');
 
       if(allTransactions.length === 0) {
         allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres", "Payment Method"]);
@@ -871,18 +863,16 @@
       localStorage.setItem('trackerData', JSON.stringify(allTransactions));
       calculateTopBalance();
 
-      showStatusModal(false, loadingMsg);
-
       fetch(URL, {
         method: 'POST',
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       }).then(res => res.json()).then(() => {
-        showStatusModal(true, successMsg);
-        hideStatusModal(() => location.reload());
+        btn.classList.remove('loading');
+        location.reload();
       }).catch(() => {
-        showStatusModal(true, "Saved offline successfully.");
-        hideStatusModal(() => location.reload());
+        btn.classList.remove('loading');
+        location.reload();
       });
     }
 
@@ -899,7 +889,7 @@
         odometer: '', litres: '',
         paymentMethod: document.getElementById('txPaymentMethod').value
       };
-      executeSave(payload, currentTxType === 'Expense' ? "Uploading securely..." : "Recording income...", currentTxType === 'Expense' ? "Your expense was recorded!" : "Income recorded!");
+      executeSave(payload, 'txSaveBtn');
     }
 
     function saveFuelData() {
@@ -917,7 +907,7 @@
         litres: isService ? "" : document.getElementById('fuelLitres').value,
         paymentMethod: document.getElementById('fuelPaymentMethod').value
       };
-      executeSave(payload, isService ? "Logging service..." : "Logging fuel...", isService ? "Service recorded!" : "Fuel logged!");
+      executeSave(payload, 'vehicleLogBtn');
     }
 
     function saveSavingsData() {
@@ -932,7 +922,10 @@
         image: "", odometer: "", litres: "",
         paymentMethod: document.getElementById('savPaymentMethod').value
       };
-      executeSave(payload, "Recording investment...", "Investment recorded!");
+      // For saving investment button
+      const btn = document.querySelector('#Savings .btn-sav');
+      btn.id = 'savSaveBtn';
+      executeSave(payload, 'savSaveBtn');
     }
 
     function forceSync() { syncWithGoogle(true); }
@@ -981,14 +974,14 @@
 
       for(let tx of sortedTxs) {
         if (tx.type === 'Savings') {
-          if(selectedUser === 'Both' || tx.user === selectedUser) {
+          if(selectedUser === 'Combined' || tx.user === selectedUser) {
             savingsPortfolio[tx.cat] = (savingsPortfolio[tx.cat] || 0) + tx.amount;
             totalCumulativeSavings += tx.amount;
           }
         }
 
         if(tx.date >= startDate && tx.date <= endDate) {
-          if(selectedUser === 'Both' || tx.user === selectedUser) {
+          if(selectedUser === 'Combined' || tx.user === selectedUser) {
             if (tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') {
               totalExp += tx.amount;
               let displayCat = (tx.type === 'Fuel' || tx.type === 'Service') ? `Veh - ${tx.cat}` : tx.cat;
@@ -1018,14 +1011,14 @@
           html += '<div style="color:var(--text-muted); font-size:14px; text-align:center; padding:20px;">No records found for this period.</div>';
         } else {
           html += `<div style="background: var(--card-bg); border-radius: var(--radius-lg); padding: 16px; border: 1px solid var(--border-color);">`;
-          periodRecords.forEach(row => {
+          periodRecords.forEach((row, idx) => {
             let dateStr = row.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
             let amtStr = formatINR(row.amount);
             let subText = `${row.type} • ${row.cat}`;
             if(row.desc) subText += ` • ${row.desc}`;
             if(row.paymentMethod) subText += ` [${row.paymentMethod}]`;
             html += `
-              <div class="transaction-item">
+              <div class="transaction-item" onclick="openRecordDetail(${JSON.stringify(row).replace(/"/g, '&quot;')})">
                 <div class="tx-left">
                   <span class="tx-desc">${subText}</span>
                   <span class="tx-meta">${dateStr} • ${row.user}</span>
@@ -1103,6 +1096,31 @@
       }
     }
 
+    function openRecordDetail(tx) {
+      let dateStr = parseSafeDate(tx.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+      let body = document.getElementById('recordDetailBody');
+      body.innerHTML = `
+        <div><b>Type:</b> ${tx.type}</div>
+        <div><b>Category / Source:</b> ${tx.cat}</div>
+        <div><b>Amount:</b> ${formatINR(tx.amount)}</div>
+        <div><b>User:</b> ${tx.user}</div>
+        <div><b>Date:</b> ${dateStr}</div>
+        <div><b>Details:</b> ${tx.desc || 'None'}</div>
+        <div><b>Payment Method:</b> ${tx.paymentMethod || 'Not specified'}</div>
+        ${tx.receipt ? `<div><b>Receipt:</b> <a href="${tx.receipt}" target="_blank" style="color:var(--accent-blue);">View Image</a></div>` : ''}
+      `;
+      let modal = document.getElementById('recordDetailModal');
+      modal.style.display = 'flex';
+      setTimeout(() => modal.classList.add('show'), 10);
+    }
+
+    function closeRecordDetailModal(event) {
+      if(event && event.target.id !== 'recordDetailModal') return;
+      let modal = document.getElementById('recordDetailModal');
+      modal.classList.remove('show');
+      setTimeout(() => modal.style.display = 'none', 300);
+    }
+
     function openSearchModal() {
       document.getElementById('searchModal').style.display = 'flex';
       setTimeout(() => document.getElementById('searchModal').classList.add('show'), 10);
@@ -1159,7 +1177,7 @@
           let isSavingsPortfolio = ['All Savings', 'Savings this month', 'Chit', 'Gold Chit', 'Mutual Funds', 'Fixed Deposit', 'Stocks', 'Other Investment'].includes(categoryName);
           let dateCondition = isSavingsPortfolio ? true : (txDate >= startDate && txDate <= endDate);
           
-          return dateCondition && (selectedUser === 'Both' || txUser === selectedUser) && matchesCat;
+          return dateCondition && (selectedUser === 'Combined' || txUser === selectedUser) && matchesCat;
         }).reverse();
 
         renderTxList(listContainer, filteredTxs);
