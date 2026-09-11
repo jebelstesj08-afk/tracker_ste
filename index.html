@@ -400,6 +400,110 @@
     .tx-receipt-link { font-size: 12px; color: var(--accent-blue); text-decoration: none; margin-top: 6px; display: inline-block; font-weight: 600; background: var(--input-bg); padding: 4px 10px; border-radius: 12px;}
 
     #searchInput { margin-bottom: 15px; padding: 16px; font-size: 18px; font-weight: 600; border-radius: 16px; border: 1px solid var(--border-color); background: var(--card-bg); width: 100%; color: var(--text-main); }
+
+
+    /* ===== FINAL INSIGHTS MAKEOVER ===== */
+    #Insights { padding: 0 14px 170px !important; }
+    .insights-page { max-width: 1120px; margin: 0 auto; }
+    .insights-command { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+    .insights-command-left { min-width:0; }
+    .insights-eyebrow { font-size:9px; text-transform:uppercase; letter-spacing:1.1px; color:var(--text-muted); font-weight:900; }
+    .insights-title { margin:2px 0 0; font-size:25px; line-height:1.05; letter-spacing:-1px; font-weight:900; }
+    .insights-subtitle { margin:5px 0 0; font-size:10px; color:var(--text-muted); font-weight:650; }
+    .insights-status { display:flex; align-items:center; gap:6px; padding:8px 10px; border:1px solid var(--border-color); background:var(--card-bg); border-radius:999px; font-size:10px; font-weight:800; white-space:nowrap; }
+    .insights-status-dot { width:7px; height:7px; border-radius:50%; background:var(--accent-green); box-shadow:0 0 0 4px rgba(52,199,89,.11); }
+    .insights-controls { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+    .insights-controls .input-group { margin:0; }
+    .insights-controls select { padding:11px 12px; border-radius:14px; background:var(--card-bg); font-size:12px; font-weight:800; }
+    .insights-hero { display:grid; grid-template-columns:minmax(0,1fr) 220px; gap:12px; margin-bottom:12px; }
+    .insights-card { background:var(--card-bg); border:1px solid var(--border-color); box-shadow:0 10px 28px rgba(0,0,0,.04); }
+    .insights-balance { min-height:290px; border-radius:24px; padding:18px; overflow:hidden; position:relative; background:
+      radial-gradient(circle at 86% 15%, rgba(139,92,246,.12), transparent 30%),
+      linear-gradient(135deg, var(--card-bg), var(--input-bg)); }
+    .insights-balance-head { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+    .insights-balance-kicker { color:var(--text-muted); font-size:10px; font-weight:850; text-transform:uppercase; letter-spacing:.65px; }
+    .insights-balance-value { font-size:38px; font-weight:950; letter-spacing:-1.8px; margin-top:6px; }
+    .insights-balance-note { font-size:10px; color:var(--text-muted); font-weight:650; margin-top:4px; }
+    .insights-balance-chip { padding:6px 9px; border-radius:999px; background:rgba(52,199,89,.11); color:#1f9d53; font-size:9px; font-weight:900; }
+    .insights-chart-wrap { position:relative; height:160px; margin-top:15px; }
+    .insights-gridlines { position:absolute; inset:8px 0 26px; display:flex; flex-direction:column; justify-content:space-between; pointer-events:none; }
+    .insights-gridlines span { border-top:1px dashed var(--border-color); }
+    .insights-bars { position:absolute; inset:8px 0 0; display:flex; align-items:flex-end; gap:7px; }
+    .insight-bar-col { flex:1; min-width:5px; max-width:34px; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:4px; }
+    .insight-bar-stack { width:100%; height:100%; display:flex; align-items:flex-end; justify-content:flex-end; flex-direction:column; }
+    .insight-bar { width:100%; border-radius:6px 6px 2px 2px; min-height:3px; }
+    .insight-bar.income { background:linear-gradient(180deg,#a276ff,#8557ed); }
+    .insight-bar.expense { background:linear-gradient(180deg,#ffb267,#ff8738); }
+    .insight-bar.savings { background:#d8d8df; }
+    .insight-bar-label { font-size:8px; color:var(--text-muted); font-weight:800; }
+    .insights-side { display:flex; flex-direction:column; gap:10px; }
+    .insight-metric { border-radius:18px; padding:14px; min-height:90px; display:flex; flex-direction:column; justify-content:space-between; }
+    .insight-metric-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .insight-metric-label { font-size:9px; text-transform:uppercase; color:var(--text-muted); font-weight:900; letter-spacing:.5px; }
+    .insight-metric-icon { width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:10px; background:var(--input-bg); font-size:13px; }
+    .insight-metric-value { font-size:22px; font-weight:920; letter-spacing:-1px; }
+    .insight-metric-foot { font-size:9px; color:var(--text-muted); font-weight:650; }
+
+    .insights-kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:12px; }
+    .insight-kpi { border-radius:18px; padding:14px; min-height:118px; display:flex; flex-direction:column; justify-content:space-between; }
+    .insight-kpi-title { font-size:9px; font-weight:900; color:var(--text-muted); text-transform:uppercase; letter-spacing:.55px; }
+    .insight-kpi-value { font-size:24px; font-weight:920; letter-spacing:-1px; margin-top:9px; }
+    .insight-kpi-sub { font-size:9px; color:var(--text-muted); font-weight:700; }
+    .insight-kpi-track { height:6px; background:var(--input-bg); border-radius:99px; overflow:hidden; margin-top:9px; }
+    .insight-kpi-track span { display:block; height:100%; border-radius:99px; width:0; transition:width .35s ease; }
+    .track-green span { background:linear-gradient(90deg,#34c759,#61d98a); }
+    .track-red span { background:linear-gradient(90deg,#ff6f64,#ff3b30); }
+    .track-purple span { background:linear-gradient(90deg,#b07bff,#8557ed); }
+    .track-blue span { background:linear-gradient(90deg,#53a8ff,#007aff); }
+
+    .insights-lower { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr); gap:12px; }
+    .insights-panel { border-radius:22px; padding:16px; }
+    .insights-panel-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:13px; }
+    .insights-panel-title { font-size:16px; font-weight:900; letter-spacing:-.4px; }
+    .insights-panel-sub { font-size:9px; color:var(--text-muted); font-weight:650; margin-top:3px; }
+    .insight-category-list { display:flex; flex-direction:column; gap:11px; }
+    .insight-category-row { display:grid; grid-template-columns:34px minmax(0,1fr) auto; gap:9px; align-items:center; }
+    .insight-category-icon { width:34px; height:34px; border-radius:11px; display:flex; align-items:center; justify-content:center; background:var(--input-bg); font-size:15px; }
+    .insight-category-main { min-width:0; }
+    .insight-category-name { font-size:10px; font-weight:850; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .insight-category-bar { height:6px; background:var(--input-bg); border-radius:99px; overflow:hidden; margin-top:6px; }
+    .insight-category-bar span { display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,#8b5cf6,#b58bff); }
+    .insight-category-amt { font-size:10px; font-weight:900; }
+    .insight-record-list { display:flex; flex-direction:column; gap:8px; }
+    .insight-record { display:flex; align-items:center; gap:9px; padding:10px; border-radius:14px; background:var(--input-bg); }
+    .insight-record-icon { width:34px; height:34px; border-radius:11px; background:var(--card-bg); display:flex; align-items:center; justify-content:center; font-size:14px; flex:0 0 auto; }
+    .insight-record-main { min-width:0; flex:1; }
+    .insight-record-title { font-size:10px; font-weight:850; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+    .insight-record-meta { font-size:8px; color:var(--text-muted); font-weight:650; margin-top:2px; }
+    .insight-record-amt { font-size:10px; font-weight:900; white-space:nowrap; color:var(--accent-red); }
+    .insight-empty { padding:30px 10px; text-align:center; color:var(--text-muted); font-size:10px; font-weight:750; }
+    .insights-footer-note { text-align:center; color:var(--text-muted); font-size:9px; font-weight:700; margin-top:10px; }
+    .insights-tech { display:none !important; }
+    @media(max-width:820px){
+      .insights-hero { grid-template-columns:1fr; }
+      .insights-side { display:grid; grid-template-columns:repeat(3,1fr); }
+      .insights-kpi-grid { grid-template-columns:repeat(2,1fr); }
+      .insights-lower { grid-template-columns:1fr; }
+    }
+    @media(max-width:520px){
+      #Insights { padding-left:10px !important; padding-right:10px !important; }
+      .insights-command { align-items:flex-start; }
+      .insights-title { font-size:22px; }
+      .insights-status { padding:7px 9px; }
+      .insights-controls { grid-template-columns:1fr 1fr; }
+      .insights-balance { min-height:270px; padding:15px; }
+      .insights-balance-value { font-size:32px; }
+      .insights-side { gap:7px; }
+      .insight-metric { min-height:82px; padding:11px; }
+      .insight-metric-value { font-size:17px; }
+      .insight-metric-foot { display:none; }
+      .insights-kpi-grid { gap:8px; }
+      .insight-kpi { min-height:108px; padding:12px; }
+      .insight-kpi-value { font-size:21px; }
+      .insight-bar-col { max-width:24px; }
+      .insights-panel { padding:13px; }
+    }
+
   </style>
 </head>
 <body>
@@ -680,64 +784,47 @@
 
   <!-- TAB 4: INSIGHTS / ANALYTICS TAB -->
   <div id="Insights" class="tab-content">
-    <div class="insights-filters">
-      <div class="input-group">
-        <select id="insightsFilterUser" onchange="generateInsights()" aria-label="Filter user">
-          <option value="Us">Us</option>
-          <option value="Jebel">Jebel</option>
-          <option value="Reshma">Reshma</option>
-        </select>
+    <div class="insights-page">
+      <div class="insights-command">
+        <div class="insights-command-left">
+          <div class="insights-eyebrow">Household analytics</div>
+          <div class="insights-title">Insights</div>
+          <div class="insights-subtitle" id="insightsPeriodText">Everything important, in one glance.</div>
+        </div>
+        <div class="insights-status" id="insightsDataStatus"><span class="insights-status-dot"></span><span>Live data</span></div>
       </div>
-      <div class="input-group">
-        <select id="insightsTimeRange" onchange="generateInsights()" aria-label="Time range">
-          <option value="90d">Last 3 months</option>
-          <option value="30d">Last 30 days</option>
-          <option value="7d">Last 7 days</option>
-          <option value="all">All Time</option>
-        </select>
-      </div>
-    </div>
 
-    <div class="insight-board">
-      <div class="insight-top-grid">
-        <div class="insight-small-card">
-          <div class="insight-small-head"><span class="insight-small-title">Balance</span><span class="insight-icon">◉</span></div>
-          <div class="insight-small-value" id="dashBalanceValue">0</div>
-          <div class="insight-small-sub" id="dashBalanceSub">Income − expenses − savings</div>
-          <div class="insight-progress"><span id="balanceProgressFill" style="width:55%"></span></div>
+      <div class="insights-controls">
+        <div class="input-group">
+          <select id="insightsFilterUser" onchange="generateInsights()" aria-label="Filter user">
+            <option value="Us">Us</option>
+            <option value="Jebel">Jebel</option>
+            <option value="Reshma">Reshma</option>
+          </select>
         </div>
-        <div class="insight-small-card">
-          <div class="insight-small-head"><span class="insight-small-title">Income</span><span class="insight-icon">↓</span></div>
-          <div class="insight-small-value" id="dashTotalIncome">0</div>
-          <div class="insight-small-sub">Selected period</div>
-          <div class="mini-line income" id="incomeMiniChart"><span></span></div>
-        </div>
-        <div class="insight-small-card">
-          <div class="insight-small-head"><span class="insight-small-title">Expenses</span><span class="insight-icon">↑</span></div>
-          <div class="insight-small-value" id="dashTotalExpense">0</div>
-          <div class="insight-small-sub">Expense + fuel + service</div>
-          <div class="mini-line expense" id="expenseMiniChart"><span></span></div>
-        </div>
-        <div class="insight-small-card">
-          <div class="insight-small-head"><span class="insight-small-title">Savings</span><span class="insight-icon">◎</span></div>
-          <div class="insight-small-value" id="dashSavingsValue">0</div>
-          <div class="insight-small-sub"><span id="dashSavingsRateChip">0%</span> of income</div>
-          <div class="insight-progress"><span id="dashSavingsRangeFill" style="width:0%"></span></div>
+        <div class="input-group">
+          <select id="insightsTimeRange" onchange="generateInsights()" aria-label="Time range">
+            <option value="all">All Time</option>
+            <option value="90d">Last 3 months</option>
+            <option value="30d">Last 30 days</option>
+            <option value="7d">Last 7 days</option>
+          </select>
         </div>
       </div>
 
-      <div class="insight-center">
-        <div class="insight-main-card">
-          <div class="insight-main-head">
+      <div class="insights-hero">
+        <div class="insights-card insights-balance">
+          <div class="insights-balance-head">
             <div>
-              <div class="insight-main-title">Overall balance</div>
-              <div class="insight-main-meta" id="dashCashflowSub">Income, expenses and savings by month</div>
+              <div class="insights-balance-kicker">Overall balance</div>
+              <div class="insights-balance-value" id="dashBalanceValue">0</div>
+              <div class="insights-balance-note" id="dashBalanceSub">Income − expenses − savings</div>
             </div>
-            <div class="insight-main-meta">Selected period</div>
+            <div class="insights-balance-chip" id="balanceHealthChip">Positive</div>
           </div>
-          <div class="insight-main-chart">
-            <div class="insight-axis"><span></span><span></span><span></span><span></span><span></span></div>
-            <div id="overviewBars" class="overview-bars"></div>
+          <div class="insights-chart-wrap">
+            <div class="insights-gridlines"><span></span><span></span><span></span><span></span><span></span></div>
+            <div class="insights-bars" id="overviewBars"></div>
           </div>
           <div class="insight-chart-legend">
             <span><i class="legend-dot legend-income"></i>Income</span>
@@ -746,77 +833,98 @@
           </div>
         </div>
 
-        <div class="insight-side-stack">
-          <div class="insight-side-card">
-            <div class="insight-side-top"><span class="insight-side-label">Income</span><span class="insight-side-change green-text">+ period</span></div>
-            <div class="insight-side-value" id="sideIncome">0</div>
+        <div class="insights-side">
+          <div class="insights-card insight-metric">
+            <div class="insight-metric-top"><span class="insight-metric-label">Income</span><span class="insight-metric-icon">↘</span></div>
+            <div class="insight-metric-value" id="sideIncome">0</div>
+            <div class="insight-metric-foot">Money received</div>
           </div>
-          <div class="insight-side-card">
-            <div class="insight-side-top"><span class="insight-side-label">Expense</span><span class="insight-side-change red-text">out</span></div>
-            <div class="insight-side-value" id="sideExpense">0</div>
+          <div class="insights-card insight-metric">
+            <div class="insight-metric-top"><span class="insight-metric-label">Expenses</span><span class="insight-metric-icon">↗</span></div>
+            <div class="insight-metric-value" id="sideExpense">0</div>
+            <div class="insight-metric-foot">Money spent</div>
           </div>
-          <div class="insight-side-card">
-            <div class="insight-side-top"><span class="insight-side-label">Cash left</span><span class="insight-side-change blue-text">net</span></div>
-            <div class="insight-side-value" id="sideCashLeft">0</div>
+          <div class="insights-card insight-metric">
+            <div class="insight-metric-top"><span class="insight-metric-label">Cash left</span><span class="insight-metric-icon">◌</span></div>
+            <div class="insight-metric-value" id="sideCashLeft">0</div>
+            <div class="insight-metric-foot">Income − expenses</div>
           </div>
         </div>
       </div>
 
-      <div class="insight-bottom">
-        <div class="insight-portfolio">
-          <div class="insight-section-title">Portfolio value</div>
-          <div class="insight-portfolio-grid">
-            <div class="portfolio-mini">
-              <div class="portfolio-mini-title">Income</div>
-              <div class="mini-line income" id="portfolioIncomeMini"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-              <div class="portfolio-mini-value" id="portfolioIncomeValue">0</div>
-              <div class="portfolio-mini-sub">Selected period</div>
-            </div>
-            <div class="portfolio-mini">
-              <div class="portfolio-mini-title">Expense</div>
-              <div class="mini-line expense" id="portfolioExpenseMini"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-              <div class="portfolio-mini-value" id="portfolioExpenseValue">0</div>
-              <div class="portfolio-mini-sub">Selected period</div>
-            </div>
-            <div class="portfolio-mini">
-              <div class="portfolio-mini-title">Savings rate</div>
-              <div class="ring" id="savingsRing" style="--p:0%"><span id="savingsRingText">0%</span></div>
-              <div class="portfolio-mini-value" id="portfolioSavingsValue">0</div>
-              <div class="portfolio-mini-sub">Amount saved</div>
-            </div>
-          </div>
+      <div class="insights-kpi-grid">
+        <div class="insights-card insight-kpi">
+          <div class="insight-kpi-title">Income</div>
+          <div class="insight-kpi-value" id="dashTotalIncome">0</div>
+          <div class="insight-kpi-sub" id="incomeKpiSub">0 records</div>
+          <div class="insight-kpi-track track-green"><span id="incomeKpiFill"></span></div>
         </div>
-
-        <div class="insight-asset-card">
-          <div class="asset-date">TOP CATEGORY</div>
-          <div class="asset-title" id="assetTopCategory">—</div>
-          <div class="asset-value" id="dashTopCategoryAmount">0</div>
-          <div class="asset-sub">Highest spending category</div>
-          <div class="asset-badge">Spend <strong>top</strong></div>
+        <div class="insights-card insight-kpi">
+          <div class="insight-kpi-title">Expenses</div>
+          <div class="insight-kpi-value" id="dashTotalExpense">0</div>
+          <div class="insight-kpi-sub" id="expenseKpiSub">0 categories</div>
+          <div class="insight-kpi-track track-red"><span id="expenseKpiFill"></span></div>
         </div>
-        <div class="insight-asset-card">
-          <div class="asset-date">HIGHEST SPEND</div>
-          <div class="asset-title" id="dashHighestSpendLabel">No expense data</div>
-          <div class="asset-value" id="dashHighestSpend">0</div>
-          <div class="asset-sub">Largest single expense</div>
-          <div class="asset-badge">Peak <strong>record</strong></div>
+        <div class="insights-card insight-kpi">
+          <div class="insight-kpi-title">Savings</div>
+          <div class="insight-kpi-value" id="dashSavingsValue">0</div>
+          <div class="insight-kpi-sub" id="dashSavingsRateChip">0% of income</div>
+          <div class="insight-kpi-track track-purple"><span id="dashSavingsRangeFill"></span></div>
         </div>
-        <div class="insight-asset-card">
-          <div class="asset-date">ACTIVITY</div>
-          <div class="asset-title">Transactions</div>
-          <div class="asset-value" id="dashTransactionCount">0</div>
-          <div class="asset-sub">Records in selected period</div>
-          <div class="asset-badge">Categories <strong id="analyticsCategories">0</strong></div>
+        <div class="insights-card insight-kpi">
+          <div class="insight-kpi-title">Activity</div>
+          <div class="insight-kpi-value" id="dashTransactionCount">0</div>
+          <div class="insight-kpi-sub"><span id="analyticsCategories">0</span> spending categories</div>
+          <div class="insight-kpi-track track-blue"><span id="activityKpiFill"></span></div>
         </div>
       </div>
+
+      <div class="insights-lower">
+        <div class="insights-card insights-panel">
+          <div class="insights-panel-head">
+            <div>
+              <div class="insights-panel-title">Top spending categories</div>
+              <div class="insights-panel-sub">Where your money is going</div>
+            </div>
+            <div class="insight-small-sub" id="dashTopCategory">—</div>
+          </div>
+          <div class="insight-category-list" id="insightsCategoryList"></div>
+        </div>
+
+        <div class="insights-card insights-panel">
+          <div class="insights-panel-head">
+            <div>
+              <div class="insights-panel-title">Highest spend</div>
+              <div class="insights-panel-sub">Largest individual outgoing record</div>
+            </div>
+            <div class="insight-small-sub">Peak</div>
+          </div>
+          <div class="insight-record-list" id="insightsHighestList"></div>
+          <div style="height:12px"></div>
+          <div class="insights-panel-head" style="margin-bottom:8px;">
+            <div>
+              <div class="insights-panel-title" style="font-size:13px;">Savings rate</div>
+              <div class="insights-panel-sub">Share of income kept</div>
+            </div>
+            <div class="insight-small-sub" id="savingsRingText">0%</div>
+          </div>
+          <div class="insight-kpi-track track-purple" style="height:9px;"><span id="savingsProgressLong"></span></div>
+        </div>
+      </div>
+
+      <div class="insights-footer-note" id="insightsFooterNote">0 records included</div>
     </div>
 
-    <!-- Technical elements kept for the existing data-render functions -->
+    <!-- Compatibility nodes used by older functions; kept hidden intentionally. -->
     <div class="insights-tech">
       <div id="balanceMiniChart"></div><div id="cashflowMiniChart"></div><div id="spendingMiniChart"></div>
       <div id="transactionDotChart"></div><div id="categoryMiniChart"></div><div id="highestSpendMiniChart"></div>
       <span id="dashCashflowValue">0</span><span id="dashCashflowChip">Net</span>
       <span id="analyticsDailySpend">0</span><span id="analyticsTransactions">0</span>
+      <span id="portfolioIncomeValue">0</span><span id="portfolioExpenseValue">0</span><span id="portfolioSavingsValue">0</span>
+      <div id="incomeMiniChart"></div><div id="expenseMiniChart"></div><div id="portfolioIncomeMini"></div><div id="portfolioExpenseMini"></div>
+      <div id="savingsRing"></div><span id="dashHighestSpend">0</span><span id="dashHighestSpendLabel">No expense data</span><span id="dashTopCategoryAmount">0</span>
+      <div id="balanceProgressFill"></div>
     </div>
   </div>
 
@@ -963,6 +1071,8 @@
       document.getElementById('fuelDate').value = todayStr;
 
       setTxType('Expense');
+      const insightRange = document.getElementById('insightsTimeRange');
+      if (insightRange) insightRange.value = 'all';
 
       let curYear = today.getFullYear();
       let curMonth = today.getMonth();
@@ -1383,13 +1493,12 @@
         allTransactions = data;
         localStorage.setItem('trackerData', JSON.stringify(data));
 
-        if(document.getElementById('Ledger').classList.contains('active-tab')) {
-          generateLedger();
-        }
-        if(document.getElementById('Insights').classList.contains('active-tab')) {
-          generateInsights();
-        } else if(!document.getElementById('Ledger').classList.contains('active-tab')) {
-          calculateTopBalance();
+        try {
+          if(document.getElementById('Ledger').classList.contains('active-tab')) generateLedger();
+          if(document.getElementById('Insights').classList.contains('active-tab')) generateInsights();
+          if(!document.getElementById('Ledger').classList.contains('active-tab') && !document.getElementById('Insights').classList.contains('active-tab')) calculateTopBalance();
+        } catch (renderErr) {
+          console.error('Dashboard render error after sync:', renderErr);
         }
 
         if(showLoading && loading) {
@@ -1620,34 +1729,91 @@
       container.innerHTML = html;
     }
 
+    function normalizeTransactionType(value) {
+      const t = String(value == null ? '' : value).trim().toLowerCase();
+      if (t === 'income') return 'Income';
+      if (t === 'expense') return 'Expense';
+      if (t === 'fuel') return 'Fuel';
+      if (t === 'service') return 'Service';
+      if (t === 'savings') return 'Savings';
+      return String(value == null ? '' : value).trim();
+    }
+
+    function parseTransactionAmount(value) {
+      if (typeof value === 'number') return isFinite(value) ? value : 0;
+      const cleaned = String(value == null ? '' : value).replace(/[^0-9.-]/g, '');
+      const n = Number(cleaned);
+      return isFinite(n) ? n : 0;
+    }
+
+    function parseRobustDate(value) {
+      if (value instanceof Date && !isNaN(value.getTime())) return new Date(value.getTime());
+      if (typeof value === 'number' && isFinite(value)) {
+        // Google Sheets serial date fallback (days since 1899-12-30)
+        const d = new Date(Date.UTC(1899, 11, 30) + value * 86400000);
+        if (!isNaN(d.getTime())) return d;
+      }
+      const raw = String(value == null ? '' : value).trim();
+      if (!raw) return null;
+      const iso = new Date(raw);
+      if (!isNaN(iso.getTime())) return iso;
+      const m = raw.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})/);
+      if (m) {
+        let day = Number(m[1]), month = Number(m[2]) - 1, year = Number(m[3]);
+        if (year < 100) year += 2000;
+        const d = new Date(year, month, day);
+        return isNaN(d.getTime()) ? null : d;
+      }
+      return null;
+    }
+
+    function getInsightRows() {
+      if (!Array.isArray(allTransactions)) return [];
+      // Find the header row rather than assuming it is always row 1.
+      let headerIndex = -1;
+      for (let i = 0; i < Math.min(allTransactions.length, 8); i++) {
+        const row = allTransactions[i];
+        if (Array.isArray(row)) {
+          const joined = row.map(v => String(v == null ? '' : v).trim().toLowerCase()).join('|');
+          if (joined.includes('date') && joined.includes('type') && joined.includes('amount')) {
+            headerIndex = i; break;
+          }
+        }
+      }
+      const start = headerIndex >= 0 ? headerIndex + 1 : 0;
+      return allTransactions.slice(start).filter(Array.isArray);
+    }
+
     function getInsightTransactions() {
-      let selectedUser = document.getElementById('insightsFilterUser').value;
-      let timeRange = document.getElementById('insightsTimeRange').value;
+      const userEl = document.getElementById('insightsFilterUser');
+      const rangeEl = document.getElementById('insightsTimeRange');
+      const selectedUser = userEl ? userEl.value : 'Us';
+      const timeRange = rangeEl ? rangeEl.value : 'all';
 
-      let referenceDate = new Date();
-      let daysToSubtract = 90;
-      if (timeRange === "30d") daysToSubtract = 30;
-      else if (timeRange === "7d") daysToSubtract = 7;
-      else if (timeRange === "all") daysToSubtract = 3650;
-
-      let startDate = new Date(referenceDate);
-      startDate.setDate(startDate.getDate() - daysToSubtract);
+      const now = new Date();
+      const startDate = new Date(now);
+      if (timeRange === '7d') startDate.setDate(now.getDate() - 7);
+      else if (timeRange === '30d') startDate.setDate(now.getDate() - 30);
+      else if (timeRange === '90d') startDate.setDate(now.getDate() - 90);
+      else startDate.setFullYear(now.getFullYear() - 50);
       startDate.setHours(0,0,0,0);
 
-      let txs = [...allTransactions.slice(1)].map(row => ({
-        date: parseSafeDate(String(row[0])),
-        type: String(row[1]).trim(),
-        cat: String(row[2] || '').trim(),
-        amount: parseFloat(row[3]) || 0,
-        user: String(row[5] || 'Jebel').trim(),
-        desc: String(row[4] || '').trim()
+      const rows = getInsightRows();
+      const txs = rows.map(row => ({
+        date: parseRobustDate(row[0]),
+        type: normalizeTransactionType(row[1]),
+        cat: String(row[2] == null ? '' : row[2]).trim(),
+        amount: parseTransactionAmount(row[3]),
+        desc: String(row[4] == null ? '' : row[4]).trim(),
+        user: String(row[5] == null ? '' : row[5]).trim()
       })).filter(tx => {
-        let userOk = selectedUser === 'Us' || tx.user === selectedUser;
-        let dateOk = timeRange === 'all' || tx.date >= startDate;
-        return userOk && dateOk && !isNaN(tx.date.getTime());
+        if (!tx.date) return false;
+        const userOk = selectedUser === 'Us' || tx.user.toLowerCase() === selectedUser.toLowerCase();
+        const dateOk = tx.date >= startDate;
+        return userOk && dateOk && tx.amount >= 0;
       }).sort((a,b) => a.date - b.date);
 
-      return { txs, startDate, timeRange };
+      return { txs, startDate, timeRange, selectedUser };
     }
 
     function moneyShort(value) {
@@ -1707,126 +1873,147 @@
       const el = document.getElementById('overviewBars');
       if (!el) return;
       if (!monthGroups.length) {
-        el.innerHTML = '<div style="width:100%; text-align:center; color:var(--text-muted); font-size:11px; font-weight:700; align-self:center;">No data for selected period</div>';
+        el.innerHTML = '<div style="width:100%; text-align:center; color:var(--text-muted); font-size:10px; font-weight:800; align-self:center;">No data for selected period</div>';
         return;
       }
-      const maxTotal = Math.max(1, ...monthGroups.map(g => Math.max(g.income, g.expense, g.savings, g.income + g.expense + g.savings)));
-      el.innerHTML = monthGroups.slice(-12).map(g => {
-        const e = Math.max(2, (g.expense / maxTotal) * 100);
-        const i = Math.max(2, (g.income / maxTotal) * 100);
-        const sv = Math.max(1, (g.savings / maxTotal) * 100);
-        return `<div class="overview-col" title="${g.label}: Income ${formatINR(g.income)} | Expense ${formatINR(g.expense)} | Savings ${formatINR(g.savings)}">
-          <div class="overview-stack">
-            <div class="overview-bar savings" style="height:${sv}%"></div>
-            <div class="overview-bar income" style="height:${i}%"></div>
-            <div class="overview-bar expense" style="height:${e}%"></div>
+      const visible = monthGroups.slice(-12);
+      const maxTotal = Math.max(1, ...visible.map(g => Math.max(g.income, g.expense, g.savings, g.income + g.expense + g.savings)));
+      el.innerHTML = visible.map(g => {
+        const e = g.expense ? Math.max(4, (g.expense / maxTotal) * 100) : 0;
+        const i = g.income ? Math.max(4, (g.income / maxTotal) * 100) : 0;
+        const sv = g.savings ? Math.max(3, (g.savings / maxTotal) * 100) : 0;
+        return `<div class="insight-bar-col" title="${g.label}: Income ${formatINR(g.income)} · Expense ${formatINR(g.expense)} · Savings ${formatINR(g.savings)}">
+          <div class="insight-bar-stack">
+            ${sv ? `<div class="insight-bar savings" style="height:${sv}%"></div>` : ''}
+            ${i ? `<div class="insight-bar income" style="height:${i}%"></div>` : ''}
+            ${e ? `<div class="insight-bar expense" style="height:${e}%"></div>` : ''}
           </div>
-          <div class="overview-label">${g.label}</div>
+          <div class="insight-bar-label">${g.label}</div>
         </div>`;
       }).join('');
     }
 
     function generateInsights() {
-      const { txs, timeRange } = getInsightTransactions();
-      const monthGroups = groupByMonth(txs);
+      try {
+        const { txs, timeRange, selectedUser } = getInsightTransactions();
+        const monthGroups = groupByMonth(txs);
 
-      let totalInc = 0, totalExp = 0, totalSav = 0;
-      const expenseCategories = {};
-      const dailySpend = {};
+        let totalInc = 0, totalExp = 0, totalSav = 0;
+        const incomeTxs = [];
+        const expenseTxs = [];
+        const expenseCategories = {};
 
-      txs.forEach(tx => {
-        if (tx.type === 'Income') {
-          totalInc += tx.amount;
-        } else if (tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') {
-          totalExp += tx.amount;
-          const displayCat = (tx.type === 'Fuel' || tx.type === 'Service') ? `Veh - ${tx.cat}` : tx.cat;
-          expenseCategories[displayCat] = (expenseCategories[displayCat] || 0) + tx.amount;
-          const dk = tx.date.toISOString().slice(0, 10);
-          dailySpend[dk] = (dailySpend[dk] || 0) + tx.amount;
-        } else if (tx.type === 'Savings') {
-          totalSav += tx.amount;
+        txs.forEach(tx => {
+          if (tx.type === 'Income') { totalInc += tx.amount; incomeTxs.push(tx); }
+          else if (tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') {
+            totalExp += tx.amount; expenseTxs.push(tx);
+            const displayCat = (tx.type === 'Fuel' || tx.type === 'Service') ? `Veh - ${tx.cat || 'Vehicle'}` : (tx.cat || 'Uncategorised');
+            expenseCategories[displayCat] = (expenseCategories[displayCat] || 0) + tx.amount;
+          } else if (tx.type === 'Savings') totalSav += tx.amount;
+        });
+
+        const balance = totalInc - totalExp - totalSav;
+        const cashLeft = totalInc - totalExp;
+        const savingsRate = totalInc > 0 ? Math.max(0, Math.min(100, (totalSav / totalInc) * 100)) : 0;
+        const sortedCats = Object.entries(expenseCategories).sort((a,b) => b[1] - a[1]);
+        const highest = expenseTxs.slice().sort((a,b) => b.amount - a.amount).slice(0,4);
+        const topCat = sortedCats[0];
+        const periodLabel = timeRange === 'all' ? 'All available history' : (timeRange === '7d' ? 'Last 7 days' : timeRange === '30d' ? 'Last 30 days' : 'Last 3 months');
+
+        const setText = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+        const setWidth = (id, pct) => { const el = document.getElementById(id); if (el) el.style.width = Math.max(0, Math.min(100, pct)) + '%'; };
+        const setColor = (id, value) => { const el = document.getElementById(id); if (el) el.style.color = value; };
+
+        setText('insightsPeriodText', `${periodLabel} · ${selectedUser === 'Us' ? 'Jebel + Reshma' : selectedUser}`);
+        setText('dashBalanceValue', formatINR(balance));
+        setText('dashBalanceSub', `Income ${formatINR(totalInc)} − Expenses ${formatINR(totalExp)} − Savings ${formatINR(totalSav)}`);
+        setText('dashTotalIncome', formatINR(totalInc));
+        setText('dashTotalExpense', formatINR(totalExp));
+        setText('dashSavingsValue', formatINR(totalSav));
+        setText('dashSavingsRateChip', `${savingsRate.toFixed(0)}% of income`);
+        setText('dashTransactionCount', txs.length.toLocaleString('en-IN'));
+        setText('analyticsCategories', sortedCats.length.toString());
+        setText('sideIncome', formatINR(totalInc));
+        setText('sideExpense', formatINR(totalExp));
+        setText('sideCashLeft', formatINR(cashLeft));
+        setText('savingsRingText', `${savingsRate.toFixed(0)}%`);
+        setText('incomeKpiSub', `${incomeTxs.length} income records`);
+        setText('expenseKpiSub', `${sortedCats.length} spending categories`);
+        setText('insightsFooterNote', `${txs.length.toLocaleString('en-IN')} records included · ${monthGroups.length} months of activity`);
+        setText('dashTopCategory', topCat ? topCat[0] : 'No spending yet');
+        setText('dashTopCategoryAmount', topCat ? formatINR(topCat[1]) : '0');
+        setText('dashHighestSpend', highest[0] ? formatINR(highest[0].amount) : '0');
+        setText('dashHighestSpendLabel', highest[0] ? `${highest[0].cat || highest[0].type}${highest[0].desc ? ' • ' + highest[0].desc : ''}` : 'No expense data');
+
+        setColor('dashBalanceValue', balance >= 0 ? 'var(--text-main)' : 'var(--accent-red)');
+        setColor('sideCashLeft', cashLeft >= 0 ? 'var(--text-main)' : 'var(--accent-red)');
+
+        const chip = document.getElementById('balanceHealthChip');
+        if (chip) {
+          chip.textContent = balance >= 0 ? 'Healthy balance' : 'Watch spending';
+          chip.style.background = balance >= 0 ? 'rgba(52,199,89,.11)' : 'rgba(255,59,48,.11)';
+          chip.style.color = balance >= 0 ? '#1f9d53' : '#d93c35';
         }
-      });
+        const status = document.getElementById('insightsDataStatus');
+        if (status) status.innerHTML = `<span class="insights-status-dot"></span><span>${txs.length ? 'Data ready' : 'No matching records'}</span>`;
 
-      const balance = totalInc - totalExp - totalSav;
-      const netCashflow = totalInc - totalExp;
-      const activeSpendDays = Object.keys(dailySpend).length;
-      const defaultDays = timeRange === '7d' ? 7 : (timeRange === '30d' ? 30 : (timeRange === '90d' ? 90 : 1));
-      const days = Math.max(1, activeSpendDays || defaultDays);
-      const avgDailySpend = totalExp / days;
-      const savingsRate = totalInc > 0 ? Math.min(100, Math.max(0, (totalSav / totalInc) * 100)) : 0;
+        const maxKpi = Math.max(totalInc, totalExp, totalSav, 1);
+        setWidth('incomeKpiFill', totalInc / maxKpi * 100);
+        setWidth('expenseKpiFill', totalExp / maxKpi * 100);
+        setWidth('dashSavingsRangeFill', savingsRate);
+        setWidth('activityKpiFill', Math.min(100, txs.length * 5));
+        setWidth('savingsProgressLong', savingsRate);
 
-      const sortedCats = Object.entries(expenseCategories).sort((a, b) => b[1] - a[1]);
-      const topCat = sortedCats[0] || null;
-      const expenseTxs = txs.filter(tx => tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service');
-      const highestSpend = expenseTxs.reduce((max, tx) => !max || tx.amount > max.amount ? tx : max, null);
+        renderOverviewBars(monthGroups);
 
-      // Main KPI cards
-      const setText = (id, value) => {
-        const el = document.getElementById(id);
-        if (el) el.innerText = value;
-      };
-      const setColor = (id, color) => {
-        const el = document.getElementById(id);
-        if (el) el.style.color = color;
-      };
+        const catEl = document.getElementById('insightsCategoryList');
+        if (catEl) {
+          if (!sortedCats.length) {
+            catEl.innerHTML = `<div class="insight-empty">No spending categories in this period.</div>`;
+          } else {
+            const maxCat = sortedCats[0][1] || 1;
+            catEl.innerHTML = sortedCats.slice(0,6).map(([name, amount], i) => {
+              const emoji = emojis[name.replace('Veh - ','')] || '◈';
+              const pct = Math.max(4, amount / maxCat * 100);
+              const share = totalExp > 0 ? (amount / totalExp * 100).toFixed(0) : '0';
+              return `<div class="insight-category-row">
+                <div class="insight-category-icon">${emoji}</div>
+                <div class="insight-category-main"><div class="insight-category-name">${name}</div><div class="insight-category-bar"><span style="width:${pct}%"></span></div></div>
+                <div class="insight-category-amt">${formatINR(amount)}<div style="font-size:8px;color:var(--text-muted);text-align:right;margin-top:2px">${share}%</div></div>
+              </div>`;
+            }).join('');
+          }
+        }
 
-      setText('dashBalanceValue', formatINR(balance));
-      setColor('dashBalanceValue', balance >= 0 ? 'var(--text-main)' : 'var(--accent-red)');
-      setText('dashTotalIncome', formatINR(totalInc));
-      setText('dashTotalExpense', formatINR(totalExp));
-      setText('dashSavingsValue', formatINR(totalSav));
-      setText('dashSavingsRateChip', `${savingsRate.toFixed(0)}%`);
-      setText('dashTransactionCount', txs.length);
-      setText('dashTopCategory', topCat ? topCat[0] : '—');
-      setText('dashTopCategoryAmount', topCat ? formatINR(topCat[1]) : '0');
-      setText('dashHighestSpend', highestSpend ? formatINR(highestSpend.amount) : '0');
-      setText('dashHighestSpendLabel', highestSpend ? `${highestSpend.cat}${highestSpend.desc ? ' • ' + highestSpend.desc : ''}` : 'No expense data');
-      setText('analyticsCategories', sortedCats.length);
-      setText('analyticsDailySpend', formatINR(avgDailySpend));
-      setText('analyticsTransactions', txs.length);
+        const hiEl = document.getElementById('insightsHighestList');
+        if (hiEl) {
+          if (!highest.length) {
+            hiEl.innerHTML = `<div class="insight-empty">No expenses found for this period.</div>`;
+          } else {
+            hiEl.innerHTML = highest.map(tx => {
+              const emoji = emojis[tx.cat] || (tx.type === 'Fuel' ? '⛽' : tx.type === 'Service' ? '🔧' : '↗');
+              const date = tx.date.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+              return `<div class="insight-record">
+                <div class="insight-record-icon">${emoji}</div>
+                <div class="insight-record-main"><div class="insight-record-title">${tx.cat || tx.type}${tx.desc ? ' · ' + tx.desc : ''}</div><div class="insight-record-meta">${date} · ${tx.user || 'User'}</div></div>
+                <div class="insight-record-amt">−${formatINR(tx.amount)}</div>
+              </div>`;
+            }).join('');
+          }
+        }
 
-      // Supporting cards
-      setText('sideIncome', formatINR(totalInc));
-      setText('sideExpense', formatINR(totalExp));
-      setText('sideCashLeft', formatINR(netCashflow));
-      setText('portfolioIncomeValue', formatINR(totalInc));
-      setText('portfolioExpenseValue', formatINR(totalExp));
-      setText('portfolioSavingsValue', formatINR(totalSav));
-      setText('savingsRingText', `${savingsRate.toFixed(0)}%`);
-
-      const ring = document.getElementById('savingsRing');
-      if (ring) ring.style.setProperty('--p', `${savingsRate}%`);
-
-      const balanceFill = document.getElementById('balanceProgressFill');
-      if (balanceFill) balanceFill.style.width = `${Math.min(100, Math.max(0, totalInc ? (Math.max(balance, 0) / totalInc) * 100 : 0))}%`;
-      const savingsFill = document.getElementById('dashSavingsRangeFill');
-      if (savingsFill) savingsFill.style.width = `${savingsRate}%`;
-
-      setText('dashCashflowValue', formatINR(netCashflow));
-      setColor('dashCashflowValue', netCashflow >= 0 ? 'var(--text-main)' : 'var(--accent-red)');
-      setText('dashCashflowSub', `${txs.length} records in selected period`);
-
-      renderOverviewBars(monthGroups);
-
-      renderMiniBars('balanceMiniChart', monthGroups.map(g => Math.abs(g.income - g.expense - g.savings)), balance >= 0 ? 'blue' : 'red', monthGroups.length - 1);
-      renderMiniBars('spendingMiniChart', monthGroups.map(g => g.expense + g.savings), 'orange', monthGroups.length - 1);
-      renderMiniBars('incomeMiniChart', monthGroups.map(g => g.income), 'green', monthGroups.length - 1);
-      renderMiniBars('expenseMiniChart', monthGroups.map(g => g.expense), 'red', monthGroups.length - 1);
-      renderMiniBars('portfolioIncomeMini', monthGroups.map(g => g.income), 'green', monthGroups.length - 1);
-      renderMiniBars('portfolioExpenseMini', monthGroups.map(g => g.expense), 'orange', monthGroups.length - 1);
-
-      renderDotChart('transactionDotChart', monthGroups.map(g => g.count));
-      renderMiniBars('categoryMiniChart', sortedCats.slice(0, 7).map(x => x[1]), 'blue', 0);
-      renderMiniBars('highestSpendMiniChart', expenseTxs.slice().sort((a,b) => b.amount - a.amount).slice(0,7).map(x => x.amount), 'red', 0);
-
-      const cfContainer = document.getElementById('cashflowMiniChart');
-      if (cfContainer) {
-        const monthNet = monthGroups.map(g => g.income - g.expense - g.savings);
-        const heights = normalizeBars(monthNet, 12, 88);
-        cfContainer.innerHTML = '<div class="baseline"></div>' + monthNet.map((v, i) =>
-          `<span class="mini-bar ${v >= 0 ? 'cyan' : 'pink'}${i === monthNet.length - 1 ? ' active' : ''}" style="height:${heights[i]}%;" title="${formatINR(v)}"></span>`
-        ).join('');
+        // Keep compatibility with the older hidden renderers.
+        setText('dashCashflowValue', formatINR(cashLeft));
+        setText('analyticsDailySpend', formatINR(totalExp / Math.max(1, timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : timeRange === '90d' ? 90 : 365)));
+        setText('analyticsTransactions', txs.length);
+        renderMiniBars('incomeMiniChart', monthGroups.map(g => g.income), 'green', monthGroups.length - 1);
+        renderMiniBars('expenseMiniChart', monthGroups.map(g => g.expense), 'red', monthGroups.length - 1);
+        renderMiniBars('portfolioIncomeMini', monthGroups.map(g => g.income), 'green', monthGroups.length - 1);
+        renderMiniBars('portfolioExpenseMini', monthGroups.map(g => g.expense), 'orange', monthGroups.length - 1);
+      } catch (err) {
+        console.error('Insights rendering failed:', err);
+        const status = document.getElementById('insightsDataStatus');
+        if (status) status.innerHTML = `<span class="insights-status-dot" style="background:var(--accent-red)"></span><span>Data error</span>`;
       }
     }
 
