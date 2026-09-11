@@ -313,7 +313,7 @@
       <div id="mileagePreviewText" style="color: var(--text-muted); font-weight: 500; font-size: 13px; border-top: 1px solid var(--border-color); padding-top: 6px; margin-top: 6px;"></div>
     </div>
 
-    <!-- Details with Payment Method Row for Vehicle Tab -->
+    <!-- Details and Payment Method Row for Vehicle Tab -->
     <div class="input-group">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
         <label style="margin-bottom: 0;">Details / Station</label>
@@ -372,7 +372,7 @@
     <div id="ledgerDynamicContainer"></div>
   </div>
 
-  <!-- TAB 4: INSIGHTS / ANALYTICS TAB -->
+  <!-- TAB 4: INSIGHTS / ANALYTICS TAB (Interactive Area Charts based on reference code) -->
   <div id="Insights" class="tab-content">
     <div class="two-col" style="align-items: center; gap: 8px; margin-bottom: 12px;">
       <div class="input-group" style="flex: 2; margin-bottom: 0;">
@@ -389,19 +389,30 @@
       </div>
     </div>
 
-    <div class="two-col">
-      <div class="input-group"><input type="date" id="insightsStartDate" onchange="generateInsights()"></div>
-      <div class="input-group"><input type="date" id="insightsEndDate" onchange="generateInsights()"></div>
+    <!-- Time Range Selector matching reference interactive chart component -->
+    <div class="two-col" style="align-items: center;">
+      <div class="input-group" style="margin-bottom: 0;">
+        <label>Time Range</label>
+        <select id="insightsTimeRange" onchange="generateInsights()" style="font-weight: 700;">
+          <option value="90d">Last 3 months</option>
+          <option value="30d">Last 30 days</option>
+          <option value="7d">Last 7 days</option>
+          <option value="all">All Time</option>
+        </select>
+      </div>
     </div>
 
-    <div style="background: var(--card-bg); border-radius: var(--radius-lg); padding: 16px; border: 1px solid var(--border-color); margin-bottom: 16px;">
-      <div style="font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">Spending Trend (Area Chart)</div>
-      <canvas id="spendingAreaChart" style="max-height: 200px;"></canvas>
-    </div>
-
-    <div style="background: var(--card-bg); border-radius: var(--radius-lg); padding: 16px; border: 1px solid var(--border-color); margin-bottom: 20px;">
-      <div style="font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">Savings Trend (Area Chart)</div>
-      <canvas id="savingsAreaChart" style="max-height: 200px;"></canvas>
+    <!-- Interactive Area Chart Card (Ref-inspired design) -->
+    <div style="background: var(--card-bg); border-radius: var(--radius-lg); padding: 20px; border: 1px solid var(--border-color); margin-top: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+        <div>
+          <div style="font-size: 16px; font-weight: 800; color: var(--text-main);">Area Chart - Interactive</div>
+          <div style="font-size: 12px; color: var(--text-muted); font-weight: 500;" id="interactiveChartSubtitle">Showing cashflow over time</div>
+        </div>
+      </div>
+      <div style="position: relative; height: 260px; width: 100%;">
+        <canvas id="interactiveAreaChart"></canvas>
+      </div>
     </div>
   </div>
 
@@ -469,8 +480,7 @@
     let allTransactions = JSON.parse(localStorage.getItem('trackerData')) || [];
     let receiptBase64 = "";
     let currentTxType = 'Expense';
-    let spendingChartInstance = null;
-    let savingsChartInstance = null;
+    let interactiveAreaChartInstance = null;
 
     const bikesList = ['Hornet 2.0', 'Yamaha FZ', 'Dio'];
 
@@ -556,8 +566,6 @@
 
       document.getElementById('ledgerStartDate').value = startDefault;
       document.getElementById('ledgerEndDate').value = endDefault;
-      document.getElementById('insightsStartDate').value = startDefault;
-      document.getElementById('insightsEndDate').value = endDefault;
 
       calculateTopBalance();
       syncWithGoogle(false);
@@ -774,12 +782,7 @@
       let headerSection = document.getElementById('headerBalanceSection');
 
       if(tabName === 'Insights') {
-        headerSection.style.display = "block";
-        mainBalanceContainer.style.display = "block";
-        document.getElementById('topLabel').innerText = "Total spending";
-        document.getElementById('topBalance').classList.add('small');
-        document.getElementById('secondaryBalanceBlock').style.display = "block";
-        resetBtn.style.display = "none";
+        headerSection.style.display = "none";
         generateInsights();
       } else if(tabName === 'Ledger') {
         headerSection.style.display = "block";
@@ -1091,107 +1094,108 @@
     }
 
     function generateInsights() {
-      let startStr = document.getElementById('insightsStartDate').value;
-      let endStr = document.getElementById('insightsEndDate').value;
       let selectedUser = document.getElementById('insightsFilterUser').value;
+      let timeRange = document.getElementById('insightsTimeRange').value;
 
-      let startDate = new Date(startStr + 'T00:00:00');
-      let endDate = new Date(endStr + 'T23:59:59');
+      let referenceDate = new Date();
+      let daysToSubtract = 90;
+      if (timeRange === "30d") daysToSubtract = 30;
+      else if (timeRange === "7d") daysToSubtract = 7;
+      else if (timeRange === "all") daysToSubtract = 3650;
 
-      let totalInc = 0;
-      let totalExp = 0;
-      let dailySpending = {};
-      let dailySavings = {};
+      let startDate = new Date(referenceDate);
+      startDate.setDate(startDate.getDate() - daysToSubtract);
+
+      let dailyMap = {};
 
       let sortedTxs = [...allTransactions.slice(1)].map(row => ({
         date: parseSafeDate(String(row[0])), type: String(row[1]).trim(),
-        cat: String(row[2]).trim(), amount: parseFloat(row[3]) || 0,
-        user: String(row[5] || 'Jebel').trim()
+        amount: parseFloat(row[3]) || 0, user: String(row[5] || 'Jebel').trim()
       })).sort((a, b) => a.date - b.date);
 
       for(let tx of sortedTxs) {
-        if(tx.date >= startDate && tx.date <= endDate) {
-          if(selectedUser === 'Us' || tx.user === selectedUser) {
-            let dateKey = tx.date.toISOString().split('T')[0];
-            if(tx.type === 'Income') {
-              totalInc += tx.amount;
-            } else if(tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') {
-              totalExp += tx.amount;
-              dailySpending[dateKey] = (dailySpending[dateKey] || 0) + tx.amount;
-            } else if(tx.type === 'Savings') {
-              dailySavings[dateKey] = (dailySavings[dateKey] || 0) + tx.amount;
-            }
+        if((timeRange === "all" || tx.date >= startDate) && (selectedUser === 'Us' || tx.user === selectedUser)) {
+          let dateKey = tx.date.toISOString().split('T')[0];
+          if(!dailyMap[dateKey]) {
+            dailyMap[dateKey] = { desktop: 0, mobile: 0 }; // mapping to desktop/mobile for area chart ref compatibility
+          }
+          if(tx.type === 'Income' || tx.type === 'Savings') {
+            dailyMap[dateKey].desktop += tx.amount; // mapping income/savings to desktop series
+          } else if(tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') {
+            dailyMap[dateKey].mobile += tx.amount; // mapping expenses to mobile series
           }
         }
       }
 
-      let incomeLeft = totalInc - totalExp;
-      document.getElementById('insightsIncomeLeftBadge').innerText = `Income Left: ${formatINR(incomeLeft)}`;
+      let chartLabels = [];
+      let desktopData = [];
+      let mobileData = [];
 
-      renderAreaCharts(dailySpending, dailySavings);
+      for(let [dKey, val] of Object.entries(dailyMap)) {
+        chartLabels.push(dKey);
+        desktopData.push(val.desktop);
+        mobileData.push(val.mobile);
+      }
+
+      document.getElementById('interactiveChartSubtitle').innerText = `Showing cashflow for ${timeRange === 'all' ? 'All Time' : 'the last ' + timeRange}`;
+      renderInteractiveAreaChart(chartLabels, desktopData, mobileData);
     }
 
-    function renderAreaCharts(spendingMap, savingsMap) {
-      let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      let gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
-      let textColor = isDark ? '#aeaeb2' : '#8e8e93';
+    function renderInteractiveAreaChart(labels, desktopValues, mobileValues) {
+      let ctx = document.getElementById('interactiveAreaChart').getContext('2d');
+      if(interactiveAreaChartInstance) interactiveAreaChartInstance.destroy();
 
-      let spendCtx = document.getElementById('spendingAreaChart').getContext('2d');
-      let spendDates = Object.keys(spendingMap);
-      let spendValues = Object.values(spendingMap);
+      let gradDesktop = ctx.createLinearGradient(0, 0, 0, 220);
+      gradDesktop.addColorStop(0, 'rgba(0, 122, 255, 0.5)');
+      gradDesktop.addColorStop(1, 'rgba(0, 122, 255, 0.0)');
 
-      if(spendingChartInstance) spendingChartInstance.destroy();
-      spendingChartInstance = new Chart(spendCtx, {
+      let gradMobile = ctx.createLinearGradient(0, 0, 0, 220);
+      gradMobile.addColorStop(0, 'rgba(52, 199, 89, 0.5)');
+      gradMobile.addColorStop(1, 'rgba(52, 199, 89, 0.0)');
+
+      if(labels.length === 0) {
+        labels = ['No Data'];
+        desktopValues = [0];
+        mobileValues = [0];
+      }
+
+      interactiveAreaChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: spendDates,
-          datasets: [{
-            label: 'Spending',
-            data: spendValues,
-            borderColor: '#ff3b30',
-            backgroundColor: 'rgba(255, 59, 48, 0.15)',
-            fill: true,
-            tension: 0.3,
-            borderWidth: 2,
-            pointRadius: 2
-          }]
+          labels: labels,
+          datasets: [
+            {
+              label: 'Inflows / Savings',
+              data: desktopValues,
+              borderColor: '#007aff',
+              backgroundColor: gradDesktop,
+              fill: true,
+              tension: 0.4,
+              borderWidth: 2,
+              pointRadius: 2
+            },
+            {
+              label: 'Expenses',
+              data: mobileValues,
+              borderColor: '#34c759',
+              backgroundColor: gradMobile,
+              fill: true,
+              tension: 0.4,
+              borderWidth: 2,
+              pointRadius: 2
+            }
+          ]
         },
         options: {
           responsive: true,
-          plugins: { legend: { display: false } },
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: true, position: 'bottom', labels: { boxWidth: 12, font: { weight: '600', size: 11 } } },
+            tooltip: { mode: 'index', intersect: false }
+          },
           scales: {
-            x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } },
-            y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } }
-          }
-        }
-      });
-
-      let savCtx = document.getElementById('savingsAreaChart').getContext('2d');
-      let savDates = Object.keys(savingsMap);
-      let savValues = Object.values(savingsMap);
-
-      if(savingsChartInstance) savingsChartInstance.destroy();
-      savingsChartInstance = new Chart(savCtx, {
-        type: 'line',
-        data: {
-          labels: savDates,
-          datasets: [{
-            label: 'Savings',
-            data: savValues,
-            borderColor: '#34c759',
-            backgroundColor: 'rgba(52, 199, 89, 0.15)',
-            fill: true,
-            tension: 0.3,
-            borderWidth: 2,
-            pointRadius: 2
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } },
-            y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } }
+            x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#8e8e93' } },
+            y: { grid: { color: 'rgba(200,200,200,0.1)' }, ticks: { font: { size: 10 }, color: '#8e8e93' } }
           }
         }
       });
