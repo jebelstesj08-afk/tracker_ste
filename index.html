@@ -73,6 +73,112 @@ function updateVehicleInsightMode(){
   }
 }
 
+
+/* ===== RECURRING PAYMENTS + SPENDING CALENDAR ===== */
+var recurringPayments = [];
+var spendingCalendarDate = new Date();
+
+function tab4Escape(v){
+  return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function loadRecurringPayments(){
+  try{recurringPayments=JSON.parse(localStorage.getItem('householdRecurringPayments')||'[]');}
+  catch(e){recurringPayments=[];}
+  renderRecurringPayments();
+}
+function saveRecurringStore(){localStorage.setItem('householdRecurringPayments',JSON.stringify(recurringPayments));}
+function openRecurringPayment(){
+  var m=document.getElementById('recurringPaymentModal');
+  if(m){m.classList.add('open');m.setAttribute('aria-hidden','false');}
+}
+function closeRecurringPayment(){
+  var m=document.getElementById('recurringPaymentModal');
+  if(m){m.classList.remove('open');m.setAttribute('aria-hidden','true');}
+}
+function saveRecurringPayment(){
+  var name=(document.getElementById('recurringName')||{}).value||'';
+  var amount=parseFloat((document.getElementById('recurringAmount')||{}).value)||0;
+  var frequency=(document.getElementById('recurringFrequency')||{}).value||'Monthly';
+  var due=(document.getElementById('recurringDue')||{}).value||'';
+  var category=(document.getElementById('recurringCategory')||{}).value||'Bills';
+  if(!name.trim()||amount<=0||!due){alert('Please enter a name, amount and next due date.');return;}
+  recurringPayments.push({id:Date.now(),name:name.trim(),amount:amount,frequency:frequency,due:due,category:category.trim()||'Bills'});
+  saveRecurringStore();renderRecurringPayments();closeRecurringPayment();
+  ['recurringName','recurringAmount','recurringDue','recurringCategory'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+}
+function deleteRecurringPayment(id){
+  recurringPayments=recurringPayments.filter(function(x){return x.id!==id;});
+  saveRecurringStore();renderRecurringPayments();
+}
+function renderRecurringPayments(){
+  var box=document.getElementById('recurringPaymentsList');if(!box)return;
+  var monthly=0,upcoming=0,now=new Date();now.setHours(0,0,0,0);
+  recurringPayments.forEach(function(x){
+    var a=Number(x.amount)||0;
+    if(x.frequency==='Monthly')monthly+=a;
+    else if(x.frequency==='Weekly')monthly+=a*52/12;
+    else if(x.frequency==='Yearly')monthly+=a/12;
+    var due=new Date((x.due||'')+'T00:00:00');
+    if(x.due&&due>=now&&due<=new Date(now.getTime()+30*86400000))upcoming++;
+  });
+  var mt=document.getElementById('recurringMonthlyTotal'),uc=document.getElementById('recurringUpcomingCount');
+  if(mt)mt.textContent='₹'+Math.round(monthly).toLocaleString('en-IN');
+  if(uc)uc.textContent=String(upcoming);
+  if(!recurringPayments.length){
+    box.innerHTML='<div class="calendar-summary">No recurring payments yet. Tap ＋ to add one.</div>';return;
+  }
+  var money=function(n){return '₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});};
+  box.innerHTML=recurringPayments.slice().sort(function(a,b){return String(a.due).localeCompare(String(b.due));}).map(function(x){
+    var d=new Date(x.due+'T00:00:00');
+    var due=d.toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+    return '<div class="recurring-item"><div class="recurring-main"><div class="recurring-name">'+tab4Escape(x.name)+'</div><div class="recurring-meta">'+tab4Escape(x.category)+' · '+tab4Escape(x.frequency)+' · Due '+due+'</div></div><div class="recurring-amount">'+money(x.amount)+'</div><button class="recurring-delete" onclick="deleteRecurringPayment('+x.id+')" aria-label="Delete">×</button></div>';
+  }).join('');
+}
+function changeSpendingMonth(delta){
+  spendingCalendarDate=new Date(spendingCalendarDate.getFullYear(),spendingCalendarDate.getMonth()+delta,1);
+  renderSpendingCalendar();
+}
+function renderSpendingCalendar(){
+  var grid=document.getElementById('spendingCalendarGrid');if(!grid)return;
+  var y=spendingCalendarDate.getFullYear(),m=spendingCalendarDate.getMonth();
+  var title=document.getElementById('spendingCalendarMonth');
+  if(title)title.textContent=spendingCalendarDate.toLocaleDateString('en-IN',{month:'short',year:'numeric'});
+  var totals={};
+  var rows=Array.isArray(allTransactions)?allTransactions.slice(1):[];
+  rows.forEach(function(r){
+    var d=parseSafeDate(String(r[0]||'')),type=String(r[1]||'').trim(),amount=parseFloat(r[3])||0;
+    if(!d||isNaN(d.getTime())||d.getFullYear()!==y||d.getMonth()!==m)return;
+    if(['Expense','Fuel','Service'].indexOf(type)<0)return;
+    totals[d.getDate()]=(totals[d.getDate()]||0)+amount;
+  });
+  var monthTotal=Object.keys(totals).reduce(function(s,k){return s+totals[k];},0);
+  var totalEl=document.getElementById('spendingCalendarTotal');
+  if(totalEl)totalEl.innerHTML='₹'+Math.round(monthTotal).toLocaleString('en-IN')+' <span>this month</span>';
+  var first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
+  var max=Object.keys(totals).reduce(function(mx,k){return Math.max(mx,totals[k]);},0),cells=[];
+  for(var i=0;i<first;i++)cells.push('<div class="calendar-day empty"></div>');
+  for(var day=1;day<=days;day++){
+    var amt=totals[day]||0;
+    var level=!amt?'':(max&&amt>max*.66?'high':(max&&amt>max*.33?'medium':'low'));
+    var now=new Date(),today=now.getFullYear()===y&&now.getMonth()===m&&now.getDate()===day;
+    cells.push('<button type="button" class="calendar-day '+(amt?'has-spend ':'')+level+(today?' today':'')+'" onclick="showSpendingDay('+day+')"><span class="calendar-date">'+day+'</span><span class="calendar-amount">'+(amt?'₹'+Math.round(amt).toLocaleString('en-IN'):'—')+'</span></button>');
+  }
+  grid.innerHTML=cells.join('');
+  var summary=document.getElementById('spendingCalendarSummary');
+  if(summary)summary.textContent='Tap a day to see its spending.';
+}
+function showSpendingDay(day){
+  var y=spendingCalendarDate.getFullYear(),m=spendingCalendarDate.getMonth(),total=0,count=0;
+  (Array.isArray(allTransactions)?allTransactions.slice(1):[]).forEach(function(r){
+    var d=parseSafeDate(String(r[0]||'')),type=String(r[1]||'').trim(),amount=parseFloat(r[3])||0;
+    if(!d||isNaN(d.getTime()))return;
+    if(d.getFullYear()===y&&d.getMonth()===m&&d.getDate()===day&&['Expense','Fuel','Service'].indexOf(type)>=0){total+=amount;count++;}
+  });
+  var summary=document.getElementById('spendingCalendarSummary');
+  if(summary)summary.textContent=new Date(y,m,day).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})+' · ₹'+Math.round(total).toLocaleString('en-IN')+' spent · '+count+' transaction'+(count===1?'':'s');
+}
+document.addEventListener('DOMContentLoaded',function(){loadRecurringPayments();renderSpendingCalendar();});
+
 </script>
 
   <style>
@@ -726,6 +832,57 @@ function updateVehicleInsightMode(){
   .recurring-amount{font-size:12px}
 }
 
+
+/* ===== TAB 4 RECURRING + SPENDING CALENDAR POLISH ===== */
+.tab4-tools-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:12px;margin-top:14px;width:100%;min-width:0}
+.tab4-feature-card{margin:0!important;padding:14px;min-width:0;overflow:hidden}
+.tab4-feature-head{display:flex;align-items:center;gap:10px;min-width:0}
+.tab4-feature-icon{width:38px;height:38px;flex:0 0 38px;border-radius:12px;background:var(--input-bg);display:grid;place-items:center;font-size:19px;font-weight:900;color:var(--text-main)}
+.calendar-icon{font-size:10px}
+.tab4-feature-copy{min-width:0;flex:1}
+.tab4-feature-title{font-size:14px;font-weight:850;line-height:1.2}
+.tab4-feature-sub{font-size:10px;color:var(--text-muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tab4-add-btn{width:34px;height:34px;flex:0 0 34px;border:0;border-radius:11px;background:var(--text-main);color:var(--card-bg);font-size:19px;cursor:pointer}
+.recurring-overview{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 3px}
+.recurring-overview>div{padding:9px 10px;background:var(--input-bg);border-radius:11px;min-width:0}
+.recurring-overview span{display:block;font-size:8px;color:var(--text-muted);font-weight:800;text-transform:uppercase}
+.recurring-overview strong{display:block;margin-top:3px;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recurring-item{display:flex;align-items:center;gap:8px;padding:10px 0!important;border-bottom:1px solid var(--border-color)}
+.recurring-item:last-child{border-bottom:0}
+.recurring-main{min-width:0!important;flex:1}
+.recurring-name{font-size:12px!important;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recurring-meta{font-size:9px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recurring-amount{font-size:11px!important;flex:0 0 auto;white-space:nowrap}
+.recurring-delete{font-size:16px!important;padding:3px!important}
+.calendar-nav{display:flex;align-items:center;gap:4px;margin-left:auto;flex:0 0 auto}
+.calendar-nav button{width:27px;height:27px;border:0;border-radius:9px;background:var(--input-bg);color:var(--text-main);font-size:18px;display:grid;place-items:center;cursor:pointer}
+.calendar-nav span{min-width:72px;text-align:center;font-size:10px;font-weight:850}
+.calendar-total{font-size:18px;font-weight:900;margin:12px 0 8px}
+.calendar-total span{font-size:9px;color:var(--text-muted);font-weight:700}
+.spending-calendar{width:100%;min-width:0}
+.calendar-weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.calendar-weekdays{margin-bottom:4px}
+.calendar-weekdays span{text-align:center;font-size:8px;color:var(--text-muted);font-weight:850}
+.calendar-day{min-height:36px;border:1px solid var(--border-color);border-radius:8px;padding:4px;min-width:0;background:var(--card-bg);cursor:pointer;overflow:hidden}
+.calendar-day.empty{border-color:transparent;background:transparent;cursor:default}
+.calendar-day.today{outline:1.5px solid var(--accent-blue);outline-offset:-1.5px}
+.calendar-day.has-spend{background:var(--input-bg)}
+.calendar-date{display:block;font-size:9px;font-weight:850}
+.calendar-amount{display:block;font-size:7px;font-weight:750;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.calendar-day.low .calendar-amount{color:var(--accent-green)}
+.calendar-day.medium .calendar-amount{color:var(--accent-blue)}
+.calendar-day.high .calendar-amount{color:var(--accent-red)}
+.calendar-summary{margin-top:8px;padding:8px 10px;background:var(--input-bg);border-radius:10px;font-size:9px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:760px){.tab4-tools-grid{grid-template-columns:1fr}}
+@media(max-width:520px){
+  .tab4-feature-card{padding:12px}
+  .tab4-feature-icon{width:34px;height:34px;flex-basis:34px;border-radius:10px}
+  .tab4-feature-title{font-size:13px}
+  .calendar-grid,.calendar-weekdays{gap:3px}
+  .calendar-day{min-height:34px;padding:3px;border-radius:7px}
+  .calendar-amount{font-size:6.5px}
+}
+
 </style>
 </head>
 <body>
@@ -1202,36 +1359,43 @@ function updateVehicleInsightMode(){
 
 
 
-      <div class="insights-card recurring-card">
-        <div class="insights-panel-head">
-          <div>
-            <div class="insights-panel-title">🔄 Recurring Payments</div>
-            <div class="insights-panel-sub">Keep track of regular household commitments</div>
+      <div class="tab4-tools-grid">
+        <section class="insights-card tab4-feature-card">
+          <div class="tab4-feature-head">
+            <div class="tab4-feature-icon">↻</div>
+            <div class="tab4-feature-copy">
+              <div class="tab4-feature-title">Recurring Payments</div>
+              <div class="tab4-feature-sub">Bills and regular commitments</div>
+            </div>
+            <button type="button" class="tab4-add-btn" onclick="openRecurringPayment()" aria-label="Add recurring payment">＋</button>
           </div>
-          <button type="button" class="recurring-add-btn" onclick="openRecurringPayment()">＋ Add</button>
-        </div>
-        <div id="recurringPaymentsList" class="safe-list"></div>
-      </div>
+          <div class="recurring-overview">
+            <div><span>Monthly estimate</span><strong id="recurringMonthlyTotal">₹0</strong></div>
+            <div><span>Due in 30 days</span><strong id="recurringUpcomingCount">0</strong></div>
+          </div>
+          <div id="recurringPaymentsList" class="safe-list"></div>
+        </section>
 
-      <div class="insights-card calendar-card">
-        <div class="insights-panel-head calendar-head">
-          <div>
-            <div class="insights-panel-title">📅 Spending Calendar</div>
-            <div class="insights-panel-sub">Daily household spending</div>
+        <section class="insights-card tab4-feature-card">
+          <div class="tab4-feature-head">
+            <div class="tab4-feature-icon calendar-icon">31</div>
+            <div class="tab4-feature-copy">
+              <div class="tab4-feature-title">Spending Calendar</div>
+              <div class="tab4-feature-sub">Daily household spending</div>
+            </div>
+            <div class="calendar-nav">
+              <button type="button" onclick="changeSpendingMonth(-1)" aria-label="Previous month">‹</button>
+              <span id="spendingCalendarMonth"></span>
+              <button type="button" onclick="changeSpendingMonth(1)" aria-label="Next month">›</button>
+            </div>
           </div>
-          <div class="calendar-nav">
-            <button type="button" onclick="changeSpendingMonth(-1)" aria-label="Previous month">‹</button>
-            <span id="spendingCalendarMonth"></span>
-            <button type="button" onclick="changeSpendingMonth(1)" aria-label="Next month">›</button>
+          <div class="calendar-total" id="spendingCalendarTotal">₹0 <span>this month</span></div>
+          <div class="spending-calendar">
+            <div class="calendar-weekdays"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+            <div id="spendingCalendarGrid" class="calendar-grid"></div>
           </div>
-        </div>
-        <div class="spending-calendar">
-          <div class="calendar-weekdays">
-            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
-          </div>
-          <div id="spendingCalendarGrid" class="calendar-grid"></div>
-        </div>
-        <div id="spendingCalendarSummary" class="calendar-summary">Select a day to view spending.</div>
+          <div id="spendingCalendarSummary" class="calendar-summary">Tap a day to see its spending.</div>
+        </section>
       </div>
 
       <div id="recurringPaymentModal" class="recurring-modal" aria-hidden="true">
