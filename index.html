@@ -122,7 +122,6 @@
     
     #loadingIndicator { text-align: center; color: var(--text-muted); display: none; margin: 10px 0; font-size: 14px; font-weight: 500; }
 
-    /* Modals layered properly with incremented z-indexes */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; }
     .modal-overlay.show { display: flex; opacity: 1; }
     
@@ -1112,6 +1111,8 @@
       startDate.setDate(startDate.getDate() - daysToSubtract);
 
       let dailyMap = {};
+      let totalInc = 0;
+      let totalExp = 0;
 
       let sortedTxs = [...allTransactions.slice(1)].map(row => ({
         date: parseSafeDate(String(row[0])), type: String(row[1]).trim(),
@@ -1126,13 +1127,18 @@
           }
           if(tx.type === 'Income') {
             dailyMap[dateKey].income += tx.amount;
+            totalInc += tx.amount;
           } else if(tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') {
             dailyMap[dateKey].expense += tx.amount;
+            totalExp += tx.amount;
           } else if(tx.type === 'Savings') {
             dailyMap[dateKey].savings += tx.amount;
           }
         }
       }
+
+      let incomeLeft = totalInc - totalExp;
+      document.getElementById('insightsIncomeLeftBadge').innerText = `Income Left: ${formatINR(incomeLeft)}`;
 
       let chartLabels = [];
       let incomeData = [];
@@ -1146,6 +1152,7 @@
         savingsData.push(val.savings);
       }
 
+      document.getElementById('interactiveChartSubtitle').innerText = `Showing Income, Expense & Savings for ${timeRange === 'all' ? 'All Time' : 'the last ' + timeRange}`;
       renderGradientAreaChart(chartLabels, incomeData, expenseData, savingsData);
     }
 
