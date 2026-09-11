@@ -1731,18 +1731,17 @@
       const monthGroups = groupByMonth(txs);
 
       let totalInc = 0, totalExp = 0, totalSav = 0;
-      let expenseCategories = {};
-      let dailySpend = {};
+      const expenseCategories = {};
+      const dailySpend = {};
 
       txs.forEach(tx => {
         if (tx.type === 'Income') {
           totalInc += tx.amount;
         } else if (tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') {
           totalExp += tx.amount;
-          let displayCat = (tx.type === 'Fuel' || tx.type === 'Service') ? `Veh - ${tx.cat}` : tx.cat;
+          const displayCat = (tx.type === 'Fuel' || tx.type === 'Service') ? `Veh - ${tx.cat}` : tx.cat;
           expenseCategories[displayCat] = (expenseCategories[displayCat] || 0) + tx.amount;
-
-          let dk = tx.date.toISOString().slice(0,10);
+          const dk = tx.date.toISOString().slice(0, 10);
           dailySpend[dk] = (dailySpend[dk] || 0) + tx.amount;
         } else if (tx.type === 'Savings') {
           totalSav += tx.amount;
@@ -1751,86 +1750,84 @@
 
       const balance = totalInc - totalExp - totalSav;
       const netCashflow = totalInc - totalExp;
-      const days = Math.max(1, Object.keys(dailySpend).length || (timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90));
+      const activeSpendDays = Object.keys(dailySpend).length;
+      const defaultDays = timeRange === '7d' ? 7 : (timeRange === '30d' ? 30 : (timeRange === '90d' ? 90 : 1));
+      const days = Math.max(1, activeSpendDays || defaultDays);
       const avgDailySpend = totalExp / days;
-      const incomeLeft = totalInc - totalExp;
       const savingsRate = totalInc > 0 ? Math.min(100, Math.max(0, (totalSav / totalInc) * 100)) : 0;
 
+      const sortedCats = Object.entries(expenseCategories).sort((a, b) => b[1] - a[1]);
+      const topCat = sortedCats[0] || null;
+      const expenseTxs = txs.filter(tx => tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service');
+      const highestSpend = expenseTxs.reduce((max, tx) => !max || tx.amount > max.amount ? tx : max, null);
+
+      // Main KPI cards
+      const setText = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = value;
+      };
+      const setColor = (id, color) => {
+        const el = document.getElementById(id);
+        if (el) el.style.color = color;
+      };
+
+      setText('dashBalanceValue', formatINR(balance));
+      setColor('dashBalanceValue', balance >= 0 ? 'var(--text-main)' : 'var(--accent-red)');
+      setText('dashTotalIncome', formatINR(totalInc));
+      setText('dashTotalExpense', formatINR(totalExp));
+      setText('dashSavingsValue', formatINR(totalSav));
+      setText('dashSavingsRateChip', `${savingsRate.toFixed(0)}%`);
+      setText('dashTransactionCount', txs.length);
+      setText('dashTopCategory', topCat ? topCat[0] : '—');
+      setText('dashTopCategoryAmount', topCat ? formatINR(topCat[1]) : '0');
+      setText('dashHighestSpend', highestSpend ? formatINR(highestSpend.amount) : '0');
+      setText('dashHighestSpendLabel', highestSpend ? `${highestSpend.cat}${highestSpend.desc ? ' • ' + highestSpend.desc : ''}` : 'No expense data');
+      setText('analyticsCategories', sortedCats.length);
+      setText('analyticsDailySpend', formatINR(avgDailySpend));
+      setText('analyticsTransactions', txs.length);
+
+      // Supporting cards
+      setText('sideIncome', formatINR(totalInc));
+      setText('sideExpense', formatINR(totalExp));
+      setText('sideCashLeft', formatINR(netCashflow));
+      setText('portfolioIncomeValue', formatINR(totalInc));
+      setText('portfolioExpenseValue', formatINR(totalExp));
+      setText('portfolioSavingsValue', formatINR(totalSav));
+      setText('savingsRingText', `${savingsRate.toFixed(0)}%`);
+
+      const ring = document.getElementById('savingsRing');
+      if (ring) ring.style.setProperty('--p', `${savingsRate}%`);
+
+      const balanceFill = document.getElementById('balanceProgressFill');
+      if (balanceFill) balanceFill.style.width = `${Math.min(100, Math.max(0, totalInc ? (Math.max(balance, 0) / totalInc) * 100 : 0))}%`;
+      const savingsFill = document.getElementById('dashSavingsRangeFill');
+      if (savingsFill) savingsFill.style.width = `${savingsRate}%`;
+
+      setText('dashCashflowValue', formatINR(netCashflow));
+      setColor('dashCashflowValue', netCashflow >= 0 ? 'var(--text-main)' : 'var(--accent-red)');
+      setText('dashCashflowSub', `${txs.length} records in selected period`);
+
       renderOverviewBars(monthGroups);
-      document.getElementById('sideIncome').innerText = formatINR(totalInc);
-      document.getElementById('sideExpense').innerText = formatINR(totalExp);
-      document.getElementById('sideCashLeft').innerText = formatINR(incomeLeft);
-      document.getElementById('portfolioIncomeValue').innerText = formatINR(totalInc);
-      document.getElementById('portfolioExpenseValue').innerText = formatINR(totalExp);
-      document.getElementById('portfolioSavingsValue').innerText = formatINR(totalSav);
-      document.getElementById('savingsRingText').innerText = `${savingsRate.toFixed(0)}%`;
-      document.getElementById('savingsRing').style.setProperty('--p', `${savingsRate}%`);
-      document.getElementById('assetTopCategory').innerText = topCat ? topCat[0] : '—';
-      document.getElementById('balanceProgressFill').style.width = `${Math.min(100, Math.max(0, totalInc ? (Math.max(balance,0)/totalInc)*100 : 0))}%`;
 
-      document.getElementById('dashBalanceValue').innerText = formatINR(balance);
-      document.getElementById('dashBalanceValue').style.color = balance >= 0 ? 'var(--text-main)' : 'var(--accent-red)';
-      document.getElementById('dashBalanceChip').innerText = balance >= 0 ? 'Positive' : 'Negative';
-      document.getElementById('dashBalanceChip').className = 'dash-chip ' + (balance >= 0 ? 'green' : 'red');
-      document.getElementById('dashBalanceSub').innerText = 'Income − expenses − savings';
+      renderMiniBars('balanceMiniChart', monthGroups.map(g => Math.abs(g.income - g.expense - g.savings)), balance >= 0 ? 'blue' : 'red', monthGroups.length - 1);
+      renderMiniBars('spendingMiniChart', monthGroups.map(g => g.expense + g.savings), 'orange', monthGroups.length - 1);
+      renderMiniBars('incomeMiniChart', monthGroups.map(g => g.income), 'green', monthGroups.length - 1);
+      renderMiniBars('expenseMiniChart', monthGroups.map(g => g.expense), 'red', monthGroups.length - 1);
+      renderMiniBars('portfolioIncomeMini', monthGroups.map(g => g.income), 'green', monthGroups.length - 1);
+      renderMiniBars('portfolioExpenseMini', monthGroups.map(g => g.expense), 'orange', monthGroups.length - 1);
 
-      document.getElementById('dashCashflowValue').innerText = formatINR(netCashflow);
-      document.getElementById('dashCashflowValue').style.color = netCashflow >= 0 ? 'var(--text-main)' : 'var(--accent-red)';
-      document.getElementById('dashCashflowSub').innerText = `${txs.length} records in selected period`;
+      renderDotChart('transactionDotChart', monthGroups.map(g => g.count));
+      renderMiniBars('categoryMiniChart', sortedCats.slice(0, 7).map(x => x[1]), 'blue', 0);
+      renderMiniBars('highestSpendMiniChart', expenseTxs.slice().sort((a,b) => b.amount - a.amount).slice(0,7).map(x => x.amount), 'red', 0);
 
-      document.getElementById('dashTotalIncome').innerText = formatINR(totalInc);
-      document.getElementById('dashTotalExpense').innerText = formatINR(totalExp);
-      document.getElementById('dashTransactionCount').innerText = txs.length;
-      document.getElementById('dashSavingsValue').innerText = formatINR(totalSav);
-      document.getElementById('dashSavingsRateChip').innerText = `${savingsRate.toFixed(0)}%`;
-
-      const sortedCats = Object.entries(expenseCategories).sort((a,b) => b[1] - a[1]);
-      const topCat = sortedCats[0];
-      document.getElementById('dashTopCategory').innerText = topCat ? topCat[0] : '—';
-      document.getElementById('dashTopCategoryAmount').innerText = topCat ? formatINR(topCat[1]) : '0';
-
-      const highestSpend = txs
-        .filter(tx => tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service')
-        .sort((a,b) => b.amount - a.amount)[0];
-      document.getElementById('dashHighestSpend').innerText = highestSpend ? formatINR(highestSpend.amount) : '0';
-      document.getElementById('dashHighestSpendLabel').innerText = highestSpend
-        ? `${highestSpend.cat}${highestSpend.desc ? ' • ' + highestSpend.desc : ''}`
-        : 'No expense data';
-
-      document.getElementById('analyticsDailySpend').innerText = formatINR(avgDailySpend);
-      document.getElementById('analyticsTransactions').innerText = txs.length;
-      document.getElementById('analyticsCategories').innerText = sortedCats.length;
-
-      let monthNet = monthGroups.map(g => g.income - g.expense - g.savings);
-      let monthIncome = monthGroups.map(g => g.income);
-      let monthExpense = monthGroups.map(g => g.expense);
-      let monthSavings = monthGroups.map(g => g.savings);
-      let monthSpend = monthGroups.map(g => g.expense + g.savings);
-      let monthCounts = monthGroups.map(g => g.count);
-      let catValues = sortedCats.slice(0, 7).map(x => x[1]);
-      let catNames = sortedCats.slice(0, 7).map(x => x[0]);
-
-      renderMiniBars('balanceMiniChart', monthNet.map(Math.abs), balance >= 0 ? 'blue' : 'red', monthNet.length - 1);
-
-      // Cashflow card: show positive vs negative using color per month.
       const cfContainer = document.getElementById('cashflowMiniChart');
-      const cfBaseline = '<div class="baseline"></div>';
-      const cfHeights = normalizeBars(monthNet, 12, 88);
-      cfContainer.innerHTML = cfBaseline + monthNet.map((v, i) => {
-        const cls = v >= 0 ? 'cyan' : 'pink';
-        return `<span class="mini-bar ${cls}${i === monthNet.length-1 ? ' active' : ''}" style="height:${cfHeights[i]}%;" title="${formatINR(v)}"></span>`;
-      }).join('');
-
-      renderMiniBars('spendingMiniChart', monthSpend, 'orange', monthSpend.length - 1);
-      renderMiniBars('incomeMiniChart', monthIncome, 'green', monthIncome.length - 1);
-      renderMiniBars('expenseMiniChart', monthExpense, 'red', monthExpense.length - 1);
-      renderDotChart('transactionDotChart', monthCounts);
-      renderMiniBars('categoryMiniChart', catValues, 'blue', 0);
-      renderMiniBars('highestSpendMiniChart', sortedCats.slice(0,7).map(x => x[1]), 'red', 0);
-
-      document.getElementById('dashSavingsRangeFill').style.width = `${savingsRate}%`;
-
-      let subtitle = timeRange === 'all' ? 'All recorded data' : `Showing the selected ${timeRange === '7d' ? '7 days' : timeRange === '30d' ? '30 days' : '3 months'}`;
+      if (cfContainer) {
+        const monthNet = monthGroups.map(g => g.income - g.expense - g.savings);
+        const heights = normalizeBars(monthNet, 12, 88);
+        cfContainer.innerHTML = '<div class="baseline"></div>' + monthNet.map((v, i) =>
+          `<span class="mini-bar ${v >= 0 ? 'cyan' : 'pink'}${i === monthNet.length - 1 ? ' active' : ''}" style="height:${heights[i]}%;" title="${formatINR(v)}"></span>`
+        ).join('');
+      }
     }
 
     function openRecordDetail(tx) {
