@@ -836,6 +836,30 @@
   .balance-mountain-footer{font-size:8px}
 }
 
+
+/* ===== TAB 4 KPI RECORD POPUPS ===== */
+.insight-kpi-clickable{cursor:pointer;transition:transform .16s ease,box-shadow .16s ease}
+.insight-kpi-clickable:active{transform:scale(.985)}
+.insight-kpi-clickable:focus-visible{outline:2px solid var(--accent-blue);outline-offset:2px}
+.insights-records-modal-content{min-height:auto;max-height:82vh;display:flex;flex-direction:column}
+.insights-records-summary{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:2px 0 14px;border-bottom:1px solid var(--border-color);margin-bottom:8px}
+.insights-records-summary strong{font-size:24px;letter-spacing:-1px}
+.insights-records-summary span{font-size:10px;color:var(--text-muted);font-weight:700;text-align:right}
+#insightsRecordsList{overflow:auto;min-height:0}
+.insights-popup-record{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 2px;border-bottom:1px solid var(--border-color);cursor:pointer}
+.insights-popup-record:last-child{border-bottom:0}
+.insights-popup-record-icon{width:38px;height:38px;border-radius:12px;background:var(--input-bg);display:flex;align-items:center;justify-content:center;font-size:16px}
+.insights-popup-record-main{min-width:0}
+.insights-popup-record-title{font-size:11px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.insights-popup-record-meta{font-size:9px;color:var(--text-muted);font-weight:650;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.insights-popup-record-amt{font-size:11px;font-weight:900;white-space:nowrap}
+@media(max-width:520px){
+  .insights-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .insight-kpi{min-height:108px;padding:13px}
+  .insight-kpi-value{font-size:21px}
+  .insights-records-modal-content{max-height:78vh}
+}
+
 </style>
 </head>
 <body>
@@ -1165,36 +1189,17 @@
           </div>
         </div>
 
-        <div class="insights-side">
-          <div class="insights-card insight-metric">
-            <div class="insight-metric-top"><span class="insight-metric-label">Income</span><span class="insight-metric-icon">↘</span></div>
-            <div class="insight-metric-value" id="sideIncome">0</div>
-            <div class="insight-metric-foot">Money received</div>
-          </div>
-          <div class="insights-card insight-metric">
-            <div class="insight-metric-top"><span class="insight-metric-label">Expenses</span><span class="insight-metric-icon">↗</span></div>
-            <div class="insight-metric-value" id="sideExpense">0</div>
-            <div class="insight-metric-foot">Money spent</div>
-          </div>
-          <div class="insights-card insight-metric">
-            <div class="insight-metric-top"><span class="insight-metric-label">Cash left</span><span class="insight-metric-icon">◌</span></div>
-            <div class="insight-metric-value" id="sideCashLeft">0</div>
-            <div class="insight-metric-foot">Income − expenses</div>
-          </div>
-        </div>
-      </div>
-
       <div class="insights-kpi-grid">
-        <div class="insights-card insight-kpi">
+        <div class="insights-card insight-kpi insight-kpi-clickable" onclick="openInsightsRecords('Income')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightsRecords('Income')}" aria-label="View all income records">
           <div class="insight-kpi-title">Income</div>
           <div class="insight-kpi-value" id="dashTotalIncome">0</div>
-          <div class="insight-kpi-sub" id="incomeKpiSub">0 records</div>
+          <div class="insight-kpi-sub" id="incomeKpiSub">0 records · Tap to view</div>
           <div class="insight-kpi-track track-green"><span id="incomeKpiFill"></span></div>
         </div>
-        <div class="insights-card insight-kpi">
+        <div class="insights-card insight-kpi insight-kpi-clickable" onclick="openInsightsRecords('Expense')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightsRecords('Expense')}" aria-label="View all expense records">
           <div class="insight-kpi-title">Expenses</div>
           <div class="insight-kpi-value" id="dashTotalExpense">0</div>
-          <div class="insight-kpi-sub" id="expenseKpiSub">0 categories</div>
+          <div class="insight-kpi-sub" id="expenseKpiSub">0 records · Tap to view</div>
           <div class="insight-kpi-track track-red"><span id="expenseKpiFill"></span></div>
         </div>
         <div class="insights-card insight-kpi">
@@ -1204,10 +1209,10 @@
           <div class="insight-kpi-track track-purple"><span id="dashSavingsRangeFill"></span></div>
         </div>
         <div class="insights-card insight-kpi">
-          <div class="insight-kpi-title">Activity</div>
-          <div class="insight-kpi-value" id="dashTransactionCount">0</div>
-          <div class="insight-kpi-sub"><span id="analyticsCategories">0</span> spending categories</div>
-          <div class="insight-kpi-track track-blue"><span id="activityKpiFill"></span></div>
+          <div class="insight-kpi-title">Cash left</div>
+          <div class="insight-kpi-value" id="dashCashLeftKpi">0</div>
+          <div class="insight-kpi-sub">Income − expenses</div>
+          <div class="insight-kpi-track track-blue"><span id="cashLeftKpiFill"></span></div>
         </div>
       </div>
 
@@ -1459,6 +1464,21 @@
       </div>
       <div class="search-result-head"><span id="searchResultCount">0 results</span><button type="button" onclick="clearSearchFilters()">Clear filters</button></div>
       <div id="searchResultsList" class="transaction-list"><div class="search-empty">Start typing or choose a filter.</div></div>
+    </div>
+  </div>
+
+  <!-- INSIGHTS INCOME / EXPENSE RECORDS MODAL -->
+  <div id="insightsRecordsModal" class="modal-overlay" onclick="closeInsightsRecords(event)">
+    <div class="modal-content insights-records-modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="insightsRecordsTitle">Income Records</h3>
+        <button class="close-btn" onclick="closeInsightsRecords()">✕</button>
+      </div>
+      <div class="insights-records-summary">
+        <strong id="insightsRecordsTotal">₹0</strong>
+        <span id="insightsRecordsCount">0 records</span>
+      </div>
+      <div id="insightsRecordsList" class="transaction-list"></div>
     </div>
   </div>
 
@@ -2508,12 +2528,10 @@
         setText('dashTotalIncome', formatINR(totalInc));
         setText('dashTotalExpense', formatINR(totalExp));
         setText('dashSavingsValue', formatINR(totalSav));
+        setText('dashCashLeftKpi', formatINR(cashLeft));
         setText('dashSavingsRateChip', `${savingsRate.toFixed(0)}% of income`);
         setText('dashTransactionCount', txs.length.toLocaleString('en-IN'));
         setText('analyticsCategories', sortedCats.length.toString());
-        setText('sideIncome', formatINR(totalInc));
-        setText('sideExpense', formatINR(totalExp));
-        setText('sideCashLeft', formatINR(cashLeft));
         setText('savingsRingText', `${savingsRate.toFixed(0)}%`);
         setText('incomeKpiSub', `${incomeTxs.length} income records`);
         setText('expenseKpiSub', `${sortedCats.length} spending categories`);
@@ -2524,7 +2542,6 @@
         setText('dashHighestSpendLabel', highest[0] ? `${highest[0].cat || highest[0].type}${highest[0].desc ? ' • ' + highest[0].desc : ''}` : 'No expense data');
 
         setColor('dashBalanceValue', balance >= 0 ? 'var(--text-main)' : 'var(--accent-red)');
-        setColor('sideCashLeft', cashLeft >= 0 ? 'var(--text-main)' : 'var(--accent-red)');
 
         const chip = document.getElementById('balanceHealthChip');
         if (chip) {
@@ -2539,6 +2556,7 @@
         setWidth('incomeKpiFill', totalInc / maxKpi * 100);
         setWidth('expenseKpiFill', totalExp / maxKpi * 100);
         setWidth('dashSavingsRangeFill', savingsRate);
+        setWidth('cashLeftKpiFill', totalInc > 0 ? Math.max(0, Math.min(100, cashLeft / totalInc * 100)) : 0);
         setWidth('activityKpiFill', Math.min(100, txs.length * 5));
         setWidth('savingsProgressLong', savingsRate);
 
@@ -2593,6 +2611,55 @@
         const status = document.getElementById('insightsDataStatus');
         if (status) status.innerHTML = `<span class="insights-status-dot" style="background:var(--accent-red)"></span><span>Data error</span>`;
       }
+    }
+
+    function openInsightsRecords(type) {
+      const modal = document.getElementById('insightsRecordsModal');
+      const title = document.getElementById('insightsRecordsTitle');
+      const totalEl = document.getElementById('insightsRecordsTotal');
+      const countEl = document.getElementById('insightsRecordsCount');
+      const list = document.getElementById('insightsRecordsList');
+      if (!modal || !list) return;
+
+      const { txs, selectedUser, timeRange } = getInsightTransactions();
+      const wanted = type === 'Income'
+        ? txs.filter(tx => tx.type === 'Income')
+        : txs.filter(tx => tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service');
+
+      const total = wanted.reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+      if (title) title.textContent = type === 'Income' ? 'Income Records' : 'Expense Records';
+      if (totalEl) totalEl.textContent = formatINR(total);
+      if (countEl) countEl.textContent = `${wanted.length.toLocaleString('en-IN')} records · ${selectedUser === 'Us' ? 'Jebel + Reshma' : selectedUser}`;
+
+      if (!wanted.length) {
+        list.innerHTML = `<div class="insight-empty" style="padding:28px 12px;text-align:center;">No ${type.toLowerCase()} records in the selected period.</div>`;
+      } else {
+        const sorted = wanted.slice().sort((a,b) => b.date - a.date);
+        list.innerHTML = sorted.map(tx => {
+          const emoji = emojis[tx.cat] || (tx.type === 'Fuel' ? '⛽' : tx.type === 'Service' ? '🔧' : type === 'Income' ? '↘' : '↗');
+          const date = tx.date.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+          const amount = formatINR(tx.amount);
+          return `<div class="insights-popup-record" onclick='openRecordDetail(${JSON.stringify(tx).replace(/'/g, "&#39;")})'>
+            <div class="insights-popup-record-icon">${emoji}</div>
+            <div class="insights-popup-record-main">
+              <div class="insights-popup-record-title">${tab4Escape(tx.cat || tx.type)}${tx.desc ? ' · ' + tab4Escape(tx.desc) : ''}</div>
+              <div class="insights-popup-record-meta">${date} · ${tab4Escape(tx.user || 'User')}${tx.paymentMethod ? ' · ' + tab4Escape(tx.paymentMethod) : ''}</div>
+            </div>
+            <div class="insights-popup-record-amt">${type === 'Income' ? '+' : '−'}${amount}</div>
+          </div>`;
+        }).join('');
+      }
+
+      modal.style.display = 'flex';
+      setTimeout(() => modal.classList.add('show'), 10);
+    }
+
+    function closeInsightsRecords(event) {
+      if (event && event.target.id !== 'insightsRecordsModal') return;
+      const modal = document.getElementById('insightsRecordsModal');
+      if (!modal) return;
+      modal.classList.remove('show');
+      setTimeout(() => modal.style.display = 'none', 250);
     }
 
     function openRecordDetail(tx) {
