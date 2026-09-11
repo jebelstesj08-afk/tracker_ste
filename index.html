@@ -1,17 +1,81 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover" name="viewport"/>
-<title>Household Management System</title>
-<link href="manifest.json" rel="manifest"/>
-<meta content="yes" name="apple-mobile-web-app-capable"/>
-<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<meta content="Tracker" name="apple-mobile-web-app-title"/>
-<script src="https://cdn.jsdelivr.net/npm/chart.js">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
+  <title>Household Management System</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Tracker">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js">
+function setInsightMode(mode){
+  document.querySelectorAll('.insight-mode-btn').forEach(function(btn){
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
+  document.querySelectorAll('.insight-mode-panel').forEach(function(panel){
+    panel.classList.toggle('active',
+      panel.id === (mode === 'household' ? 'householdInsightPanel' : 'vehicleInsightPanel')
+    );
+  });
+  if(mode === 'vehicle') updateVehicleInsightMode();
+}
+function updateVehicleInsightMode(){
+  var rows = Array.isArray(allTransactions) ? allTransactions.slice(1) : [];
+  var data = rows.map(function(r){
+    return {
+      date: parseSafeDate(String(r[0]||'')),
+      type: String(r[1]||'').trim(),
+      cat: String(r[2]||'').trim(),
+      amount: parseFloat(r[3])||0,
+      desc: String(r[4]||'').trim(),
+      odo: parseFloat(r[8])||0,
+      litres: parseFloat(r[9])||0
+    };
+  }).filter(function(x){ return x.date && !isNaN(x.date.getTime()); });
+
+  var fuel = data.filter(function(x){return x.type === 'Fuel';});
+  var service = data.filter(function(x){return x.type === 'Service';});
+  var money = function(n){return '₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});};
+  var set = function(id,val){var e=document.getElementById(id);if(e)e.textContent=val;};
+
+  var fuelSpend = fuel.reduce(function(s,x){return s+x.amount;},0);
+  var litres = fuel.reduce(function(s,x){return s+x.litres;},0);
+  var odos = fuel.map(function(x){return x.odo;}).filter(function(x){return x>0;});
+  var distance = odos.length>1 ? Math.max.apply(null,odos)-Math.min.apply(null,odos) : 0;
+  var mileage = litres>0 && distance>0 ? distance/litres : 0;
+
+  set('v4FuelSpend',money(fuelSpend));
+  set('v4Litres',litres.toFixed(1)+' L');
+  set('v4Distance',distance.toLocaleString('en-IN')+' km');
+  set('v4Mileage',mileage ? mileage.toFixed(1)+' km/L' : '— km/L');
+
+  var fuelBox=document.getElementById('v4FuelHistory');
+  if(fuelBox){
+    fuelBox.innerHTML=fuel.slice(-8).reverse().map(function(x){
+      return '<div class="p3-row"><div class="p3-row-main"><div class="p3-row-name">'+
+        escapeHtml(x.cat||'Fuel')+'</div><div class="p3-row-meta">'+
+        x.date.toLocaleDateString('en-IN')+
+        (x.litres?' · '+x.litres+' L':'')+
+        (x.odo?' · '+x.odo.toLocaleString('en-IN')+' km':'')+
+        '</div></div><div class="p3-row-value">'+money(x.amount)+'</div></div>';
+    }).join('') || '<div class="p3-alert">No fuel records available.</div>';
+  }
+
+  var serviceBox=document.getElementById('v4ServiceHistory');
+  if(serviceBox){
+    serviceBox.innerHTML=service.slice(-8).reverse().map(function(x){
+      return '<div class="p3-row"><div class="p3-row-main"><div class="p3-row-name">'+
+        escapeHtml(x.cat||'Service')+'</div><div class="p3-row-meta">'+
+        x.date.toLocaleDateString('en-IN')+' · '+escapeHtml(x.desc||'Service record')+
+        '</div></div><div class="p3-row-value">'+money(x.amount)+'</div></div>';
+    }).join('') || '<div class="p3-alert">No service records available.</div>';
+  }
+}
+
 </script>
-<style>
+
+  <style>
     :root {
       --bg-color: #f2f3f7; 
       --card-bg: #ffffff;
@@ -484,8 +548,37 @@
       .insights-hero { grid-template-columns:1fr; }
       .insights-side { display:grid; grid-template-columns:repeat(3,1fr); }
       .insights-kpi-grid { grid-template-columns:repeat(2,1fr); }
-      .insights-lower { grid-template-columns:1fr; }
+      .insights-lower { grid-template-columns:1fr !important; }
     }
+    /* iPhone 13 / 15 safe layout: never allow the Insights panels to overflow horizontally */
+    #Insights, .insights-page, .insights-lower, .insights-panel, .insight-category-list, .insight-record-list {
+      width:100%;
+      max-width:100%;
+      min-width:0;
+    }
+    .insights-panel { overflow:hidden; }
+    .insights-panel-head { min-width:0; flex-wrap:wrap; }
+    .insights-panel-head > div:first-child { min-width:0; flex:1 1 180px; }
+    .insights-panel-head .insight-small-sub {
+      max-width:42%;
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      text-align:right;
+    }
+    .insight-category-row { width:100%; min-width:0; }
+    .insight-category-name { min-width:0; max-width:100%; }
+    .insight-category-amt { min-width:0; max-width:86px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .insight-record { width:100%; min-width:0; overflow:hidden; }
+    .insight-record-main { min-width:0; max-width:100%; }
+    .insight-record-title { min-width:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .insight-record-amt { flex:0 0 auto; max-width:88px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+    @media(max-width:900px){
+      .insights-lower { grid-template-columns:1fr !important; }
+    }
+
     @media(max-width:520px){
       #Insights { padding-left:10px !important; padding-right:10px !important; }
       .insights-command { align-items:flex-start; }
@@ -506,614 +599,777 @@
     }
 
 
-    .phase2-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;}
-    .phase2-panel{padding:16px;min-width:0;overflow:hidden;}
-    .people-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-    .person-box{background:var(--input-bg);border:1px solid var(--border-color);border-radius:16px;padding:13px;min-width:0;}
-    .person-name{font-size:12px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px}.person-income{font-size:20px;font-weight:850;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.person-meta,.person-spend{font-size:10px;color:var(--text-muted);margin-top:3px}.person-bar{height:6px;background:rgba(127,127,127,.12);border-radius:99px;overflow:hidden;margin-top:10px}.person-bar span{display:block;height:100%;width:0;background:var(--accent-blue);border-radius:99px;transition:width .4s ease}.mini-action{border:1px solid var(--border-color);background:var(--input-bg);color:var(--text-main);border-radius:10px;padding:7px 10px;font-weight:800;font-size:11px;cursor:pointer}.mini-action.primary{background:var(--text-main);color:var(--card-bg);border-color:var(--text-main)}.recurring-form{display:grid;grid-template-columns:1.4fr 1fr 1fr auto;gap:6px;margin-bottom:10px}.recurring-form input,.recurring-form select{margin:0;padding:9px 8px;font-size:11px;min-width:0}.recurring-list,.upcoming-list{display:flex;flex-direction:column;gap:7px}.recurring-row{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--border-color);min-width:0}.recurring-row:last-child{border-bottom:0}.rec-dot{width:9px;height:9px;border-radius:50%;background:var(--accent-blue);flex:none}.rec-main{flex:1;min-width:0}.rec-name{font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rec-meta{font-size:9px;color:var(--text-muted);margin-top:2px}.rec-amount{font-size:12px;font-weight:850;white-space:nowrap}.rec-delete{border:0;background:transparent;color:var(--text-muted);font-size:16px;cursor:pointer;padding:2px}.calendar-panel{margin-top:14px}.calendar-nav{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800}.calendar-nav .mini-action{padding:5px 8px}.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:4px}.cal-head{text-align:center;color:var(--text-muted);font-size:9px;font-weight:800;padding-bottom:3px}.cal-day{min-height:43px;border:1px solid var(--border-color);background:var(--input-bg);border-radius:9px;padding:5px;cursor:pointer;overflow:hidden}.cal-day.empty{background:transparent;border-color:transparent;cursor:default}.cal-num{font-size:10px;font-weight:800}.cal-spend{font-size:8px;color:var(--text-muted);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cal-low{background:rgba(52,199,89,.10)}.cal-mid{background:rgba(255,159,10,.18)}.cal-high{background:rgba(255,59,48,.18)}.cal-today{outline:2px solid var(--accent-blue);outline-offset:-2px}.calendar-legend{display:flex;gap:14px;margin-top:9px;color:var(--text-muted);font-size:9px}.calendar-legend span{display:flex;align-items:center;gap:5px}.cal-dot{width:7px;height:7px;border-radius:50%;display:inline-block}.receipt-summary{font-size:11px}.receipt-stat{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--border-color)}.receipt-stat:last-child{border-bottom:0}.receipt-name{font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.receipt-value{font-weight:850;white-space:nowrap}.upcoming-row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--border-color)}.upcoming-row:last-child{border-bottom:0}.upcoming-name{font-size:11px;font-weight:800}.upcoming-meta{font-size:9px;color:var(--text-muted);margin-top:2px}.upcoming-amount{font-size:11px;font-weight:850;white-space:nowrap}@media(max-width:700px){.phase2-grid{grid-template-columns:1fr}.recurring-form{grid-template-columns:1fr 1fr}.recurring-form select{grid-column:1}.recurring-form button{grid-column:2}.people-compare{gap:8px}.calendar-grid{gap:3px}.cal-day{min-height:40px;padding:4px}.calendar-panel{padding:13px}.phase2-panel{padding:14px}}
+    /* ===== INSIGHTS PHASE 1 FEATURES ===== */
+    .insight-feature-grid { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr); gap:12px; margin-top:12px; }
+    .insight-feature-card { background:var(--card-bg); border:1px solid var(--border-color); border-radius:22px; padding:16px; box-shadow:0 10px 28px rgba(0,0,0,.04); min-width:0; overflow:hidden; }
+    .feature-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:14px; }
+    .feature-title { font-size:15px; font-weight:900; letter-spacing:-.35px; }
+    .feature-sub { margin-top:3px; font-size:9px; color:var(--text-muted); font-weight:650; }
+    .health-score { display:flex; align-items:center; gap:14px; }
+    .health-ring { width:72px; height:72px; border-radius:50%; display:grid; place-items:center; flex:0 0 auto; background:conic-gradient(#34c759 0deg, #34c759 var(--score-angle), var(--input-bg) var(--score-angle), var(--input-bg) 360deg); position:relative; }
+    .health-ring:after { content:""; position:absolute; inset:7px; border-radius:50%; background:var(--card-bg); }
+    .health-ring strong { position:relative; z-index:1; font-size:19px; font-weight:950; }
+    .health-copy { min-width:0; }
+    .health-label { font-size:12px; font-weight:900; }
+    .health-note { margin-top:4px; font-size:9px; color:var(--text-muted); line-height:1.45; }
+    .health-points { margin-top:13px; display:grid; gap:7px; }
+    .health-point { display:flex; align-items:center; gap:7px; font-size:9px; font-weight:750; color:var(--text-muted); }
+    .health-point b { color:var(--text-main); }
+    .budget-total { font-size:23px; font-weight:950; letter-spacing:-1px; }
+    .budget-track { height:9px; background:var(--input-bg); border-radius:99px; overflow:hidden; margin:9px 0 13px; }
+    .budget-track span { display:block; height:100%; width:0; border-radius:99px; background:linear-gradient(90deg,#8b5cf6,#b07bff); transition:width .35s ease; }
+    .budget-meta { display:flex; justify-content:space-between; gap:8px; font-size:9px; color:var(--text-muted); font-weight:750; }
+    .budget-list { display:grid; gap:8px; margin-top:12px; }
+    .budget-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; align-items:center; }
+    .budget-name { font-size:9px; font-weight:850; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .budget-mini-track { height:5px; background:var(--input-bg); border-radius:99px; overflow:hidden; margin-top:5px; }
+    .budget-mini-track span { display:block; height:100%; width:0; border-radius:99px; background:#8b5cf6; }
+    .budget-amt { font-size:9px; font-weight:900; white-space:nowrap; }
+    .payment-list { display:grid; gap:9px; }
+    .payment-row { display:grid; grid-template-columns:30px minmax(0,1fr) auto; gap:9px; align-items:center; }
+    .payment-icon { width:30px; height:30px; border-radius:10px; display:grid; place-items:center; background:var(--input-bg); font-size:13px; }
+    .payment-name { font-size:9px; font-weight:850; }
+    .payment-bar { height:5px; background:var(--input-bg); border-radius:99px; overflow:hidden; margin-top:4px; }
+    .payment-bar span { display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,#007aff,#53a8ff); }
+    .payment-amt { font-size:9px; font-weight:900; white-space:nowrap; }
+    .smart-list { display:grid; gap:8px; }
+    .smart-item { padding:10px 11px; border-radius:14px; background:var(--input-bg); font-size:9px; line-height:1.45; font-weight:700; }
+    .smart-item strong { color:var(--text-main); }
+    .month-compare { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-top:12px; }
+    .compare-box { padding:9px; border-radius:13px; background:var(--input-bg); min-width:0; }
+    .compare-label { font-size:8px; color:var(--text-muted); font-weight:800; text-transform:uppercase; }
+    .compare-value { font-size:12px; font-weight:900; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .compare-delta { font-size:8px; font-weight:850; margin-top:2px; }
+    .delta-up { color:var(--accent-red); } .delta-down { color:var(--accent-green); } .delta-flat { color:var(--text-muted); }
+    @media(max-width:820px){ .insight-feature-grid { grid-template-columns:1fr; } }
+    @media(max-width:520px){ .insight-feature-card { padding:13px; } .health-ring { width:64px; height:64px; } .month-compare { gap:5px; } .compare-value { font-size:11px; } }
+
   
-/* ===== PHASE 3: Vehicle Dashboard + Alerts + Forecast + Reports ===== */
-.p3-section{margin-top:16px;background:var(--card-bg);border:1px solid var(--border-color);border-radius:var(--radius-lg);padding:16px;box-shadow:0 4px 15px rgba(0,0,0,.03)}
-.p3-title{font-size:16px;font-weight:800;margin:0 0 4px}.p3-sub{font-size:12px;color:var(--text-muted);margin-bottom:14px}
-.p3-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.p3-stat{background:var(--input-bg);border-radius:16px;padding:13px;min-width:0}.p3-stat-label{font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase}.p3-stat-value{font-size:20px;font-weight:850;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.p3-bar{height:8px;background:var(--border-color);border-radius:8px;overflow:hidden;margin-top:10px}.p3-bar>span{display:block;height:100%;border-radius:8px;background:var(--accent-blue)}
-.p3-alert{padding:11px 12px;border-radius:14px;background:var(--input-bg);margin-top:8px;font-size:13px;font-weight:650}.p3-alert.warn{border-left:4px solid var(--accent-red)}.p3-alert.good{border-left:4px solid var(--accent-green)}
-.p3-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--border-color)}.p3-row:last-child{border-bottom:0}.p3-row-main{min-width:0}.p3-row-name{font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.p3-row-meta{font-size:11px;color:var(--text-muted);margin-top:3px}.p3-row-value{font-weight:800;white-space:nowrap}
-.p3-btn{border:0;border-radius:13px;padding:10px 13px;background:var(--text-main);color:var(--card-bg);font-weight:750;cursor:pointer}
-@media(max-width:520px){.p3-grid{grid-template-columns:1fr}.p3-section{padding:14px}}
-
-
-/* ===== INSIGHTS MODE SWITCH / IPHONE 13 & 15 SAFE LAYOUT ===== */
+/* Insights mode selector + iPhone 13/15 safe containment */
 .insight-mode-switch{display:flex;gap:6px;padding:5px;margin:0 0 14px;background:var(--input-bg);border:1px solid var(--border-color);border-radius:16px;width:100%;max-width:100%;box-sizing:border-box;overflow:hidden}
 .insight-mode-btn{flex:1 1 0;min-width:0;border:0;background:transparent;color:var(--text-muted);padding:11px 8px;border-radius:12px;font-size:12px;font-weight:850;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .insight-mode-btn.active{background:var(--card-bg);color:var(--text-main);box-shadow:0 2px 8px rgba(0,0,0,.08)}
-.insight-mode-panel{display:none;width:100%;max-width:100%;min-width:0;overflow:hidden;box-sizing:border-box}
+.insight-mode-panel{display:none;width:100%;max-width:100%;min-width:0;box-sizing:border-box;overflow:hidden}
 .insight-mode-panel.active{display:block}
-.insight-mode-panel .insights-card,.insight-mode-panel .phase2-panel,.insight-mode-panel .p3-section{min-width:0;max-width:100%;overflow:hidden}
-.insight-mode-panel .insights-lower{grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-width:0}
-.insight-mode-panel .insight-category-row{grid-template-columns:34px minmax(0,1fr) minmax(0,auto);min-width:0}
-.insight-mode-panel .insight-category-main{min-width:0;overflow:hidden}
-.insight-mode-panel .insight-category-name,.insight-mode-panel .insight-record-title{min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.insight-mode-panel .insight-category-amt,.insight-mode-panel .insight-record-amt{min-width:0;max-width:42%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:0 0 auto}
-.insight-mode-panel .insight-record{min-width:0;width:100%;overflow:hidden}
-.insight-mode-panel .insight-record-main{min-width:0;flex:1 1 auto;overflow:hidden}
-.vehicle-kpi-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.vehicle-kpi{background:var(--input-bg);border-radius:16px;padding:13px;min-width:0;overflow:hidden}
-.vehicle-kpi span{display:block;font-size:10px;color:var(--text-muted);font-weight:750;text-transform:uppercase}
-.vehicle-kpi strong{display:block;margin-top:5px;font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.insight-mode-panel *{box-sizing:border-box;max-width:100%}
+.vehicle-kpi-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.vehicle-kpi{background:var(--input-bg);border-radius:15px;padding:13px;min-width:0;overflow:hidden}
+.vehicle-kpi span{display:block;font-size:10px;color:var(--text-muted);font-weight:800;text-transform:uppercase}
+.vehicle-kpi strong{display:block;margin-top:5px;font-size:19px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vehicle-analytics-card{margin-top:12px}
 .safe-list{width:100%;min-width:0;overflow:hidden}
-@media(max-width:700px){.insight-mode-panel .insights-lower{grid-template-columns:1fr}.vehicle-kpi-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:520px){
-  .insight-mode-switch{margin-left:0;margin-right:0}
-  .insight-mode-btn{font-size:11px;padding:10px 6px}
-  .insight-mode-panel{overflow-x:hidden}
-  .insight-mode-panel .insights-hero,.insight-mode-panel .insights-kpi-grid,.insight-mode-panel .phase2-grid{width:100%;max-width:100%;min-width:0}
-  .insight-mode-panel .insights-kpi-grid{grid-template-columns:1fr 1fr}
-  .insight-mode-panel .insights-side{grid-template-columns:1fr}
-  .insight-mode-panel .insights-lower{grid-template-columns:1fr}
-  .insight-mode-panel .insight-category-row{grid-template-columns:30px minmax(0,1fr) minmax(0,auto);gap:7px}
-  .insight-mode-panel .insight-category-icon{width:30px;height:30px}
-  .insight-mode-panel .insight-category-amt{max-width:35%;font-size:9px}
-  .insight-mode-panel .insight-record{gap:7px;padding:9px}
-  .insight-mode-panel .insight-record-icon{width:30px;height:30px}
-  .insight-mode-panel .insight-record-amt{max-width:35%;font-size:9px}
-  .vehicle-kpi-grid{grid-template-columns:1fr 1fr}
-  .vehicle-kpi{padding:11px}
-  .vehicle-kpi strong{font-size:17px}
-  .insight-mode-panel canvas{max-width:100%!important}
-  .insight-mode-panel .insights-panel-head{min-width:0}
-  .insight-mode-panel .insights-panel-head>div{min-width:0}
-  .insight-mode-panel .insights-small-sub,.insight-mode-panel .insight-small-sub{max-width:38%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:700px){
+  .insight-mode-panel .insights-lower{grid-template-columns:1fr!important}
 }
+@media(max-width:520px){
+  .insight-mode-btn{font-size:11px;padding:10px 6px}
+  .vehicle-kpi-grid{grid-template-columns:1fr 1fr}
+  .insight-mode-panel .insights-hero,
+  .insight-mode-panel .insights-kpi-grid,
+  .insight-mode-panel .insight-feature-grid,
+  .insight-mode-panel .insights-lower{width:100%;max-width:100%;min-width:0}
+  .insight-mode-panel .insight-category-row{grid-template-columns:30px minmax(0,1fr) auto!important;gap:7px;min-width:0}
+  .insight-mode-panel .insight-category-main,
+  .insight-mode-panel .insight-record-main{min-width:0!important;overflow:hidden!important}
+  .insight-mode-panel .insight-category-name,
+  .insight-mode-panel .insight-record-title{min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .insight-mode-panel .insight-category-amt,
+  .insight-mode-panel .insight-record-amt{flex:0 0 auto;max-width:36%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
+  .insight-mode-panel canvas{max-width:100%!important}
+  .vehicle-kpi{padding:11px}
+}
+
+
+/* ===== TAB 4: RECURRING PAYMENTS + SPENDING CALENDAR ===== */
+.recurring-card,.calendar-card{margin-top:14px;min-width:0;overflow:hidden}
+.recurring-add-btn,.recurring-save-btn{border:0;border-radius:12px;background:var(--text-main);color:var(--card-bg);font-weight:800;cursor:pointer}
+.recurring-add-btn{padding:8px 11px;font-size:12px;flex:0 0 auto}
+.recurring-save-btn{padding:12px;width:100%;margin-top:4px}
+.recurring-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--border-color);min-width:0}
+.recurring-item:last-child{border-bottom:0}
+.recurring-main{min-width:0;flex:1}.recurring-name{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recurring-meta{font-size:11px;color:var(--text-muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recurring-amount{font-weight:850;white-space:nowrap;flex:0 0 auto}
+.recurring-delete{border:0;background:transparent;color:var(--text-muted);font-size:18px;line-height:1;cursor:pointer;padding:5px}
+.calendar-head{align-items:flex-start}
+.calendar-nav{display:flex;align-items:center;gap:5px;flex:0 0 auto}
+.calendar-nav button{border:0;background:var(--input-bg);color:var(--text-main);width:30px;height:30px;border-radius:10px;font-size:20px;cursor:pointer}
+.calendar-nav span{font-size:11px;font-weight:800;min-width:80px;text-align:center}
+.spending-calendar{width:100%;min-width:0}
+.calendar-weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.calendar-weekdays{margin-bottom:5px}
+.calendar-weekdays span{text-align:center;font-size:9px;color:var(--text-muted);font-weight:800}
+.calendar-day{min-height:46px;border:1px solid var(--border-color);border-radius:9px;padding:5px;min-width:0;background:var(--card-bg);cursor:pointer;overflow:hidden}
+.calendar-day.empty{border-color:transparent;background:transparent;cursor:default}
+.calendar-day.today{outline:2px solid var(--accent-blue);outline-offset:-2px}
+.calendar-day.has-spend{background:var(--input-bg)}
+.calendar-date{font-size:10px;font-weight:800}
+.calendar-amount{font-size:9px;font-weight:750;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.calendar-day.low .calendar-amount{color:var(--accent-green)}
+.calendar-day.medium .calendar-amount{color:var(--accent-blue)}
+.calendar-day.high .calendar-amount{color:var(--accent-red)}
+.calendar-summary{margin-top:10px;padding:10px 12px;background:var(--input-bg);border-radius:12px;font-size:12px;font-weight:700}
+.recurring-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);padding:18px;align-items:flex-end;justify-content:center}
+.recurring-modal.open{display:flex}
+.recurring-modal-card{width:min(440px,100%);background:var(--card-bg);border-radius:22px 22px 0 0;padding:17px;max-height:90vh;overflow:auto;box-shadow:0 -10px 35px rgba(0,0,0,.18)}
+.recurring-modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.recurring-close-btn{border:0;background:var(--input-bg);border-radius:10px;width:32px;height:32px;font-size:21px;cursor:pointer}
+.recurring-form{display:grid;gap:10px;margin-top:15px}
+.recurring-form label{font-size:11px;font-weight:800;color:var(--text-muted)}
+.recurring-form input,.recurring-form select{display:block;width:100%;margin-top:5px;border:1px solid var(--border-color);background:var(--input-bg);color:var(--text-main);border-radius:11px;padding:11px;outline:none}
+@media(max-width:520px){
+  .calendar-weekdays,.calendar-grid{gap:3px}
+  .calendar-day{min-height:42px;padding:4px;border-radius:8px}
+  .calendar-amount{font-size:8px}
+  .calendar-weekdays span{font-size:8px}
+  .recurring-item{gap:6px}
+  .recurring-amount{font-size:12px}
+}
+
 </style>
 </head>
 <body>
+
 <div class="app-container">
-<div class="header">
-<div style="display: flex; align-items: center; gap: 6px;">
-<span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">Hello,</span>
-<select id="globalUserSelect" onchange="onGlobalUserChange()" style="padding: 4px 8px; border-radius: 10px; font-size: 15px; font-weight: 700; background: transparent; color: var(--text-main); border: none; outline: none; cursor: pointer; width: auto; display: inline-block;">
-<option style="background: var(--card-bg); color: var(--text-main);" value="Jebel">Jebel</option>
-<option style="background: var(--card-bg); color: var(--text-main);" value="Reshma">Reshma</option>
-</select>
-</div>
-<div style="display:flex; gap:10px; align-items: center;">
-<button class="header-btn" onclick="openSearchModal()" title="Search History">🔍</button>
-<button class="header-btn" onclick="toggleTheme()" title="Toggle Theme">🌓</button>
-<button class="header-btn" onclick="forceSync()" ondblclick="window.location.reload(true)" title="Sync Data">
-<svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24" width="18"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.73-5.73"></path></svg>
-</button>
-</div>
-</div>
-<div class="balance-section" id="headerBalanceSection">
-<div style="display: flex; gap: 15px; align-items: flex-start;">
-<div id="mainBalanceHeaderContainer" style="flex: 1; overflow: hidden;">
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-<span class="balance-label" id="topLabel" style="margin-bottom: 0;">Main balance</span>
-<button id="sectionResetBtn" onclick="resetActiveTabFields()" style="background: transparent; border: none; cursor: pointer; font-size: 13px; color: var(--text-muted); padding: 0 4px;" title="Clear fields">↺ Reset</button>
-</div>
-<h1 class="balance-amount" id="topBalance">0</h1>
-</div>
-<div id="secondaryBalanceBlock" style="flex: 1; display: none; overflow: hidden;">
-<span class="balance-label" id="secondaryLabel">Total earnings</span>
-<h1 class="balance-amount small" id="secondaryBalance" style="color: var(--accent-green);">0</h1>
-</div>
-</div>
-</div>
-<!-- TAB 1: TRANSACTIONS & SAVINGS -->
-<div class="tab-content active-tab" id="Transactions">
-<div style="display: flex; background: var(--input-bg); padding: 4px; border-radius: var(--radius-md); margin-bottom: 16px;">
-<button id="typeExpBtn" onclick="setTxType('Expense')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: all 0.2s;" type="button">Expense</button>
-<button id="typeIncBtn" onclick="setTxType('Income')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;" type="button">Income</button>
-<button id="typeSavBtn" onclick="setTxType('Savings')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;" type="button">Savings</button>
-</div>
-<div class="input-group">
-<label>Amount</label>
-<div class="amount-wrapper">
-<input id="txAmount" placeholder="0" step="0.01" type="number"/>
-</div>
-</div>
-<div class="two-col">
-<div class="input-group">
-<label>User</label>
-<select id="txUser">
-<option value="Jebel">Jebel</option>
-<option value="Reshma">Reshma</option>
-</select>
-</div>
-<div class="input-group">
-<label>Date</label>
-<input id="txDate" type="date"/>
-</div>
-</div>
-<!-- Category / Source / Savings Type -->
-<div class="input-group">
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-<label id="txCatLabel" style="margin-bottom: 0;">Category</label>
-<div class="file-upload-wrapper" id="receiptRowContainer" style="cursor: pointer;" title="Attach Receipt">
-<span id="cameraIconSpan" style="font-size: 13px; color: var(--accent-blue); font-weight: 600;">📎 Attach</span>
-<input accept="image/*" capture="environment" id="txReceipt" onchange="updateCameraBtn()" type="file"/>
-</div>
-</div>
-<select id="txCat">
-<!-- Dynamically Populated -->
-</select>
-</div>
-<!-- Details with Payment Method seamless selector parallel to Details Header -->
-<div class="input-group">
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-<label style="margin-bottom: 0;">Details</label>
-<select id="txPaymentMethod" style="width: auto; border: none; outline: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--accent-blue); cursor: pointer; padding: 0;">
-<option disabled="" selected="" value="">💳 Payment Method</option>
-<option value="Cash">Cash</option>
-<option value="Google pay upi">Google pay upi</option>
-<option value="Axis my zone cc">Axis my zone cc</option>
-<option value="Axis flipkart cc">Axis flipkart cc</option>
-<option value="Axis indianoil cc">Axis indianoil cc</option>
-<option value="Hdfc moneyback cc">Hdfc moneyback cc</option>
-<option value="Icici amazon pay cc">Icici amazon pay cc</option>
-</select>
-</div>
-<input id="txDesc" placeholder="Add a note (optional)" type="text"/>
-</div>
-<button class="save-btn btn-expense" id="txSaveBtn" onclick="saveUnifiedData()">Add Expense</button>
-</div>
-<!-- TAB 2: VEHICLE / FUEL TAB -->
-<div class="tab-content" id="Fuel">
-<div class="two-col">
-<div class="input-group">
-<label>Log Type</label>
-<select id="fuelLogType" onchange="toggleFuelFields()" style="font-weight: 700;">
-<option value="Fuel">⛽ Fuel Fill-up</option>
-<option value="Service">🔧 Service</option>
-</select>
-</div>
-<div class="input-group">
-<label>Select Vehicle</label>
-<select id="fuelVehicle" onchange="calculateMileagePreview()">
-<option value="Hornet 2.0">Hornet 2.0</option>
-<option value="Yamaha FZ">Yamaha FZ</option>
-<option value="Dio">Dio</option>
-<option value="i20">i20</option>
-<option value="XUV 500">XUV 500</option>
-<option value="Qualis">Qualis</option>
-</select>
-</div>
-</div>
-<!-- Last Service Odometer Info Card -->
-<div id="lastServiceCard" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 16px; font-size: 14px; display: flex; justify-content: space-between; align-items: center;">
-<span style="color: var(--text-muted); font-weight: 600;">Last Service Odometer:</span>
-<span id="lastServiceOdoText" style="font-weight: 800; color: var(--accent-blue);">Not recorded</span>
-</div>
-<div class="two-col">
-<div class="input-group">
-<label>User</label>
-<select id="fuelUser"><option value="Jebel">Jebel</option><option value="Reshma">Reshma</option></select>
-</div>
-<div class="input-group">
-<label>Date</label>
-<input id="fuelDate" type="date"/>
-</div>
-</div>
-<div class="two-col">
-<div class="input-group">
-<label>Total Price</label>
-<input id="fuelAmount" placeholder="0" step="0.01" type="number"/>
-</div>
-<div class="input-group" id="litresGroup">
-<label>Litres Added</label>
-<input id="fuelLitres" oninput="calculateMileagePreview()" placeholder="0.00" step="0.01" type="number"/>
-</div>
-</div>
-<div class="input-group">
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-<label style="margin-bottom: 0;">Odometer Reading (km)</label>
-<button onclick="resetFuelFields()" style="background: transparent; border: none; cursor: pointer; font-size: 13px; color: var(--text-muted); padding: 0 4px;" title="Reset Odometer &amp; fields">↺ Reset</button>
-</div>
-<input id="fuelOdo" oninput="calculateMileagePreview()" placeholder="Current km reading..." style="padding: 10px 16px; font-size: 15px;" type="number"/>
-</div>
-<!-- Live Service Progress & Mileage Preview Box -->
-<div id="mileagePreviewBox" style="display: none; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px; font-size: 14px;">
-<div style="font-weight: 700; color: var(--accent-blue); margin-bottom: 6px;">📊 Trip Analytics &amp; Service Status</div>
-<div id="serviceProgressContainer" style="margin-bottom: 8px;">
-<div id="serviceProgressText" style="font-weight: 600; margin-bottom: 4px; font-size: 13px;"></div>
-<div style="background: var(--input-bg); border-radius: 6px; height: 8px; width: 100%; overflow: hidden;">
-<div id="serviceProgressBar" style="height: 100%; width: 0%; border-radius: 6px; transition: width 0.3s ease;"></div>
-</div>
-</div>
-<div id="mileagePreviewText" style="color: var(--text-muted); font-weight: 500; font-size: 13px; border-top: 1px solid var(--border-color); padding-top: 6px; margin-top: 6px;"></div>
-</div>
-<!-- Details and Payment Method Row for Vehicle Tab -->
-<div class="input-group">
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-<label style="margin-bottom: 0;">Details / Station</label>
-<select id="fuelPaymentMethod" style="width: auto; border: none; outline: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--accent-blue); cursor: pointer; padding: 0;">
-<option disabled="" selected="" value="">💳 Payment Method</option>
-<option value="Cash">Cash</option>
-<option value="Google pay upi">Google pay upi</option>
-<option value="Axis my zone cc">Axis my zone cc</option>
-<option value="Axis flipkart cc">Axis flipkart cc</option>
-<option value="Axis indianoil cc">Axis indianoil cc</option>
-<option value="Hdfc moneyback cc">Hdfc moneyback cc</option>
-<option value="Icici amazon pay cc">Icici amazon pay cc</option>
-</select>
-</div>
-<input id="fuelDesc" placeholder="e.g. NTP Petroleum or Oil Change" type="text"/>
-</div>
-<button class="save-btn btn-fuel" id="vehicleLogBtn" onclick="saveFuelData()">Log Fuel Fill</button>
-</div>
-<!-- TAB 3: LEDGER / VIEW MODES TAB -->
-<div class="tab-content" id="Ledger">
-<div class="ledger-shell">
-<div class="ledger-toolbar">
-<div class="ledger-toolbar-top">
-<div class="ledger-heading">
-<h2>Ledger</h2>
-<p>Track spending, income and savings in one view</p>
-</div>
-<button class="ledger-sync" onclick="forceSync()" title="Sync data">↻</button>
-</div>
-<div class="ledger-filter-grid">
-<div class="input-group">
-<label>Who</label>
-<select id="ledgerFilterUser" onchange="generateLedger()" style="font-weight:700; background:var(--input-bg);">
-<option value="Us">Us</option>
-<option value="Jebel">Jebel</option>
-<option value="Reshma">Reshma</option>
-</select>
-</div>
-<div class="input-group">
-<label>View period</label>
-<select id="ledgerQuickRange" onchange="applyLedgerQuickRange()" style="font-weight:700; background:var(--input-bg);">
-<option value="cycle">Current Cycle</option>
-<option value="month">This Month</option>
-<option value="30d">Last 30 Days</option>
-<option value="90d">Last 90 Days</option>
-<option value="all">All Time</option>
-<option value="custom">Custom Range</option>
-</select>
-</div>
-</div>
-<div class="ledger-date-row">
-<div class="ledger-date-pill">
-<label>From</label>
-<input id="ledgerStartDate" onchange="ledgerCustomDateChanged(); generateLedger()" type="date"/>
-</div>
-<div class="ledger-date-pill">
-<label>To</label>
-<input id="ledgerEndDate" onchange="ledgerCustomDateChanged(); generateLedger()" type="date"/>
-</div>
-</div>
-</div>
-<div class="ledger-kpis">
-<div class="ledger-kpi expense">
-<div class="ledger-kpi-label">Spending</div>
-<div class="ledger-kpi-value" id="ledgerKpiExpense">0</div>
-</div>
-<div class="ledger-kpi income">
-<div class="ledger-kpi-label">Income</div>
-<div class="ledger-kpi-value" id="ledgerKpiIncome">0</div>
-</div>
-<div class="ledger-kpi savings">
-<div class="ledger-kpi-label">Savings</div>
-<div class="ledger-kpi-value" id="ledgerKpiSavings">0</div>
-</div>
-<div class="ledger-kpi records">
-<div class="ledger-kpi-label">Records</div>
-<div class="ledger-kpi-value" id="ledgerKpiRecords">0</div>
-</div>
-</div>
-<div class="ledger-view-card">
-<div class="ledger-view-label">View</div>
-<div class="ledger-view-tabs">
-<button class="ledger-view-tab active" id="ledgerViewRecordsBtn" onclick="setLedgerViewMode('records')">Records</button>
-<button class="ledger-view-tab" id="ledgerViewCategoriesBtn" onclick="setLedgerViewMode('categories')">Categories</button>
-<button class="ledger-view-tab" id="ledgerViewSavingsBtn" onclick="setLedgerViewMode('savings')">Savings</button>
-</div>
-<select id="ledgerViewMode" onchange="syncLedgerViewTab(); generateLedger()" style="display:none;">
-<option value="records">Period Records</option>
-<option value="categories">Top Categories Breakdown</option>
-<option value="savings">Savings Summary</option>
-</select>
-</div>
-<div id="ledgerLoadingIndicator" style="text-align:center; color:var(--text-muted); display:none; padding:4px 0; font-size:11px; font-weight:700;">Syncing data...</div>
-<div id="ledgerDynamicContainer"></div>
-</div>
-</div>
-<!-- TAB 4: INSIGHTS / ANALYTICS TAB -->
-<div class="tab-content" id="Insights"><div aria-label="Insights type" class="insight-mode-switch" role="tablist"><button class="insight-mode-btn active" data-mode="household" onclick="setInsightMode('household')" type="button">🏠 Household Analytics</button><button class="insight-mode-btn" data-mode="vehicle" onclick="setInsightMode('vehicle')" type="button">🚗 Vehicle Analytics</button></div>
+
+  <div class="header">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">Hello,</span>
+      <select id="globalUserSelect" onchange="onGlobalUserChange()" style="padding: 4px 8px; border-radius: 10px; font-size: 15px; font-weight: 700; background: transparent; color: var(--text-main); border: none; outline: none; cursor: pointer; width: auto; display: inline-block;">
+        <option value="Jebel" style="background: var(--card-bg); color: var(--text-main);">Jebel</option>
+        <option value="Reshma" style="background: var(--card-bg); color: var(--text-main);">Reshma</option>
+      </select>
+    </div>
+    <div style="display:flex; gap:10px; align-items: center;">
+      <button class="header-btn" onclick="openSearchModal()" title="Search History">🔍</button>
+      <button class="header-btn" onclick="toggleTheme()" title="Toggle Theme">🌓</button>
+      <button class="header-btn" ondblclick="window.location.reload(true)" onclick="forceSync()" title="Sync Data">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.73-5.73"></path></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="balance-section" id="headerBalanceSection">
+    <div style="display: flex; gap: 15px; align-items: flex-start;">
+      <div style="flex: 1; overflow: hidden;" id="mainBalanceHeaderContainer">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span class="balance-label" id="topLabel" style="margin-bottom: 0;">Main balance</span>
+          <button id="sectionResetBtn" onclick="resetActiveTabFields()" style="background: transparent; border: none; cursor: pointer; font-size: 13px; color: var(--text-muted); padding: 0 4px;" title="Clear fields">↺ Reset</button>
+        </div>
+        <h1 class="balance-amount" id="topBalance">0</h1>
+      </div>
+      <div id="secondaryBalanceBlock" style="flex: 1; display: none; overflow: hidden;">
+        <span class="balance-label" id="secondaryLabel">Total earnings</span>
+        <h1 class="balance-amount small" id="secondaryBalance" style="color: var(--accent-green);">0</h1>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 1: TRANSACTIONS & SAVINGS -->
+  <div id="Transactions" class="tab-content active-tab">
+    <div style="display: flex; background: var(--input-bg); padding: 4px; border-radius: var(--radius-md); margin-bottom: 16px;">
+      <button type="button" id="typeExpBtn" onclick="setTxType('Expense')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: all 0.2s;">Expense</button>
+      <button type="button" id="typeIncBtn" onclick="setTxType('Income')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;">Income</button>
+      <button type="button" id="typeSavBtn" onclick="setTxType('Savings')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;">Savings</button>
+    </div>
+
+    <div class="input-group">
+      <label>Amount</label>
+      <div class="amount-wrapper">
+        <input type="number" id="txAmount" placeholder="0" step="0.01">
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="input-group">
+        <label>User</label>
+        <select id="txUser">
+          <option value="Jebel">Jebel</option>
+          <option value="Reshma">Reshma</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Date</label>
+        <input type="date" id="txDate">
+      </div>
+    </div>
+    
+    <!-- Category / Source / Savings Type -->
+    <div class="input-group">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <label id="txCatLabel" style="margin-bottom: 0;">Category</label>
+        <div class="file-upload-wrapper" id="receiptRowContainer" style="cursor: pointer;" title="Attach Receipt">
+          <span id="cameraIconSpan" style="font-size: 13px; color: var(--accent-blue); font-weight: 600;">📎 Attach</span>
+          <input type="file" id="txReceipt" accept="image/*" capture="environment" onchange="updateCameraBtn()">
+        </div>
+      </div>
+      <select id="txCat">
+        <!-- Dynamically Populated -->
+      </select>
+    </div>
+
+    <!-- Details with Payment Method seamless selector parallel to Details Header -->
+    <div class="input-group">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <label style="margin-bottom: 0;">Details</label>
+        <select id="txPaymentMethod" style="width: auto; border: none; outline: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--accent-blue); cursor: pointer; padding: 0;">
+          <option value="" disabled selected>💳 Payment Method</option>
+          <option value="Cash">Cash</option>
+          <option value="Google pay upi">Google pay upi</option>
+          <option value="Axis my zone cc">Axis my zone cc</option>
+          <option value="Axis flipkart cc">Axis flipkart cc</option>
+          <option value="Axis indianoil cc">Axis indianoil cc</option>
+          <option value="Hdfc moneyback cc">Hdfc moneyback cc</option>
+          <option value="Icici amazon pay cc">Icici amazon pay cc</option>
+        </select>
+      </div>
+      <input type="text" id="txDesc" placeholder="Add a note (optional)">
+    </div>
+    
+    <button class="save-btn btn-expense" id="txSaveBtn" onclick="saveUnifiedData()">Add Expense</button>
+  </div>
+
+  <!-- TAB 2: VEHICLE / FUEL TAB -->
+  <div id="Fuel" class="tab-content">
+    <div class="two-col">
+      <div class="input-group">
+        <label>Log Type</label>
+        <select id="fuelLogType" onchange="toggleFuelFields()" style="font-weight: 700;">
+          <option value="Fuel">⛽ Fuel Fill-up</option>
+          <option value="Service">🔧 Service</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Select Vehicle</label>
+        <select id="fuelVehicle" onchange="calculateMileagePreview()">
+          <option value="Hornet 2.0">Hornet 2.0</option>
+          <option value="Yamaha FZ">Yamaha FZ</option>
+          <option value="Dio">Dio</option>
+          <option value="i20">i20</option>
+          <option value="XUV 500">XUV 500</option>
+          <option value="Qualis">Qualis</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Last Service Odometer Info Card -->
+    <div id="lastServiceCard" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 16px; font-size: 14px; display: flex; justify-content: space-between; align-items: center;">
+      <span style="color: var(--text-muted); font-weight: 600;">Last Service Odometer:</span>
+      <span id="lastServiceOdoText" style="font-weight: 800; color: var(--accent-blue);">Not recorded</span>
+    </div>
+
+    <div class="two-col">
+      <div class="input-group">
+        <label>User</label>
+        <select id="fuelUser"><option value="Jebel">Jebel</option><option value="Reshma">Reshma</option></select>
+      </div>
+      <div class="input-group">
+        <label>Date</label>
+        <input type="date" id="fuelDate">
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="input-group">
+        <label>Total Price</label>
+        <input type="number" id="fuelAmount" placeholder="0" step="0.01">
+      </div>
+      <div class="input-group" id="litresGroup">
+        <label>Litres Added</label>
+        <input type="number" id="fuelLitres" placeholder="0.00" step="0.01" oninput="calculateMileagePreview()">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <label style="margin-bottom: 0;">Odometer Reading (km)</label>
+        <button onclick="resetFuelFields()" style="background: transparent; border: none; cursor: pointer; font-size: 13px; color: var(--text-muted); padding: 0 4px;" title="Reset Odometer & fields">↺ Reset</button>
+      </div>
+      <input type="number" id="fuelOdo" placeholder="Current km reading..." oninput="calculateMileagePreview()" style="padding: 10px 16px; font-size: 15px;">
+    </div>
+
+    <!-- Live Service Progress & Mileage Preview Box -->
+    <div id="mileagePreviewBox" style="display: none; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px; font-size: 14px;">
+      <div style="font-weight: 700; color: var(--accent-blue); margin-bottom: 6px;">📊 Trip Analytics & Service Status</div>
+      <div id="serviceProgressContainer" style="margin-bottom: 8px;">
+        <div id="serviceProgressText" style="font-weight: 600; margin-bottom: 4px; font-size: 13px;"></div>
+        <div style="background: var(--input-bg); border-radius: 6px; height: 8px; width: 100%; overflow: hidden;">
+          <div id="serviceProgressBar" style="height: 100%; width: 0%; border-radius: 6px; transition: width 0.3s ease;"></div>
+        </div>
+      </div>
+      <div id="mileagePreviewText" style="color: var(--text-muted); font-weight: 500; font-size: 13px; border-top: 1px solid var(--border-color); padding-top: 6px; margin-top: 6px;"></div>
+    </div>
+
+    <!-- Details and Payment Method Row for Vehicle Tab -->
+    <div class="input-group">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <label style="margin-bottom: 0;">Details / Station</label>
+        <select id="fuelPaymentMethod" style="width: auto; border: none; outline: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--accent-blue); cursor: pointer; padding: 0;">
+          <option value="" disabled selected>💳 Payment Method</option>
+          <option value="Cash">Cash</option>
+          <option value="Google pay upi">Google pay upi</option>
+          <option value="Axis my zone cc">Axis my zone cc</option>
+          <option value="Axis flipkart cc">Axis flipkart cc</option>
+          <option value="Axis indianoil cc">Axis indianoil cc</option>
+          <option value="Hdfc moneyback cc">Hdfc moneyback cc</option>
+          <option value="Icici amazon pay cc">Icici amazon pay cc</option>
+        </select>
+      </div>
+      <input type="text" id="fuelDesc" placeholder="e.g. NTP Petroleum or Oil Change">
+    </div>
+
+    <button class="save-btn btn-fuel" id="vehicleLogBtn" onclick="saveFuelData()">Log Fuel Fill</button>
+  </div>
+
+  <!-- TAB 3: LEDGER / VIEW MODES TAB -->
+  <div id="Ledger" class="tab-content">
+    <div class="ledger-shell">
+      <div class="ledger-toolbar">
+        <div class="ledger-toolbar-top">
+          <div class="ledger-heading">
+            <h2>Ledger</h2>
+            <p>Track spending, income and savings in one view</p>
+          </div>
+          <button class="ledger-sync" onclick="forceSync()" title="Sync data">↻</button>
+        </div>
+
+        <div class="ledger-filter-grid">
+          <div class="input-group">
+            <label>Who</label>
+            <select id="ledgerFilterUser" onchange="generateLedger()" style="font-weight:700; background:var(--input-bg);">
+              <option value="Us">Us</option>
+              <option value="Jebel">Jebel</option>
+              <option value="Reshma">Reshma</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>View period</label>
+            <select id="ledgerQuickRange" onchange="applyLedgerQuickRange()" style="font-weight:700; background:var(--input-bg);">
+              <option value="cycle">Current Cycle</option>
+              <option value="month">This Month</option>
+              <option value="30d">Last 30 Days</option>
+              <option value="90d">Last 90 Days</option>
+              <option value="all">All Time</option>
+              <option value="custom">Custom Range</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="ledger-date-row">
+          <div class="ledger-date-pill">
+            <label>From</label>
+            <input type="date" id="ledgerStartDate" onchange="ledgerCustomDateChanged(); generateLedger()">
+          </div>
+          <div class="ledger-date-pill">
+            <label>To</label>
+            <input type="date" id="ledgerEndDate" onchange="ledgerCustomDateChanged(); generateLedger()">
+          </div>
+        </div>
+      </div>
+
+      <div class="ledger-kpis">
+        <div class="ledger-kpi expense">
+          <div class="ledger-kpi-label">Spending</div>
+          <div class="ledger-kpi-value" id="ledgerKpiExpense">0</div>
+        </div>
+        <div class="ledger-kpi income">
+          <div class="ledger-kpi-label">Income</div>
+          <div class="ledger-kpi-value" id="ledgerKpiIncome">0</div>
+        </div>
+        <div class="ledger-kpi savings">
+          <div class="ledger-kpi-label">Savings</div>
+          <div class="ledger-kpi-value" id="ledgerKpiSavings">0</div>
+        </div>
+        <div class="ledger-kpi records">
+          <div class="ledger-kpi-label">Records</div>
+          <div class="ledger-kpi-value" id="ledgerKpiRecords">0</div>
+        </div>
+      </div>
+
+      <div class="ledger-view-card">
+        <div class="ledger-view-label">View</div>
+        <div class="ledger-view-tabs">
+          <button class="ledger-view-tab active" id="ledgerViewRecordsBtn" onclick="setLedgerViewMode('records')">Records</button>
+          <button class="ledger-view-tab" id="ledgerViewCategoriesBtn" onclick="setLedgerViewMode('categories')">Categories</button>
+          <button class="ledger-view-tab" id="ledgerViewSavingsBtn" onclick="setLedgerViewMode('savings')">Savings</button>
+        </div>
+        <select id="ledgerViewMode" onchange="syncLedgerViewTab(); generateLedger()" style="display:none;">
+          <option value="records">Period Records</option>
+          <option value="categories">Top Categories Breakdown</option>
+          <option value="savings">Savings Summary</option>
+        </select>
+      </div>
+
+      <div id="ledgerLoadingIndicator" style="text-align:center; color:var(--text-muted); display:none; padding:4px 0; font-size:11px; font-weight:700;">Syncing data...</div>
+      <div id="ledgerDynamicContainer"></div>
+    </div>
+  </div>
+
+  <!-- TAB 4: INSIGHTS / ANALYTICS TAB -->
+  <div id="Insights" class="tab-content">
+
+    <div class="insight-mode-switch" role="tablist" aria-label="Analytics type">
+      <button type="button" class="insight-mode-btn active" data-mode="household" onclick="setInsightMode('household')">🏠 Household Analytics</button>
+      <button type="button" class="insight-mode-btn" data-mode="vehicle" onclick="setInsightMode('vehicle')">🚗 Vehicle Analytics</button>
+    </div>
+    <div id="householdInsightPanel" class="insight-mode-panel active">
+
+    <div class="insights-page">
+      <div class="insights-command">
+        <div class="insights-command-left">
+          <div class="insights-eyebrow">Household analytics</div>
+          <div class="insights-title">Insights</div>
+          <div class="insights-subtitle" id="insightsPeriodText">Everything important, in one glance.</div>
+        </div>
+        <div class="insights-status" id="insightsDataStatus"><span class="insights-status-dot"></span><span>Live data</span></div>
+      </div>
+
+      <div class="insights-controls">
+        <div class="input-group">
+          <select id="insightsFilterUser" onchange="generateInsights()" aria-label="Filter user">
+            <option value="Us">Us</option>
+            <option value="Jebel">Jebel</option>
+            <option value="Reshma">Reshma</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <select id="insightsTimeRange" onchange="generateInsights()" aria-label="Time range">
+            <option value="all">All Time</option>
+            <option value="90d">Last 3 months</option>
+            <option value="30d">Last 30 days</option>
+            <option value="7d">Last 7 days</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="insights-hero">
+        <div class="insights-card insights-balance">
+          <div class="insights-balance-head">
+            <div>
+              <div class="insights-balance-kicker">Overall balance</div>
+              <div class="insights-balance-value" id="dashBalanceValue">0</div>
+              <div class="insights-balance-note" id="dashBalanceSub">Income − expenses − savings</div>
+            </div>
+            <div class="insights-balance-chip" id="balanceHealthChip">Positive</div>
+          </div>
+          <div class="insights-chart-wrap">
+            <div class="insights-gridlines"><span></span><span></span><span></span><span></span><span></span></div>
+            <div class="insights-bars" id="overviewBars"></div>
+          </div>
+          <div class="insight-chart-legend">
+            <span><i class="legend-dot legend-income"></i>Income</span>
+            <span><i class="legend-dot legend-expense"></i>Expense</span>
+            <span><i class="legend-dot legend-savings"></i>Savings</span>
+          </div>
+        </div>
+
+        <div class="insights-side">
+          <div class="insights-card insight-metric">
+            <div class="insight-metric-top"><span class="insight-metric-label">Income</span><span class="insight-metric-icon">↘</span></div>
+            <div class="insight-metric-value" id="sideIncome">0</div>
+            <div class="insight-metric-foot">Money received</div>
+          </div>
+          <div class="insights-card insight-metric">
+            <div class="insight-metric-top"><span class="insight-metric-label">Expenses</span><span class="insight-metric-icon">↗</span></div>
+            <div class="insight-metric-value" id="sideExpense">0</div>
+            <div class="insight-metric-foot">Money spent</div>
+          </div>
+          <div class="insights-card insight-metric">
+            <div class="insight-metric-top"><span class="insight-metric-label">Cash left</span><span class="insight-metric-icon">◌</span></div>
+            <div class="insight-metric-value" id="sideCashLeft">0</div>
+            <div class="insight-metric-foot">Income − expenses</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="insights-kpi-grid">
+        <div class="insights-card insight-kpi">
+          <div class="insight-kpi-title">Income</div>
+          <div class="insight-kpi-value" id="dashTotalIncome">0</div>
+          <div class="insight-kpi-sub" id="incomeKpiSub">0 records</div>
+          <div class="insight-kpi-track track-green"><span id="incomeKpiFill"></span></div>
+        </div>
+        <div class="insights-card insight-kpi">
+          <div class="insight-kpi-title">Expenses</div>
+          <div class="insight-kpi-value" id="dashTotalExpense">0</div>
+          <div class="insight-kpi-sub" id="expenseKpiSub">0 categories</div>
+          <div class="insight-kpi-track track-red"><span id="expenseKpiFill"></span></div>
+        </div>
+        <div class="insights-card insight-kpi">
+          <div class="insight-kpi-title">Savings</div>
+          <div class="insight-kpi-value" id="dashSavingsValue">0</div>
+          <div class="insight-kpi-sub" id="dashSavingsRateChip">0% of income</div>
+          <div class="insight-kpi-track track-purple"><span id="dashSavingsRangeFill"></span></div>
+        </div>
+        <div class="insights-card insight-kpi">
+          <div class="insight-kpi-title">Activity</div>
+          <div class="insight-kpi-value" id="dashTransactionCount">0</div>
+          <div class="insight-kpi-sub"><span id="analyticsCategories">0</span> spending categories</div>
+          <div class="insight-kpi-track track-blue"><span id="activityKpiFill"></span></div>
+        </div>
+      </div>
+
+      <div class="insights-lower">
+        <div class="insights-card insights-panel">
+          <div class="insights-panel-head">
+            <div>
+              <div class="insights-panel-title">Top spending categories</div>
+              <div class="insights-panel-sub">Where your money is going</div>
+            </div>
+            <div class="insight-small-sub" id="dashTopCategory">—</div>
+          </div>
+          <div class="insight-category-list" id="insightsCategoryList"></div>
+        </div>
+
+        <div class="insights-card insights-panel">
+          <div class="insights-panel-head">
+            <div>
+              <div class="insights-panel-title">Highest spend</div>
+              <div class="insights-panel-sub">Largest individual outgoing record</div>
+            </div>
+            <div class="insight-small-sub">Peak</div>
+          </div>
+          <div class="insight-record-list" id="insightsHighestList"></div>
+          <div style="height:12px"></div>
+          <div class="insights-panel-head" style="margin-bottom:8px;">
+            <div>
+              <div class="insights-panel-title" style="font-size:13px;">Savings rate</div>
+              <div class="insights-panel-sub">Share of income kept</div>
+            </div>
+            <div class="insight-small-sub" id="savingsRingText">0%</div>
+          </div>
+          <div class="insight-kpi-track track-purple" style="height:9px;"><span id="savingsProgressLong"></span></div>
+        </div>
+      </div>
+
+      <div class="insight-feature-grid">
+        <div class="insight-feature-card">
+          <div class="feature-head">
+            <div><div class="feature-title">Financial health</div><div class="feature-sub">A quick score based on savings, spending and balance</div></div>
+            <span class="insights-status" id="healthStatus">Good</span>
+          </div>
+          <div class="health-score">
+            <div class="health-ring" id="healthRing" style="--score-angle:0deg"><strong id="healthScore">0</strong></div>
+            <div class="health-copy"><div class="health-label" id="healthHeadline">Waiting for your data</div><div class="health-note" id="healthNote">Your dashboard will assess the selected period automatically.</div></div>
+          </div>
+          <div class="health-points">
+            <div class="health-point"><span>●</span><span><b id="healthSavingsPoint">0%</b> savings rate</span></div>
+            <div class="health-point"><span>●</span><span><b id="healthSpendPoint">0%</b> of income spent</span></div>
+            <div class="health-point"><span>●</span><span><b id="healthActivityPoint">0</b> records in this period</span></div>
+          </div>
+        </div>
+
+        <div class="insight-feature-card">
+          <div class="feature-head"><div><div class="feature-title">Budget health</div><div class="feature-sub">Suggested household spending limit</div></div><span class="insight-small-sub" id="budgetStatus">Set your limit</span></div>
+          <div class="budget-total" id="budgetSpent">0 / 0</div>
+          <div class="budget-track"><span id="budgetFill"></span></div>
+          <div class="budget-meta"><span id="budgetUsedText">0% used</span><span id="budgetRemainingText">No limit</span></div>
+          <div class="budget-list" id="budgetList"></div>
+        </div>
+      </div>
+
+      <div class="insight-feature-grid">
+        <div class="insight-feature-card">
+          <div class="feature-head"><div><div class="feature-title">Payment methods</div><div class="feature-sub">Where your outgoing money is being paid</div></div><span class="insight-small-sub" id="paymentTotalLabel">0</span></div>
+          <div class="payment-list" id="paymentAnalyticsList"></div>
+        </div>
+
+        <div class="insight-feature-card">
+          <div class="feature-head"><div><div class="feature-title">Smart insights</div><div class="feature-sub">Automatic observations from your transactions</div></div><span class="insight-small-sub">Live</span></div>
+          <div class="smart-list" id="smartInsightsList"></div>
+          <div class="month-compare">
+            <div class="compare-box"><div class="compare-label">Income</div><div class="compare-value" id="compareIncome">0</div><div class="compare-delta" id="compareIncomeDelta">—</div></div>
+            <div class="compare-box"><div class="compare-label">Expense</div><div class="compare-value" id="compareExpense">0</div><div class="compare-delta" id="compareExpenseDelta">—</div></div>
+            <div class="compare-box"><div class="compare-label">Savings</div><div class="compare-value" id="compareSavings">0</div><div class="compare-delta" id="compareSavingsDelta">—</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="insights-footer-note" id="insightsFooterNote">0 records included</div>
+    </div>
+
+    <!-- Compatibility nodes used by older functions; kept hidden intentionally. -->
+    <div class="insights-tech">
+      <div id="balanceMiniChart"></div><div id="cashflowMiniChart"></div><div id="spendingMiniChart"></div>
+      <div id="transactionDotChart"></div><div id="categoryMiniChart"></div><div id="highestSpendMiniChart"></div>
+      <span id="dashCashflowValue">0</span><span id="dashCashflowChip">Net</span>
+      <span id="analyticsDailySpend">0</span><span id="analyticsTransactions">0</span>
+      <span id="portfolioIncomeValue">0</span><span id="portfolioExpenseValue">0</span><span id="portfolioSavingsValue">0</span>
+      <div id="incomeMiniChart"></div><div id="expenseMiniChart"></div><div id="portfolioIncomeMini"></div><div id="portfolioExpenseMini"></div>
+      <div id="savingsRing"></div><span id="dashHighestSpend">0</span><span id="dashHighestSpendLabel">No expense data</span><span id="dashTopCategoryAmount">0</span>
+      <div id="balanceProgressFill"></div>
+    </div>
+  </div>
 
 
 
+      <div class="insights-card recurring-card">
+        <div class="insights-panel-head">
+          <div>
+            <div class="insights-panel-title">🔄 Recurring Payments</div>
+            <div class="insights-panel-sub">Keep track of regular household commitments</div>
+          </div>
+          <button type="button" class="recurring-add-btn" onclick="openRecurringPayment()">＋ Add</button>
+        </div>
+        <div id="recurringPaymentsList" class="safe-list"></div>
+      </div>
 
-<!-- Compatibility nodes used by older functions; kept hidden intentionally. -->
+      <div class="insights-card calendar-card">
+        <div class="insights-panel-head calendar-head">
+          <div>
+            <div class="insights-panel-title">📅 Spending Calendar</div>
+            <div class="insights-panel-sub">Daily household spending</div>
+          </div>
+          <div class="calendar-nav">
+            <button type="button" onclick="changeSpendingMonth(-1)" aria-label="Previous month">‹</button>
+            <span id="spendingCalendarMonth"></span>
+            <button type="button" onclick="changeSpendingMonth(1)" aria-label="Next month">›</button>
+          </div>
+        </div>
+        <div class="spending-calendar">
+          <div class="calendar-weekdays">
+            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+          </div>
+          <div id="spendingCalendarGrid" class="calendar-grid"></div>
+        </div>
+        <div id="spendingCalendarSummary" class="calendar-summary">Select a day to view spending.</div>
+      </div>
 
-<div class="insight-mode-panel active" id="householdInsightPanel"><div class="insights-page">
-<div class="insights-command">
-<div class="insights-command-left">
-<div class="insights-eyebrow">Household analytics</div>
-<div class="insights-title">Insights</div>
-<div class="insights-subtitle" id="insightsPeriodText">Everything important, in one glance.</div>
-</div>
-<div class="insights-status" id="insightsDataStatus"><span class="insights-status-dot"></span><span>Live data</span></div>
-</div>
-<div class="insights-controls">
-<div class="input-group">
-<select aria-label="Filter user" id="insightsFilterUser" onchange="generateInsights()">
-<option value="Us">Us</option>
-<option value="Jebel">Jebel</option>
-<option value="Reshma">Reshma</option>
-</select>
-</div>
-<div class="input-group">
-<select aria-label="Time range" id="insightsTimeRange" onchange="generateInsights()">
-<option value="all">All Time</option>
-<option value="90d">Last 3 months</option>
-<option value="30d">Last 30 days</option>
-<option value="7d">Last 7 days</option>
-</select>
-</div>
-</div>
-<div class="insights-hero">
-<div class="insights-card insights-balance">
-<div class="insights-balance-head">
-<div>
-<div class="insights-balance-kicker">Overall balance</div>
-<div class="insights-balance-value" id="dashBalanceValue">0</div>
-<div class="insights-balance-note" id="dashBalanceSub">Income − expenses − savings</div>
-</div>
-<div class="insights-balance-chip" id="balanceHealthChip">Positive</div>
-</div>
-<div class="insights-chart-wrap">
-<div class="insights-gridlines"><span></span><span></span><span></span><span></span><span></span></div>
-<div class="insights-bars" id="overviewBars"></div>
-</div>
-<div class="insight-chart-legend">
-<span><i class="legend-dot legend-income"></i>Income</span>
-<span><i class="legend-dot legend-expense"></i>Expense</span>
-<span><i class="legend-dot legend-savings"></i>Savings</span>
-</div>
-</div>
-<div class="insights-side">
-<div class="insights-card insight-metric">
-<div class="insight-metric-top"><span class="insight-metric-label">Income</span><span class="insight-metric-icon">↘</span></div>
-<div class="insight-metric-value" id="sideIncome">0</div>
-<div class="insight-metric-foot">Money received</div>
-</div>
-<div class="insights-card insight-metric">
-<div class="insight-metric-top"><span class="insight-metric-label">Expenses</span><span class="insight-metric-icon">↗</span></div>
-<div class="insight-metric-value" id="sideExpense">0</div>
-<div class="insight-metric-foot">Money spent</div>
-</div>
-<div class="insights-card insight-metric">
-<div class="insight-metric-top"><span class="insight-metric-label">Cash left</span><span class="insight-metric-icon">◌</span></div>
-<div class="insight-metric-value" id="sideCashLeft">0</div>
-<div class="insight-metric-foot">Income − expenses</div>
-</div>
-</div>
-</div>
-<div class="insights-kpi-grid">
-<div class="insights-card insight-kpi">
-<div class="insight-kpi-title">Income</div>
-<div class="insight-kpi-value" id="dashTotalIncome">0</div>
-<div class="insight-kpi-sub" id="incomeKpiSub">0 records</div>
-<div class="insight-kpi-track track-green"><span id="incomeKpiFill"></span></div>
-</div>
-<div class="insights-card insight-kpi">
-<div class="insight-kpi-title">Expenses</div>
-<div class="insight-kpi-value" id="dashTotalExpense">0</div>
-<div class="insight-kpi-sub" id="expenseKpiSub">0 categories</div>
-<div class="insight-kpi-track track-red"><span id="expenseKpiFill"></span></div>
-</div>
-<div class="insights-card insight-kpi">
-<div class="insight-kpi-title">Savings</div>
-<div class="insight-kpi-value" id="dashSavingsValue">0</div>
-<div class="insight-kpi-sub" id="dashSavingsRateChip">0% of income</div>
-<div class="insight-kpi-track track-purple"><span id="dashSavingsRangeFill"></span></div>
-</div>
-<div class="insights-card insight-kpi">
-<div class="insight-kpi-title">Activity</div>
-<div class="insight-kpi-value" id="dashTransactionCount">0</div>
-<div class="insight-kpi-sub"><span id="analyticsCategories">0</span> spending categories</div>
-<div class="insight-kpi-track track-blue"><span id="activityKpiFill"></span></div>
-</div>
-</div>
-<div class="insights-lower">
-<div class="insights-card insights-panel">
-<div class="insights-panel-head">
-<div>
-<div class="insights-panel-title">Top spending categories</div>
-<div class="insights-panel-sub">Where your money is going</div>
-</div>
-<div class="insight-small-sub" id="dashTopCategory">—</div>
-</div>
-<div class="insight-category-list" id="insightsCategoryList"></div>
-</div>
-<div class="insights-card insights-panel">
-<div class="insights-panel-head">
-<div>
-<div class="insights-panel-title">Highest spend</div>
-<div class="insights-panel-sub">Largest individual outgoing record</div>
-</div>
-<div class="insight-small-sub">Peak</div>
-</div>
-<div class="insight-record-list" id="insightsHighestList"></div>
-<div style="height:12px"></div>
-<div class="insights-panel-head" style="margin-bottom:8px;">
-<div>
-<div class="insights-panel-title" style="font-size:13px;">Savings rate</div>
-<div class="insights-panel-sub">Share of income kept</div>
-</div>
-<div class="insight-small-sub" id="savingsRingText">0%</div>
-</div>
-<div class="insight-kpi-track track-purple" style="height:9px;"><span id="savingsProgressLong"></span></div>
-</div>
-</div>
-<div class="insights-footer-note" id="insightsFooterNote">0 records included</div>
-<!-- PHASE 2: HOUSEHOLD + PLANNING -->
-<div class="phase2-grid">
-<div class="insights-card phase2-panel">
-<div class="insights-panel-head">
-<div><div class="insights-panel-title">Household split</div><div class="insights-panel-sub">Jebel vs Reshma</div></div>
-</div>
-<div class="people-compare">
-<div class="person-box"><div class="person-name">Jebel</div><div class="person-income" id="jebelIncome">₹0</div><div class="person-meta">Income</div><div class="person-bar"><span id="jebelBar"></span></div><div class="person-spend" id="jebelSpend">₹0 spent</div></div>
-<div class="person-box"><div class="person-name">Reshma</div><div class="person-income" id="reshmaIncome">₹0</div><div class="person-meta">Income</div><div class="person-bar"><span id="reshmaBar"></span></div><div class="person-spend" id="reshmaSpend">₹0 spent</div></div>
-</div>
-</div>
-<div class="insights-card phase2-panel">
-<div class="insights-panel-head">
-<div><div class="insights-panel-title">Recurring payments</div><div class="insights-panel-sub">Your planned household bills</div></div>
-<button class="mini-action" onclick="toggleRecurringForm()">＋ Add</button>
-</div>
-<div class="recurring-form" id="recurringForm" style="display:none;">
-<input id="recName" placeholder="e.g. Internet" type="text"/>
-<input id="recAmount" inputmode="decimal" placeholder="Amount" type="number"/>
-<select id="recFrequency"><option>Monthly</option><option>Weekly</option><option>Yearly</option></select>
-<button class="mini-action primary" onclick="addRecurring()">Save</button>
-</div>
-<div class="recurring-list" id="recurringList"></div>
-</div>
-</div>
-<div class="insights-card phase2-panel calendar-panel">
-<div class="insights-panel-head">
-<div><div class="insights-panel-title">Spending calendar</div><div class="insights-panel-sub">Daily activity for the selected period</div></div>
-<div class="calendar-nav"><button class="mini-action" onclick="shiftCalendar(-1)">‹</button><span id="calendarMonthLabel">—</span><button class="mini-action" onclick="shiftCalendar(1)">›</button></div>
-</div>
-<div class="calendar-grid" id="insightsCalendar"></div>
-<div class="calendar-legend"><span><i class="cal-dot cal-low"></i>Low</span><span><i class="cal-dot cal-mid"></i>Medium</span><span><i class="cal-dot cal-high"></i>High</span></div>
-</div>
-<div class="phase2-grid">
-<div class="insights-card phase2-panel">
-<div class="insights-panel-head">
-<div><div class="insights-panel-title">Receipt check</div><div class="insights-panel-sub">Expenses with missing receipts</div></div>
-<div class="insight-small-sub" id="receiptMissingCount">0</div>
-</div>
-<div class="receipt-summary" id="receiptSummary"></div>
-</div>
-<div class="insights-card phase2-panel">
-<div class="insights-panel-head"><div><div class="insights-panel-title">Next up</div><div class="insights-panel-sub">Upcoming recurring commitments</div></div></div>
-<div class="upcoming-list" id="upcomingRecurring"></div>
-</div>
-</div>
-</div><div class="p3-section">
-<div class="p3-title">🔔 Smart Alerts</div>
-<div class="p3-sub">Actionable checks based on your current transaction data</div>
-<div id="p3Alerts"></div>
-</div><div class="p3-section">
-<div class="p3-title">📈 Spending Trend</div>
-<div class="p3-sub">Current month compared with the previous month</div>
-<div class="p3-grid">
-<div class="p3-stat"><div class="p3-stat-label">Current Month</div><div class="p3-stat-value" id="p3CurrentSpend">₹0</div></div>
-<div class="p3-stat"><div class="p3-stat-label">Previous Month</div><div class="p3-stat-value" id="p3PreviousSpend">₹0</div></div>
-</div>
-<div class="p3-bar"><span id="p3TrendBar" style="width:0%"></span></div>
-<div class="p3-alert" id="p3TrendText">No trend data yet.</div>
-</div><div class="p3-section">
-<div class="p3-title">📤 Reports</div>
-<div class="p3-sub">Export the transactions currently stored in the app.</div>
-<button class="p3-btn" onclick="exportPhase3CSV()">Export Transactions CSV</button>
-</div><div class="insights-tech">
-<div id="balanceMiniChart"></div><div id="cashflowMiniChart"></div><div id="spendingMiniChart"></div>
-<div id="transactionDotChart"></div><div id="categoryMiniChart"></div><div id="highestSpendMiniChart"></div>
-<span id="dashCashflowValue">0</span><span id="dashCashflowChip">Net</span>
-<span id="analyticsDailySpend">0</span><span id="analyticsTransactions">0</span>
-<span id="portfolioIncomeValue">0</span><span id="portfolioExpenseValue">0</span><span id="portfolioSavingsValue">0</span>
-<div id="incomeMiniChart"></div><div id="expenseMiniChart"></div><div id="portfolioIncomeMini"></div><div id="portfolioExpenseMini"></div>
-<div id="savingsRing"></div><span id="dashHighestSpend">0</span><span id="dashHighestSpendLabel">No expense data</span><span id="dashTopCategoryAmount">0</span>
-<div id="balanceProgressFill"></div>
-</div></div><div class="insight-mode-panel" id="vehicleInsightPanel">
-<div class="insights-card vehicle-analytics-card">
-<div class="insights-panel-head">
-<div><div class="insights-panel-title">Vehicle overview</div><div class="insights-panel-sub">A compact analytics view — vehicle entry and service management remain in Tab 2.</div></div>
-</div>
-<div class="vehicle-kpi-grid">
-<div class="vehicle-kpi"><span>Fuel Spend</span><strong id="v4FuelSpend">₹0</strong></div>
-<div class="vehicle-kpi"><span>Litres</span><strong id="v4Litres">0 L</strong></div>
-<div class="vehicle-kpi"><span>Distance</span><strong id="v4Distance">0 km</strong></div>
-<div class="vehicle-kpi"><span>Mileage</span><strong id="v4Mileage">— km/L</strong></div>
-</div>
-</div>
-<div class="insights-card vehicle-analytics-card">
-<div class="insights-panel-head"><div><div class="insights-panel-title">Recent fuel</div><div class="insights-panel-sub">Latest fuel records</div></div></div>
-<div class="safe-list" id="v4FuelHistory"></div>
-</div>
-<div class="insights-card vehicle-analytics-card">
-<div class="insights-panel-head"><div><div class="insights-panel-title">Service records</div><div class="insights-panel-sub">Latest maintenance records</div></div></div>
-<div class="safe-list" id="v4ServiceHistory"></div>
-</div>
-</div></div>
-<!-- NAVIGATION BAR -->
-<div class="nav-wrapper">
-<div class="nav-pill">
-<button aria-label="Add Entry" class="active-nav" id="nav-Transactions" onclick="showTab('Transactions')" title="Add Entry">
-<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24">
-<path d="M12 5v14"></path><path d="M5 12h14"></path>
-<circle cx="12" cy="12" r="8.5"></circle>
-</svg>
-</button>
-<button aria-label="Vehicle and Fuel" id="nav-Fuel" onclick="showTab('Fuel')" title="Vehicle / Fuel">
-<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24">
-<path d="M6 19V5.5A1.5 1.5 0 0 1 7.5 4h5A1.5 1.5 0 0 1 14 5.5V19"></path>
-<path d="M5 19h10"></path><path d="M8 7h4"></path>
-<path d="M14 8h2l2.5 2.5V15a2 2 0 0 0 2 2h.5"></path>
-<path d="M19 11h1.5"></path><circle cx="18.5" cy="19" r="1.5"></circle>
-</svg>
-</button>
-<button aria-label="Ledger and Records" id="nav-Ledger" onclick="showTab('Ledger')" title="Ledger &amp; Records">
-<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24">
-<rect height="16" rx="3" width="16" x="4" y="4"></rect>
-<path d="M8 9h8M8 13h5M8 17h4"></path>
-<path d="M16 13h0"></path>
-</svg>
-</button>
-<button aria-label="Analytics" id="nav-Insights" onclick="showTab('Insights')" title="Analytics">
-<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24">
-<path d="M4 19V5"></path><path d="M4 19h16"></path>
-<path d="m7 15 3-4 3 2 5-6"></path>
-<path d="M15 7h3v3"></path>
-</svg>
-</button>
-</div>
-</div>
-</div>
-<!-- SEARCH MODAL -->
-<div class="modal-overlay" id="searchModal" onclick="closeSearchModal(event)">
-<div class="modal-content" onclick="event.stopPropagation()" style="min-height: 80vh;">
-<div class="modal-header">
-<h3 style="font-size:24px;">Search History</h3>
-<button class="close-btn" onclick="closeSearchModal()">✕</button>
-</div>
-<input id="searchInput" onkeyup="performSearch()" placeholder="Search categories, notes, amounts..." type="text"/>
-<div class="transaction-list" id="searchResultsList" style="margin-top: 10px;">
-<div style="text-align:center; color:var(--text-muted); padding:20px;">Type to search all transactions...</div>
-</div>
-</div>
-</div>
-<!-- RECORD DETAILS MODAL -->
-<div class="modal-overlay" id="recordDetailModal" onclick="closeRecordDetailModal(event)">
-<div class="modal-content" onclick="event.stopPropagation()" style="min-height: auto; max-height: 70vh;">
-<div class="modal-header">
-<h3>Transaction Details</h3>
-<button class="close-btn" onclick="closeRecordDetailModal()">✕</button>
-</div>
-<div id="recordDetailBody" style="font-size: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 20px;">
-<!-- Filled dynamically -->
-</div>
-</div>
-</div>
-<!-- CATEGORY DETAILS MODAL -->
-<div class="modal-overlay" id="categoryModal" onclick="closeCategoryModal(event)">
-<div class="modal-content" onclick="event.stopPropagation()">
-<div class="modal-header">
-<h3 id="modalCategoryTitle">Category Name</h3>
-<button class="close-btn" onclick="closeCategoryModal()">✕</button>
-</div>
-<div class="transaction-list" id="modalTransactionList"></div>
-</div>
-</div>
-<script>
+      <div id="recurringPaymentModal" class="recurring-modal" aria-hidden="true">
+        <div class="recurring-modal-card">
+          <div class="recurring-modal-head">
+            <div>
+              <div class="insights-panel-title">Add Recurring Payment</div>
+              <div class="insights-panel-sub">Saved locally on this device</div>
+            </div>
+            <button type="button" class="recurring-close-btn" onclick="closeRecurringPayment()">×</button>
+          </div>
+          <div class="recurring-form">
+            <label>Name<input id="recurringName" type="text" placeholder="Rent, Internet, Netflix..."></label>
+            <label>Amount<input id="recurringAmount" type="number" min="0" step="0.01" placeholder="0"></label>
+            <label>Frequency
+              <select id="recurringFrequency">
+                <option value="Monthly">Monthly</option>
+                <option value="Weekly">Weekly</option>
+                <option value="Yearly">Yearly</option>
+              </select>
+            </label>
+            <label>Next Due<input id="recurringDue" type="date"></label>
+            <label>Category<input id="recurringCategory" type="text" placeholder="Bills"></label>
+            <button type="button" class="recurring-save-btn" onclick="saveRecurringPayment()">Save Payment</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="vehicleInsightPanel" class="insight-mode-panel">
+      <div class="insights-card vehicle-analytics-card">
+        <div class="insights-panel-head">
+          <div>
+            <div class="insights-panel-title">Vehicle Analytics</div>
+            <div class="insights-panel-sub">Fuel and service performance from your existing vehicle records</div>
+          </div>
+        </div>
+        <div class="vehicle-kpi-grid">
+          <div class="vehicle-kpi"><span>Fuel Spend</span><strong id="v4FuelSpend">₹0</strong></div>
+          <div class="vehicle-kpi"><span>Fuel Litres</span><strong id="v4Litres">0 L</strong></div>
+          <div class="vehicle-kpi"><span>Distance</span><strong id="v4Distance">0 km</strong></div>
+          <div class="vehicle-kpi"><span>Mileage</span><strong id="v4Mileage">— km/L</strong></div>
+        </div>
+      </div>
+      <div class="insights-card vehicle-analytics-card">
+        <div class="insights-panel-head">
+          <div>
+            <div class="insights-panel-title">Recent Fuel</div>
+            <div class="insights-panel-sub">Latest fuel records</div>
+          </div>
+        </div>
+        <div id="v4FuelHistory" class="safe-list"></div>
+      </div>
+      <div class="insights-card vehicle-analytics-card">
+        <div class="insights-panel-head">
+          <div>
+            <div class="insights-panel-title">Service Records</div>
+            <div class="insights-panel-sub">Latest maintenance records</div>
+          </div>
+        </div>
+        <div id="v4ServiceHistory" class="safe-list"></div>
+      </div>
+    </div>
+
+  <!-- NAVIGATION BAR -->
+  <div class="nav-wrapper">
+    <div class="nav-pill">
+      <button id="nav-Transactions" class="active-nav" onclick="showTab('Transactions')" title="Add Entry" aria-label="Add Entry">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 5v14"></path><path d="M5 12h14"></path>
+          <circle cx="12" cy="12" r="8.5"></circle>
+        </svg>
+      </button>
+      <button id="nav-Fuel" onclick="showTab('Fuel')" title="Vehicle / Fuel" aria-label="Vehicle and Fuel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 19V5.5A1.5 1.5 0 0 1 7.5 4h5A1.5 1.5 0 0 1 14 5.5V19"></path>
+          <path d="M5 19h10"></path><path d="M8 7h4"></path>
+          <path d="M14 8h2l2.5 2.5V15a2 2 0 0 0 2 2h.5"></path>
+          <path d="M19 11h1.5"></path><circle cx="18.5" cy="19" r="1.5"></circle>
+        </svg>
+      </button>
+      <button id="nav-Ledger" onclick="showTab('Ledger')" title="Ledger & Records" aria-label="Ledger and Records">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="4" width="16" height="16" rx="3"></rect>
+          <path d="M8 9h8M8 13h5M8 17h4"></path>
+          <path d="M16 13h0"></path>
+        </svg>
+      </button>
+      <button id="nav-Insights" onclick="showTab('Insights')" title="Analytics" aria-label="Analytics">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19V5"></path><path d="M4 19h16"></path>
+          <path d="m7 15 3-4 3 2 5-6"></path>
+          <path d="M15 7h3v3"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+</div> 
+
+  <!-- SEARCH MODAL -->
+  <div id="searchModal" class="modal-overlay" onclick="closeSearchModal(event)">
+    <div class="modal-content" style="min-height: 80vh;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 style="font-size:24px;">Search History</h3>
+        <button class="close-btn" onclick="closeSearchModal()">✕</button>
+      </div>
+      <input type="text" id="searchInput" placeholder="Search categories, notes, amounts..." onkeyup="performSearch()">
+      <div id="searchResultsList" class="transaction-list" style="margin-top: 10px;">
+        <div style="text-align:center; color:var(--text-muted); padding:20px;">Type to search all transactions...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECORD DETAILS MODAL -->
+  <div id="recordDetailModal" class="modal-overlay" onclick="closeRecordDetailModal(event)">
+    <div class="modal-content" style="min-height: auto; max-height: 70vh;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Transaction Details</h3>
+        <button class="close-btn" onclick="closeRecordDetailModal()">✕</button>
+      </div>
+      <div id="recordDetailBody" style="font-size: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 20px;">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- CATEGORY DETAILS MODAL -->
+  <div id="categoryModal" class="modal-overlay" onclick="closeCategoryModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="modalCategoryTitle">Category Name</h3>
+        <button class="close-btn" onclick="closeCategoryModal()">✕</button>
+      </div>
+      <div id="modalTransactionList" class="transaction-list"></div>
+    </div>
+  </div>
+
+  <script>
     const URL = "https://script.google.com/macros/s/AKfycbwETC4mZPqfomKjCKmIjdXbFktmKBqplCREtHWgoBPET2OCfPcqlCt-QVFMRdFonFytfA/exec"; 
     
     let allTransactions = JSON.parse(localStorage.getItem('trackerData')) || [];
@@ -2004,8 +2260,64 @@
       }).join('');
     }
 
+    function renderInsightFeatures(txs, totalInc, totalExp, totalSav, expenseCategories) {
+      const incomeSafe = Math.max(totalInc, 1);
+      const spentPct = totalInc > 0 ? (totalExp / totalInc) * 100 : 0;
+      const savingsRate = totalInc > 0 ? (totalSav / totalInc) * 100 : 0;
+      let score = 50;
+      score += Math.min(35, Math.max(0, savingsRate * 1.5));
+      score -= Math.min(30, Math.max(0, (spentPct - 60) * .65));
+      if (totalInc > 0 && totalExp + totalSav <= totalInc) score += 10;
+      if (totalInc > 0 && totalExp > totalInc) score -= 15;
+      score = Math.round(Math.max(0, Math.min(100, score)));
+      const angle = score * 3.6;
+      const ring = document.getElementById('healthRing');
+      if (ring) ring.style.setProperty('--score-angle', angle + 'deg');
+      const set = (id,v) => { const e=document.getElementById(id); if(e)e.textContent=v; };
+      set('healthScore', score);
+      set('healthSavingsPoint', savingsRate.toFixed(0)+'%');
+      set('healthSpendPoint', spentPct.toFixed(0)+'%');
+      set('healthActivityPoint', txs.length.toLocaleString('en-IN'));
+      const healthLabel = score >= 80 ? 'Excellent money health' : score >= 65 ? 'Healthy finances' : score >= 50 ? 'Room to improve' : 'Watch your spending';
+      const healthNote = score >= 80 ? 'Strong savings and controlled spending for this period.' : score >= 65 ? 'Your balance is in a healthy range. Keep the savings habit going.' : score >= 50 ? 'Your spending is taking a larger share of income than ideal.' : 'Expenses are putting pressure on available income.';
+      set('healthHeadline', healthLabel); set('healthNote', healthNote);
+      const hs=document.getElementById('healthStatus'); if(hs){ hs.textContent=score>=80?'Excellent':score>=65?'Good':score>=50?'Fair':'Attention'; }
+
+      const monthlyBudget = Math.max(1, Number(localStorage.getItem('householdMonthlyBudget')) || 50000);
+      const budgetSpent = totalExp;
+      const budgetPct = Math.min(100, budgetSpent / monthlyBudget * 100);
+      set('budgetSpent', `${formatINR(budgetSpent)} / ${formatINR(monthlyBudget)}`);
+      set('budgetUsedText', `${budgetPct.toFixed(0)}% used`);
+      set('budgetRemainingText', budgetSpent <= monthlyBudget ? `${formatINR(monthlyBudget-budgetSpent)} left` : `${formatINR(budgetSpent-monthlyBudget)} over`);
+      set('budgetStatus', budgetPct >= 100 ? 'Over budget' : budgetPct >= 80 ? 'Near limit' : 'On track');
+      const bf=document.getElementById('budgetFill'); if(bf) bf.style.width=budgetPct+'%';
+      const budgetEntries = Object.entries(expenseCategories).sort((a,b)=>b[1]-a[1]).slice(0,4);
+      const bl=document.getElementById('budgetList');
+      if(bl) bl.innerHTML=budgetEntries.length ? budgetEntries.map(([name,amt])=>`<div class="budget-row"><div><div class="budget-name">${name}</div><div class="budget-mini-track"><span style="width:${Math.min(100,amt/monthlyBudget*100)}%"></span></div></div><div class="budget-amt">${formatINR(amt)}</div></div>`).join('') : '<div class="insight-empty">No spending data yet.</div>';
+
+      const payments={};
+      txs.filter(t=>t.type==='Expense'||t.type==='Fuel'||t.type==='Service').forEach(t=>{ const key=t.paymentMethod||'Not specified'; payments[key]=(payments[key]||0)+t.amount; });
+      const payEntries=Object.entries(payments).sort((a,b)=>b[1]-a[1]).slice(0,5);
+      const payList=document.getElementById('paymentAnalyticsList');
+      set('paymentTotalLabel', formatINR(totalExp));
+      if(payList) payList.innerHTML=payEntries.length ? payEntries.map(([name,amt])=>{const pct=totalExp?amt/totalExp*100:0; return `<div class="payment-row"><div class="payment-icon">${name.toLowerCase().includes('upi')?'↗':name.toLowerCase().includes('cash')?'₹':name.toLowerCase().includes('card')?'▣':'•'}</div><div><div class="payment-name">${name}</div><div class="payment-bar"><span style="width:${pct}%"></span></div></div><div class="payment-amt">${formatINR(amt)}</div></div>`}).join(''):'<div class="insight-empty">No payment-method data available.</div>';
+
+      const smart=[];
+      const top=Object.entries(expenseCategories).sort((a,b)=>b[1]-a[1])[0];
+      if(top && totalExp) smart.push(`🔥 <strong>${top[0]}</strong> is your biggest spending category at ${formatINR(top[1])}.`);
+      if(totalInc>0) smart.push(savingsRate>=20 ? `💰 You're saving <strong>${savingsRate.toFixed(0)}%</strong> of income — a strong saving habit.` : `💡 Savings are <strong>${savingsRate.toFixed(0)}%</strong> of income. A little more could build a stronger buffer.`);
+      if(totalExp>totalInc && totalInc>0) smart.push(`⚠️ Expenses are higher than income by <strong>${formatINR(totalExp-totalInc)}</strong> in this period.`);
+      else if(totalInc>0) smart.push(`✅ Income is covering expenses with <strong>${formatINR(totalInc-totalExp)}</strong> left before savings.`);
+      if(!smart.length) smart.push('Add a few transactions to unlock personalized insights.');
+      const sl=document.getElementById('smartInsightsList'); if(sl) sl.innerHTML=smart.slice(0,3).map(x=>`<div class="smart-item">${x}</div>`).join('');
+
+      // Compare the latest two months in the selected data.
+      const groups=groupByMonth(txs); const cur=groups[groups.length-1]||{income:0,expense:0,savings:0}; const prev=groups[groups.length-2]||{income:0,expense:0,savings:0};
+      const cmp=(id,val,old)=>{set(id,formatINR(val)); const e=document.getElementById(id+'Delta'); if(!e)return; const d=old?((val-old)/old*100):0; e.textContent=old?`${d>=0?'↑':'↓'} ${Math.abs(d).toFixed(0)}% vs prior month`:'No prior month'; e.className='compare-delta '+(d>0?'delta-up':d<0?'delta-down':'delta-flat');};
+      cmp('compareIncome',cur.income,prev.income); cmp('compareExpense',cur.expense,prev.expense); cmp('compareSavings',cur.savings,prev.savings);
+    }
+
     function generateInsights() {
-      p3Update();
       try {
         const { txs, timeRange, selectedUser } = getInsightTransactions();
         const monthGroups = groupByMonth(txs);
@@ -2030,6 +2342,7 @@
         const sortedCats = Object.entries(expenseCategories).sort((a,b) => b[1] - a[1]);
         const highest = expenseTxs.slice().sort((a,b) => b.amount - a.amount).slice(0,4);
         const topCat = sortedCats[0];
+        renderInsightFeatures(txs, totalInc, totalExp, totalSav, expenseCategories);
         const periodLabel = timeRange === 'all' ? 'All available history' : (timeRange === '7d' ? 'Last 7 days' : timeRange === '30d' ? 'Last 30 days' : 'Last 3 months');
 
         const setText = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
@@ -2122,41 +2435,12 @@
         renderMiniBars('expenseMiniChart', monthGroups.map(g => g.expense), 'red', monthGroups.length - 1);
         renderMiniBars('portfolioIncomeMini', monthGroups.map(g => g.income), 'green', monthGroups.length - 1);
         renderMiniBars('portfolioExpenseMini', monthGroups.map(g => g.expense), 'orange', monthGroups.length - 1);
-        renderPhase2Insights();
       } catch (err) {
         console.error('Insights rendering failed:', err);
         const status = document.getElementById('insightsDataStatus');
         if (status) status.innerHTML = `<span class="insights-status-dot" style="background:var(--accent-red)"></span><span>Data error</span>`;
       }
     }
-
-
-    let phase2CalendarDate = new Date();
-    function getPhase2FilteredTxs(){ return getInsightTransactions().txs || []; }
-    function renderPhase2Insights(){
-      const txs=getPhase2FilteredTxs();
-      const people={Jebel:{inc:0,exp:0},Reshma:{inc:0,exp:0}};
-      txs.forEach(t=>{ if(people[t.user]) { if(t.type==='Income') people[t.user].inc+=t.amount; else if(['Expense','Fuel','Service'].includes(t.type)) people[t.user].exp+=t.amount; }});
-      const maxInc=Math.max(people.Jebel.inc,people.Reshma.inc,1);
-      ['Jebel','Reshma'].forEach(n=>{setEl(''+n.toLowerCase()+'Income',formatINR(people[n].inc),'₹');});
-      document.getElementById('jebelIncome').textContent=formatINR(people.Jebel.inc); document.getElementById('reshmaIncome').textContent=formatINR(people.Reshma.inc);
-      document.getElementById('jebelSpend').textContent=formatINR(people.Jebel.exp)+' spent'; document.getElementById('reshmaSpend').textContent=formatINR(people.Reshma.exp)+' spent';
-      document.getElementById('jebelBar').style.width=(people.Jebel.inc/maxInc*100)+'%'; document.getElementById('reshmaBar').style.width=(people.Reshma.inc/maxInc*100)+'%';
-      renderRecurring(); renderCalendar(txs); renderReceiptSummary(txs); renderUpcoming();
-    }
-    function setEl(id,v,prefix=''){const e=document.getElementById(id);if(e)e.textContent=prefix+v;}
-    function getRecurring(){try{return JSON.parse(localStorage.getItem('householdRecurring')||'[]')}catch(e){return[]}}
-    function saveRecurringList(a){localStorage.setItem('householdRecurring',JSON.stringify(a))}
-    function toggleRecurringForm(){const e=document.getElementById('recurringForm');e.style.display=e.style.display==='none'?'grid':'none';}
-    function addRecurring(){const name=document.getElementById('recName').value.trim();const amount=parseFloat(document.getElementById('recAmount').value)||0;const frequency=document.getElementById('recFrequency').value;if(!name||amount<=0){alert('Enter a name and valid amount.');return}const a=getRecurring();a.push({id:Date.now(),name,amount,frequency});saveRecurringList(a);document.getElementById('recName').value='';document.getElementById('recAmount').value='';toggleRecurringForm();renderRecurring();renderUpcoming();}
-    function deleteRecurring(id){saveRecurringList(getRecurring().filter(x=>x.id!==id));renderRecurring();renderUpcoming();}
-    function renderRecurring(){const e=document.getElementById('recurringList');if(!e)return;const a=getRecurring();e.innerHTML=a.length?a.map(x=>`<div class="recurring-row"><span class="rec-dot"></span><div class="rec-main"><div class="rec-name">${escapeHtml(x.name)}</div><div class="rec-meta">${x.frequency} household payment</div></div><div class="rec-amount">${formatINR(x.amount)}</div><button class="rec-delete" onclick="deleteRecurring(${x.id})" aria-label="Delete">×</button></div>`).join(''):'<div class="insight-empty">No recurring payments added yet.</div>';}
-    function renderUpcoming(){const e=document.getElementById('upcomingRecurring');if(!e)return;const a=getRecurring();e.innerHTML=a.length?a.slice(0,4).map(x=>`<div class="upcoming-row"><div><div class="upcoming-name">${escapeHtml(x.name)}</div><div class="upcoming-meta">Next ${x.frequency.toLowerCase()} payment</div></div><div class="upcoming-amount">${formatINR(x.amount)}</div></div>`).join(''):'<div class="insight-empty">Add recurring bills to see them here.</div>';}
-    function renderReceiptSummary(txs){const e=document.getElementById('receiptSummary');const expenses=txs.filter(t=>['Expense','Fuel','Service'].includes(t.type));const missing=expenses.filter(t=>!t.receipt);document.getElementById('receiptMissingCount').textContent=missing.length;const total=expenses.reduce((a,t)=>a+t.amount,0);const covered=total-missing.reduce((a,t)=>a+t.amount,0);e.innerHTML=`<div class="receipt-stat"><span class="receipt-name">Expenses</span><span class="receipt-value">${expenses.length}</span></div><div class="receipt-stat"><span class="receipt-name">Receipts attached</span><span class="receipt-value">${expenses.length-missing.length}</span></div><div class="receipt-stat"><span class="receipt-name">Amount without receipt</span><span class="receipt-value">${formatINR(missing.reduce((a,t)=>a+t.amount,0))}</span></div>`;}
-    function shiftCalendar(n){phase2CalendarDate.setMonth(phase2CalendarDate.getMonth()+n);renderCalendar(getPhase2FilteredTxs())}
-    function renderCalendar(txs){const e=document.getElementById('insightsCalendar');if(!e)return;const y=phase2CalendarDate.getFullYear(),m=phase2CalendarDate.getMonth();document.getElementById('calendarMonthLabel').textContent=phase2CalendarDate.toLocaleDateString('en-IN',{month:'short',year:'numeric'});const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];let h=days.map(d=>`<div class="cal-head">${d}</div>`).join('');const first=new Date(y,m,1).getDay(),count=new Date(y,m+1,0).getDate();for(let i=0;i<first;i++)h+='<div class="cal-day empty"></div>';const sums={};txs.forEach(t=>{if(!t.date)return;const d=new Date(t.date);if(d.getFullYear()===y&&d.getMonth()===m&&['Expense','Fuel','Service'].includes(t.type)){const k=d.getDate();sums[k]=(sums[k]||0)+t.amount}});const vals=Object.values(sums),max=Math.max(...vals,1);for(let d=1;d<=count;d++){const v=sums[d]||0;const cls=v===0?'':v>max*.66?'cal-high':v>max*.33?'cal-mid':'cal-low';h+=`<div class="cal-day ${cls}" onclick="showCalendarDay(${y},${m},${d})"><div class="cal-num">${d}</div><div class="cal-spend">${v?formatINR(v):'—'}</div></div>`}e.innerHTML=h;}
-    function showCalendarDay(y,m,d){const txs=getPhase2FilteredTxs().filter(t=>{const x=new Date(t.date);return x.getFullYear()===y&&x.getMonth()===m&&x.getDate()===d});if(!txs.length){alert('No transactions on this day.');return}const total=txs.reduce((a,t)=>a+t.amount,0);alert(`${d} ${phase2CalendarDate.toLocaleDateString('en-IN',{month:'long',year:'numeric'})}\n${txs.length} transaction(s) · ${formatINR(total)}`);}
-    function escapeHtml(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 
     function openRecordDetail(tx) {
       let dateStr = parseSafeDate(tx.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -2304,90 +2588,6 @@
       modal.classList.remove('show');
       setTimeout(() => modal.style.display = 'none', 300);
     }
-    /* ===== PHASE 3 LOGIC ===== */
-    function p3Money(n){
-      return '₹' + Number(n || 0).toLocaleString('en-IN',{maximumFractionDigits:0});
-    }
-    function p3Rows(){
-      if(!Array.isArray(allTransactions)) return [];
-      const rows = allTransactions.slice(1);
-      return rows.map(r=>({
-        date: parseSafeDate(String(r[0]||'')),
-        type: String(r[1]||'').trim(),
-        cat: String(r[2]||'').trim(),
-        amount: parseFloat(r[3])||0,
-        desc: String(r[4]||'').trim(),
-        user: String(r[5]||'').trim(),
-        project: String(r[6]||'').trim(),
-        receipt: String(r[7]||'').trim(),
-        odo: parseFloat(r[8])||0,
-        litres: parseFloat(r[9])||0,
-        payment: String(r[10]||'').trim()
-      })).filter(x=>x.date && !isNaN(x.date.getTime()));
-    }
-    function p3Update(){
-      const rows=p3Rows(), now=new Date(), month=now.getMonth(), year=now.getFullYear();
-      const current=rows.filter(x=>x.date.getMonth()===month&&x.date.getFullYear()===year);
-      const prevDate=new Date(year,month-1,1);
-      const previous=rows.filter(x=>x.date.getMonth()===prevDate.getMonth()&&x.date.getFullYear()===prevDate.getFullYear());
-      const expenseTypes=['Expense','Fuel','Service'];
-      const spend=a=>a.filter(x=>expenseTypes.includes(x.type)).reduce((sum,x)=>sum+x.amount,0);
-      const curSpend=spend(current), prevSpend=spend(previous);
-      const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
-      set('p3CurrentSpend',p3Money(curSpend));
-      set('p3PreviousSpend',p3Money(prevSpend));
-      const bar=document.getElementById('p3TrendBar');
-      const pct=prevSpend>0 ? Math.min(100,(curSpend/prevSpend)*100) : (curSpend>0?100:0);
-      if(bar) bar.style.width=pct+'%';
-      const trend=document.getElementById('p3TrendText');
-      if(trend){
-        if(!prevSpend&&!curSpend) trend.textContent='No spending recorded for the current or previous month.';
-        else if(!prevSpend) trend.textContent='Spending has started this month; there is no previous-month baseline.';
-        else {
-          const delta=((curSpend-prevSpend)/prevSpend)*100;
-          trend.textContent=`${Math.abs(delta).toFixed(1)}% ${delta>=0?'higher':'lower'} than last month.`;
-        }
-      }
-      const alerts=[];
-      if(curSpend>prevSpend&&prevSpend>0) alerts.push({c:'warn',t:'⚠️ Spending is higher than last month. Review your top categories.'});
-      if(prevSpend>0&&curSpend<prevSpend) alerts.push({c:'good',t:'✅ Spending is lower than last month.'});
-      const noReceipt=current.filter(x=>x.type==='Expense'&&!x.receipt).length;
-      if(noReceipt) alerts.push({c:'warn',t:`🧾 ${noReceipt} expense record${noReceipt===1?'':'s'} have no receipt attached.`});
-      if(!alerts.length) alerts.push({c:'good',t:'✅ No immediate spending alerts from the available data.'});
-      const box=document.getElementById('p3Alerts');
-      if(box) box.innerHTML=alerts.map(a=>`<div class="p3-alert ${a.c}">${a.t}</div>`).join('');
-    }
-
-    function exportPhase3CSV(){
-      const rows=p3Rows();
-      const headers=['Date','Type','Category','Amount','Description','User','Project','Receipt','Odometer','Litres','Payment Method'];
-      const out=[headers,...rows.map(x=>[x.date.toISOString().slice(0,10),x.type,x.cat,x.amount,x.desc,x.user,x.project,x.receipt,x.odo||'',x.litres||'',x.payment])];
-      const csv=out.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\\n');
-      const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-      const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='household-transactions.csv';a.click();URL.revokeObjectURL(a.href);
-    }
-
-  
-
-function setInsightMode(mode){
-  document.querySelectorAll('.insight-mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
-  document.querySelectorAll('.insight-mode-panel').forEach(p=>p.classList.toggle('active',p.id===(mode==='household'?'householdInsightPanel':'vehicleInsightPanel')));
-  if(mode==='vehicle') updateVehicleInsightMode();
-}
-function updateVehicleInsightMode(){
-  const rows=Array.isArray(allTransactions)?allTransactions.slice(1):[];
-  const data=rows.map(r=>({date:parseSafeDate(String(r[0]||'')),type:String(r[1]||'').trim(),cat:String(r[2]||'').trim(),amount:parseFloat(r[3])||0,desc:String(r[4]||'').trim(),odo:parseFloat(r[8])||0,litres:parseFloat(r[9])||0})).filter(x=>x.date&&!isNaN(x.date.getTime()));
-  const fuel=data.filter(x=>x.type==='Fuel'), service=data.filter(x=>x.type==='Service');
-  const money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});
-  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
-  const spend=fuel.reduce((s,x)=>s+x.amount,0), litres=fuel.reduce((s,x)=>s+x.litres,0), odo=fuel.map(x=>x.odo).filter(Boolean);
-  const distance=odo.length>1?Math.max(...odo)-Math.min(...odo):0;
-  set('v4FuelSpend',money(spend));set('v4Litres',litres.toFixed(1)+' L');set('v4Distance',distance.toLocaleString('en-IN')+' km');set('v4Mileage',litres&&distance?(distance/litres).toFixed(1)+' km/L':'— km/L');
-  const fh=document.getElementById('v4FuelHistory');
-  if(fh)fh.innerHTML=fuel.slice(-8).reverse().map(x=>`<div class="p3-row"><div class="p3-row-main"><div class="p3-row-name">${escapeHtml(x.cat||'Fuel')}</div><div class="p3-row-meta">${x.date.toLocaleDateString('en-IN')}${x.litres?' · '+x.litres+' L':''}${x.odo?' · '+x.odo.toLocaleString('en-IN')+' km':''}</div></div><div class="p3-row-value">${money(x.amount)}</div></div>`).join('')||'<div class="p3-alert">No fuel records available.</div>';
-  const sh=document.getElementById('v4ServiceHistory');
-  if(sh)sh.innerHTML=service.slice(-8).reverse().map(x=>`<div class="p3-row"><div class="p3-row-main"><div class="p3-row-name">${escapeHtml(x.cat||'Service')}</div><div class="p3-row-meta">${x.date.toLocaleDateString('en-IN')} · ${escapeHtml(x.desc||'Service record')}</div></div><div class="p3-row-value">${money(x.amount)}</div></div>`).join('')||'<div class="p3-alert">No service records available.</div>';
-}
-</script>
+  </script>
 </body>
 </html>
