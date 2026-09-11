@@ -774,6 +774,68 @@
 .calendar-summary{margin-top:10px!important;padding:9px 10px!important;border-radius:11px!important;font-size:9px!important}
 @media(max-width:520px){.spending-calendar-card{padding:12px!important}.calendar-day{height:40px!important;min-height:40px!important;padding:4px!important;border-radius:9px!important}.calendar-weekdays,.calendar-grid{gap:3px!important}.calendar-monthbar button{width:30px;height:30px}.calendar-month-label{font-size:12px}}
 
+
+/* ===== OVERALL BALANCE: MOUNTAIN CHART ===== */
+.balance-mountain-wrap{
+  height:160px;
+  margin-top:14px;
+  position:relative;
+  overflow:hidden;
+  border-radius:18px;
+}
+.balance-mountain-chart{
+  width:100%;
+  height:100%;
+  display:block;
+  overflow:visible;
+}
+.balance-mountain-grid{
+  stroke:var(--border-color);
+  stroke-width:1;
+  opacity:.7;
+}
+.balance-mountain-zero{
+  stroke:var(--text-muted);
+  stroke-width:1;
+  stroke-dasharray:4 4;
+  opacity:.5;
+}
+.balance-mountain-fill{
+  fill:var(--accent-blue);
+  fill-opacity:.13;
+}
+.balance-mountain-line{
+  fill:none;
+  stroke:var(--accent-blue);
+  stroke-width:3;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.balance-mountain-dot{
+  fill:var(--card-bg);
+  stroke:var(--accent-blue);
+  stroke-width:2.5;
+}
+.balance-mountain-label{
+  fill:var(--text-muted);
+  font-size:10px;
+  font-weight:700;
+}
+.balance-mountain-footer{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:7px;
+  color:var(--text-muted);
+  font-size:9px;
+  font-weight:750;
+}
+@media(max-width:520px){
+  .balance-mountain-wrap{height:145px}
+  .balance-mountain-label{font-size:9px}
+  .balance-mountain-footer{font-size:8px}
+}
+
 </style>
 </head>
 <body>
@@ -1094,14 +1156,12 @@
             </div>
             <div class="insights-balance-chip" id="balanceHealthChip">Positive</div>
           </div>
-          <div class="insights-chart-wrap">
-            <div class="insights-gridlines"><span></span><span></span><span></span><span></span><span></span></div>
-            <div class="insights-bars" id="overviewBars"></div>
+          <div class="insights-chart-wrap balance-mountain-wrap">
+            <svg id="overviewBars" class="balance-mountain-chart" viewBox="0 0 600 190" preserveAspectRatio="none" role="img" aria-label="Overall balance mountain chart"></svg>
           </div>
-          <div class="insight-chart-legend">
-            <span><i class="legend-dot legend-income"></i>Income</span>
-            <span><i class="legend-dot legend-expense"></i>Expense</span>
-            <span><i class="legend-dot legend-savings"></i>Savings</span>
+          <div class="balance-mountain-footer">
+            <span>Monthly net balance</span>
+            <span id="balanceMountainRange">Last 12 months</span>
           </div>
         </div>
 
@@ -2302,25 +2362,55 @@
     function renderOverviewBars(monthGroups) {
       const el = document.getElementById('overviewBars');
       if (!el) return;
+
       if (!monthGroups.length) {
-        el.innerHTML = '<div style="width:100%; text-align:center; color:var(--text-muted); font-size:10px; font-weight:800; align-self:center;">No data for selected period</div>';
+        el.innerHTML = `<text x="300" y="95" text-anchor="middle" class="balance-mountain-label">No data for selected period</text>`;
         return;
       }
+
       const visible = monthGroups.slice(-12);
-      const maxTotal = Math.max(1, ...visible.map(g => Math.max(g.income, g.expense, g.savings, g.income + g.expense + g.savings)));
-      el.innerHTML = visible.map(g => {
-        const e = g.expense ? Math.max(4, (g.expense / maxTotal) * 100) : 0;
-        const i = g.income ? Math.max(4, (g.income / maxTotal) * 100) : 0;
-        const sv = g.savings ? Math.max(3, (g.savings / maxTotal) * 100) : 0;
-        return `<div class="insight-bar-col" title="${g.label}: Income ${formatINR(g.income)} · Expense ${formatINR(g.expense)} · Savings ${formatINR(g.savings)}">
-          <div class="insight-bar-stack">
-            ${sv ? `<div class="insight-bar savings" style="height:${sv}%"></div>` : ''}
-            ${i ? `<div class="insight-bar income" style="height:${i}%"></div>` : ''}
-            ${e ? `<div class="insight-bar expense" style="height:${e}%"></div>` : ''}
-          </div>
-          <div class="insight-bar-label">${g.label}</div>
-        </div>`;
+      const values = visible.map(g => Number(g.income || 0) - Number(g.expense || 0) - Number(g.savings || 0));
+      const W = 600, H = 190, L = 8, R = 8, T = 12, B = 30;
+      const chartH = H - T - B;
+      const minV = Math.min(0, ...values);
+      const maxV = Math.max(0, ...values);
+      const range = Math.max(1, maxV - minV);
+      const x = i => visible.length === 1 ? W / 2 : L + i * ((W - L - R) / (visible.length - 1));
+      const y = v => T + ((maxV - v) / range) * chartH;
+
+      const points = values.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`);
+      const line = points.join(' ');
+      const baseY = y(0);
+      const area = `${x(0)},${baseY.toFixed(1)} ${line} ${x(values.length-1)},${baseY.toFixed(1)}`;
+
+      const grid = [0.25, 0.5, 0.75].map(p => {
+        const yy = T + chartH * p;
+        return `<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" class="balance-mountain-grid"/>`;
       }).join('');
+
+      const zero = `<line x1="${L}" y1="${baseY}" x2="${W-R}" y2="${baseY}" class="balance-mountain-zero"/>`;
+
+      const labels = visible.map((g, i) => {
+        const step = visible.length > 6 ? Math.ceil(visible.length / 6) : 1;
+        if (i !== 0 && i !== visible.length - 1 && i % step !== 0) return '';
+        return `<text x="${x(i)}" y="${H-9}" text-anchor="middle" class="balance-mountain-label">${g.label}</text>`;
+      }).join('');
+
+      const dots = values.map((v, i) =>
+        `<circle cx="${x(i)}" cy="${y(v)}" r="3.5" class="balance-mountain-dot"><title>${visible[i].label}: ${formatINR(v)}</title></circle>`
+      ).join('');
+
+      el.innerHTML = `${grid}${zero}
+        <polygon points="${area}" class="balance-mountain-fill"></polygon>
+        <polyline points="${line}" class="balance-mountain-line"></polyline>
+        ${dots}${labels}`;
+
+      const rangeEl = document.getElementById('balanceMountainRange');
+      if (rangeEl) {
+        rangeEl.textContent = visible.length === 1
+          ? visible[0].label
+          : `${visible[0].label} – ${visible[visible.length - 1].label}`;
+      }
     }
 
     function renderInsightFeatures(txs, totalInc, totalExp, totalSav, expenseCategories) {
