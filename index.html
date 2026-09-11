@@ -372,7 +372,7 @@
     <div id="ledgerDynamicContainer"></div>
   </div>
 
-  <!-- TAB 4: INSIGHTS / ANALYTICS TAB (Interactive Area Charts based on reference code) -->
+  <!-- TAB 4: INSIGHTS / ANALYTICS TAB (Interactive Area Chart matching reference structure) -->
   <div id="Insights" class="tab-content">
     <div class="two-col" style="align-items: center; gap: 8px; margin-bottom: 12px;">
       <div class="input-group" style="flex: 2; margin-bottom: 0;">
@@ -389,26 +389,19 @@
       </div>
     </div>
 
-    <!-- Time Range Selector matching reference interactive chart component -->
-    <div class="two-col" style="align-items: center;">
-      <div class="input-group" style="margin-bottom: 0;">
-        <label>Time Range</label>
-        <select id="insightsTimeRange" onchange="generateInsights()" style="font-weight: 700;">
+    <!-- Interactive Area Chart Card (Ref-inspired with dual stacked series & time range dropdown) -->
+    <div style="background: var(--card-bg); border-radius: var(--radius-lg); padding: 20px; border: 1px solid var(--border-color); margin-top: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; gap: 10px;">
+        <div>
+          <div style="font-size: 16px; font-weight: 800; color: var(--text-main);">Area Chart - Interactive</div>
+          <div style="font-size: 12px; color: var(--text-muted); font-weight: 500;" id="interactiveChartSubtitle">Showing cashflow over time</div>
+        </div>
+        <select id="insightsTimeRange" onchange="generateInsights()" style="padding: 6px 12px; font-size: 12px; font-weight: 600; width: auto; background: var(--input-bg);">
           <option value="90d">Last 3 months</option>
           <option value="30d">Last 30 days</option>
           <option value="7d">Last 7 days</option>
           <option value="all">All Time</option>
         </select>
-      </div>
-    </div>
-
-    <!-- Interactive Area Chart Card (Ref-inspired design) -->
-    <div style="background: var(--card-bg); border-radius: var(--radius-lg); padding: 20px; border: 1px solid var(--border-color); margin-top: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-        <div>
-          <div style="font-size: 16px; font-weight: 800; color: var(--text-main);">Area Chart - Interactive</div>
-          <div style="font-size: 12px; color: var(--text-muted); font-weight: 500;" id="interactiveChartSubtitle">Showing cashflow over time</div>
-        </div>
       </div>
       <div style="position: relative; height: 260px; width: 100%;">
         <canvas id="interactiveAreaChart"></canvas>
@@ -1117,12 +1110,12 @@
         if((timeRange === "all" || tx.date >= startDate) && (selectedUser === 'Us' || tx.user === selectedUser)) {
           let dateKey = tx.date.toISOString().split('T')[0];
           if(!dailyMap[dateKey]) {
-            dailyMap[dateKey] = { desktop: 0, mobile: 0 }; // mapping to desktop/mobile for area chart ref compatibility
+            dailyMap[dateKey] = { desktop: 0, mobile: 0 };
           }
           if(tx.type === 'Income' || tx.type === 'Savings') {
-            dailyMap[dateKey].desktop += tx.amount; // mapping income/savings to desktop series
+            dailyMap[dateKey].desktop += tx.amount; // mapped as chart series 1 (desktop style)
           } else if(tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') {
-            dailyMap[dateKey].mobile += tx.amount; // mapping expenses to mobile series
+            dailyMap[dateKey].mobile += tx.amount; // mapped as chart series 2 (mobile style)
           }
         }
       }
@@ -1146,11 +1139,11 @@
       if(interactiveAreaChartInstance) interactiveAreaChartInstance.destroy();
 
       let gradDesktop = ctx.createLinearGradient(0, 0, 0, 220);
-      gradDesktop.addColorStop(0, 'rgba(0, 122, 255, 0.5)');
+      gradDesktop.addColorStop(0, 'rgba(0, 122, 255, 0.4)');
       gradDesktop.addColorStop(1, 'rgba(0, 122, 255, 0.0)');
 
       let gradMobile = ctx.createLinearGradient(0, 0, 0, 220);
-      gradMobile.addColorStop(0, 'rgba(52, 199, 89, 0.5)');
+      gradMobile.addColorStop(0, 'rgba(52, 199, 89, 0.4)');
       gradMobile.addColorStop(1, 'rgba(52, 199, 89, 0.0)');
 
       if(labels.length === 0) {
@@ -1165,24 +1158,26 @@
           labels: labels,
           datasets: [
             {
-              label: 'Inflows / Savings',
+              label: 'Desktop',
               data: desktopValues,
               borderColor: '#007aff',
               backgroundColor: gradDesktop,
               fill: true,
               tension: 0.4,
               borderWidth: 2,
-              pointRadius: 2
+              pointRadius: 2,
+              stack: 'a'
             },
             {
-              label: 'Expenses',
+              label: 'Mobile',
               data: mobileValues,
               borderColor: '#34c759',
               backgroundColor: gradMobile,
               fill: true,
               tension: 0.4,
               borderWidth: 2,
-              pointRadius: 2
+              pointRadius: 2,
+              stack: 'a'
             }
           ]
         },
@@ -1195,7 +1190,7 @@
           },
           scales: {
             x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#8e8e93' } },
-            y: { grid: { color: 'rgba(200,200,200,0.1)' }, ticks: { font: { size: 10 }, color: '#8e8e93' } }
+            y: { stacked: true, grid: { color: 'rgba(200,200,200,0.1)' }, ticks: { font: { size: 10 }, color: '#8e8e93' } }
           }
         }
       });
@@ -1318,7 +1313,7 @@
           container.innerHTML += `
             <div class="transaction-item" onclick='openRecordDetail(${JSON.stringify({date: row[0], type: row[1], cat: row[2], amount: row[3], desc: row[4], user: row[5], receipt: row[7], paymentMethod: row[10]}).replace(/'/g, "&#39;")})'>
               <div class="tx-left">
-                <span class="tx-desc">${desc} ${subTag} ${methodHTML}</span>
+                <span class="tx-desc">${subText}</span>
                 <span class="tx-meta">${dateStr} • ${user}</span>
                 ${receiptHTML}
               </div>
