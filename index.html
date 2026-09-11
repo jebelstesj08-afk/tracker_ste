@@ -213,16 +213,12 @@
       </select>
     </div>
 
-    <!-- Details and Payment Method in a Single Line -->
-    <div class="two-col">
-      <div class="input-group">
-        <label>Details</label>
-        <input type="text" id="txDesc" placeholder="Add a note (optional)">
-      </div>
-      <div class="input-group">
-        <label>Payment Method</label>
-        <select id="txPaymentMethod">
-          <option value="" disabled selected>Select Method...</option>
+    <!-- Details with Payment Method Icon Parallel to Details Header -->
+    <div class="input-group">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <label style="margin-bottom: 0;">Details</label>
+        <select id="txPaymentMethod" style="width: auto; padding: 2px 8px; font-size: 12px; font-weight: 600; border-radius: 8px; background: var(--card-bg); color: var(--accent-blue);">
+          <option value="" disabled selected>💳 Payment Method</option>
           <option value="Google pay upi">Google pay upi</option>
           <option value="Axis my zone cc">Axis my zone cc</option>
           <option value="Axis flipkart cc">Axis flipkart cc</option>
@@ -231,6 +227,7 @@
           <option value="Icici amazon pay cc">Icici amazon pay cc</option>
         </select>
       </div>
+      <input type="text" id="txDesc" placeholder="Add a note (optional)">
     </div>
     
     <button class="save-btn btn-expense" id="txSaveBtn" onclick="saveUnifiedData()">Add Expense</button>
@@ -307,16 +304,12 @@
       <div id="mileagePreviewText" style="color: var(--text-muted); font-weight: 500; font-size: 13px; border-top: 1px solid var(--border-color); padding-top: 6px; margin-top: 6px;"></div>
     </div>
 
-    <!-- Details and Payment Method in a Single Line -->
-    <div class="two-col">
-      <div class="input-group">
-        <label>Details / Station</label>
-        <input type="text" id="fuelDesc" placeholder="e.g. NTP Petroleum or Oil Change">
-      </div>
-      <div class="input-group">
-        <label>Payment Method</label>
-        <select id="fuelPaymentMethod">
-          <option value="" disabled selected>Select Method...</option>
+    <!-- Details with Payment Method Icon Parallel to Details Header -->
+    <div class="input-group">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <label style="margin-bottom: 0;">Details / Station</label>
+        <select id="fuelPaymentMethod" style="width: auto; padding: 2px 8px; font-size: 12px; font-weight: 600; border-radius: 8px; background: var(--card-bg); color: var(--accent-blue);">
+          <option value="" disabled selected>💳 Payment Method</option>
           <option value="Google pay upi">Google pay upi</option>
           <option value="Axis my zone cc">Axis my zone cc</option>
           <option value="Axis flipkart cc">Axis flipkart cc</option>
@@ -325,6 +318,7 @@
           <option value="Icici amazon pay cc">Icici amazon pay cc</option>
         </select>
       </div>
+      <input type="text" id="fuelDesc" placeholder="e.g. NTP Petroleum or Oil Change">
     </div>
 
     <button class="save-btn btn-fuel" id="vehicleLogBtn" onclick="saveFuelData()">Log Fuel Fill</button>
@@ -362,16 +356,12 @@
       </select>
     </div>
 
-    <!-- Details and Payment Method in a Single Line -->
-    <div class="two-col">
-      <div class="input-group">
-        <label>Details</label>
-        <input type="text" id="savDesc" placeholder="e.g. Monthly installment note">
-      </div>
-      <div class="input-group">
-        <label>Payment Method</label>
-        <select id="savPaymentMethod">
-          <option value="" disabled selected>Select Method...</option>
+    <!-- Details with Payment Method Icon Parallel to Details Header -->
+    <div class="input-group">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <label style="margin-bottom: 0;">Details</label>
+        <select id="savPaymentMethod" style="width: auto; padding: 2px 8px; font-size: 12px; font-weight: 600; border-radius: 8px; background: var(--card-bg); color: var(--accent-blue);">
+          <option value="" disabled selected>💳 Payment Method</option>
           <option value="Google pay upi">Google pay upi</option>
           <option value="Axis my zone cc">Axis my zone cc</option>
           <option value="Axis flipkart cc">Axis flipkart cc</option>
@@ -380,6 +370,7 @@
           <option value="Icici amazon pay cc">Icici amazon pay cc</option>
         </select>
       </div>
+      <input type="text" id="savDesc" placeholder="e.g. Monthly installment note">
     </div>
 
     <button class="save-btn btn-sav" onclick="saveSavingsData()">Record Investment</button>
