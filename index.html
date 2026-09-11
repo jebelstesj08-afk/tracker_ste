@@ -179,11 +179,12 @@
     </div>
   </div>
 
-  <!-- UNIFIED TRANSACTIONS TAB -->
+  <!-- TAB 1: TRANSACTIONS & SAVINGS -->
   <div id="Transactions" class="tab-content active-tab">
     <div style="display: flex; background: var(--input-bg); padding: 4px; border-radius: var(--radius-md); margin-bottom: 16px;">
       <button type="button" id="typeExpBtn" onclick="setTxType('Expense')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: all 0.2s;">Expense</button>
       <button type="button" id="typeIncBtn" onclick="setTxType('Income')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;">Income</button>
+      <button type="button" id="typeSavBtn" onclick="setTxType('Savings')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;">Savings</button>
     </div>
 
     <div class="input-group">
@@ -206,7 +207,7 @@
       </div>
     </div>
     
-    <!-- Category with Attach Receipt Icon Parallel to Header Name -->
+    <!-- Category / Source / Savings Type -->
     <div class="input-group">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
         <label id="txCatLabel" style="margin-bottom: 0;">Category</label>
@@ -241,7 +242,7 @@
     <button class="save-btn btn-expense" id="txSaveBtn" onclick="saveUnifiedData()">Add Expense</button>
   </div>
 
-  <!-- VEHICLE / FUEL TAB -->
+  <!-- TAB 2: VEHICLE / FUEL TAB -->
   <div id="Fuel" class="tab-content">
     <div class="two-col">
       <div class="input-group">
@@ -333,61 +334,8 @@
     <button class="save-btn btn-fuel" id="vehicleLogBtn" onclick="saveFuelData()">Log Fuel Fill</button>
   </div>
 
-  <!-- SAVINGS INVESTMENTS TAB -->
-  <div id="Savings" class="tab-content">
-    <div class="input-group">
-      <label>Amount</label>
-      <div class="amount-wrapper">
-        <input type="number" id="savAmount" placeholder="0" step="0.01">
-      </div>
-    </div>
-    <div class="two-col">
-      <div class="input-group">
-        <label>User</label>
-        <select id="savUser"><option value="Jebel">Jebel</option><option value="Reshma">Reshma</option></select>
-      </div>
-      <div class="input-group">
-        <label>Date</label>
-        <input type="date" id="savDate">
-      </div>
-    </div>
-    <div class="input-group">
-      <label>Savings Type</label>
-      <select id="savCat">
-        <option value="" disabled selected>Select Savings Type...</option>
-        <option value="Savings this month">Savings this month</option>
-        <option value="Chit">Chit</option>
-        <option value="Gold Chit">Gold Chit</option>
-        <option value="Mutual Funds">Mutual Funds</option>
-        <option value="Fixed Deposit">Fixed Deposit</option>
-        <option value="Stocks">Stocks</option>
-        <option value="Other Investment">Other Investment</option>
-      </select>
-    </div>
-
-    <!-- Details with Payment Method seamless selector parallel to Details Header -->
-    <div class="input-group">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <label style="margin-bottom: 0;">Details</label>
-        <select id="savPaymentMethod" style="width: auto; border: none; outline: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--accent-blue); cursor: pointer; padding: 0;">
-          <option value="" disabled selected>💳 Payment Method</option>
-          <option value="Cash">Cash</option>
-          <option value="Google pay upi">Google pay upi</option>
-          <option value="Axis my zone cc">Axis my zone cc</option>
-          <option value="Axis flipkart cc">Axis flipkart cc</option>
-          <option value="Axis indianoil cc">Axis indianoil cc</option>
-          <option value="Hdfc moneyback cc">Hdfc moneyback cc</option>
-          <option value="Icici amazon pay cc">Icici amazon pay cc</option>
-        </select>
-      </div>
-      <input type="text" id="savDesc" placeholder="e.g. Monthly installment note">
-    </div>
-
-    <button class="save-btn btn-sav" id="savSaveBtn" onclick="saveSavingsData()">Record Investment</button>
-  </div>
-
-  <!-- INSIGHTS & LEDGER TAB -->
-  <div id="Insights" class="tab-content">
+  <!-- TAB 3: LEDGER / VIEW MODE TAB (Moved from Tab 4) -->
+  <div id="Ledger" class="tab-content">
     <div class="two-col" style="align-items: center; gap: 8px; margin-bottom: 12px;">
       <div class="input-group" style="flex: 2; margin-bottom: 0;">
         <select id="filterUser" onchange="generateInsights()" style="font-weight:700; background:var(--card-bg);">
@@ -424,19 +372,27 @@
     <div id="insightsDynamicContainer"></div>
   </div>
 
-  <!-- NAVIGATION BAR -->
+  <!-- TAB 4: INSIGHTS / CHARTS TAB -->
+  <div id="Insights" class="tab-content">
+    <div class="balance-label" style="margin-bottom: 16px;">Analytics Overview</div>
+    <div style="background: var(--card-bg); border-radius: var(--radius-lg); padding: 20px; border: 1px solid var(--border-color); margin-bottom: 20px;">
+      <canvas id="expenseChart" style="max-height: 250px;"></canvas>
+    </div>
+  </div>
+
+  <!-- NAVIGATION BAR (4 Tabs) -->
   <div class="nav-wrapper">
     <div class="nav-pill">
-      <button id="nav-Transactions" class="active-nav" onclick="showTab('Transactions')">
+      <button id="nav-Transactions" class="active-nav" onclick="showTab('Transactions')" title="Add Entry">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
       </button>
-      <button id="nav-Fuel" onclick="showTab('Fuel')">
+      <button id="nav-Fuel" onclick="showTab('Fuel')" title="Vehicle / Fuel">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v16"></path><polyline points="11 13 3 13"></polyline><path d="M15 6h2a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"></path><path d="M19 10v9a2 2 0 0 1-2 2h-2"></path></svg>
       </button>
-      <button id="nav-Savings" onclick="showTab('Savings')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+      <button id="nav-Ledger" onclick="showTab('Ledger')" title="Ledger & Records">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path><path d="M6 6h10"></path><path d="M6 10h10"></path></svg>
       </button>
-      <button id="nav-Insights" onclick="showTab('Insights')">
+      <button id="nav-Insights" onclick="showTab('Insights')" title="Analytics">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
       </button>
     </div>
@@ -488,6 +444,7 @@
     let allTransactions = JSON.parse(localStorage.getItem('trackerData')) || [];
     let receiptBase64 = "";
     let currentTxType = 'Expense';
+    let myChart = null;
 
     const bikesList = ['Hornet 2.0', 'Yamaha FZ', 'Dio'];
 
@@ -520,6 +477,17 @@
       <option value="Gifts / Refunds">Gifts / Refunds</option>
       <option value="Other Income">Other Income</option>
     `;
+
+    const savingsCategories = `
+      <option value="" disabled selected>Select Savings Type...</option>
+      <option value="Savings this month">Savings this month</option>
+      <option value="Chit">Chit</option>
+      <option value="Gold Chit">Gold Chit</option>
+      <option value="Mutual Funds">Mutual Funds</option>
+      <option value="Fixed Deposit">Fixed Deposit</option>
+      <option value="Stocks">Stocks</option>
+      <option value="Other Investment">Other Investment</option>
+    `;
     
     const appColors = ['#007aff', '#34c759', '#5856d6', '#ff9f0a', '#ff3b30', '#32ade6', '#ff2d55', '#af52de'];
     const emojis = {
@@ -538,7 +506,6 @@
       let todayStr = today.toISOString().split('T')[0];
       document.getElementById('txDate').value = todayStr;
       document.getElementById('fuelDate').value = todayStr;
-      document.getElementById('savDate').value = todayStr;
 
       setTxType('Expense');
 
@@ -575,7 +542,6 @@
     function applyGlobalUser(user) {
       document.getElementById('txUser').value = user;
       document.getElementById('fuelUser').value = user;
-      document.getElementById('savUser').value = user;
     }
 
     function resetActiveTabFields() {
@@ -592,13 +558,6 @@
         document.getElementById('txPaymentMethod').selectedIndex = 0;
         receiptBase64 = "";
         document.getElementById('cameraIconSpan').innerText = "📎 Attach";
-      } else if(activeTabId === 'Savings') {
-        document.getElementById('savAmount').value = '';
-        document.getElementById('savDate').value = todayStr;
-        document.getElementById('savUser').value = currentUser;
-        document.getElementById('savCat').selectedIndex = 0;
-        document.getElementById('savDesc').value = '';
-        document.getElementById('savPaymentMethod').selectedIndex = 0;
       }
     }
 
@@ -619,36 +578,40 @@
       currentTxType = type;
       let expBtn = document.getElementById('typeExpBtn');
       let incBtn = document.getElementById('typeIncBtn');
+      let savBtn = document.getElementById('typeSavBtn');
       let catLabel = document.getElementById('txCatLabel');
       let catSelect = document.getElementById('txCat');
       let saveBtn = document.getElementById('txSaveBtn');
       let receiptContainer = document.getElementById('receiptRowContainer');
 
-      if(type === 'Expense') {
-        expBtn.style.background = 'var(--card-bg)';
-        expBtn.style.color = 'var(--text-main)';
-        expBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)';
-        incBtn.style.background = 'transparent';
-        incBtn.style.color = 'var(--text-muted)';
-        incBtn.style.boxShadow = 'none';
+      [expBtn, incBtn, savBtn].forEach(b => {
+        b.style.background = 'transparent';
+        b.style.color = 'var(--text-muted)';
+        b.style.boxShadow = 'none';
+      });
 
+      let activeBtn = type === 'Expense' ? expBtn : (type === 'Income' ? incBtn : savBtn);
+      activeBtn.style.background = 'var(--card-bg)';
+      activeBtn.style.color = 'var(--text-main)';
+      activeBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)';
+
+      if(type === 'Expense') {
         catLabel.innerText = 'Category';
         catSelect.innerHTML = expenseCategories;
         saveBtn.innerText = 'Add Expense';
         saveBtn.className = 'save-btn btn-expense';
         receiptContainer.style.display = 'inline-block';
-      } else {
-        incBtn.style.background = 'var(--card-bg)';
-        incBtn.style.color = 'var(--text-main)';
-        incBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)';
-        expBtn.style.background = 'transparent';
-        expBtn.style.color = 'var(--text-muted)';
-        expBtn.style.boxShadow = 'none';
-
+      } else if(type === 'Income') {
         catLabel.innerText = 'Source';
         catSelect.innerHTML = incomeCategories;
         saveBtn.innerText = 'Add Income';
         saveBtn.className = 'save-btn btn-income';
+        receiptContainer.style.display = 'none';
+      } else {
+        catLabel.innerText = 'Savings Type';
+        catSelect.innerHTML = savingsCategories;
+        saveBtn.innerText = 'Record Investment';
+        saveBtn.className = 'save-btn btn-sav';
         receiptContainer.style.display = 'none';
       }
     }
@@ -779,6 +742,13 @@
       let resetBtn = document.getElementById('sectionResetBtn');
 
       if(tabName === 'Insights') {
+        mainBalanceContainer.style.display = "block";
+        document.getElementById('topLabel').innerText = "Total spending";
+        document.getElementById('topBalance').classList.add('small');
+        document.getElementById('secondaryBalanceBlock').style.display = "none";
+        resetBtn.style.display = "none";
+        renderChart();
+      } else if(tabName === 'Ledger') {
         document.getElementById('topLabel').innerText = "Total spending";
         document.getElementById('topBalance').classList.add('small');
         document.getElementById('secondaryBalanceBlock').style.display = "block";
@@ -803,9 +773,8 @@
       let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
-      if(document.getElementById('Insights').classList.contains('active-tab')) {
-        generateInsights(); 
-      }
+      if(document.getElementById('Ledger').classList.contains('active-tab')) generateInsights();
+      if(document.getElementById('Insights').classList.contains('active-tab')) renderChart();
     }
 
     function applySavedTheme() {
@@ -849,7 +818,7 @@
     }
 
     function executeSave(payload, btnId) {
-      if(!payload.amount || !payload.category || !payload.date) return alert("Date, Amount, and Category/Source are required.");
+      if(!payload.amount || !payload.category || !payload.date) return alert("Date, Amount, and Category/Source/Savings Type are required.");
 
       const btn = document.getElementById(btnId);
       btn.classList.add('loading');
@@ -915,21 +884,6 @@
       executeSave(payload, 'vehicleLogBtn');
     }
 
-    function saveSavingsData() {
-      let payload = {
-        date: document.getElementById('savDate').value,
-        type: "Savings",
-        category: document.getElementById('savCat').value,
-        amount: document.getElementById('savAmount').value,
-        description: document.getElementById('savDesc').value,
-        user: document.getElementById('savUser').value,
-        project: "Investments",
-        image: "", odometer: "", litres: "",
-        paymentMethod: document.getElementById('savPaymentMethod').value
-      };
-      executeSave(payload, 'savSaveBtn');
-    }
-
     function forceSync() { syncWithGoogle(true); }
 
     async function syncWithGoogle(showLoading = false) {
@@ -940,7 +894,7 @@
         allTransactions = data; 
         localStorage.setItem('trackerData', JSON.stringify(data));
         
-        if(document.getElementById('Insights').classList.contains('active-tab')) generateInsights();
+        if(document.getElementById('Ledger').classList.contains('active-tab')) generateInsights();
         else calculateTopBalance();
       } catch (err) {
         if(showLoading) alert("Could not reach Google Sheets. Showing offline data.");
@@ -1096,6 +1050,45 @@
         }
         container.innerHTML = html;
       }
+    }
+
+    function renderChart() {
+      let ctx = document.getElementById('expenseChart').getContext('2d');
+      let catTotals = {};
+      for(let i=1; i<allTransactions.length; i++) {
+        let type = String(allTransactions[i][1]).trim();
+        if(type === 'Expense' || type === 'Fuel' || type === 'Service') {
+          let cat = String(allTransactions[i][2]).trim();
+          let amt = parseFloat(allTransactions[i][3]) || 0;
+          catTotals[cat] = (catTotals[cat] || 0) + amt;
+        }
+      }
+      let labels = Object.keys(catTotals);
+      let data = Object.values(catTotals);
+
+      if(myChart) myChart.destroy();
+      let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+      myChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: appColors,
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: isDark ? '#ffffff' : '#111111', font: { weight: '600', size: 12 } }
+            }
+          }
+        }
+      });
     }
 
     function openRecordDetail(tx) {
