@@ -98,7 +98,7 @@
     /* Dashboard UI Grid Styles */
     .dashboard-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: 1fr;
       gap: 14px;
       margin-bottom: 16px;
     }
@@ -373,7 +373,7 @@
     }
 
     @media(max-width: 760px) {
-      .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+      .dashboard-grid { grid-template-columns: 1fr; gap: 12px; }
       .dash-card { min-height: 165px; padding: 14px; }
       .dash-card.tall { min-height: 190px; }
       .dash-card-value { font-size: 23px; }
@@ -381,7 +381,7 @@
     }
 
     @media(max-width: 480px) {
-      .dashboard-grid { grid-template-columns: 1fr 1fr; }
+      .dashboard-grid { grid-template-columns: 1fr; }
       .dash-card { min-height: 158px; border-radius: 16px; }
       .dash-stat-value { font-size: 14px; }
       .highlight-number { font-size: 24px; }
@@ -389,21 +389,172 @@
       .insights-filters select { font-size: 12px; padding: 10px 8px; }
     }
 
-    .nav-wrapper { 
-      position: fixed; 
-      bottom: 0; 
-      left: 0; 
-      width: 100%; 
-      display: flex; 
-      justify-content: center; 
-      z-index: 1000; 
-      pointer-events: none; 
-      padding-bottom: calc(5px + env(safe-area-inset-bottom)); 
-    } 
-    .nav-pill { background: var(--nav-bg); padding: 10px 20px; border-radius: 40px; display: flex; justify-content: space-between; gap: 12px; box-shadow: 0 16px 32px rgba(0,0,0,0.25); pointer-events: auto; width: 90%; max-width: 360px; }
-    .nav-pill button { background: transparent; border: none; color: #8e8e93; padding: 12px; border-radius: 50%; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; }
-    .nav-pill button svg { width: 24px; height: 24px; stroke-width: 2.2px; }
-    .nav-pill button.active-nav { background: #3a3a3c; color: #ffffff; }
+
+    /* =========================
+       TAB 3 / LEDGER MAKEOVER
+       ========================= */
+    #Ledger { padding-bottom: 150px; }
+    .ledger-shell { display:flex; flex-direction:column; gap:14px; }
+    .ledger-toolbar {
+      background: var(--card-bg); border:1px solid var(--border-color);
+      border-radius:22px; padding:14px; box-shadow:0 8px 24px rgba(0,0,0,.035);
+    }
+    .ledger-toolbar-top { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+    .ledger-heading { display:flex; flex-direction:column; gap:2px; }
+    .ledger-heading h2 { margin:0; font-size:21px; line-height:1.1; letter-spacing:-.6px; font-weight:850; }
+    .ledger-heading p { margin:0; color:var(--text-muted); font-size:11px; font-weight:600; }
+    .ledger-sync {
+      width:34px; height:34px; border-radius:12px; border:1px solid var(--border-color);
+      background:var(--input-bg); color:var(--text-main); display:flex; align-items:center; justify-content:center;
+      cursor:pointer; flex:0 0 auto;
+    }
+    .ledger-filter-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .ledger-filter-grid .input-group { margin-bottom:0; }
+    .ledger-filter-grid label { font-size:9px; margin-bottom:5px; }
+    .ledger-filter-grid select, .ledger-filter-grid input { padding:12px; border-radius:13px; font-size:13px; }
+    .ledger-date-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
+    .ledger-date-pill { position:relative; }
+    .ledger-date-pill label { display:block; font-size:9px; color:var(--text-muted); font-weight:700; text-transform:uppercase; margin:0 0 5px 2px; letter-spacing:.4px; }
+
+    .ledger-kpis { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .ledger-kpi {
+      background:var(--card-bg); border:1px solid var(--border-color); border-radius:18px; padding:14px;
+      box-shadow:0 7px 20px rgba(0,0,0,.025); min-height:94px; position:relative; overflow:hidden;
+    }
+    .ledger-kpi::after { content:""; position:absolute; width:50px; height:50px; right:-14px; bottom:-14px; border-radius:50%; background:var(--input-bg); }
+    .ledger-kpi-label { color:var(--text-muted); font-size:9px; text-transform:uppercase; letter-spacing:.5px; font-weight:800; }
+    .ledger-kpi-value { font-size:22px; font-weight:850; letter-spacing:-.7px; margin-top:8px; position:relative; z-index:1; }
+    .ledger-kpi.expense .ledger-kpi-value { color:var(--accent-red); }
+    .ledger-kpi.income .ledger-kpi-value { color:var(--accent-green); }
+    .ledger-kpi.savings .ledger-kpi-value { color:var(--accent-blue); }
+    .ledger-kpi.records .ledger-kpi-value { color:var(--text-main); }
+
+    .ledger-view-card { background:var(--card-bg); border:1px solid var(--border-color); border-radius:18px; padding:12px; box-shadow:0 7px 20px rgba(0,0,0,.025); }
+    .ledger-view-label { font-size:9px; text-transform:uppercase; letter-spacing:.5px; font-weight:800; color:var(--text-muted); margin:0 0 8px 2px; }
+    .ledger-view-tabs { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; background:var(--input-bg); border-radius:14px; padding:4px; }
+    .ledger-view-tab { border:0; background:transparent; color:var(--text-muted); padding:10px 6px; border-radius:10px; font-size:11px; font-weight:800; cursor:pointer; transition:.2s ease; }
+    .ledger-view-tab.active { background:var(--card-bg); color:var(--text-main); box-shadow:0 2px 8px rgba(0,0,0,.06); }
+
+    .ledger-section-head { display:flex; align-items:flex-end; justify-content:space-between; gap:10px; margin:2px 2px 8px; }
+    .ledger-section-title { font-size:14px; font-weight:850; letter-spacing:-.2px; }
+    .ledger-section-subtitle { font-size:10px; color:var(--text-muted); font-weight:600; margin-top:2px; }
+    .ledger-count-chip { padding:5px 8px; border-radius:999px; background:var(--input-bg); color:var(--text-muted); font-size:9px; font-weight:800; }
+
+    .ledger-records-card { background:var(--card-bg); border:1px solid var(--border-color); border-radius:20px; padding:4px 14px; box-shadow:0 8px 24px rgba(0,0,0,.03); }
+    .ledger-record {
+      display:flex; align-items:center; gap:11px; padding:13px 0; border-bottom:1px solid var(--border-color); cursor:pointer;
+    }
+    .ledger-record:last-child { border-bottom:none; }
+    .ledger-record-icon { width:38px; height:38px; border-radius:13px; background:var(--input-bg); display:flex; align-items:center; justify-content:center; font-size:18px; flex:0 0 auto; }
+    .ledger-record-main { min-width:0; flex:1; }
+    .ledger-record-title { font-size:13px; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .ledger-record-meta { font-size:10px; color:var(--text-muted); font-weight:600; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .ledger-record-amount { font-size:13px; font-weight:850; text-align:right; white-space:nowrap; }
+    .ledger-record-amount.expense { color:var(--accent-red); }
+    .ledger-record-amount.income { color:var(--accent-green); }
+    .ledger-record-amount.savings { color:var(--accent-blue); }
+
+    .ledger-category-list { display:flex; flex-direction:column; gap:9px; }
+    .ledger-category-card { background:var(--card-bg); border:1px solid var(--border-color); border-radius:18px; padding:13px; box-shadow:0 7px 20px rgba(0,0,0,.025); cursor:pointer; }
+    .ledger-category-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .ledger-category-left { display:flex; align-items:center; gap:10px; min-width:0; }
+    .ledger-category-icon { width:38px; height:38px; border-radius:13px; display:flex; align-items:center; justify-content:center; font-size:18px; flex:0 0 auto; }
+    .ledger-category-name { font-size:12px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .ledger-category-amt { font-size:13px; font-weight:850; white-space:nowrap; }
+    .ledger-category-track { height:7px; background:var(--input-bg); border-radius:999px; margin-top:10px; overflow:hidden; }
+    .ledger-category-fill { height:100%; border-radius:999px; }
+    .ledger-category-foot { display:flex; justify-content:space-between; margin-top:5px; font-size:9px; color:var(--text-muted); font-weight:700; }
+
+    .ledger-savings-hero { background:linear-gradient(135deg, var(--accent-green), #27ae60); color:white; border-radius:20px; padding:16px; box-shadow:0 10px 28px rgba(52,199,89,.18); }
+    .ledger-savings-hero-row { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+    .ledger-savings-hero-label { font-size:9px; text-transform:uppercase; font-weight:800; letter-spacing:.6px; opacity:.78; }
+    .ledger-savings-hero-value { font-size:28px; font-weight:900; letter-spacing:-1px; margin-top:3px; }
+    .ledger-savings-hero-note { font-size:10px; opacity:.82; font-weight:600; margin-top:4px; }
+
+    .ledger-empty { background:var(--card-bg); border:1px dashed var(--border-color); border-radius:20px; padding:35px 20px; text-align:center; }
+    .ledger-empty-icon { font-size:30px; margin-bottom:8px; }
+    .ledger-empty-title { font-size:13px; font-weight:800; }
+    .ledger-empty-sub { font-size:10px; color:var(--text-muted); margin-top:4px; font-weight:600; }
+
+    @media(min-width:700px) {
+      .ledger-kpis { grid-template-columns:repeat(4,1fr); }
+      .ledger-toolbar { padding:18px; }
+      .ledger-filter-grid { grid-template-columns:1.2fr 1.8fr; }
+    }
+
+    .nav-wrapper {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      z-index: 1000;
+      pointer-events: none;
+      padding: 0 12px calc(8px + env(safe-area-inset-bottom));
+    }
+    .nav-pill {
+      background: color-mix(in srgb, var(--nav-bg) 94%, transparent);
+      padding: 7px;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      box-shadow: 0 16px 34px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.06);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      pointer-events: auto;
+      width: min(94%, 380px);
+      max-width: 380px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .nav-pill button {
+      position: relative;
+      width: 58px;
+      height: 52px;
+      padding: 0;
+      border: 0;
+      border-radius: 18px;
+      background: transparent;
+      color: #8e8e93;
+      cursor: pointer;
+      transition: transform 0.18s ease, color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-pill button::after {
+      content: '';
+      position: absolute;
+      bottom: 6px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: transparent;
+      transition: all 0.18s ease;
+    }
+    .nav-pill button svg {
+      width: 23px;
+      height: 23px;
+      stroke-width: 2;
+      transition: transform 0.18s ease;
+    }
+    .nav-pill button:hover {
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+    .nav-pill button:active { transform: scale(0.94); }
+    .nav-pill button.active-nav {
+      background: #303034;
+      color: #ffffff;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .nav-pill button.active-nav::after {
+      background: currentColor;
+      box-shadow: 0 0 10px currentColor;
+    }
+    .nav-pill button.active-nav svg { transform: translateY(-1px) scale(1.03); }
 
     @media screen and (max-height: 650px) { .nav-wrapper { display: none !important; } }
     
@@ -627,40 +778,86 @@
 
   <!-- TAB 3: LEDGER / VIEW MODES TAB -->
   <div id="Ledger" class="tab-content">
-    <div class="two-col" style="align-items: center; gap: 8px; margin-bottom: 12px;">
-      <div class="input-group" style="flex: 2; margin-bottom: 0;">
-        <select id="ledgerFilterUser" onchange="generateLedger()" style="font-weight:700; background:var(--card-bg);">
-          <option value="Us">Us</option>
-          <option value="Jebel">Jebel</option>
-          <option value="Reshma">Reshma</option>
-        </select>
-      </div>
-      <div style="flex: 3; display: flex; justify-content: flex-end;">
-        <div id="ledgerTotalSavingsBadge" style="background: var(--card-bg); border: 1px solid var(--border-color); padding: 10px 14px; border-radius: var(--radius-md); font-weight: 800; font-size: 14px; color: var(--accent-green); white-space: nowrap;">
-          Total Savings: 0
+    <div class="ledger-shell">
+      <div class="ledger-toolbar">
+        <div class="ledger-toolbar-top">
+          <div class="ledger-heading">
+            <h2>Ledger</h2>
+            <p>Track spending, income and savings in one view</p>
+          </div>
+          <button class="ledger-sync" onclick="forceSync()" title="Sync data">↻</button>
+        </div>
+
+        <div class="ledger-filter-grid">
+          <div class="input-group">
+            <label>Who</label>
+            <select id="ledgerFilterUser" onchange="generateLedger()" style="font-weight:700; background:var(--input-bg);">
+              <option value="Us">Us</option>
+              <option value="Jebel">Jebel</option>
+              <option value="Reshma">Reshma</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>View period</label>
+            <select id="ledgerQuickRange" onchange="applyLedgerQuickRange()" style="font-weight:700; background:var(--input-bg);">
+              <option value="cycle">Current Cycle</option>
+              <option value="month">This Month</option>
+              <option value="30d">Last 30 Days</option>
+              <option value="90d">Last 90 Days</option>
+              <option value="all">All Time</option>
+              <option value="custom">Custom Range</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="ledger-date-row">
+          <div class="ledger-date-pill">
+            <label>From</label>
+            <input type="date" id="ledgerStartDate" onchange="ledgerCustomDateChanged(); generateLedger()">
+          </div>
+          <div class="ledger-date-pill">
+            <label>To</label>
+            <input type="date" id="ledgerEndDate" onchange="ledgerCustomDateChanged(); generateLedger()">
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="two-col">
-      <div class="input-group"><input type="date" id="ledgerStartDate" onchange="generateLedger()"></div>
-      <div class="input-group"><input type="date" id="ledgerEndDate" onchange="generateLedger()"></div>
-    </div>
+      <div class="ledger-kpis">
+        <div class="ledger-kpi expense">
+          <div class="ledger-kpi-label">Spending</div>
+          <div class="ledger-kpi-value" id="ledgerKpiExpense">0</div>
+        </div>
+        <div class="ledger-kpi income">
+          <div class="ledger-kpi-label">Income</div>
+          <div class="ledger-kpi-value" id="ledgerKpiIncome">0</div>
+        </div>
+        <div class="ledger-kpi savings">
+          <div class="ledger-kpi-label">Savings</div>
+          <div class="ledger-kpi-value" id="ledgerKpiSavings">0</div>
+        </div>
+        <div class="ledger-kpi records">
+          <div class="ledger-kpi-label">Records</div>
+          <div class="ledger-kpi-value" id="ledgerKpiRecords">0</div>
+        </div>
+      </div>
 
-    <!-- Section View Selector -->
-    <div class="input-group">
-      <label>View Mode</label>
-      <select id="ledgerViewMode" onchange="generateLedger()" style="font-weight: 700;">
-        <option value="records">📋 Period Records</option>
-        <option value="categories">🏷️ Top Categories Breakdown</option>
-        <option value="savings">💰 Savings Summary</option>
-      </select>
-    </div>
-    
-    <div id="ledgerLoadingIndicator" style="text-align: center; color: var(--text-muted); display: none; margin: 10px 0; font-size: 14px; font-weight: 500;">Syncing data...</div>
+      <div class="ledger-view-card">
+        <div class="ledger-view-label">View</div>
+        <div class="ledger-view-tabs">
+          <button class="ledger-view-tab active" id="ledgerViewRecordsBtn" onclick="setLedgerViewMode('records')">Records</button>
+          <button class="ledger-view-tab" id="ledgerViewCategoriesBtn" onclick="setLedgerViewMode('categories')">Categories</button>
+          <button class="ledger-view-tab" id="ledgerViewSavingsBtn" onclick="setLedgerViewMode('savings')">Savings</button>
+        </div>
+        <select id="ledgerViewMode" onchange="syncLedgerViewTab(); generateLedger()" style="display:none;">
+          <option value="records">Period Records</option>
+          <option value="categories">Top Categories Breakdown</option>
+          <option value="savings">Savings Summary</option>
+        </select>
+      </div>
 
-    <!-- Dynamic Ledger Section Container -->
-    <div id="ledgerDynamicContainer"></div>
+      <div id="ledgerLoadingIndicator" style="text-align:center; color:var(--text-muted); display:none; padding:4px 0; font-size:11px; font-weight:700;">Syncing data...</div>
+      <div id="ledgerDynamicContainer"></div>
+    </div>
   </div>
 
   <!-- TAB 4: INSIGHTS / ANALYTICS TAB -->
@@ -813,32 +1010,38 @@
 
     </div>
 
-    <!-- Detailed chart retained for actual financial analysis -->
-    <div class="insights-detailed-card">
-      <div class="insights-detailed-title">Cashflow Area Chart</div>
-      <div class="insights-detailed-subtitle" id="interactiveChartSubtitle">
-        Showing income, expenses and savings over time
-      </div>
-      <div class="insights-canvas-wrap">
-        <canvas id="interactiveAreaChart"></canvas>
-      </div>
-    </div>
-  </div>
+</div>
 
   <!-- NAVIGATION BAR -->
   <div class="nav-wrapper">
     <div class="nav-pill">
-      <button id="nav-Transactions" class="active-nav" onclick="showTab('Transactions')" title="Add Entry">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>
+      <button id="nav-Transactions" class="active-nav" onclick="showTab('Transactions')" title="Add Entry" aria-label="Add Entry">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 5v14"></path><path d="M5 12h14"></path>
+          <circle cx="12" cy="12" r="8.5"></circle>
+        </svg>
       </button>
-      <button id="nav-Fuel" onclick="showTab('Fuel')" title="Vehicle / Fuel">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9L18 10.5V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10c0 1.1.9 2 2 2h15Z"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>
+      <button id="nav-Fuel" onclick="showTab('Fuel')" title="Vehicle / Fuel" aria-label="Vehicle and Fuel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 19V5.5A1.5 1.5 0 0 1 7.5 4h5A1.5 1.5 0 0 1 14 5.5V19"></path>
+          <path d="M5 19h10"></path><path d="M8 7h4"></path>
+          <path d="M14 8h2l2.5 2.5V15a2 2 0 0 0 2 2h.5"></path>
+          <path d="M19 11h1.5"></path><circle cx="18.5" cy="19" r="1.5"></circle>
+        </svg>
       </button>
-      <button id="nav-Ledger" onclick="showTab('Ledger')" title="Ledger & Records">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"></path><rect width="8" height="4" x="8" y="3" rx="1" ry="1"></rect><path d="M9 12h6"></path><path d="M9 16h6"></path></svg>
+      <button id="nav-Ledger" onclick="showTab('Ledger')" title="Ledger & Records" aria-label="Ledger and Records">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="4" width="16" height="16" rx="3"></rect>
+          <path d="M8 9h8M8 13h5M8 17h4"></path>
+          <path d="M16 13h0"></path>
+        </svg>
       </button>
-      <button id="nav-Insights" onclick="showTab('Insights')" title="Analytics">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg>
+      <button id="nav-Insights" onclick="showTab('Insights')" title="Analytics" aria-label="Analytics">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19V5"></path><path d="M4 19h16"></path>
+          <path d="m7 15 3-4 3 2 5-6"></path>
+          <path d="M15 7h3v3"></path>
+        </svg>
       </button>
     </div>
   </div>
@@ -889,7 +1092,6 @@
     let allTransactions = JSON.parse(localStorage.getItem('trackerData')) || [];
     let receiptBase64 = "";
     let currentTxType = 'Expense';
-    let interactiveAreaChartInstance = null;
 
     const bikesList = ['Hornet 2.0', 'Yamaha FZ', 'Dio'];
 
@@ -1353,12 +1555,81 @@
       }
     }
 
+    function setLedgerViewMode(mode) {
+      document.getElementById('ledgerViewMode').value = mode;
+      syncLedgerViewTab();
+      generateLedger();
+    }
+
+    function syncLedgerViewTab() {
+      const mode = document.getElementById('ledgerViewMode').value;
+      document.querySelectorAll('.ledger-view-tab').forEach(btn => btn.classList.remove('active'));
+      if(mode === 'records') document.getElementById('ledgerViewRecordsBtn').classList.add('active');
+      if(mode === 'categories') document.getElementById('ledgerViewCategoriesBtn').classList.add('active');
+      if(mode === 'savings') document.getElementById('ledgerViewSavingsBtn').classList.add('active');
+    }
+
+    function applyLedgerQuickRange() {
+      const range = document.getElementById('ledgerQuickRange').value;
+      const today = new Date();
+      let start = new Date(today);
+      let end = new Date(today);
+      today.setHours(0,0,0,0); end = new Date(today); end.setHours(23,59,59,999);
+
+      if(range === 'cycle') {
+        const y = today.getFullYear(), m = today.getMonth();
+        function lastWorkingDay(yy, mm) {
+          let d = new Date(yy, mm + 1, 0);
+          while(d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate()-1);
+          return d;
+        }
+        const prev = lastWorkingDay(y, m - 1);
+        const cur = lastWorkingDay(y, m);
+        start = new Date(prev); start.setHours(0,0,0,0);
+        end = new Date(cur); end.setDate(end.getDate()-1); end.setHours(23,59,59,999);
+      } else if(range === 'month') {
+        start = new Date(today.getFullYear(), today.getMonth(), 1); start.setHours(0,0,0,0);
+      } else if(range === '30d' || range === '90d') {
+        start = new Date(today); start.setDate(start.getDate() - (range === '30d' ? 29 : 89)); start.setHours(0,0,0,0);
+      } else if(range === 'all') {
+        const allDates = [...allTransactions.slice(1)].map(r => parseSafeDate(String(r[0]))).filter(d => !isNaN(d.getTime()));
+        if(allDates.length) start = new Date(Math.min(...allDates.map(d => d.getTime()))); else start = new Date(today);
+        start.setHours(0,0,0,0);
+      } else {
+        return;
+      }
+
+      document.getElementById('ledgerStartDate').value = start.toISOString().split('T')[0];
+      document.getElementById('ledgerEndDate').value = end.toISOString().split('T')[0];
+      generateLedger();
+    }
+
+    function ledgerCustomDateChanged() {
+      const quick = document.getElementById('ledgerQuickRange');
+      if(quick) quick.value = 'custom';
+    }
+
+    function ledgerIconFor(tx) {
+      if(tx.type === 'Income') return '💵';
+      if(tx.type === 'Savings') return '📈';
+      if(tx.type === 'Fuel') return '⛽';
+      if(tx.type === 'Service') return '🔧';
+      return emojis[tx.cat] || '🧾';
+    }
+
+    function ledgerAmountClass(type) {
+      if(type === 'Income') return 'income';
+      if(type === 'Savings') return 'savings';
+      return 'expense';
+    }
+
     function generateLedger() {
       let startStr = document.getElementById('ledgerStartDate').value;
       let endStr = document.getElementById('ledgerEndDate').value;
       let selectedUser = document.getElementById('ledgerFilterUser').value;
       let viewMode = document.getElementById('ledgerViewMode').value;
-      
+      syncLedgerViewTab();
+
       let startDate = new Date(startStr + 'T00:00:00');
       let endDate = new Date(endStr + 'T23:59:59');
 
@@ -1372,34 +1643,28 @@
         date: parseSafeDate(String(row[0])), type: String(row[1]).trim(),
         cat: String(row[2]).trim(), amount: parseFloat(row[3]) || 0,
         desc: String(row[4] || ''), user: String(row[5] || 'Jebel').trim(),
-        project: String(row[6] || 'General').trim(),
-        receipt: String(row[7] || ''),
+        project: String(row[6] || 'General').trim(), receipt: String(row[7] || ''),
         odo: parseFloat(row[8]) || 0, litres: parseFloat(row[9]) || 0,
         paymentMethod: String(row[10] || '')
-      })).sort((a, b) => b.date - a.date);
+      })).filter(tx => !isNaN(tx.date.getTime())).sort((a, b) => b.date - a.date);
 
       for(let tx of sortedTxs) {
-        if (tx.type === 'Savings') {
-          if(selectedUser === 'Us' || tx.user === selectedUser) {
-            savingsPortfolio[tx.cat] = (savingsPortfolio[tx.cat] || 0) + tx.amount;
-            totalCumulativeSavings += tx.amount;
-          }
+        if(tx.type === 'Savings' && (selectedUser === 'Us' || tx.user === selectedUser)) {
+          savingsPortfolio[tx.cat] = (savingsPortfolio[tx.cat] || 0) + tx.amount;
+          totalCumulativeSavings += tx.amount;
         }
-
-        if(tx.date >= startDate && tx.date <= endDate) {
-          if(selectedUser === 'Us' || tx.user === selectedUser) {
-            if (tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') {
-              totalExp += tx.amount;
-              let displayCat = (tx.type === 'Fuel' || tx.type === 'Service') ? `Veh - ${tx.cat}` : tx.cat;
-              categoryTotals[displayCat] = (categoryTotals[displayCat] || 0) + tx.amount;
-              periodRecords.push(tx);
-            } else if (tx.type === 'Income') {
-              totalInc += tx.amount;
-              periodRecords.push(tx);
-            } else if (tx.type === 'Savings') {
-              totalSavingsPeriod += tx.amount;
-              periodRecords.push(tx);
-            }
+        if(tx.date >= startDate && tx.date <= endDate && (selectedUser === 'Us' || tx.user === selectedUser)) {
+          if(tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') {
+            totalExp += tx.amount;
+            const displayCat = (tx.type === 'Fuel' || tx.type === 'Service') ? `Veh - ${tx.cat}` : tx.cat;
+            categoryTotals[displayCat] = (categoryTotals[displayCat] || 0) + tx.amount;
+            periodRecords.push(tx);
+          } else if(tx.type === 'Income') {
+            totalInc += tx.amount;
+            periodRecords.push(tx);
+          } else if(tx.type === 'Savings') {
+            totalSavingsPeriod += tx.amount;
+            periodRecords.push(tx);
           }
         }
       }
@@ -1407,99 +1672,93 @@
       document.getElementById('topBalance').innerText = formatINR(totalExp);
       document.getElementById('secondaryBalance').innerText = formatINR(totalInc);
       document.getElementById('ledgerTotalSavingsBadge').innerText = `Total Savings: ${formatINR(totalCumulativeSavings)}`;
+      document.getElementById('ledgerKpiExpense').innerText = formatINR(totalExp);
+      document.getElementById('ledgerKpiIncome').innerText = formatINR(totalInc);
+      document.getElementById('ledgerKpiSavings').innerText = formatINR(totalSavingsPeriod);
+      document.getElementById('ledgerKpiRecords').innerText = periodRecords.length;
 
       const container = document.getElementById('ledgerDynamicContainer');
       container.innerHTML = '';
 
-      if (viewMode === 'records') {
-        let html = `<div class="balance-label" style="margin-bottom:12px;">Period Records (${periodRecords.length})</div>`;
-        if (periodRecords.length === 0) {
-          html += '<div style="color:var(--text-muted); font-size:14px; text-align:center; padding:20px;">No records found for this period.</div>';
+      const total = totalExp + totalInc + totalSavingsPeriod;
+      let html = '';
+
+      if(viewMode === 'records') {
+        html += `<div class="ledger-section-head"><div><div class="ledger-section-title">Recent records</div><div class="ledger-section-subtitle">Newest entries for the selected period</div></div><div class="ledger-count-chip">${periodRecords.length} records</div></div>`;
+        if(periodRecords.length === 0) {
+          html += `<div class="ledger-empty"><div class="ledger-empty-icon">📭</div><div class="ledger-empty-title">No records found</div><div class="ledger-empty-sub">Try a wider date range or another person.</div></div>`;
         } else {
-          html += `<div style="background: var(--card-bg); border-radius: var(--radius-lg); padding: 16px; border: 1px solid var(--border-color);">`;
-          periodRecords.forEach((row, idx) => {
-            let dateStr = row.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-            let amtStr = formatINR(row.amount);
-            let subText = `${row.type} • ${row.cat}`;
-            if(row.desc) subText += ` • ${row.desc}`;
-            if(row.paymentMethod) subText += ` [${row.paymentMethod}]`;
+          html += `<div class="ledger-records-card">`;
+          periodRecords.forEach(row => {
+            const dateStr = row.date.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+            const amtClass = ledgerAmountClass(row.type);
+            const sign = row.type === 'Income' ? '+' : '−';
+            const subtitle = `${row.type} • ${row.cat}${row.paymentMethod ? ' • ' + row.paymentMethod : ''}`;
             html += `
-              <div class="transaction-item" onclick='openRecordDetail(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
-                <div class="tx-left">
-                  <span class="tx-desc">${subText}</span>
-                  <span class="tx-meta">${dateStr} • ${row.user}</span>
+              <div class="ledger-record" onclick='openRecordDetail(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
+                <div class="ledger-record-icon">${ledgerIconFor(row)}</div>
+                <div class="ledger-record-main">
+                  <div class="ledger-record-title">${row.desc || row.cat}</div>
+                  <div class="ledger-record-meta">${subtitle} • ${dateStr} • ${row.user}</div>
                 </div>
-                <div class="tx-amt">${amtStr}</div>
-              </div>
-            `;
+                <div class="ledger-record-amount ${amtClass}">${sign}${formatINR(row.amount)}</div>
+              </div>`;
           });
           html += `</div>`;
         }
-        container.innerHTML = html;
-      } else if (viewMode === 'categories') {
-        let labels = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(i => i[0]);
-        let data = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(i => i[1]);
-        
-        let html = `<div class="balance-label" style="margin-bottom:12px;">Top Categories Breakdown</div>`;
-        if(labels.length === 0) {
-          html += '<div style="color:var(--text-muted); font-size:14px; text-align:center; padding:20px;">No records found.</div>';
+      } else if(viewMode === 'categories') {
+        const entries = Object.entries(categoryTotals).sort((a,b)=>b[1]-a[1]);
+        html += `<div class="ledger-section-head"><div><div class="ledger-section-title">Where the money went</div><div class="ledger-section-subtitle">Spending by category</div></div><div class="ledger-count-chip">${entries.length} categories</div></div>`;
+        if(!entries.length) {
+          html += `<div class="ledger-empty"><div class="ledger-empty-icon">🏷️</div><div class="ledger-empty-title">No spending categories</div><div class="ledger-empty-sub">There is no expense data in this period.</div></div>`;
         } else {
-          html += `<div class="category-grid" id="categoryGrid">`;
-          labels.forEach((catName, index) => {
-            let color = appColors[index % appColors.length];
-            let emoji = emojis[catName.replace('Veh - ', '')] || emojis[catName] || '🏷️';
-            let amount = formatINR(data[index]);
-            html += `
-              <div class="cat-card" data-category="${catName}" onclick="showCategoryDetails(this.dataset.category)">
-                <div>
-                  <div class="cat-icon" style="background: ${color}20;">${emoji}</div>
-                  <div class="cat-name">${catName}</div>
-                </div>
-                <div class="cat-amt">${amount}</div>
-              </div>
-            `;
-          });
-          html += `</div>`;
-        }
-        container.innerHTML = html;
-      } else if (viewMode === 'savings') {
-        let html = `
-          <div class="cat-card" style="margin-bottom: 16px; background: var(--accent-green); border:none;" onclick="showCategoryDetails('All Savings')">
-            <div style="display:flex; justify-content: space-between; align-items: center;">
-              <div style="display:flex; align-items: center; gap: 12px;">
-                <div class="cat-icon" style="margin:0; background: rgba(0,0,0,0.15); color: white;">💰</div>
-                <div>
-                  <div class="cat-name" style="color: rgba(255,255,255,0.8);">Total Savings</div>
-                  <div class="cat-amt" style="font-size: 22px; color: white;">${formatINR(totalCumulativeSavings)}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="balance-label" style="margin-bottom:12px;">Savings Summary by Type</div>
-        `;
-        
-        let entries = Object.entries(savingsPortfolio).sort((a, b) => b[1] - a[1]);
-        if(entries.length === 0) {
-          html += '<div style="color:var(--text-muted); font-size:14px; text-align:center; padding:20px;">No savings records available.</div>';
-        } else {
-          html += `<div class="category-grid">`;
+          const maxVal = entries[0][1] || 1;
+          html += `<div class="ledger-category-list">`;
           entries.forEach(([catName, amt], index) => {
-            let color = appColors[index % appColors.length];
-            let emoji = emojis[catName] || '📈';
+            const color = appColors[index % appColors.length];
+            const emoji = emojis[catName.replace('Veh - ', '')] || emojis[catName] || '🏷️';
+            const pct = Math.max(3, Math.round((amt / maxVal) * 100));
+            const share = totalExp ? ((amt / totalExp) * 100).toFixed(1) : '0.0';
             html += `
-              <div class="cat-card" data-category="${catName}" onclick="showCategoryDetails(this.dataset.category)">
-                <div>
-                  <div class="cat-icon" style="background: ${color}20;">${emoji}</div>
-                  <div class="cat-name">${catName}</div>
+              <div class="ledger-category-card" data-category="${catName.replace(/"/g,'&quot;')}" onclick="showCategoryDetails(this.dataset.category)">
+                <div class="ledger-category-top">
+                  <div class="ledger-category-left">
+                    <div class="ledger-category-icon" style="background:${color}20;">${emoji}</div>
+                    <div class="ledger-category-name">${catName}</div>
+                  </div>
+                  <div class="ledger-category-amt">${formatINR(amt)}</div>
                 </div>
-                <div class="cat-amt">${formatINR(amt)}</div>
-              </div>
-            `;
+                <div class="ledger-category-track"><div class="ledger-category-fill" style="width:${pct}%; background:${color};"></div></div>
+                <div class="ledger-category-foot"><span>${share}% of spending</span><span>Tap for details</span></div>
+              </div>`;
           });
           html += `</div>`;
         }
-        container.innerHTML = html;
+      } else if(viewMode === 'savings') {
+        html += `<div class="ledger-section-head"><div><div class="ledger-section-title">Savings portfolio</div><div class="ledger-section-subtitle">All-time savings for the selected person</div></div></div>`;
+        html += `<div class="ledger-savings-hero" onclick="showCategoryDetails('All Savings')"><div class="ledger-savings-hero-row"><div><div class="ledger-savings-hero-label">Total saved</div><div class="ledger-savings-hero-value">${formatINR(totalCumulativeSavings)}</div><div class="ledger-savings-hero-note">${formatINR(totalSavingsPeriod)} added in this period</div></div><div style="font-size:28px; opacity:.9;">💰</div></div></div>`;
+        const entries = Object.entries(savingsPortfolio).sort((a,b)=>b[1]-a[1]);
+        html += `<div style="height:8px"></div><div class="ledger-section-head"><div><div class="ledger-section-title">By savings type</div><div class="ledger-section-subtitle">Tap any item to see the underlying records</div></div></div>`;
+        if(!entries.length) {
+          html += `<div class="ledger-empty"><div class="ledger-empty-icon">💤</div><div class="ledger-empty-title">No savings yet</div><div class="ledger-empty-sub">Start recording an investment or savings entry.</div></div>`;
+        } else {
+          const maxSav = entries[0][1] || 1;
+          html += `<div class="ledger-category-list">`;
+          entries.forEach(([catName, amt], index) => {
+            const color = appColors[index % appColors.length];
+            const emoji = emojis[catName] || '📈';
+            const pct = Math.max(3, Math.round((amt / maxSav) * 100));
+            html += `
+              <div class="ledger-category-card" data-category="${catName.replace(/"/g,'&quot;')}" onclick="showCategoryDetails(this.dataset.category)">
+                <div class="ledger-category-top"><div class="ledger-category-left"><div class="ledger-category-icon" style="background:${color}20;">${emoji}</div><div class="ledger-category-name">${catName}</div></div><div class="ledger-category-amt">${formatINR(amt)}</div></div>
+                <div class="ledger-category-track"><div class="ledger-category-fill" style="width:${pct}%; background:${color};"></div></div>
+              </div>`;
+          });
+          html += `</div>`;
+        }
       }
+
+      container.innerHTML = html;
     }
 
     function getInsightTransactions() {
@@ -1678,104 +1937,6 @@
       document.getElementById('dashSavingsRangeFill').style.width = `${savingsRate}%`;
 
       let subtitle = timeRange === 'all' ? 'All recorded data' : `Showing the selected ${timeRange === '7d' ? '7 days' : timeRange === '30d' ? '30 days' : '3 months'}`;
-      document.getElementById('interactiveChartSubtitle').innerText = subtitle;
-
-      let chartLabels = monthGroups.map(g => g.label);
-      if (!chartLabels.length) chartLabels = ['No Data'];
-      renderGradientAreaChart(
-        chartLabels,
-        monthIncome.length ? monthIncome : [0],
-        monthExpense.length ? monthExpense : [0],
-        monthSavings.length ? monthSavings : [0]
-      );
-    }
-
-    function renderGradientAreaChart(labels, incomeVals, expenseVals, savingsVals) {
-      const canvas = document.getElementById('interactiveAreaChart');
-      if (!canvas) return;
-      let ctx = canvas.getContext('2d');
-      if (interactiveAreaChartInstance) interactiveAreaChartInstance.destroy();
-
-      let gradIncome = ctx.createLinearGradient(0, 0, 0, 235);
-      gradIncome.addColorStop(0, 'rgba(52, 199, 89, 0.48)');
-      gradIncome.addColorStop(1, 'rgba(52, 199, 89, 0.0)');
-
-      let gradExpense = ctx.createLinearGradient(0, 0, 0, 235);
-      gradExpense.addColorStop(0, 'rgba(255, 59, 48, 0.48)');
-      gradExpense.addColorStop(1, 'rgba(255, 59, 48, 0.0)');
-
-      let gradSavings = ctx.createLinearGradient(0, 0, 0, 235);
-      gradSavings.addColorStop(0, 'rgba(0, 122, 255, 0.42)');
-      gradSavings.addColorStop(1, 'rgba(0, 122, 255, 0.0)');
-
-      interactiveAreaChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [
-            {
-              label: 'Income',
-              data: incomeVals,
-              borderColor: '#34c759',
-              backgroundColor: gradIncome,
-              fill: true,
-              tension: 0.35,
-              borderWidth: 2,
-              pointRadius: 2
-            },
-            {
-              label: 'Expense',
-              data: expenseVals,
-              borderColor: '#ff3b30',
-              backgroundColor: gradExpense,
-              fill: true,
-              tension: 0.35,
-              borderWidth: 2,
-              pointRadius: 2
-            },
-            {
-              label: 'Savings',
-              data: savingsVals,
-              borderColor: '#007aff',
-              backgroundColor: gradSavings,
-              fill: true,
-              tension: 0.35,
-              borderWidth: 2,
-              pointRadius: 2
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          interaction: { mode: 'index', intersect: false },
-          plugins: {
-            legend: {
-              display: true,
-              position: 'bottom',
-              labels: { boxWidth: 10, boxHeight: 10, font: { weight: '600', size: 10 } }
-            },
-            tooltip: {
-              mode: 'index',
-              intersect: false,
-              callbacks: {
-                label: (context) => `${context.dataset.label}: ${formatINR(context.raw || 0)}`
-              }
-            }
-          },
-          scales: {
-            x: { grid: { display: false }, ticks: { font: { size: 9 }, color: '#8e8e93' } },
-            y: {
-              grid: { color: 'rgba(200,200,200,0.10)' },
-              ticks: {
-                font: { size: 9 },
-                color: '#8e8e93',
-                callback: value => moneyShort(value)
-              }
-            }
-          }
-        }
-      });
     }
 
     function openRecordDetail(tx) {
