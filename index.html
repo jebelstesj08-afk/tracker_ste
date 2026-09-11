@@ -122,11 +122,11 @@
     
     #loadingIndicator { text-align: center; color: var(--text-muted); display: none; margin: 10px 0; font-size: 14px; font-weight: 500; }
 
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; opacity: 0; transition: opacity 0.3s ease; }
     .modal-overlay.show { display: flex; opacity: 1; }
     
-    #recordDetailModal { z-index: 2500; }
-    #categoryModal { z-index: 2600; }
+    #categoryModal { z-index: 2400; }
+    #recordDetailModal { z-index: 3000; }
 
     .modal-content { background: var(--bg-color); width: 100%; max-height: 85vh; min-height: 50vh; border-radius: 32px 32px 0 0; padding: 24px; padding-bottom: calc(24px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
     .modal-overlay.show .modal-content { transform: translateY(0); }
@@ -1282,6 +1282,11 @@
 
     function showCategoryDetails(categoryName) {
       try {
+        // Hide category modal first so it doesn't linger underneath when opening details
+        let catModal = document.getElementById('categoryModal');
+        catModal.classList.remove('show');
+        setTimeout(() => catModal.style.display = 'none', 150);
+
         document.getElementById('modalCategoryTitle').innerText = categoryName;
         const listContainer = document.getElementById('modalTransactionList');
         listContainer.innerHTML = ''; 
@@ -1317,9 +1322,8 @@
 
         renderTxList(listContainer, filteredTxs);
 
-        const modal = document.getElementById('categoryModal');
-        modal.style.display = 'flex';
-        setTimeout(() => modal.classList.add('show'), 10);
+        catModal.style.display = 'flex';
+        setTimeout(() => catModal.classList.add('show'), 10);
       } catch(e) {
         alert("Failed to load details: " + e.message);
       }
@@ -1345,16 +1349,27 @@
           
           let subTag = isSearch ? `<span style="background:var(--input-bg); padding:2px 6px; border-radius:4px; font-size:10px;">${cat}</span>` : '';
 
-          container.innerHTML += `
-            <div class="transaction-item" onclick='openRecordDetail(${JSON.stringify({date: row[0], type: row[1], cat: row[2], amount: row[3], desc: row[4], user: row[5], receipt: row[7], paymentMethod: row[10]}).replace(/'/g, "&#39;")})'>
-              <div class="tx-left">
-                <span class="tx-desc">${desc} ${subTag} ${methodHTML}</span>
-                <span class="tx-meta">${dateStr} • ${user}</span>
-                ${receiptHTML}
-              </div>
-              <div class="tx-amt">${amt}</div>
+          let txObj = {date: row[0], type: row[1], cat: row[2], amount: row[3], desc: row[4], user: row[5], receipt: row[7], paymentMethod: row[10]};
+
+          let itemEl = document.createElement('div');
+          itemEl.className = 'transaction-item';
+          itemEl.innerHTML = `
+            <div class="tx-left">
+              <span class="tx-desc">${desc} ${subTag} ${methodHTML}</span>
+              <span class="tx-meta">${dateStr} • ${user}</span>
+              ${receiptHTML}
             </div>
+            <div class="tx-amt">${amt}</div>
           `;
+
+          itemEl.onclick = function() {
+            let catModal = document.getElementById('categoryModal');
+            catModal.classList.remove('show');
+            setTimeout(() => catModal.style.display = 'none', 150);
+            openRecordDetail(txObj);
+          };
+
+          container.appendChild(itemEl);
        });
     }
 
