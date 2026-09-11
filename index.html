@@ -8,7 +8,88 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Tracker">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js">
+    /* ===== PHASE 3 LOGIC ===== */
+    function p3Money(n){
+      return '₹' + Number(n || 0).toLocaleString('en-IN',{maximumFractionDigits:0});
+    }
+    function p3Rows(){
+      if(!Array.isArray(allTransactions)) return [];
+      const rows = allTransactions.slice(1);
+      return rows.map(r=>({
+        date: parseSafeDate(String(r[0]||'')),
+        type: String(r[1]||'').trim(),
+        cat: String(r[2]||'').trim(),
+        amount: parseFloat(r[3])||0,
+        desc: String(r[4]||'').trim(),
+        user: String(r[5]||'').trim(),
+        project: String(r[6]||'').trim(),
+        receipt: String(r[7]||'').trim(),
+        odo: parseFloat(r[8])||0,
+        litres: parseFloat(r[9])||0,
+        payment: String(r[10]||'').trim()
+      })).filter(x=>x.date && !isNaN(x.date.getTime()));
+    }
+    function p3Update(){
+      const rows=p3Rows(), now=new Date(), month=now.getMonth(), year=now.getFullYear();
+      const current=rows.filter(x=>x.date.getMonth()===month&&x.date.getFullYear()===year);
+      const prevDate=new Date(year,month-1,1);
+      const previous=rows.filter(x=>x.date.getMonth()===prevDate.getMonth()&&x.date.getFullYear()===prevDate.getFullYear());
+      const expenseTypes=['Expense','Fuel','Service'];
+      const spend=a=>a.filter(x=>expenseTypes.includes(x.type)).reduce((s,x)=>s+x.amount,0);
+
+      const curSpend=spend(current), prevSpend=spend(previous);
+      const fuel=current.filter(x=>x.type==='Fuel');
+      const fuelSpend=fuel.reduce((s,x)=>s+x.amount,0);
+      const litres=fuel.reduce((s,x)=>s+x.litres,0);
+      const odos=fuel.map(x=>x.odo).filter(x=>x>0);
+      const distance=odos.length>1 ? Math.max(...odos)-Math.min(...odos) : 0;
+      const mileage=litres>0&&distance>0 ? distance/litres : 0;
+
+      const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+      set('p3FuelSpend',p3Money(fuelSpend));
+      set('p3Litres',litres.toFixed(1)+' L');
+      set('p3Distance',distance.toLocaleString('en-IN')+' km');
+      set('p3Mileage',mileage?mileage.toFixed(1)+' km/L':'— km/L');
+
+      const note=document.getElementById('p3VehicleNote');
+      if(note) note.textContent = mileage ? `Estimated mileage is ${mileage.toFixed(1)} km/L from the current month's fuel odometer records.` : 'Add fuel records with odometer and litres to calculate mileage.';
+
+      set('p3CurrentSpend',p3Money(curSpend));
+      set('p3PreviousSpend',p3Money(prevSpend));
+      const bar=document.getElementById('p3TrendBar');
+      const pct=prevSpend>0 ? Math.min(100,(curSpend/prevSpend)*100) : (curSpend>0?100:0);
+      if(bar) bar.style.width=pct+'%';
+      const trend=document.getElementById('p3TrendText');
+      if(trend){
+        if(!prevSpend && !curSpend) trend.textContent='No spending recorded for the current or previous month.';
+        else if(!prevSpend) trend.textContent='Spending has started this month; there is no previous-month baseline.';
+        else {
+          const delta=((curSpend-prevSpend)/prevSpend)*100;
+          trend.textContent = `${Math.abs(delta).toFixed(1)}% ${delta>=0?'higher':'lower'} than last month.`;
+        }
+      }
+
+      const alerts=[];
+      if(curSpend>prevSpend && prevSpend>0) alerts.push({c:'warn',t:'⚠️ Spending is higher than last month. Review your top categories.'});
+      if(prevSpend>0 && curSpend<prevSpend) alerts.push({c:'good',t:'✅ Spending is lower than last month.'});
+      const noReceipt=current.filter(x=>x.type==='Expense'&&!x.receipt).length;
+      if(noReceipt) alerts.push({c:'warn',t:`🧾 ${noReceipt} expense record${noReceipt===1?'':'s'} have no receipt attached.`});
+      if(!alerts.length) alerts.push({c:'good',t:'✅ No immediate spending alerts from the available data.'});
+      const box=document.getElementById('p3Alerts');
+      if(box) box.innerHTML=alerts.map(a=>`<div class="p3-alert ${a.c}">${a.t}</div>`).join('');
+    }
+
+    function exportPhase3CSV(){
+      const rows=p3Rows();
+      const headers=['Date','Type','Category','Amount','Description','User','Project','Receipt','Odometer','Litres','Payment Method'];
+      const out=[headers,...rows.map(x=>[x.date.toISOString().slice(0,10),x.type,x.cat,x.amount,x.desc,x.user,x.project,x.receipt,x.odo||'',x.litres||'',x.payment])];
+      const csv=out.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\\n');
+      const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+      const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='household-transactions.csv';a.click();URL.revokeObjectURL(a.href);
+    }
+
+</script>
 
   <style>
     :root {
@@ -510,7 +591,19 @@
     .people-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
     .person-box{background:var(--input-bg);border:1px solid var(--border-color);border-radius:16px;padding:13px;min-width:0;}
     .person-name{font-size:12px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px}.person-income{font-size:20px;font-weight:850;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.person-meta,.person-spend{font-size:10px;color:var(--text-muted);margin-top:3px}.person-bar{height:6px;background:rgba(127,127,127,.12);border-radius:99px;overflow:hidden;margin-top:10px}.person-bar span{display:block;height:100%;width:0;background:var(--accent-blue);border-radius:99px;transition:width .4s ease}.mini-action{border:1px solid var(--border-color);background:var(--input-bg);color:var(--text-main);border-radius:10px;padding:7px 10px;font-weight:800;font-size:11px;cursor:pointer}.mini-action.primary{background:var(--text-main);color:var(--card-bg);border-color:var(--text-main)}.recurring-form{display:grid;grid-template-columns:1.4fr 1fr 1fr auto;gap:6px;margin-bottom:10px}.recurring-form input,.recurring-form select{margin:0;padding:9px 8px;font-size:11px;min-width:0}.recurring-list,.upcoming-list{display:flex;flex-direction:column;gap:7px}.recurring-row{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--border-color);min-width:0}.recurring-row:last-child{border-bottom:0}.rec-dot{width:9px;height:9px;border-radius:50%;background:var(--accent-blue);flex:none}.rec-main{flex:1;min-width:0}.rec-name{font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rec-meta{font-size:9px;color:var(--text-muted);margin-top:2px}.rec-amount{font-size:12px;font-weight:850;white-space:nowrap}.rec-delete{border:0;background:transparent;color:var(--text-muted);font-size:16px;cursor:pointer;padding:2px}.calendar-panel{margin-top:14px}.calendar-nav{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800}.calendar-nav .mini-action{padding:5px 8px}.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:4px}.cal-head{text-align:center;color:var(--text-muted);font-size:9px;font-weight:800;padding-bottom:3px}.cal-day{min-height:43px;border:1px solid var(--border-color);background:var(--input-bg);border-radius:9px;padding:5px;cursor:pointer;overflow:hidden}.cal-day.empty{background:transparent;border-color:transparent;cursor:default}.cal-num{font-size:10px;font-weight:800}.cal-spend{font-size:8px;color:var(--text-muted);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cal-low{background:rgba(52,199,89,.10)}.cal-mid{background:rgba(255,159,10,.18)}.cal-high{background:rgba(255,59,48,.18)}.cal-today{outline:2px solid var(--accent-blue);outline-offset:-2px}.calendar-legend{display:flex;gap:14px;margin-top:9px;color:var(--text-muted);font-size:9px}.calendar-legend span{display:flex;align-items:center;gap:5px}.cal-dot{width:7px;height:7px;border-radius:50%;display:inline-block}.receipt-summary{font-size:11px}.receipt-stat{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--border-color)}.receipt-stat:last-child{border-bottom:0}.receipt-name{font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.receipt-value{font-weight:850;white-space:nowrap}.upcoming-row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--border-color)}.upcoming-row:last-child{border-bottom:0}.upcoming-name{font-size:11px;font-weight:800}.upcoming-meta{font-size:9px;color:var(--text-muted);margin-top:2px}.upcoming-amount{font-size:11px;font-weight:850;white-space:nowrap}@media(max-width:700px){.phase2-grid{grid-template-columns:1fr}.recurring-form{grid-template-columns:1fr 1fr}.recurring-form select{grid-column:1}.recurring-form button{grid-column:2}.people-compare{gap:8px}.calendar-grid{gap:3px}.cal-day{min-height:40px;padding:4px}.calendar-panel{padding:13px}.phase2-panel{padding:14px}}
-  </style>
+  
+/* ===== PHASE 3: Vehicle Dashboard + Alerts + Forecast + Reports ===== */
+.p3-section{margin-top:16px;background:var(--card-bg);border:1px solid var(--border-color);border-radius:var(--radius-lg);padding:16px;box-shadow:0 4px 15px rgba(0,0,0,.03)}
+.p3-title{font-size:16px;font-weight:800;margin:0 0 4px}.p3-sub{font-size:12px;color:var(--text-muted);margin-bottom:14px}
+.p3-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.p3-stat{background:var(--input-bg);border-radius:16px;padding:13px;min-width:0}.p3-stat-label{font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase}.p3-stat-value{font-size:20px;font-weight:850;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p3-bar{height:8px;background:var(--border-color);border-radius:8px;overflow:hidden;margin-top:10px}.p3-bar>span{display:block;height:100%;border-radius:8px;background:var(--accent-blue)}
+.p3-alert{padding:11px 12px;border-radius:14px;background:var(--input-bg);margin-top:8px;font-size:13px;font-weight:650}.p3-alert.warn{border-left:4px solid var(--accent-red)}.p3-alert.good{border-left:4px solid var(--accent-green)}
+.p3-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--border-color)}.p3-row:last-child{border-bottom:0}.p3-row-main{min-width:0}.p3-row-name{font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.p3-row-meta{font-size:11px;color:var(--text-muted);margin-top:3px}.p3-row-value{font-weight:800;white-space:nowrap}
+.p3-btn{border:0;border-radius:13px;padding:10px 13px;background:var(--text-main);color:var(--card-bg);font-weight:750;cursor:pointer}
+@media(max-width:520px){.p3-grid{grid-template-columns:1fr}.p3-section{padding:14px}}
+
+</style>
 </head>
 <body>
 
@@ -787,6 +880,43 @@
       <div id="ledgerDynamicContainer"></div>
     </div>
   </div>
+
+
+    <!-- PHASE 3: VEHICLE + SMART ALERTS + FORECAST + REPORTS -->
+    <div class="p3-section">
+      <div class="p3-title">🚗 Vehicle Dashboard</div>
+      <div class="p3-sub">Quick view from your Fuel and Service records</div>
+      <div class="p3-grid">
+        <div class="p3-stat"><div class="p3-stat-label">Fuel Spend</div><div class="p3-stat-value" id="p3FuelSpend">₹0</div></div>
+        <div class="p3-stat"><div class="p3-stat-label">Fuel Litres</div><div class="p3-stat-value" id="p3Litres">0 L</div></div>
+        <div class="p3-stat"><div class="p3-stat-label">Distance</div><div class="p3-stat-value" id="p3Distance">0 km</div></div>
+        <div class="p3-stat"><div class="p3-stat-label">Mileage</div><div class="p3-stat-value" id="p3Mileage">— km/L</div></div>
+      </div>
+      <div class="p3-alert" id="p3VehicleNote">Add fuel records with odometer and litres to calculate mileage.</div>
+    </div>
+
+    <div class="p3-section">
+      <div class="p3-title">🔔 Smart Alerts</div>
+      <div class="p3-sub">Actionable checks based on your current transaction data</div>
+      <div id="p3Alerts"></div>
+    </div>
+
+    <div class="p3-section">
+      <div class="p3-title">📈 Spending Trend</div>
+      <div class="p3-sub">Current month compared with the previous month</div>
+      <div class="p3-grid">
+        <div class="p3-stat"><div class="p3-stat-label">Current Month</div><div class="p3-stat-value" id="p3CurrentSpend">₹0</div></div>
+        <div class="p3-stat"><div class="p3-stat-label">Previous Month</div><div class="p3-stat-value" id="p3PreviousSpend">₹0</div></div>
+      </div>
+      <div class="p3-bar"><span id="p3TrendBar" style="width:0%"></span></div>
+      <div class="p3-alert" id="p3TrendText">No trend data yet.</div>
+    </div>
+
+    <div class="p3-section">
+      <div class="p3-title">📤 Reports</div>
+      <div class="p3-sub">Export the transactions currently stored in the app.</div>
+      <button class="p3-btn" onclick="exportPhase3CSV()">Export Transactions CSV</button>
+    </div>
 
   <!-- TAB 4: INSIGHTS / ANALYTICS TAB -->
   <div id="Insights" class="tab-content">
@@ -1950,6 +2080,7 @@
     }
 
     function generateInsights() {
+      p3Update();
       try {
         const { txs, timeRange, selectedUser } = getInsightTransactions();
         const monthGroups = groupByMonth(txs);
