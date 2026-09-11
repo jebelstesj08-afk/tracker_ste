@@ -95,300 +95,118 @@
     .two-col { display: flex; gap: 12px; margin-bottom: 16px; }
     .two-col .input-group { flex: 1; margin-bottom: 0; }
 
-    /* Dashboard UI Grid Styles */
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-      margin-bottom: 16px;
-    }
+    /* =========================
+     TAB 4 / INSIGHTS - FINANCE DASHBOARD
+     ========================= */
+  #Insights { padding: 0 16px 150px; }
+  .insights-filters {
+    display:flex; gap:8px; margin:0 0 12px;
+  }
+  .insights-filters .input-group { flex:1; margin-bottom:0; }
+  .insights-filters select {
+    padding:11px 12px; border-radius:13px; font-size:13px; font-weight:700;
+    background:var(--card-bg); border:1px solid var(--border-color);
+  }
+  .insight-board { display:flex; flex-direction:column; gap:14px; }
+  .insight-top-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .insight-small-card,
+  .insight-main-card,
+  .insight-side-card,
+  .insight-portfolio,
+  .insight-asset-card {
+    background:var(--card-bg); border:1px solid var(--border-color);
+    box-shadow:0 8px 24px rgba(0,0,0,.035);
+  }
+  .insight-small-card {
+    min-height:126px; border-radius:18px; padding:14px; display:flex; flex-direction:column;
+    overflow:hidden;
+  }
+  .insight-small-head { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .insight-icon {
+    width:34px; height:34px; border-radius:11px; display:flex; align-items:center; justify-content:center;
+    background:var(--input-bg); font-size:16px;
+  }
+  .insight-small-title { font-size:10px; color:var(--text-muted); font-weight:800; text-transform:uppercase; letter-spacing:.45px; }
+  .insight-small-value { margin-top:auto; font-size:24px; font-weight:850; letter-spacing:-1px; color:var(--text-main); }
+  .insight-small-sub { font-size:9px; color:var(--text-muted); font-weight:600; margin-top:3px; }
+  .insight-progress { margin-top:10px; height:6px; border-radius:999px; background:var(--input-bg); overflow:hidden; }
+  .insight-progress > span { display:block; height:100%; width:55%; border-radius:999px; background:linear-gradient(90deg,#34c759,#007aff); }
 
-    .dash-card {
-      background: var(--card-bg);
-      border-radius: 18px;
-      padding: 16px;
-      border: 1px solid var(--border-color);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.035);
-      display: flex;
-      flex-direction: column;
-      min-height: 178px;
-      overflow: hidden;
-    }
+  .insight-center { display:grid; grid-template-columns:minmax(0, 1fr) 190px; gap:12px; }
+  .insight-main-card { border-radius:22px; padding:16px; min-height:300px; }
+  .insight-main-head { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:4px; }
+  .insight-main-title { font-size:20px; font-weight:850; letter-spacing:-.6px; }
+  .insight-main-meta { font-size:10px; color:var(--text-muted); font-weight:700; }
+  .insight-main-chart { height:220px; margin-top:8px; position:relative; padding:14px 8px 22px; }
+  .insight-axis { position:absolute; inset:10px 8px 22px; display:flex; flex-direction:column; justify-content:space-between; pointer-events:none; }
+  .insight-axis span { border-top:1px dashed var(--border-color); width:100%; }
+  .overview-bars { height:100%; display:flex; align-items:flex-end; justify-content:space-between; gap:7px; position:relative; z-index:2; }
+  .overview-col { flex:1; max-width:24px; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:2px; }
+  .overview-stack { width:100%; height:100%; display:flex; flex-direction:column; justify-content:flex-end; }
+  .overview-bar { width:100%; border-radius:4px 4px 2px 2px; min-height:2px; transition:height .25s ease; }
+  .overview-bar.expense { background:#ff8b3d; }
+  .overview-bar.income { background:#8b5cf6; }
+  .overview-bar.savings { background:#d9d9de; }
+  .overview-label { font-size:8px; color:var(--text-muted); font-weight:700; margin-top:5px; }
+  .insight-chart-legend { display:flex; gap:12px; margin-top:8px; font-size:9px; color:var(--text-muted); font-weight:700; }
+  .insight-chart-legend span { display:inline-flex; align-items:center; gap:5px; }
+  .legend-dot { width:7px; height:7px; border-radius:50%; display:inline-block; }
+  .legend-income { background:#8b5cf6; } .legend-expense { background:#ff8b3d; } .legend-savings { background:#d9d9de; }
 
-    .dash-card.compact { min-height: 150px; }
-    .dash-card.tall { min-height: 208px; }
+  .insight-side-stack { display:flex; flex-direction:column; gap:10px; }
+  .insight-side-card { border-radius:16px; padding:12px; min-height:88px; }
+  .insight-side-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .insight-side-label { font-size:10px; color:var(--text-muted); font-weight:800; text-transform:uppercase; }
+  .insight-side-value { margin-top:4px; font-size:18px; font-weight:850; letter-spacing:-.5px; }
+  .insight-side-change { font-size:9px; font-weight:800; }
+  .green-text { color:#24a35a; } .red-text { color:#db4037; } .blue-text { color:#6556d9; }
 
-    .dash-card-title {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.45px;
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-    }
+  .insight-bottom { display:grid; grid-template-columns:minmax(0, 1.55fr) repeat(3, 1fr); gap:12px; }
+  .insight-portfolio { border-radius:20px; padding:16px; min-height:210px; }
+  .insight-section-title { font-size:18px; font-weight:850; letter-spacing:-.5px; }
+  .insight-portfolio-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px; }
+  .portfolio-mini { border-radius:14px; background:var(--input-bg); padding:10px; min-height:150px; display:flex; flex-direction:column; }
+  .portfolio-mini-title { font-size:10px; color:var(--text-muted); font-weight:800; }
+  .portfolio-mini-value { margin-top:auto; font-size:17px; font-weight:850; }
+  .portfolio-mini-sub { font-size:9px; font-weight:700; color:var(--text-muted); margin-top:3px; }
+  .mini-line { margin-top:12px; height:52px; display:flex; align-items:center; gap:4px; }
+  .mini-line span { flex:1; border-radius:4px; min-height:5px; }
+  .mini-line.income span { background:#8b5cf6; } .mini-line.expense span { background:#ff8b3d; } .mini-line.savings span { background:#b8b8c2; }
+  .ring { width:76px; height:76px; border-radius:50%; margin:12px auto 0; display:grid; place-items:center; background:conic-gradient(#ff8b3d var(--p,35%), #8b5cf6 0 65%, #e8e8ec 0); position:relative; }
+  .ring::after { content:""; width:54px; height:54px; border-radius:50%; background:var(--input-bg); position:absolute; }
+  .ring span { position:relative; z-index:1; font-size:14px; font-weight:850; }
 
-    .dash-card-value {
-      font-size: 25px;
-      font-weight: 800;
-      letter-spacing: -1px;
-      color: var(--text-main);
-      line-height: 1.05;
-    }
+  .insight-asset-card { border-radius:18px; padding:15px; min-height:210px; display:flex; flex-direction:column; }
+  .asset-date { font-size:9px; color:var(--text-muted); font-weight:700; }
+  .asset-title { font-size:11px; color:var(--text-muted); font-weight:800; margin-top:2px; }
+  .asset-value { font-size:25px; font-weight:850; letter-spacing:-1px; margin-top:28px; }
+  .asset-sub { font-size:10px; font-weight:700; color:var(--text-muted); margin-top:3px; }
+  .asset-badge { margin-top:auto; align-self:flex-start; background:var(--input-bg); border-radius:10px; padding:8px 10px; font-size:9px; font-weight:800; color:var(--text-muted); }
+  .asset-badge strong { color:#24a35a; }
 
-    .dash-card-sub {
-      margin-top: 5px;
-      color: var(--text-muted);
-      font-size: 10px;
-      font-weight: 600;
-    }
-
-    .dash-stat-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin: 4px 0 10px;
-    }
-
-    .dash-stat-value {
-      font-size: 16px;
-      font-weight: 800;
-      color: var(--text-main);
-    }
-
-    .dash-stat-label {
-      font-size: 9px;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-top: 2px;
-      white-space: nowrap;
-    }
-
-    .mini-chart {
-      height: 84px;
-      display: flex;
-      align-items: flex-end;
-      gap: 5px;
-      margin-top: auto;
-      padding-top: 8px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .mini-chart .mini-bar {
-      flex: 1;
-      min-width: 3px;
-      border-radius: 5px 5px 3px 3px;
-      background: #b9bbbf;
-      opacity: 0.35;
-      transition: all 0.2s ease;
-      position: relative;
-    }
-
-    .mini-chart .mini-bar.active { opacity: 1; }
-    .mini-chart .mini-bar.blue { background: #5856d6; }
-    .mini-chart .mini-bar.cyan { background: #32ade6; }
-    .mini-chart .mini-bar.green { background: #34c759; }
-    .mini-chart .mini-bar.orange { background: #ff9f0a; }
-    .mini-chart .mini-bar.red { background: #ff3b30; }
-    .mini-chart .mini-bar.pink { background: #ff2d55; }
-
-    .mini-chart .baseline {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 35%;
-      border-top: 1px dashed var(--border-color);
-      pointer-events: none;
-    }
-
-    .dash-chip {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 20px;
-      padding: 3px 7px;
-      border-radius: 999px;
-      background: var(--input-bg);
-      color: var(--text-muted);
-      font-size: 9px;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .dash-chip.green { color: #1d9f4a; background: rgba(52,199,89,0.11); }
-    .dash-chip.red { color: #d82f28; background: rgba(255,59,48,0.11); }
-    .dash-chip.blue { color: #4b48c7; background: rgba(88,86,214,0.11); }
-    .dash-chip.orange { color: #d77a00; background: rgba(255,159,10,0.13); }
-
-    .dash-range {
-      margin-top: auto;
-      padding-top: 10px;
-    }
-
-    .dash-range-track {
-      height: 8px;
-      border-radius: 999px;
-      background: var(--input-bg);
-      overflow: hidden;
-      position: relative;
-    }
-
-    .dash-range-fill {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #34c759, #32ade6);
-    }
-
-    .dash-range-labels {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 6px;
-      color: var(--text-muted);
-      font-size: 9px;
-      font-weight: 600;
-    }
-
-    .dot-chart {
-      height: 92px;
-      margin-top: auto;
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 6px;
-      padding: 0 2px 4px;
-      position: relative;
-    }
-
-    .dot-chart .dot-col {
-      flex: 1;
-      height: 100%;
-      position: relative;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .dot-chart .stem {
-      width: 2px;
-      height: var(--stem, 50%);
-      background: #ff9f0a;
-      border-radius: 2px;
-    }
-
-    .dot-chart .dot {
-      position: absolute;
-      bottom: calc(var(--stem, 50%) - 5px);
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #ff9f0a;
-      box-shadow: 0 0 0 3px rgba(255,159,10,0.12);
-    }
-
-    .bar-strip {
-      height: 66px;
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      margin-top: auto;
-    }
-
-    .bar-strip i {
-      display: block;
-      flex: 1;
-      border-radius: 3px;
-      background: #ff2d55;
-      opacity: 0.78;
-    }
-
-    .kpi-highlight {
-      padding: 7px 9px;
-      border-radius: 10px;
-      font-size: 9px;
-      font-weight: 700;
-      color: var(--text-muted);
-      background: var(--input-bg);
-      margin-top: 9px;
-    }
-
-    .highlight-number {
-      margin-top: auto;
-      font-size: 28px;
-      font-weight: 850;
-      letter-spacing: -1px;
-      color: var(--text-main);
-    }
-
-    .insights-filters {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .insights-filters .input-group {
-      flex: 1;
-      margin-bottom: 0;
-    }
-
-    .insights-filters select {
-      padding: 11px 12px;
-      border-radius: 13px;
-      font-size: 13px;
-    }
-
-    .insights-detailed-card {
-      background: var(--card-bg);
-      border-radius: 18px;
-      padding: 16px;
-      border: 1px solid var(--border-color);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.035);
-      margin-top: 14px;
-    }
-
-    .insights-detailed-title {
-      font-size: 14px;
-      font-weight: 800;
-      color: var(--text-main);
-    }
-
-    .insights-detailed-subtitle {
-      font-size: 10px;
-      color: var(--text-muted);
-      font-weight: 600;
-      margin-top: 2px;
-    }
-
-    .insights-canvas-wrap {
-      position: relative;
-      height: 235px;
-      width: 100%;
-      margin-top: 10px;
-    }
-
-    @media(max-width: 760px) {
-      .dashboard-grid { grid-template-columns: 1fr; gap: 12px; }
-      .dash-card { min-height: 165px; padding: 14px; }
-      .dash-card.tall { min-height: 190px; }
-      .dash-card-value { font-size: 23px; }
-      .mini-chart { height: 74px; gap: 4px; }
-    }
-
-    @media(max-width: 480px) {
-      .dashboard-grid { grid-template-columns: 1fr; }
-      .dash-card { min-height: 158px; border-radius: 16px; }
-      .dash-stat-value { font-size: 14px; }
-      .highlight-number { font-size: 24px; }
-      .insights-filters { gap: 6px; }
-      .insights-filters select { font-size: 12px; padding: 10px 8px; }
-    }
-
+  .insights-tech { display:none; }
+  @media(max-width:900px){
+    .insight-top-grid { grid-template-columns:1fr 1fr; }
+    .insight-center { grid-template-columns:1fr; }
+    .insight-side-stack { display:grid; grid-template-columns:repeat(3,1fr); }
+    .insight-bottom { grid-template-columns:1fr 1fr; }
+    .insight-portfolio { grid-column:1/-1; }
+  }
+  @media(max-width:560px){
+    #Insights { padding:0 12px 140px; }
+    .insights-filters { gap:6px; }
+    .insights-filters select { font-size:12px; padding:10px 9px; }
+    .insight-top-grid { gap:8px; }
+    .insight-small-card { min-height:110px; padding:12px; }
+    .insight-small-value { font-size:20px; }
+    .insight-main-card { min-height:270px; padding:14px; }
+    .insight-main-title { font-size:18px; }
+    .insight-main-chart { height:195px; }
+    .insight-side-stack { grid-template-columns:1fr; }
+    .insight-bottom { grid-template-columns:1fr; }
+    .insight-portfolio-grid { grid-template-columns:1fr 1fr; }
+    .portfolio-mini:last-child { grid-column:1/-1; }
+  }
 
     /* =========================
        TAB 3 / LEDGER MAKEOVER
@@ -864,14 +682,14 @@
   <div id="Insights" class="tab-content">
     <div class="insights-filters">
       <div class="input-group">
-        <select id="insightsFilterUser" onchange="generateInsights()" style="font-weight:700; background:var(--card-bg);">
+        <select id="insightsFilterUser" onchange="generateInsights()" aria-label="Filter user">
           <option value="Us">Us</option>
           <option value="Jebel">Jebel</option>
           <option value="Reshma">Reshma</option>
         </select>
       </div>
       <div class="input-group">
-        <select id="insightsTimeRange" onchange="generateInsights()" style="font-weight:700; background:var(--card-bg);">
+        <select id="insightsTimeRange" onchange="generateInsights()" aria-label="Time range">
           <option value="90d">Last 3 months</option>
           <option value="30d">Last 30 days</option>
           <option value="7d">Last 7 days</option>
@@ -880,137 +698,127 @@
       </div>
     </div>
 
-    <!-- Reference-dashboard style card layout -->
-    <div class="dashboard-grid">
-
-      <div class="dash-card tall">
-        <div class="dash-card-title">
-          <span>Balance</span>
-          <span id="dashBalanceChip" class="dash-chip green">Cashflow</span>
+    <div class="insight-board">
+      <div class="insight-top-grid">
+        <div class="insight-small-card">
+          <div class="insight-small-head"><span class="insight-small-title">Balance</span><span class="insight-icon">◉</span></div>
+          <div class="insight-small-value" id="dashBalanceValue">0</div>
+          <div class="insight-small-sub" id="dashBalanceSub">Income − expenses − savings</div>
+          <div class="insight-progress"><span id="balanceProgressFill" style="width:55%"></span></div>
         </div>
-        <div class="dash-card-value" id="dashBalanceValue">0</div>
-        <div class="dash-card-sub" id="dashBalanceSub">Income − expenses − savings</div>
-        <div id="balanceMiniChart" class="mini-chart">
-          <div class="baseline"></div>
+        <div class="insight-small-card">
+          <div class="insight-small-head"><span class="insight-small-title">Income</span><span class="insight-icon">↓</span></div>
+          <div class="insight-small-value" id="dashTotalIncome">0</div>
+          <div class="insight-small-sub">Selected period</div>
+          <div class="mini-line income" id="incomeMiniChart"><span></span></div>
+        </div>
+        <div class="insight-small-card">
+          <div class="insight-small-head"><span class="insight-small-title">Expenses</span><span class="insight-icon">↑</span></div>
+          <div class="insight-small-value" id="dashTotalExpense">0</div>
+          <div class="insight-small-sub">Expense + fuel + service</div>
+          <div class="mini-line expense" id="expenseMiniChart"><span></span></div>
+        </div>
+        <div class="insight-small-card">
+          <div class="insight-small-head"><span class="insight-small-title">Savings</span><span class="insight-icon">◎</span></div>
+          <div class="insight-small-value" id="dashSavingsValue">0</div>
+          <div class="insight-small-sub"><span id="dashSavingsRateChip">0%</span> of income</div>
+          <div class="insight-progress"><span id="dashSavingsRangeFill" style="width:0%"></span></div>
         </div>
       </div>
 
-      <div class="dash-card tall">
-        <div class="dash-card-title">
-          <span>Cashflow Over Time</span>
-          <span id="dashCashflowChip" class="dash-chip blue">Net</span>
-        </div>
-        <div class="dash-card-value" id="dashCashflowValue">0</div>
-        <div class="dash-card-sub" id="dashCashflowSub">Selected period</div>
-        <div id="cashflowMiniChart" class="mini-chart">
-          <div class="baseline"></div>
-        </div>
-      </div>
-
-      <div class="dash-card">
-        <div class="dash-card-title">
-          <span>Spending Analytics</span>
-          <span class="dash-chip orange">Period</span>
-        </div>
-        <div class="dash-stat-row">
-          <div>
-            <div class="dash-stat-value" id="analyticsDailySpend">0</div>
-            <div class="dash-stat-label">Avg / day</div>
+      <div class="insight-center">
+        <div class="insight-main-card">
+          <div class="insight-main-head">
+            <div>
+              <div class="insight-main-title">Overall balance</div>
+              <div class="insight-main-meta" id="dashCashflowSub">Income, expenses and savings by month</div>
+            </div>
+            <div class="insight-main-meta">Selected period</div>
           </div>
-          <div>
-            <div class="dash-stat-value" id="analyticsTransactions">0</div>
-            <div class="dash-stat-label">Transactions</div>
+          <div class="insight-main-chart">
+            <div class="insight-axis"><span></span><span></span><span></span><span></span><span></span></div>
+            <div id="overviewBars" class="overview-bars"></div>
           </div>
-          <div>
-            <div class="dash-stat-value" id="analyticsCategories">0</div>
-            <div class="dash-stat-label">Categories</div>
+          <div class="insight-chart-legend">
+            <span><i class="legend-dot legend-income"></i>Income</span>
+            <span><i class="legend-dot legend-expense"></i>Expense</span>
+            <span><i class="legend-dot legend-savings"></i>Savings</span>
           </div>
         </div>
-        <div id="spendingMiniChart" class="mini-chart">
-          <div class="baseline"></div>
-        </div>
-      </div>
 
-      <div class="dash-card">
-        <div class="dash-card-title">
-          <span>Total Income</span>
-          <span class="dash-chip green">In</span>
-        </div>
-        <div class="dash-card-value" id="dashTotalIncome">0</div>
-        <div class="dash-card-sub">Selected period</div>
-        <div id="incomeMiniChart" class="mini-chart">
-          <div class="baseline"></div>
-        </div>
-      </div>
-
-      <div class="dash-card">
-        <div class="dash-card-title">
-          <span>Total Expenses</span>
-          <span class="dash-chip red">Out</span>
-        </div>
-        <div class="dash-card-value" id="dashTotalExpense">0</div>
-        <div class="dash-card-sub">Expense + fuel + service</div>
-        <div id="expenseMiniChart" class="mini-chart">
-          <div class="baseline"></div>
-        </div>
-      </div>
-
-      <div class="dash-card">
-        <div class="dash-card-title">
-          <span>Transactions</span>
-          <span class="dash-chip orange">Count</span>
-        </div>
-        <div class="highlight-number" id="dashTransactionCount">0</div>
-        <div class="kpi-highlight">Total records in the selected window</div>
-        <div id="transactionDotChart" class="dot-chart"></div>
-      </div>
-
-      <div class="dash-card">
-        <div class="dash-card-title">
-          <span>Savings Rate</span>
-          <span class="dash-chip blue" id="dashSavingsRateChip">0%</span>
-        </div>
-        <div class="dash-card-value" id="dashSavingsValue">0</div>
-        <div class="dash-card-sub">Savings recorded in the period</div>
-        <div class="dash-range">
-          <div class="dash-range-track">
-            <div id="dashSavingsRangeFill" class="dash-range-fill" style="left:0%; width:0%;"></div>
+        <div class="insight-side-stack">
+          <div class="insight-side-card">
+            <div class="insight-side-top"><span class="insight-side-label">Income</span><span class="insight-side-change green-text">+ period</span></div>
+            <div class="insight-side-value" id="sideIncome">0</div>
           </div>
-          <div class="dash-range-labels">
-            <span>0%</span>
-            <span>50%</span>
-            <span>100%</span>
+          <div class="insight-side-card">
+            <div class="insight-side-top"><span class="insight-side-label">Expense</span><span class="insight-side-change red-text">out</span></div>
+            <div class="insight-side-value" id="sideExpense">0</div>
+          </div>
+          <div class="insight-side-card">
+            <div class="insight-side-top"><span class="insight-side-label">Cash left</span><span class="insight-side-change blue-text">net</span></div>
+            <div class="insight-side-value" id="sideCashLeft">0</div>
           </div>
         </div>
       </div>
 
-      <div class="dash-card">
-        <div class="dash-card-title">
-          <span>Top Categories</span>
-          <span class="dash-chip blue">Spending</span>
+      <div class="insight-bottom">
+        <div class="insight-portfolio">
+          <div class="insight-section-title">Portfolio value</div>
+          <div class="insight-portfolio-grid">
+            <div class="portfolio-mini">
+              <div class="portfolio-mini-title">Income</div>
+              <div class="mini-line income" id="portfolioIncomeMini"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+              <div class="portfolio-mini-value" id="portfolioIncomeValue">0</div>
+              <div class="portfolio-mini-sub">Selected period</div>
+            </div>
+            <div class="portfolio-mini">
+              <div class="portfolio-mini-title">Expense</div>
+              <div class="mini-line expense" id="portfolioExpenseMini"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+              <div class="portfolio-mini-value" id="portfolioExpenseValue">0</div>
+              <div class="portfolio-mini-sub">Selected period</div>
+            </div>
+            <div class="portfolio-mini">
+              <div class="portfolio-mini-title">Savings rate</div>
+              <div class="ring" id="savingsRing" style="--p:0%"><span id="savingsRingText">0%</span></div>
+              <div class="portfolio-mini-value" id="portfolioSavingsValue">0</div>
+              <div class="portfolio-mini-sub">Amount saved</div>
+            </div>
+          </div>
         </div>
-        <div class="dash-card-value" id="dashTopCategory">—</div>
-        <div class="dash-card-sub" id="dashTopCategoryAmount">0</div>
-        <div id="categoryMiniChart" class="mini-chart">
-          <div class="baseline"></div>
+
+        <div class="insight-asset-card">
+          <div class="asset-date">TOP CATEGORY</div>
+          <div class="asset-title" id="assetTopCategory">—</div>
+          <div class="asset-value" id="dashTopCategoryAmount">0</div>
+          <div class="asset-sub">Highest spending category</div>
+          <div class="asset-badge">Spend <strong>top</strong></div>
+        </div>
+        <div class="insight-asset-card">
+          <div class="asset-date">HIGHEST SPEND</div>
+          <div class="asset-title" id="dashHighestSpendLabel">No expense data</div>
+          <div class="asset-value" id="dashHighestSpend">0</div>
+          <div class="asset-sub">Largest single expense</div>
+          <div class="asset-badge">Peak <strong>record</strong></div>
+        </div>
+        <div class="insight-asset-card">
+          <div class="asset-date">ACTIVITY</div>
+          <div class="asset-title">Transactions</div>
+          <div class="asset-value" id="dashTransactionCount">0</div>
+          <div class="asset-sub">Records in selected period</div>
+          <div class="asset-badge">Categories <strong id="analyticsCategories">0</strong></div>
         </div>
       </div>
-
-      <div class="dash-card">
-        <div class="dash-card-title">
-          <span>Highest Spending</span>
-          <span class="dash-chip red">Peak</span>
-        </div>
-        <div class="highlight-number" id="dashHighestSpend">0</div>
-        <div class="kpi-highlight" id="dashHighestSpendLabel">No expense data</div>
-        <div id="highestSpendMiniChart" class="mini-chart">
-          <div class="baseline"></div>
-        </div>
-      </div>
-
     </div>
 
-</div>
+    <!-- Technical elements kept for the existing data-render functions -->
+    <div class="insights-tech">
+      <div id="balanceMiniChart"></div><div id="cashflowMiniChart"></div><div id="spendingMiniChart"></div>
+      <div id="transactionDotChart"></div><div id="categoryMiniChart"></div><div id="highestSpendMiniChart"></div>
+      <span id="dashCashflowValue">0</span><span id="dashCashflowChip">Net</span>
+      <span id="analyticsDailySpend">0</span><span id="analyticsTransactions">0</span>
+    </div>
+  </div>
 
   <!-- NAVIGATION BAR -->
   <div class="nav-wrapper">
@@ -1895,6 +1703,29 @@
       return Object.keys(map).sort().map(k => ({key:k, ...map[k]}));
     }
 
+    function renderOverviewBars(monthGroups) {
+      const el = document.getElementById('overviewBars');
+      if (!el) return;
+      if (!monthGroups.length) {
+        el.innerHTML = '<div style="width:100%; text-align:center; color:var(--text-muted); font-size:11px; font-weight:700; align-self:center;">No data for selected period</div>';
+        return;
+      }
+      const maxTotal = Math.max(1, ...monthGroups.map(g => Math.max(g.income, g.expense, g.savings, g.income + g.expense + g.savings)));
+      el.innerHTML = monthGroups.slice(-12).map(g => {
+        const e = Math.max(2, (g.expense / maxTotal) * 100);
+        const i = Math.max(2, (g.income / maxTotal) * 100);
+        const sv = Math.max(1, (g.savings / maxTotal) * 100);
+        return `<div class="overview-col" title="${g.label}: Income ${formatINR(g.income)} | Expense ${formatINR(g.expense)} | Savings ${formatINR(g.savings)}">
+          <div class="overview-stack">
+            <div class="overview-bar savings" style="height:${sv}%"></div>
+            <div class="overview-bar income" style="height:${i}%"></div>
+            <div class="overview-bar expense" style="height:${e}%"></div>
+          </div>
+          <div class="overview-label">${g.label}</div>
+        </div>`;
+      }).join('');
+    }
+
     function generateInsights() {
       const { txs, timeRange } = getInsightTransactions();
       const monthGroups = groupByMonth(txs);
@@ -1924,6 +1755,18 @@
       const avgDailySpend = totalExp / days;
       const incomeLeft = totalInc - totalExp;
       const savingsRate = totalInc > 0 ? Math.min(100, Math.max(0, (totalSav / totalInc) * 100)) : 0;
+
+      renderOverviewBars(monthGroups);
+      document.getElementById('sideIncome').innerText = formatINR(totalInc);
+      document.getElementById('sideExpense').innerText = formatINR(totalExp);
+      document.getElementById('sideCashLeft').innerText = formatINR(incomeLeft);
+      document.getElementById('portfolioIncomeValue').innerText = formatINR(totalInc);
+      document.getElementById('portfolioExpenseValue').innerText = formatINR(totalExp);
+      document.getElementById('portfolioSavingsValue').innerText = formatINR(totalSav);
+      document.getElementById('savingsRingText').innerText = `${savingsRate.toFixed(0)}%`;
+      document.getElementById('savingsRing').style.setProperty('--p', `${savingsRate}%`);
+      document.getElementById('assetTopCategory').innerText = topCat ? topCat[0] : '—';
+      document.getElementById('balanceProgressFill').style.width = `${Math.min(100, Math.max(0, totalInc ? (Math.max(balance,0)/totalInc)*100 : 0))}%`;
 
       document.getElementById('dashBalanceValue').innerText = formatINR(balance);
       document.getElementById('dashBalanceValue').style.color = balance >= 0 ? 'var(--text-main)' : 'var(--accent-red)';
