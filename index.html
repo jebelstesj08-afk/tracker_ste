@@ -1,19 +1,17 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
-  <title>Household Management System</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Tracker">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js">
-
-
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover" name="viewport"/>
+<title>Household Management System</title>
+<link href="manifest.json" rel="manifest"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="Tracker" name="apple-mobile-web-app-title"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js">
 </script>
-
-  <style>
+<style>
     :root {
       --bg-color: #f2f3f7; 
       --card-bg: #ffffff;
@@ -525,580 +523,597 @@
 .p3-btn{border:0;border-radius:13px;padding:10px 13px;background:var(--text-main);color:var(--card-bg);font-weight:750;cursor:pointer}
 @media(max-width:520px){.p3-grid{grid-template-columns:1fr}.p3-section{padding:14px}}
 
+
+/* ===== INSIGHTS MODE SWITCH / IPHONE 13 & 15 SAFE LAYOUT ===== */
+.insight-mode-switch{display:flex;gap:6px;padding:5px;margin:0 0 14px;background:var(--input-bg);border:1px solid var(--border-color);border-radius:16px;width:100%;max-width:100%;box-sizing:border-box;overflow:hidden}
+.insight-mode-btn{flex:1 1 0;min-width:0;border:0;background:transparent;color:var(--text-muted);padding:11px 8px;border-radius:12px;font-size:12px;font-weight:850;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.insight-mode-btn.active{background:var(--card-bg);color:var(--text-main);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.insight-mode-panel{display:none;width:100%;max-width:100%;min-width:0;overflow:hidden;box-sizing:border-box}
+.insight-mode-panel.active{display:block}
+.insight-mode-panel .insights-card,.insight-mode-panel .phase2-panel,.insight-mode-panel .p3-section{min-width:0;max-width:100%;overflow:hidden}
+.insight-mode-panel .insights-lower{grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-width:0}
+.insight-mode-panel .insight-category-row{grid-template-columns:34px minmax(0,1fr) minmax(0,auto);min-width:0}
+.insight-mode-panel .insight-category-main{min-width:0;overflow:hidden}
+.insight-mode-panel .insight-category-name,.insight-mode-panel .insight-record-title{min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.insight-mode-panel .insight-category-amt,.insight-mode-panel .insight-record-amt{min-width:0;max-width:42%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:0 0 auto}
+.insight-mode-panel .insight-record{min-width:0;width:100%;overflow:hidden}
+.insight-mode-panel .insight-record-main{min-width:0;flex:1 1 auto;overflow:hidden}
+.vehicle-kpi-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.vehicle-kpi{background:var(--input-bg);border-radius:16px;padding:13px;min-width:0;overflow:hidden}
+.vehicle-kpi span{display:block;font-size:10px;color:var(--text-muted);font-weight:750;text-transform:uppercase}
+.vehicle-kpi strong{display:block;margin-top:5px;font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.safe-list{width:100%;min-width:0;overflow:hidden}
+@media(max-width:700px){.insight-mode-panel .insights-lower{grid-template-columns:1fr}.vehicle-kpi-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){
+  .insight-mode-switch{margin-left:0;margin-right:0}
+  .insight-mode-btn{font-size:11px;padding:10px 6px}
+  .insight-mode-panel{overflow-x:hidden}
+  .insight-mode-panel .insights-hero,.insight-mode-panel .insights-kpi-grid,.insight-mode-panel .phase2-grid{width:100%;max-width:100%;min-width:0}
+  .insight-mode-panel .insights-kpi-grid{grid-template-columns:1fr 1fr}
+  .insight-mode-panel .insights-side{grid-template-columns:1fr}
+  .insight-mode-panel .insights-lower{grid-template-columns:1fr}
+  .insight-mode-panel .insight-category-row{grid-template-columns:30px minmax(0,1fr) minmax(0,auto);gap:7px}
+  .insight-mode-panel .insight-category-icon{width:30px;height:30px}
+  .insight-mode-panel .insight-category-amt{max-width:35%;font-size:9px}
+  .insight-mode-panel .insight-record{gap:7px;padding:9px}
+  .insight-mode-panel .insight-record-icon{width:30px;height:30px}
+  .insight-mode-panel .insight-record-amt{max-width:35%;font-size:9px}
+  .vehicle-kpi-grid{grid-template-columns:1fr 1fr}
+  .vehicle-kpi{padding:11px}
+  .vehicle-kpi strong{font-size:17px}
+  .insight-mode-panel canvas{max-width:100%!important}
+  .insight-mode-panel .insights-panel-head{min-width:0}
+  .insight-mode-panel .insights-panel-head>div{min-width:0}
+  .insight-mode-panel .insights-small-sub,.insight-mode-panel .insight-small-sub{max-width:38%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
 </style>
 </head>
 <body>
-
 <div class="app-container">
-
-  <div class="header">
-    <div style="display: flex; align-items: center; gap: 6px;">
-      <span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">Hello,</span>
-      <select id="globalUserSelect" onchange="onGlobalUserChange()" style="padding: 4px 8px; border-radius: 10px; font-size: 15px; font-weight: 700; background: transparent; color: var(--text-main); border: none; outline: none; cursor: pointer; width: auto; display: inline-block;">
-        <option value="Jebel" style="background: var(--card-bg); color: var(--text-main);">Jebel</option>
-        <option value="Reshma" style="background: var(--card-bg); color: var(--text-main);">Reshma</option>
-      </select>
-    </div>
-    <div style="display:flex; gap:10px; align-items: center;">
-      <button class="header-btn" onclick="openSearchModal()" title="Search History">🔍</button>
-      <button class="header-btn" onclick="toggleTheme()" title="Toggle Theme">🌓</button>
-      <button class="header-btn" ondblclick="window.location.reload(true)" onclick="forceSync()" title="Sync Data">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.73-5.73"></path></svg>
-      </button>
-    </div>
-  </div>
-
-  <div class="balance-section" id="headerBalanceSection">
-    <div style="display: flex; gap: 15px; align-items: flex-start;">
-      <div style="flex: 1; overflow: hidden;" id="mainBalanceHeaderContainer">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-          <span class="balance-label" id="topLabel" style="margin-bottom: 0;">Main balance</span>
-          <button id="sectionResetBtn" onclick="resetActiveTabFields()" style="background: transparent; border: none; cursor: pointer; font-size: 13px; color: var(--text-muted); padding: 0 4px;" title="Clear fields">↺ Reset</button>
-        </div>
-        <h1 class="balance-amount" id="topBalance">0</h1>
-      </div>
-      <div id="secondaryBalanceBlock" style="flex: 1; display: none; overflow: hidden;">
-        <span class="balance-label" id="secondaryLabel">Total earnings</span>
-        <h1 class="balance-amount small" id="secondaryBalance" style="color: var(--accent-green);">0</h1>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB 1: TRANSACTIONS & SAVINGS -->
-  <div id="Transactions" class="tab-content active-tab">
-    <div style="display: flex; background: var(--input-bg); padding: 4px; border-radius: var(--radius-md); margin-bottom: 16px;">
-      <button type="button" id="typeExpBtn" onclick="setTxType('Expense')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: all 0.2s;">Expense</button>
-      <button type="button" id="typeIncBtn" onclick="setTxType('Income')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;">Income</button>
-      <button type="button" id="typeSavBtn" onclick="setTxType('Savings')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;">Savings</button>
-    </div>
-
-    <div class="input-group">
-      <label>Amount</label>
-      <div class="amount-wrapper">
-        <input type="number" id="txAmount" placeholder="0" step="0.01">
-      </div>
-    </div>
-    <div class="two-col">
-      <div class="input-group">
-        <label>User</label>
-        <select id="txUser">
-          <option value="Jebel">Jebel</option>
-          <option value="Reshma">Reshma</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <label>Date</label>
-        <input type="date" id="txDate">
-      </div>
-    </div>
-    
-    <!-- Category / Source / Savings Type -->
-    <div class="input-group">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <label id="txCatLabel" style="margin-bottom: 0;">Category</label>
-        <div class="file-upload-wrapper" id="receiptRowContainer" style="cursor: pointer;" title="Attach Receipt">
-          <span id="cameraIconSpan" style="font-size: 13px; color: var(--accent-blue); font-weight: 600;">📎 Attach</span>
-          <input type="file" id="txReceipt" accept="image/*" capture="environment" onchange="updateCameraBtn()">
-        </div>
-      </div>
-      <select id="txCat">
-        <!-- Dynamically Populated -->
-      </select>
-    </div>
-
-    <!-- Details with Payment Method seamless selector parallel to Details Header -->
-    <div class="input-group">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <label style="margin-bottom: 0;">Details</label>
-        <select id="txPaymentMethod" style="width: auto; border: none; outline: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--accent-blue); cursor: pointer; padding: 0;">
-          <option value="" disabled selected>💳 Payment Method</option>
-          <option value="Cash">Cash</option>
-          <option value="Google pay upi">Google pay upi</option>
-          <option value="Axis my zone cc">Axis my zone cc</option>
-          <option value="Axis flipkart cc">Axis flipkart cc</option>
-          <option value="Axis indianoil cc">Axis indianoil cc</option>
-          <option value="Hdfc moneyback cc">Hdfc moneyback cc</option>
-          <option value="Icici amazon pay cc">Icici amazon pay cc</option>
-        </select>
-      </div>
-      <input type="text" id="txDesc" placeholder="Add a note (optional)">
-    </div>
-    
-    <button class="save-btn btn-expense" id="txSaveBtn" onclick="saveUnifiedData()">Add Expense</button>
-  </div>
-
-  <!-- TAB 2: VEHICLE / FUEL TAB -->
-  <div id="Fuel" class="tab-content">
-    <div class="two-col">
-      <div class="input-group">
-        <label>Log Type</label>
-        <select id="fuelLogType" onchange="toggleFuelFields()" style="font-weight: 700;">
-          <option value="Fuel">⛽ Fuel Fill-up</option>
-          <option value="Service">🔧 Service</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <label>Select Vehicle</label>
-        <select id="fuelVehicle" onchange="calculateMileagePreview()">
-          <option value="Hornet 2.0">Hornet 2.0</option>
-          <option value="Yamaha FZ">Yamaha FZ</option>
-          <option value="Dio">Dio</option>
-          <option value="i20">i20</option>
-          <option value="XUV 500">XUV 500</option>
-          <option value="Qualis">Qualis</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Last Service Odometer Info Card -->
-    <div id="lastServiceCard" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 16px; font-size: 14px; display: flex; justify-content: space-between; align-items: center;">
-      <span style="color: var(--text-muted); font-weight: 600;">Last Service Odometer:</span>
-      <span id="lastServiceOdoText" style="font-weight: 800; color: var(--accent-blue);">Not recorded</span>
-    </div>
-
-    <div class="two-col">
-      <div class="input-group">
-        <label>User</label>
-        <select id="fuelUser"><option value="Jebel">Jebel</option><option value="Reshma">Reshma</option></select>
-      </div>
-      <div class="input-group">
-        <label>Date</label>
-        <input type="date" id="fuelDate">
-      </div>
-    </div>
-
-    <div class="two-col">
-      <div class="input-group">
-        <label>Total Price</label>
-        <input type="number" id="fuelAmount" placeholder="0" step="0.01">
-      </div>
-      <div class="input-group" id="litresGroup">
-        <label>Litres Added</label>
-        <input type="number" id="fuelLitres" placeholder="0.00" step="0.01" oninput="calculateMileagePreview()">
-      </div>
-    </div>
-
-    <div class="input-group">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <label style="margin-bottom: 0;">Odometer Reading (km)</label>
-        <button onclick="resetFuelFields()" style="background: transparent; border: none; cursor: pointer; font-size: 13px; color: var(--text-muted); padding: 0 4px;" title="Reset Odometer & fields">↺ Reset</button>
-      </div>
-      <input type="number" id="fuelOdo" placeholder="Current km reading..." oninput="calculateMileagePreview()" style="padding: 10px 16px; font-size: 15px;">
-    </div>
-
-    <!-- Live Service Progress & Mileage Preview Box -->
-    <div id="mileagePreviewBox" style="display: none; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px; font-size: 14px;">
-      <div style="font-weight: 700; color: var(--accent-blue); margin-bottom: 6px;">📊 Trip Analytics & Service Status</div>
-      <div id="serviceProgressContainer" style="margin-bottom: 8px;">
-        <div id="serviceProgressText" style="font-weight: 600; margin-bottom: 4px; font-size: 13px;"></div>
-        <div style="background: var(--input-bg); border-radius: 6px; height: 8px; width: 100%; overflow: hidden;">
-          <div id="serviceProgressBar" style="height: 100%; width: 0%; border-radius: 6px; transition: width 0.3s ease;"></div>
-        </div>
-      </div>
-      <div id="mileagePreviewText" style="color: var(--text-muted); font-weight: 500; font-size: 13px; border-top: 1px solid var(--border-color); padding-top: 6px; margin-top: 6px;"></div>
-    </div>
-
-    <!-- Details and Payment Method Row for Vehicle Tab -->
-    <div class="input-group">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <label style="margin-bottom: 0;">Details / Station</label>
-        <select id="fuelPaymentMethod" style="width: auto; border: none; outline: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--accent-blue); cursor: pointer; padding: 0;">
-          <option value="" disabled selected>💳 Payment Method</option>
-          <option value="Cash">Cash</option>
-          <option value="Google pay upi">Google pay upi</option>
-          <option value="Axis my zone cc">Axis my zone cc</option>
-          <option value="Axis flipkart cc">Axis flipkart cc</option>
-          <option value="Axis indianoil cc">Axis indianoil cc</option>
-          <option value="Hdfc moneyback cc">Hdfc moneyback cc</option>
-          <option value="Icici amazon pay cc">Icici amazon pay cc</option>
-        </select>
-      </div>
-      <input type="text" id="fuelDesc" placeholder="e.g. NTP Petroleum or Oil Change">
-    </div>
-
-    <button class="save-btn btn-fuel" id="vehicleLogBtn" onclick="saveFuelData()">Log Fuel Fill</button>
-  </div>
-
-  <!-- TAB 3: LEDGER / VIEW MODES TAB -->
-  <div id="Ledger" class="tab-content">
-    <div class="ledger-shell">
-      <div class="ledger-toolbar">
-        <div class="ledger-toolbar-top">
-          <div class="ledger-heading">
-            <h2>Ledger</h2>
-            <p>Track spending, income and savings in one view</p>
-          </div>
-          <button class="ledger-sync" onclick="forceSync()" title="Sync data">↻</button>
-        </div>
-
-        <div class="ledger-filter-grid">
-          <div class="input-group">
-            <label>Who</label>
-            <select id="ledgerFilterUser" onchange="generateLedger()" style="font-weight:700; background:var(--input-bg);">
-              <option value="Us">Us</option>
-              <option value="Jebel">Jebel</option>
-              <option value="Reshma">Reshma</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label>View period</label>
-            <select id="ledgerQuickRange" onchange="applyLedgerQuickRange()" style="font-weight:700; background:var(--input-bg);">
-              <option value="cycle">Current Cycle</option>
-              <option value="month">This Month</option>
-              <option value="30d">Last 30 Days</option>
-              <option value="90d">Last 90 Days</option>
-              <option value="all">All Time</option>
-              <option value="custom">Custom Range</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="ledger-date-row">
-          <div class="ledger-date-pill">
-            <label>From</label>
-            <input type="date" id="ledgerStartDate" onchange="ledgerCustomDateChanged(); generateLedger()">
-          </div>
-          <div class="ledger-date-pill">
-            <label>To</label>
-            <input type="date" id="ledgerEndDate" onchange="ledgerCustomDateChanged(); generateLedger()">
-          </div>
-        </div>
-      </div>
-
-      <div class="ledger-kpis">
-        <div class="ledger-kpi expense">
-          <div class="ledger-kpi-label">Spending</div>
-          <div class="ledger-kpi-value" id="ledgerKpiExpense">0</div>
-        </div>
-        <div class="ledger-kpi income">
-          <div class="ledger-kpi-label">Income</div>
-          <div class="ledger-kpi-value" id="ledgerKpiIncome">0</div>
-        </div>
-        <div class="ledger-kpi savings">
-          <div class="ledger-kpi-label">Savings</div>
-          <div class="ledger-kpi-value" id="ledgerKpiSavings">0</div>
-        </div>
-        <div class="ledger-kpi records">
-          <div class="ledger-kpi-label">Records</div>
-          <div class="ledger-kpi-value" id="ledgerKpiRecords">0</div>
-        </div>
-      </div>
-
-      <div class="ledger-view-card">
-        <div class="ledger-view-label">View</div>
-        <div class="ledger-view-tabs">
-          <button class="ledger-view-tab active" id="ledgerViewRecordsBtn" onclick="setLedgerViewMode('records')">Records</button>
-          <button class="ledger-view-tab" id="ledgerViewCategoriesBtn" onclick="setLedgerViewMode('categories')">Categories</button>
-          <button class="ledger-view-tab" id="ledgerViewSavingsBtn" onclick="setLedgerViewMode('savings')">Savings</button>
-        </div>
-        <select id="ledgerViewMode" onchange="syncLedgerViewTab(); generateLedger()" style="display:none;">
-          <option value="records">Period Records</option>
-          <option value="categories">Top Categories Breakdown</option>
-          <option value="savings">Savings Summary</option>
-        </select>
-      </div>
-
-      <div id="ledgerLoadingIndicator" style="text-align:center; color:var(--text-muted); display:none; padding:4px 0; font-size:11px; font-weight:700;">Syncing data...</div>
-      <div id="ledgerDynamicContainer"></div>
-    </div>
-  </div>
+<div class="header">
+<div style="display: flex; align-items: center; gap: 6px;">
+<span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">Hello,</span>
+<select id="globalUserSelect" onchange="onGlobalUserChange()" style="padding: 4px 8px; border-radius: 10px; font-size: 15px; font-weight: 700; background: transparent; color: var(--text-main); border: none; outline: none; cursor: pointer; width: auto; display: inline-block;">
+<option style="background: var(--card-bg); color: var(--text-main);" value="Jebel">Jebel</option>
+<option style="background: var(--card-bg); color: var(--text-main);" value="Reshma">Reshma</option>
+</select>
+</div>
+<div style="display:flex; gap:10px; align-items: center;">
+<button class="header-btn" onclick="openSearchModal()" title="Search History">🔍</button>
+<button class="header-btn" onclick="toggleTheme()" title="Toggle Theme">🌓</button>
+<button class="header-btn" onclick="forceSync()" ondblclick="window.location.reload(true)" title="Sync Data">
+<svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24" width="18"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.73-5.73"></path></svg>
+</button>
+</div>
+</div>
+<div class="balance-section" id="headerBalanceSection">
+<div style="display: flex; gap: 15px; align-items: flex-start;">
+<div id="mainBalanceHeaderContainer" style="flex: 1; overflow: hidden;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+<span class="balance-label" id="topLabel" style="margin-bottom: 0;">Main balance</span>
+<button id="sectionResetBtn" onclick="resetActiveTabFields()" style="background: transparent; border: none; cursor: pointer; font-size: 13px; color: var(--text-muted); padding: 0 4px;" title="Clear fields">↺ Reset</button>
+</div>
+<h1 class="balance-amount" id="topBalance">0</h1>
+</div>
+<div id="secondaryBalanceBlock" style="flex: 1; display: none; overflow: hidden;">
+<span class="balance-label" id="secondaryLabel">Total earnings</span>
+<h1 class="balance-amount small" id="secondaryBalance" style="color: var(--accent-green);">0</h1>
+</div>
+</div>
+</div>
+<!-- TAB 1: TRANSACTIONS & SAVINGS -->
+<div class="tab-content active-tab" id="Transactions">
+<div style="display: flex; background: var(--input-bg); padding: 4px; border-radius: var(--radius-md); margin-bottom: 16px;">
+<button id="typeExpBtn" onclick="setTxType('Expense')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: all 0.2s;" type="button">Expense</button>
+<button id="typeIncBtn" onclick="setTxType('Income')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;" type="button">Income</button>
+<button id="typeSavBtn" onclick="setTxType('Savings')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;" type="button">Savings</button>
+</div>
+<div class="input-group">
+<label>Amount</label>
+<div class="amount-wrapper">
+<input id="txAmount" placeholder="0" step="0.01" type="number"/>
+</div>
+</div>
+<div class="two-col">
+<div class="input-group">
+<label>User</label>
+<select id="txUser">
+<option value="Jebel">Jebel</option>
+<option value="Reshma">Reshma</option>
+</select>
+</div>
+<div class="input-group">
+<label>Date</label>
+<input id="txDate" type="date"/>
+</div>
+</div>
+<!-- Category / Source / Savings Type -->
+<div class="input-group">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+<label id="txCatLabel" style="margin-bottom: 0;">Category</label>
+<div class="file-upload-wrapper" id="receiptRowContainer" style="cursor: pointer;" title="Attach Receipt">
+<span id="cameraIconSpan" style="font-size: 13px; color: var(--accent-blue); font-weight: 600;">📎 Attach</span>
+<input accept="image/*" capture="environment" id="txReceipt" onchange="updateCameraBtn()" type="file"/>
+</div>
+</div>
+<select id="txCat">
+<!-- Dynamically Populated -->
+</select>
+</div>
+<!-- Details with Payment Method seamless selector parallel to Details Header -->
+<div class="input-group">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+<label style="margin-bottom: 0;">Details</label>
+<select id="txPaymentMethod" style="width: auto; border: none; outline: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--accent-blue); cursor: pointer; padding: 0;">
+<option disabled="" selected="" value="">💳 Payment Method</option>
+<option value="Cash">Cash</option>
+<option value="Google pay upi">Google pay upi</option>
+<option value="Axis my zone cc">Axis my zone cc</option>
+<option value="Axis flipkart cc">Axis flipkart cc</option>
+<option value="Axis indianoil cc">Axis indianoil cc</option>
+<option value="Hdfc moneyback cc">Hdfc moneyback cc</option>
+<option value="Icici amazon pay cc">Icici amazon pay cc</option>
+</select>
+</div>
+<input id="txDesc" placeholder="Add a note (optional)" type="text"/>
+</div>
+<button class="save-btn btn-expense" id="txSaveBtn" onclick="saveUnifiedData()">Add Expense</button>
+</div>
+<!-- TAB 2: VEHICLE / FUEL TAB -->
+<div class="tab-content" id="Fuel">
+<div class="two-col">
+<div class="input-group">
+<label>Log Type</label>
+<select id="fuelLogType" onchange="toggleFuelFields()" style="font-weight: 700;">
+<option value="Fuel">⛽ Fuel Fill-up</option>
+<option value="Service">🔧 Service</option>
+</select>
+</div>
+<div class="input-group">
+<label>Select Vehicle</label>
+<select id="fuelVehicle" onchange="calculateMileagePreview()">
+<option value="Hornet 2.0">Hornet 2.0</option>
+<option value="Yamaha FZ">Yamaha FZ</option>
+<option value="Dio">Dio</option>
+<option value="i20">i20</option>
+<option value="XUV 500">XUV 500</option>
+<option value="Qualis">Qualis</option>
+</select>
+</div>
+</div>
+<!-- Last Service Odometer Info Card -->
+<div id="lastServiceCard" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 16px; font-size: 14px; display: flex; justify-content: space-between; align-items: center;">
+<span style="color: var(--text-muted); font-weight: 600;">Last Service Odometer:</span>
+<span id="lastServiceOdoText" style="font-weight: 800; color: var(--accent-blue);">Not recorded</span>
+</div>
+<div class="two-col">
+<div class="input-group">
+<label>User</label>
+<select id="fuelUser"><option value="Jebel">Jebel</option><option value="Reshma">Reshma</option></select>
+</div>
+<div class="input-group">
+<label>Date</label>
+<input id="fuelDate" type="date"/>
+</div>
+</div>
+<div class="two-col">
+<div class="input-group">
+<label>Total Price</label>
+<input id="fuelAmount" placeholder="0" step="0.01" type="number"/>
+</div>
+<div class="input-group" id="litresGroup">
+<label>Litres Added</label>
+<input id="fuelLitres" oninput="calculateMileagePreview()" placeholder="0.00" step="0.01" type="number"/>
+</div>
+</div>
+<div class="input-group">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+<label style="margin-bottom: 0;">Odometer Reading (km)</label>
+<button onclick="resetFuelFields()" style="background: transparent; border: none; cursor: pointer; font-size: 13px; color: var(--text-muted); padding: 0 4px;" title="Reset Odometer &amp; fields">↺ Reset</button>
+</div>
+<input id="fuelOdo" oninput="calculateMileagePreview()" placeholder="Current km reading..." style="padding: 10px 16px; font-size: 15px;" type="number"/>
+</div>
+<!-- Live Service Progress & Mileage Preview Box -->
+<div id="mileagePreviewBox" style="display: none; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px; font-size: 14px;">
+<div style="font-weight: 700; color: var(--accent-blue); margin-bottom: 6px;">📊 Trip Analytics &amp; Service Status</div>
+<div id="serviceProgressContainer" style="margin-bottom: 8px;">
+<div id="serviceProgressText" style="font-weight: 600; margin-bottom: 4px; font-size: 13px;"></div>
+<div style="background: var(--input-bg); border-radius: 6px; height: 8px; width: 100%; overflow: hidden;">
+<div id="serviceProgressBar" style="height: 100%; width: 0%; border-radius: 6px; transition: width 0.3s ease;"></div>
+</div>
+</div>
+<div id="mileagePreviewText" style="color: var(--text-muted); font-weight: 500; font-size: 13px; border-top: 1px solid var(--border-color); padding-top: 6px; margin-top: 6px;"></div>
+</div>
+<!-- Details and Payment Method Row for Vehicle Tab -->
+<div class="input-group">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+<label style="margin-bottom: 0;">Details / Station</label>
+<select id="fuelPaymentMethod" style="width: auto; border: none; outline: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--accent-blue); cursor: pointer; padding: 0;">
+<option disabled="" selected="" value="">💳 Payment Method</option>
+<option value="Cash">Cash</option>
+<option value="Google pay upi">Google pay upi</option>
+<option value="Axis my zone cc">Axis my zone cc</option>
+<option value="Axis flipkart cc">Axis flipkart cc</option>
+<option value="Axis indianoil cc">Axis indianoil cc</option>
+<option value="Hdfc moneyback cc">Hdfc moneyback cc</option>
+<option value="Icici amazon pay cc">Icici amazon pay cc</option>
+</select>
+</div>
+<input id="fuelDesc" placeholder="e.g. NTP Petroleum or Oil Change" type="text"/>
+</div>
+<button class="save-btn btn-fuel" id="vehicleLogBtn" onclick="saveFuelData()">Log Fuel Fill</button>
+</div>
+<!-- TAB 3: LEDGER / VIEW MODES TAB -->
+<div class="tab-content" id="Ledger">
+<div class="ledger-shell">
+<div class="ledger-toolbar">
+<div class="ledger-toolbar-top">
+<div class="ledger-heading">
+<h2>Ledger</h2>
+<p>Track spending, income and savings in one view</p>
+</div>
+<button class="ledger-sync" onclick="forceSync()" title="Sync data">↻</button>
+</div>
+<div class="ledger-filter-grid">
+<div class="input-group">
+<label>Who</label>
+<select id="ledgerFilterUser" onchange="generateLedger()" style="font-weight:700; background:var(--input-bg);">
+<option value="Us">Us</option>
+<option value="Jebel">Jebel</option>
+<option value="Reshma">Reshma</option>
+</select>
+</div>
+<div class="input-group">
+<label>View period</label>
+<select id="ledgerQuickRange" onchange="applyLedgerQuickRange()" style="font-weight:700; background:var(--input-bg);">
+<option value="cycle">Current Cycle</option>
+<option value="month">This Month</option>
+<option value="30d">Last 30 Days</option>
+<option value="90d">Last 90 Days</option>
+<option value="all">All Time</option>
+<option value="custom">Custom Range</option>
+</select>
+</div>
+</div>
+<div class="ledger-date-row">
+<div class="ledger-date-pill">
+<label>From</label>
+<input id="ledgerStartDate" onchange="ledgerCustomDateChanged(); generateLedger()" type="date"/>
+</div>
+<div class="ledger-date-pill">
+<label>To</label>
+<input id="ledgerEndDate" onchange="ledgerCustomDateChanged(); generateLedger()" type="date"/>
+</div>
+</div>
+</div>
+<div class="ledger-kpis">
+<div class="ledger-kpi expense">
+<div class="ledger-kpi-label">Spending</div>
+<div class="ledger-kpi-value" id="ledgerKpiExpense">0</div>
+</div>
+<div class="ledger-kpi income">
+<div class="ledger-kpi-label">Income</div>
+<div class="ledger-kpi-value" id="ledgerKpiIncome">0</div>
+</div>
+<div class="ledger-kpi savings">
+<div class="ledger-kpi-label">Savings</div>
+<div class="ledger-kpi-value" id="ledgerKpiSavings">0</div>
+</div>
+<div class="ledger-kpi records">
+<div class="ledger-kpi-label">Records</div>
+<div class="ledger-kpi-value" id="ledgerKpiRecords">0</div>
+</div>
+</div>
+<div class="ledger-view-card">
+<div class="ledger-view-label">View</div>
+<div class="ledger-view-tabs">
+<button class="ledger-view-tab active" id="ledgerViewRecordsBtn" onclick="setLedgerViewMode('records')">Records</button>
+<button class="ledger-view-tab" id="ledgerViewCategoriesBtn" onclick="setLedgerViewMode('categories')">Categories</button>
+<button class="ledger-view-tab" id="ledgerViewSavingsBtn" onclick="setLedgerViewMode('savings')">Savings</button>
+</div>
+<select id="ledgerViewMode" onchange="syncLedgerViewTab(); generateLedger()" style="display:none;">
+<option value="records">Period Records</option>
+<option value="categories">Top Categories Breakdown</option>
+<option value="savings">Savings Summary</option>
+</select>
+</div>
+<div id="ledgerLoadingIndicator" style="text-align:center; color:var(--text-muted); display:none; padding:4px 0; font-size:11px; font-weight:700;">Syncing data...</div>
+<div id="ledgerDynamicContainer"></div>
+</div>
+</div>
+<!-- TAB 4: INSIGHTS / ANALYTICS TAB -->
+<div class="tab-content" id="Insights"><div aria-label="Insights type" class="insight-mode-switch" role="tablist"><button class="insight-mode-btn active" data-mode="household" onclick="setInsightMode('household')" type="button">🏠 Household Analytics</button><button class="insight-mode-btn" data-mode="vehicle" onclick="setInsightMode('vehicle')" type="button">🚗 Vehicle Analytics</button></div>
 
 
-  <!-- TAB 4: INSIGHTS / ANALYTICS TAB -->
-  <div id="Insights" class="tab-content">
-    <div class="insights-page">
-      <div class="insights-command">
-        <div class="insights-command-left">
-          <div class="insights-eyebrow">Household analytics</div>
-          <div class="insights-title">Insights</div>
-          <div class="insights-subtitle" id="insightsPeriodText">Everything important, in one glance.</div>
-        </div>
-        <div class="insights-status" id="insightsDataStatus"><span class="insights-status-dot"></span><span>Live data</span></div>
-      </div>
-
-      <div class="insights-controls">
-        <div class="input-group">
-          <select id="insightsFilterUser" onchange="generateInsights()" aria-label="Filter user">
-            <option value="Us">Us</option>
-            <option value="Jebel">Jebel</option>
-            <option value="Reshma">Reshma</option>
-          </select>
-        </div>
-        <div class="input-group">
-          <select id="insightsTimeRange" onchange="generateInsights()" aria-label="Time range">
-            <option value="all">All Time</option>
-            <option value="90d">Last 3 months</option>
-            <option value="30d">Last 30 days</option>
-            <option value="7d">Last 7 days</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="insights-hero">
-        <div class="insights-card insights-balance">
-          <div class="insights-balance-head">
-            <div>
-              <div class="insights-balance-kicker">Overall balance</div>
-              <div class="insights-balance-value" id="dashBalanceValue">0</div>
-              <div class="insights-balance-note" id="dashBalanceSub">Income − expenses − savings</div>
-            </div>
-            <div class="insights-balance-chip" id="balanceHealthChip">Positive</div>
-          </div>
-          <div class="insights-chart-wrap">
-            <div class="insights-gridlines"><span></span><span></span><span></span><span></span><span></span></div>
-            <div class="insights-bars" id="overviewBars"></div>
-          </div>
-          <div class="insight-chart-legend">
-            <span><i class="legend-dot legend-income"></i>Income</span>
-            <span><i class="legend-dot legend-expense"></i>Expense</span>
-            <span><i class="legend-dot legend-savings"></i>Savings</span>
-          </div>
-        </div>
-
-        <div class="insights-side">
-          <div class="insights-card insight-metric">
-            <div class="insight-metric-top"><span class="insight-metric-label">Income</span><span class="insight-metric-icon">↘</span></div>
-            <div class="insight-metric-value" id="sideIncome">0</div>
-            <div class="insight-metric-foot">Money received</div>
-          </div>
-          <div class="insights-card insight-metric">
-            <div class="insight-metric-top"><span class="insight-metric-label">Expenses</span><span class="insight-metric-icon">↗</span></div>
-            <div class="insight-metric-value" id="sideExpense">0</div>
-            <div class="insight-metric-foot">Money spent</div>
-          </div>
-          <div class="insights-card insight-metric">
-            <div class="insight-metric-top"><span class="insight-metric-label">Cash left</span><span class="insight-metric-icon">◌</span></div>
-            <div class="insight-metric-value" id="sideCashLeft">0</div>
-            <div class="insight-metric-foot">Income − expenses</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="insights-kpi-grid">
-        <div class="insights-card insight-kpi">
-          <div class="insight-kpi-title">Income</div>
-          <div class="insight-kpi-value" id="dashTotalIncome">0</div>
-          <div class="insight-kpi-sub" id="incomeKpiSub">0 records</div>
-          <div class="insight-kpi-track track-green"><span id="incomeKpiFill"></span></div>
-        </div>
-        <div class="insights-card insight-kpi">
-          <div class="insight-kpi-title">Expenses</div>
-          <div class="insight-kpi-value" id="dashTotalExpense">0</div>
-          <div class="insight-kpi-sub" id="expenseKpiSub">0 categories</div>
-          <div class="insight-kpi-track track-red"><span id="expenseKpiFill"></span></div>
-        </div>
-        <div class="insights-card insight-kpi">
-          <div class="insight-kpi-title">Savings</div>
-          <div class="insight-kpi-value" id="dashSavingsValue">0</div>
-          <div class="insight-kpi-sub" id="dashSavingsRateChip">0% of income</div>
-          <div class="insight-kpi-track track-purple"><span id="dashSavingsRangeFill"></span></div>
-        </div>
-        <div class="insights-card insight-kpi">
-          <div class="insight-kpi-title">Activity</div>
-          <div class="insight-kpi-value" id="dashTransactionCount">0</div>
-          <div class="insight-kpi-sub"><span id="analyticsCategories">0</span> spending categories</div>
-          <div class="insight-kpi-track track-blue"><span id="activityKpiFill"></span></div>
-        </div>
-      </div>
-
-      <div class="insights-lower">
-        <div class="insights-card insights-panel">
-          <div class="insights-panel-head">
-            <div>
-              <div class="insights-panel-title">Top spending categories</div>
-              <div class="insights-panel-sub">Where your money is going</div>
-            </div>
-            <div class="insight-small-sub" id="dashTopCategory">—</div>
-          </div>
-          <div class="insight-category-list" id="insightsCategoryList"></div>
-        </div>
-
-        <div class="insights-card insights-panel">
-          <div class="insights-panel-head">
-            <div>
-              <div class="insights-panel-title">Highest spend</div>
-              <div class="insights-panel-sub">Largest individual outgoing record</div>
-            </div>
-            <div class="insight-small-sub">Peak</div>
-          </div>
-          <div class="insight-record-list" id="insightsHighestList"></div>
-          <div style="height:12px"></div>
-          <div class="insights-panel-head" style="margin-bottom:8px;">
-            <div>
-              <div class="insights-panel-title" style="font-size:13px;">Savings rate</div>
-              <div class="insights-panel-sub">Share of income kept</div>
-            </div>
-            <div class="insight-small-sub" id="savingsRingText">0%</div>
-          </div>
-          <div class="insight-kpi-track track-purple" style="height:9px;"><span id="savingsProgressLong"></span></div>
-        </div>
-      </div>
-
-      <div class="insights-footer-note" id="insightsFooterNote">0 records included</div>
-
-      <!-- PHASE 2: HOUSEHOLD + PLANNING -->
-      <div class="phase2-grid">
-        <div class="insights-card phase2-panel">
-          <div class="insights-panel-head">
-            <div><div class="insights-panel-title">Household split</div><div class="insights-panel-sub">Jebel vs Reshma</div></div>
-          </div>
-          <div class="people-compare">
-            <div class="person-box"><div class="person-name">Jebel</div><div class="person-income" id="jebelIncome">₹0</div><div class="person-meta">Income</div><div class="person-bar"><span id="jebelBar"></span></div><div class="person-spend" id="jebelSpend">₹0 spent</div></div>
-            <div class="person-box"><div class="person-name">Reshma</div><div class="person-income" id="reshmaIncome">₹0</div><div class="person-meta">Income</div><div class="person-bar"><span id="reshmaBar"></span></div><div class="person-spend" id="reshmaSpend">₹0 spent</div></div>
-          </div>
-        </div>
-
-        <div class="insights-card phase2-panel">
-          <div class="insights-panel-head">
-            <div><div class="insights-panel-title">Recurring payments</div><div class="insights-panel-sub">Your planned household bills</div></div>
-            <button class="mini-action" onclick="toggleRecurringForm()">＋ Add</button>
-          </div>
-          <div id="recurringForm" class="recurring-form" style="display:none;">
-            <input id="recName" type="text" placeholder="e.g. Internet">
-            <input id="recAmount" type="number" inputmode="decimal" placeholder="Amount">
-            <select id="recFrequency"><option>Monthly</option><option>Weekly</option><option>Yearly</option></select>
-            <button class="mini-action primary" onclick="addRecurring()">Save</button>
-          </div>
-          <div id="recurringList" class="recurring-list"></div>
-        </div>
-      </div>
-
-      <div class="insights-card phase2-panel calendar-panel">
-        <div class="insights-panel-head">
-          <div><div class="insights-panel-title">Spending calendar</div><div class="insights-panel-sub">Daily activity for the selected period</div></div>
-          <div class="calendar-nav"><button class="mini-action" onclick="shiftCalendar(-1)">‹</button><span id="calendarMonthLabel">—</span><button class="mini-action" onclick="shiftCalendar(1)">›</button></div>
-        </div>
-        <div class="calendar-grid" id="insightsCalendar"></div>
-        <div class="calendar-legend"><span><i class="cal-dot cal-low"></i>Low</span><span><i class="cal-dot cal-mid"></i>Medium</span><span><i class="cal-dot cal-high"></i>High</span></div>
-      </div>
-
-      <div class="phase2-grid">
-        <div class="insights-card phase2-panel">
-          <div class="insights-panel-head">
-            <div><div class="insights-panel-title">Receipt check</div><div class="insights-panel-sub">Expenses with missing receipts</div></div>
-            <div class="insight-small-sub" id="receiptMissingCount">0</div>
-          </div>
-          <div id="receiptSummary" class="receipt-summary"></div>
-        </div>
-        <div class="insights-card phase2-panel">
-          <div class="insights-panel-head"><div><div class="insights-panel-title">Next up</div><div class="insights-panel-sub">Upcoming recurring commitments</div></div></div>
-          <div id="upcomingRecurring" class="upcoming-list"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="p3-section">
-      <div class="p3-title">🔔 Smart Alerts</div>
-      <div class="p3-sub">Actionable checks based on your current transaction data</div>
-      <div id="p3Alerts"></div>
-    </div>
-
-    <div class="p3-section">
-      <div class="p3-title">📈 Spending Trend</div>
-      <div class="p3-sub">Current month compared with the previous month</div>
-      <div class="p3-grid">
-        <div class="p3-stat"><div class="p3-stat-label">Current Month</div><div class="p3-stat-value" id="p3CurrentSpend">₹0</div></div>
-        <div class="p3-stat"><div class="p3-stat-label">Previous Month</div><div class="p3-stat-value" id="p3PreviousSpend">₹0</div></div>
-      </div>
-      <div class="p3-bar"><span id="p3TrendBar" style="width:0%"></span></div>
-      <div class="p3-alert" id="p3TrendText">No trend data yet.</div>
-    </div>
-
-    <div class="p3-section">
-      <div class="p3-title">📤 Reports</div>
-      <div class="p3-sub">Export the transactions currently stored in the app.</div>
-      <button class="p3-btn" onclick="exportPhase3CSV()">Export Transactions CSV</button>
-    </div>
 
 
-    <!-- Compatibility nodes used by older functions; kept hidden intentionally. -->
-    <div class="insights-tech">
-      <div id="balanceMiniChart"></div><div id="cashflowMiniChart"></div><div id="spendingMiniChart"></div>
-      <div id="transactionDotChart"></div><div id="categoryMiniChart"></div><div id="highestSpendMiniChart"></div>
-      <span id="dashCashflowValue">0</span><span id="dashCashflowChip">Net</span>
-      <span id="analyticsDailySpend">0</span><span id="analyticsTransactions">0</span>
-      <span id="portfolioIncomeValue">0</span><span id="portfolioExpenseValue">0</span><span id="portfolioSavingsValue">0</span>
-      <div id="incomeMiniChart"></div><div id="expenseMiniChart"></div><div id="portfolioIncomeMini"></div><div id="portfolioExpenseMini"></div>
-      <div id="savingsRing"></div><span id="dashHighestSpend">0</span><span id="dashHighestSpendLabel">No expense data</span><span id="dashTopCategoryAmount">0</span>
-      <div id="balanceProgressFill"></div>
-    </div>
-  </div>
+<!-- Compatibility nodes used by older functions; kept hidden intentionally. -->
 
-  <!-- NAVIGATION BAR -->
-  <div class="nav-wrapper">
-    <div class="nav-pill">
-      <button id="nav-Transactions" class="active-nav" onclick="showTab('Transactions')" title="Add Entry" aria-label="Add Entry">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 5v14"></path><path d="M5 12h14"></path>
-          <circle cx="12" cy="12" r="8.5"></circle>
-        </svg>
-      </button>
-      <button id="nav-Fuel" onclick="showTab('Fuel')" title="Vehicle / Fuel" aria-label="Vehicle and Fuel">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M6 19V5.5A1.5 1.5 0 0 1 7.5 4h5A1.5 1.5 0 0 1 14 5.5V19"></path>
-          <path d="M5 19h10"></path><path d="M8 7h4"></path>
-          <path d="M14 8h2l2.5 2.5V15a2 2 0 0 0 2 2h.5"></path>
-          <path d="M19 11h1.5"></path><circle cx="18.5" cy="19" r="1.5"></circle>
-        </svg>
-      </button>
-      <button id="nav-Ledger" onclick="showTab('Ledger')" title="Ledger & Records" aria-label="Ledger and Records">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="4" y="4" width="16" height="16" rx="3"></rect>
-          <path d="M8 9h8M8 13h5M8 17h4"></path>
-          <path d="M16 13h0"></path>
-        </svg>
-      </button>
-      <button id="nav-Insights" onclick="showTab('Insights')" title="Analytics" aria-label="Analytics">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 19V5"></path><path d="M4 19h16"></path>
-          <path d="m7 15 3-4 3 2 5-6"></path>
-          <path d="M15 7h3v3"></path>
-        </svg>
-      </button>
-    </div>
-  </div>
-
-</div> 
-
-  <!-- SEARCH MODAL -->
-  <div id="searchModal" class="modal-overlay" onclick="closeSearchModal(event)">
-    <div class="modal-content" style="min-height: 80vh;" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <h3 style="font-size:24px;">Search History</h3>
-        <button class="close-btn" onclick="closeSearchModal()">✕</button>
-      </div>
-      <input type="text" id="searchInput" placeholder="Search categories, notes, amounts..." onkeyup="performSearch()">
-      <div id="searchResultsList" class="transaction-list" style="margin-top: 10px;">
-        <div style="text-align:center; color:var(--text-muted); padding:20px;">Type to search all transactions...</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- RECORD DETAILS MODAL -->
-  <div id="recordDetailModal" class="modal-overlay" onclick="closeRecordDetailModal(event)">
-    <div class="modal-content" style="min-height: auto; max-height: 70vh;" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <h3>Transaction Details</h3>
-        <button class="close-btn" onclick="closeRecordDetailModal()">✕</button>
-      </div>
-      <div id="recordDetailBody" style="font-size: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 20px;">
-        <!-- Filled dynamically -->
-      </div>
-    </div>
-  </div>
-
-  <!-- CATEGORY DETAILS MODAL -->
-  <div id="categoryModal" class="modal-overlay" onclick="closeCategoryModal(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <h3 id="modalCategoryTitle">Category Name</h3>
-        <button class="close-btn" onclick="closeCategoryModal()">✕</button>
-      </div>
-      <div id="modalTransactionList" class="transaction-list"></div>
-    </div>
-  </div>
-
-  <script>
+<div class="insight-mode-panel active" id="householdInsightPanel"><div class="insights-page">
+<div class="insights-command">
+<div class="insights-command-left">
+<div class="insights-eyebrow">Household analytics</div>
+<div class="insights-title">Insights</div>
+<div class="insights-subtitle" id="insightsPeriodText">Everything important, in one glance.</div>
+</div>
+<div class="insights-status" id="insightsDataStatus"><span class="insights-status-dot"></span><span>Live data</span></div>
+</div>
+<div class="insights-controls">
+<div class="input-group">
+<select aria-label="Filter user" id="insightsFilterUser" onchange="generateInsights()">
+<option value="Us">Us</option>
+<option value="Jebel">Jebel</option>
+<option value="Reshma">Reshma</option>
+</select>
+</div>
+<div class="input-group">
+<select aria-label="Time range" id="insightsTimeRange" onchange="generateInsights()">
+<option value="all">All Time</option>
+<option value="90d">Last 3 months</option>
+<option value="30d">Last 30 days</option>
+<option value="7d">Last 7 days</option>
+</select>
+</div>
+</div>
+<div class="insights-hero">
+<div class="insights-card insights-balance">
+<div class="insights-balance-head">
+<div>
+<div class="insights-balance-kicker">Overall balance</div>
+<div class="insights-balance-value" id="dashBalanceValue">0</div>
+<div class="insights-balance-note" id="dashBalanceSub">Income − expenses − savings</div>
+</div>
+<div class="insights-balance-chip" id="balanceHealthChip">Positive</div>
+</div>
+<div class="insights-chart-wrap">
+<div class="insights-gridlines"><span></span><span></span><span></span><span></span><span></span></div>
+<div class="insights-bars" id="overviewBars"></div>
+</div>
+<div class="insight-chart-legend">
+<span><i class="legend-dot legend-income"></i>Income</span>
+<span><i class="legend-dot legend-expense"></i>Expense</span>
+<span><i class="legend-dot legend-savings"></i>Savings</span>
+</div>
+</div>
+<div class="insights-side">
+<div class="insights-card insight-metric">
+<div class="insight-metric-top"><span class="insight-metric-label">Income</span><span class="insight-metric-icon">↘</span></div>
+<div class="insight-metric-value" id="sideIncome">0</div>
+<div class="insight-metric-foot">Money received</div>
+</div>
+<div class="insights-card insight-metric">
+<div class="insight-metric-top"><span class="insight-metric-label">Expenses</span><span class="insight-metric-icon">↗</span></div>
+<div class="insight-metric-value" id="sideExpense">0</div>
+<div class="insight-metric-foot">Money spent</div>
+</div>
+<div class="insights-card insight-metric">
+<div class="insight-metric-top"><span class="insight-metric-label">Cash left</span><span class="insight-metric-icon">◌</span></div>
+<div class="insight-metric-value" id="sideCashLeft">0</div>
+<div class="insight-metric-foot">Income − expenses</div>
+</div>
+</div>
+</div>
+<div class="insights-kpi-grid">
+<div class="insights-card insight-kpi">
+<div class="insight-kpi-title">Income</div>
+<div class="insight-kpi-value" id="dashTotalIncome">0</div>
+<div class="insight-kpi-sub" id="incomeKpiSub">0 records</div>
+<div class="insight-kpi-track track-green"><span id="incomeKpiFill"></span></div>
+</div>
+<div class="insights-card insight-kpi">
+<div class="insight-kpi-title">Expenses</div>
+<div class="insight-kpi-value" id="dashTotalExpense">0</div>
+<div class="insight-kpi-sub" id="expenseKpiSub">0 categories</div>
+<div class="insight-kpi-track track-red"><span id="expenseKpiFill"></span></div>
+</div>
+<div class="insights-card insight-kpi">
+<div class="insight-kpi-title">Savings</div>
+<div class="insight-kpi-value" id="dashSavingsValue">0</div>
+<div class="insight-kpi-sub" id="dashSavingsRateChip">0% of income</div>
+<div class="insight-kpi-track track-purple"><span id="dashSavingsRangeFill"></span></div>
+</div>
+<div class="insights-card insight-kpi">
+<div class="insight-kpi-title">Activity</div>
+<div class="insight-kpi-value" id="dashTransactionCount">0</div>
+<div class="insight-kpi-sub"><span id="analyticsCategories">0</span> spending categories</div>
+<div class="insight-kpi-track track-blue"><span id="activityKpiFill"></span></div>
+</div>
+</div>
+<div class="insights-lower">
+<div class="insights-card insights-panel">
+<div class="insights-panel-head">
+<div>
+<div class="insights-panel-title">Top spending categories</div>
+<div class="insights-panel-sub">Where your money is going</div>
+</div>
+<div class="insight-small-sub" id="dashTopCategory">—</div>
+</div>
+<div class="insight-category-list" id="insightsCategoryList"></div>
+</div>
+<div class="insights-card insights-panel">
+<div class="insights-panel-head">
+<div>
+<div class="insights-panel-title">Highest spend</div>
+<div class="insights-panel-sub">Largest individual outgoing record</div>
+</div>
+<div class="insight-small-sub">Peak</div>
+</div>
+<div class="insight-record-list" id="insightsHighestList"></div>
+<div style="height:12px"></div>
+<div class="insights-panel-head" style="margin-bottom:8px;">
+<div>
+<div class="insights-panel-title" style="font-size:13px;">Savings rate</div>
+<div class="insights-panel-sub">Share of income kept</div>
+</div>
+<div class="insight-small-sub" id="savingsRingText">0%</div>
+</div>
+<div class="insight-kpi-track track-purple" style="height:9px;"><span id="savingsProgressLong"></span></div>
+</div>
+</div>
+<div class="insights-footer-note" id="insightsFooterNote">0 records included</div>
+<!-- PHASE 2: HOUSEHOLD + PLANNING -->
+<div class="phase2-grid">
+<div class="insights-card phase2-panel">
+<div class="insights-panel-head">
+<div><div class="insights-panel-title">Household split</div><div class="insights-panel-sub">Jebel vs Reshma</div></div>
+</div>
+<div class="people-compare">
+<div class="person-box"><div class="person-name">Jebel</div><div class="person-income" id="jebelIncome">₹0</div><div class="person-meta">Income</div><div class="person-bar"><span id="jebelBar"></span></div><div class="person-spend" id="jebelSpend">₹0 spent</div></div>
+<div class="person-box"><div class="person-name">Reshma</div><div class="person-income" id="reshmaIncome">₹0</div><div class="person-meta">Income</div><div class="person-bar"><span id="reshmaBar"></span></div><div class="person-spend" id="reshmaSpend">₹0 spent</div></div>
+</div>
+</div>
+<div class="insights-card phase2-panel">
+<div class="insights-panel-head">
+<div><div class="insights-panel-title">Recurring payments</div><div class="insights-panel-sub">Your planned household bills</div></div>
+<button class="mini-action" onclick="toggleRecurringForm()">＋ Add</button>
+</div>
+<div class="recurring-form" id="recurringForm" style="display:none;">
+<input id="recName" placeholder="e.g. Internet" type="text"/>
+<input id="recAmount" inputmode="decimal" placeholder="Amount" type="number"/>
+<select id="recFrequency"><option>Monthly</option><option>Weekly</option><option>Yearly</option></select>
+<button class="mini-action primary" onclick="addRecurring()">Save</button>
+</div>
+<div class="recurring-list" id="recurringList"></div>
+</div>
+</div>
+<div class="insights-card phase2-panel calendar-panel">
+<div class="insights-panel-head">
+<div><div class="insights-panel-title">Spending calendar</div><div class="insights-panel-sub">Daily activity for the selected period</div></div>
+<div class="calendar-nav"><button class="mini-action" onclick="shiftCalendar(-1)">‹</button><span id="calendarMonthLabel">—</span><button class="mini-action" onclick="shiftCalendar(1)">›</button></div>
+</div>
+<div class="calendar-grid" id="insightsCalendar"></div>
+<div class="calendar-legend"><span><i class="cal-dot cal-low"></i>Low</span><span><i class="cal-dot cal-mid"></i>Medium</span><span><i class="cal-dot cal-high"></i>High</span></div>
+</div>
+<div class="phase2-grid">
+<div class="insights-card phase2-panel">
+<div class="insights-panel-head">
+<div><div class="insights-panel-title">Receipt check</div><div class="insights-panel-sub">Expenses with missing receipts</div></div>
+<div class="insight-small-sub" id="receiptMissingCount">0</div>
+</div>
+<div class="receipt-summary" id="receiptSummary"></div>
+</div>
+<div class="insights-card phase2-panel">
+<div class="insights-panel-head"><div><div class="insights-panel-title">Next up</div><div class="insights-panel-sub">Upcoming recurring commitments</div></div></div>
+<div class="upcoming-list" id="upcomingRecurring"></div>
+</div>
+</div>
+</div><div class="p3-section">
+<div class="p3-title">🔔 Smart Alerts</div>
+<div class="p3-sub">Actionable checks based on your current transaction data</div>
+<div id="p3Alerts"></div>
+</div><div class="p3-section">
+<div class="p3-title">📈 Spending Trend</div>
+<div class="p3-sub">Current month compared with the previous month</div>
+<div class="p3-grid">
+<div class="p3-stat"><div class="p3-stat-label">Current Month</div><div class="p3-stat-value" id="p3CurrentSpend">₹0</div></div>
+<div class="p3-stat"><div class="p3-stat-label">Previous Month</div><div class="p3-stat-value" id="p3PreviousSpend">₹0</div></div>
+</div>
+<div class="p3-bar"><span id="p3TrendBar" style="width:0%"></span></div>
+<div class="p3-alert" id="p3TrendText">No trend data yet.</div>
+</div><div class="p3-section">
+<div class="p3-title">📤 Reports</div>
+<div class="p3-sub">Export the transactions currently stored in the app.</div>
+<button class="p3-btn" onclick="exportPhase3CSV()">Export Transactions CSV</button>
+</div><div class="insights-tech">
+<div id="balanceMiniChart"></div><div id="cashflowMiniChart"></div><div id="spendingMiniChart"></div>
+<div id="transactionDotChart"></div><div id="categoryMiniChart"></div><div id="highestSpendMiniChart"></div>
+<span id="dashCashflowValue">0</span><span id="dashCashflowChip">Net</span>
+<span id="analyticsDailySpend">0</span><span id="analyticsTransactions">0</span>
+<span id="portfolioIncomeValue">0</span><span id="portfolioExpenseValue">0</span><span id="portfolioSavingsValue">0</span>
+<div id="incomeMiniChart"></div><div id="expenseMiniChart"></div><div id="portfolioIncomeMini"></div><div id="portfolioExpenseMini"></div>
+<div id="savingsRing"></div><span id="dashHighestSpend">0</span><span id="dashHighestSpendLabel">No expense data</span><span id="dashTopCategoryAmount">0</span>
+<div id="balanceProgressFill"></div>
+</div></div><div class="insight-mode-panel" id="vehicleInsightPanel">
+<div class="insights-card vehicle-analytics-card">
+<div class="insights-panel-head">
+<div><div class="insights-panel-title">Vehicle overview</div><div class="insights-panel-sub">A compact analytics view — vehicle entry and service management remain in Tab 2.</div></div>
+</div>
+<div class="vehicle-kpi-grid">
+<div class="vehicle-kpi"><span>Fuel Spend</span><strong id="v4FuelSpend">₹0</strong></div>
+<div class="vehicle-kpi"><span>Litres</span><strong id="v4Litres">0 L</strong></div>
+<div class="vehicle-kpi"><span>Distance</span><strong id="v4Distance">0 km</strong></div>
+<div class="vehicle-kpi"><span>Mileage</span><strong id="v4Mileage">— km/L</strong></div>
+</div>
+</div>
+<div class="insights-card vehicle-analytics-card">
+<div class="insights-panel-head"><div><div class="insights-panel-title">Recent fuel</div><div class="insights-panel-sub">Latest fuel records</div></div></div>
+<div class="safe-list" id="v4FuelHistory"></div>
+</div>
+<div class="insights-card vehicle-analytics-card">
+<div class="insights-panel-head"><div><div class="insights-panel-title">Service records</div><div class="insights-panel-sub">Latest maintenance records</div></div></div>
+<div class="safe-list" id="v4ServiceHistory"></div>
+</div>
+</div></div>
+<!-- NAVIGATION BAR -->
+<div class="nav-wrapper">
+<div class="nav-pill">
+<button aria-label="Add Entry" class="active-nav" id="nav-Transactions" onclick="showTab('Transactions')" title="Add Entry">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24">
+<path d="M12 5v14"></path><path d="M5 12h14"></path>
+<circle cx="12" cy="12" r="8.5"></circle>
+</svg>
+</button>
+<button aria-label="Vehicle and Fuel" id="nav-Fuel" onclick="showTab('Fuel')" title="Vehicle / Fuel">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24">
+<path d="M6 19V5.5A1.5 1.5 0 0 1 7.5 4h5A1.5 1.5 0 0 1 14 5.5V19"></path>
+<path d="M5 19h10"></path><path d="M8 7h4"></path>
+<path d="M14 8h2l2.5 2.5V15a2 2 0 0 0 2 2h.5"></path>
+<path d="M19 11h1.5"></path><circle cx="18.5" cy="19" r="1.5"></circle>
+</svg>
+</button>
+<button aria-label="Ledger and Records" id="nav-Ledger" onclick="showTab('Ledger')" title="Ledger &amp; Records">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24">
+<rect height="16" rx="3" width="16" x="4" y="4"></rect>
+<path d="M8 9h8M8 13h5M8 17h4"></path>
+<path d="M16 13h0"></path>
+</svg>
+</button>
+<button aria-label="Analytics" id="nav-Insights" onclick="showTab('Insights')" title="Analytics">
+<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewbox="0 0 24 24">
+<path d="M4 19V5"></path><path d="M4 19h16"></path>
+<path d="m7 15 3-4 3 2 5-6"></path>
+<path d="M15 7h3v3"></path>
+</svg>
+</button>
+</div>
+</div>
+</div>
+<!-- SEARCH MODAL -->
+<div class="modal-overlay" id="searchModal" onclick="closeSearchModal(event)">
+<div class="modal-content" onclick="event.stopPropagation()" style="min-height: 80vh;">
+<div class="modal-header">
+<h3 style="font-size:24px;">Search History</h3>
+<button class="close-btn" onclick="closeSearchModal()">✕</button>
+</div>
+<input id="searchInput" onkeyup="performSearch()" placeholder="Search categories, notes, amounts..." type="text"/>
+<div class="transaction-list" id="searchResultsList" style="margin-top: 10px;">
+<div style="text-align:center; color:var(--text-muted); padding:20px;">Type to search all transactions...</div>
+</div>
+</div>
+</div>
+<!-- RECORD DETAILS MODAL -->
+<div class="modal-overlay" id="recordDetailModal" onclick="closeRecordDetailModal(event)">
+<div class="modal-content" onclick="event.stopPropagation()" style="min-height: auto; max-height: 70vh;">
+<div class="modal-header">
+<h3>Transaction Details</h3>
+<button class="close-btn" onclick="closeRecordDetailModal()">✕</button>
+</div>
+<div id="recordDetailBody" style="font-size: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 20px;">
+<!-- Filled dynamically -->
+</div>
+</div>
+</div>
+<!-- CATEGORY DETAILS MODAL -->
+<div class="modal-overlay" id="categoryModal" onclick="closeCategoryModal(event)">
+<div class="modal-content" onclick="event.stopPropagation()">
+<div class="modal-header">
+<h3 id="modalCategoryTitle">Category Name</h3>
+<button class="close-btn" onclick="closeCategoryModal()">✕</button>
+</div>
+<div class="transaction-list" id="modalTransactionList"></div>
+</div>
+</div>
+<script>
     const URL = "https://script.google.com/macros/s/AKfycbwETC4mZPqfomKjCKmIjdXbFktmKBqplCREtHWgoBPET2OCfPcqlCt-QVFMRdFonFytfA/exec"; 
     
     let allTransactions = JSON.parse(localStorage.getItem('trackerData')) || [];
@@ -2352,6 +2367,27 @@
       const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='household-transactions.csv';a.click();URL.revokeObjectURL(a.href);
     }
 
-  </script>
+  
+
+function setInsightMode(mode){
+  document.querySelectorAll('.insight-mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+  document.querySelectorAll('.insight-mode-panel').forEach(p=>p.classList.toggle('active',p.id===(mode==='household'?'householdInsightPanel':'vehicleInsightPanel')));
+  if(mode==='vehicle') updateVehicleInsightMode();
+}
+function updateVehicleInsightMode(){
+  const rows=Array.isArray(allTransactions)?allTransactions.slice(1):[];
+  const data=rows.map(r=>({date:parseSafeDate(String(r[0]||'')),type:String(r[1]||'').trim(),cat:String(r[2]||'').trim(),amount:parseFloat(r[3])||0,desc:String(r[4]||'').trim(),odo:parseFloat(r[8])||0,litres:parseFloat(r[9])||0})).filter(x=>x.date&&!isNaN(x.date.getTime()));
+  const fuel=data.filter(x=>x.type==='Fuel'), service=data.filter(x=>x.type==='Service');
+  const money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+  const spend=fuel.reduce((s,x)=>s+x.amount,0), litres=fuel.reduce((s,x)=>s+x.litres,0), odo=fuel.map(x=>x.odo).filter(Boolean);
+  const distance=odo.length>1?Math.max(...odo)-Math.min(...odo):0;
+  set('v4FuelSpend',money(spend));set('v4Litres',litres.toFixed(1)+' L');set('v4Distance',distance.toLocaleString('en-IN')+' km');set('v4Mileage',litres&&distance?(distance/litres).toFixed(1)+' km/L':'— km/L');
+  const fh=document.getElementById('v4FuelHistory');
+  if(fh)fh.innerHTML=fuel.slice(-8).reverse().map(x=>`<div class="p3-row"><div class="p3-row-main"><div class="p3-row-name">${escapeHtml(x.cat||'Fuel')}</div><div class="p3-row-meta">${x.date.toLocaleDateString('en-IN')}${x.litres?' · '+x.litres+' L':''}${x.odo?' · '+x.odo.toLocaleString('en-IN')+' km':''}</div></div><div class="p3-row-value">${money(x.amount)}</div></div>`).join('')||'<div class="p3-alert">No fuel records available.</div>';
+  const sh=document.getElementById('v4ServiceHistory');
+  if(sh)sh.innerHTML=service.slice(-8).reverse().map(x=>`<div class="p3-row"><div class="p3-row-main"><div class="p3-row-name">${escapeHtml(x.cat||'Service')}</div><div class="p3-row-meta">${x.date.toLocaleDateString('en-IN')} · ${escapeHtml(x.desc||'Service record')}</div></div><div class="p3-row-value">${money(x.amount)}</div></div>`).join('')||'<div class="p3-alert">No service records available.</div>';
+}
+</script>
 </body>
 </html>
