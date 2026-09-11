@@ -122,12 +122,12 @@
     
     #loadingIndicator { text-align: center; color: var(--text-muted); display: none; margin: 10px 0; font-size: 14px; font-weight: 500; }
 
-    /* Modern Success Toast Banner */
+    /* Bottom-safe inline toast notification right above navigation area */
     #toastNotification {
       position: fixed;
-      top: 20px;
+      bottom: 90px;
       left: 50%;
-      transform: translateX(-50%) translateY(-100px);
+      transform: translateX(-50%) translateY(50px);
       background: var(--text-main);
       color: var(--bg-color);
       padding: 12px 24px;
@@ -136,9 +136,11 @@
       font-size: 14px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       z-index: 4000;
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
     }
-    #toastNotification.show { transform: translateX(-50%) translateY(0); }
+    #toastNotification.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; }
     .modal-overlay.show { display: flex; opacity: 1; }
@@ -164,7 +166,7 @@
 
 <div class="app-container">
 
-  <!-- Success Toast Banner -->
+  <!-- Bottom-safe Toast Feedback Banner (Away from Notch/Dynamic Island) -->
   <div id="toastNotification">Successfully recorded!</div>
 
   <div class="header">
