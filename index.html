@@ -95,6 +95,14 @@
     .two-col { display: flex; gap: 12px; margin-bottom: 16px; }
     .two-col .input-group { flex: 1; margin-bottom: 0; }
 
+    /* Dashboard UI Grid Styles */
+    .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 20px; }
+    @media(min-width: 600px) { .dashboard-grid { grid-template-columns: 1fr 1fr; } }
+    
+    .dash-card { background: var(--card-bg); border-radius: var(--radius-lg); padding: 20px; border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; }
+    .dash-card-title { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .dash-card-value { font-size: 28px; font-weight: 800; letter-spacing: -1px; color: var(--text-main); }
+
     .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
     .cat-card { padding: 16px; border-radius: var(--radius-lg); background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); box-shadow: 0 4px 12px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; min-height: 100px; cursor: pointer; transition: transform 0.1s; }
     .cat-card:active { transform: scale(0.95); }
@@ -376,9 +384,9 @@
     <div id="ledgerDynamicContainer"></div>
   </div>
 
-  <!-- TAB 4: INSIGHTS / ANALYTICS TAB -->
+  <!-- TAB 4: INSIGHTS / ANALYTICS TAB (Dashboard Summary Cards First + Area Chart) -->
   <div id="Insights" class="tab-content">
-    <div class="two-col" style="align-items: center; gap: 8px; margin-bottom: 12px;">
+    <div class="two-col" style="align-items: center; gap: 8px; margin-bottom: 16px;">
       <div class="input-group" style="flex: 2; margin-bottom: 0;">
         <select id="insightsFilterUser" onchange="generateInsights()" style="font-weight:700; background:var(--card-bg);">
           <option value="Us">Us</option>
@@ -386,23 +394,33 @@
           <option value="Reshma">Reshma</option>
         </select>
       </div>
-      <div style="flex: 3; display: flex; justify-content: flex-end;">
-        <div id="insightsIncomeLeftBadge" style="background: var(--card-bg); border: 1px solid var(--border-color); padding: 10px 14px; border-radius: var(--radius-md); font-weight: 800; font-size: 14px; color: var(--accent-blue); white-space: nowrap;">
-          Income Left: 0
-        </div>
-      </div>
-    </div>
-
-    <!-- Time Range Selector -->
-    <div class="two-col" style="align-items: center;">
-      <div class="input-group" style="margin-bottom: 0;">
-        <label>Time Range</label>
-        <select id="insightsTimeRange" onchange="generateInsights()" style="font-weight: 700;">
+      <div class="input-group" style="flex: 2; margin-bottom: 0;">
+        <select id="insightsTimeRange" onchange="generateInsights()" style="font-weight: 700; background: var(--card-bg);">
           <option value="90d">Last 3 months</option>
           <option value="30d">Last 30 days</option>
           <option value="7d">Last 7 days</option>
           <option value="all">All Time</option>
         </select>
+      </div>
+    </div>
+
+    <!-- Summary Cards Grid (Reference Image Layout) -->
+    <div class="dashboard-grid">
+      <div class="dash-card">
+        <div class="dash-card-title">Total Income</div>
+        <div class="dash-card-value" id="dashTotalIncome" style="color: var(--accent-green);">0</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">Total Expenses</div>
+        <div class="dash-card-value" id="dashTotalExpense" style="color: var(--accent-red);">0</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">Total Savings</div>
+        <div class="dash-card-value" id="dashTotalSavings" style="color: var(--accent-blue);">0</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">Income Left</div>
+        <div class="dash-card-value" id="dashIncomeLeft">0</div>
       </div>
     </div>
 
@@ -414,7 +432,7 @@
           <div style="font-size: 12px; color: var(--text-muted); font-weight: 500;" id="interactiveChartSubtitle">Showing Income, Expense & Savings over time</div>
         </div>
       </div>
-      <div style="position: relative; height: 280px; width: 100%;">
+      <div style="position: relative; height: 260px; width: 100%;">
         <canvas id="interactiveAreaChart"></canvas>
       </div>
     </div>
@@ -1113,6 +1131,7 @@
       let dailyMap = {};
       let totalInc = 0;
       let totalExp = 0;
+      let totalSav = 0;
 
       let sortedTxs = [...allTransactions.slice(1)].map(row => ({
         date: parseSafeDate(String(row[0])), type: String(row[1]).trim(),
@@ -1133,12 +1152,17 @@
             totalExp += tx.amount;
           } else if(tx.type === 'Savings') {
             dailyMap[dateKey].savings += tx.amount;
+            totalSav += tx.amount;
           }
         }
       }
 
       let incomeLeft = totalInc - totalExp;
-      document.getElementById('insightsIncomeLeftBadge').innerText = `Income Left: ${formatINR(incomeLeft)}`;
+      document.getElementById('dashTotalIncome').innerText = formatINR(totalInc);
+      document.getElementById('dashTotalExpense').innerText = formatINR(totalExp);
+      document.getElementById('dashTotalSavings').innerText = formatINR(totalSav);
+      document.getElementById('dashIncomeLeft').innerText = formatINR(incomeLeft);
+      document.getElementById('dashIncomeLeft').style.color = incomeLeft >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
 
       let chartLabels = [];
       let incomeData = [];
@@ -1152,7 +1176,6 @@
         savingsData.push(val.savings);
       }
 
-      document.getElementById('interactiveChartSubtitle').innerText = `Showing Income, Expense & Savings for ${timeRange === 'all' ? 'All Time' : 'the last ' + timeRange}`;
       renderGradientAreaChart(chartLabels, incomeData, expenseData, savingsData);
     }
 
