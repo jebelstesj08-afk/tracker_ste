@@ -378,9 +378,11 @@
     
     #loadingIndicator { text-align: center; color: var(--text-muted); display: none; margin: 10px 0; font-size: 14px; font-weight: 500; }
 
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; opacity: 0; transition: opacity 0.3s ease; }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; opacity: 0; transition: opacity 0.3s ease; z-index: 2000; }
     .modal-overlay.show { display: flex; opacity: 1; }
     
+    #searchModal { z-index: 2200; }
+    #insightsRecordsModal { z-index: 2300; }
     #categoryModal { z-index: 2400; }
     #recordDetailModal { z-index: 3000; }
 
@@ -839,6 +841,12 @@
 
 /* ===== TAB 4 KPI RECORD POPUPS ===== */
 .insight-kpi-clickable{cursor:pointer;transition:transform .16s ease,box-shadow .16s ease}
+    .insight-summary-clickable{cursor:pointer;transition:transform .16s ease,box-shadow .16s ease;position:relative}
+    .insight-summary-clickable:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.07)}
+    .insight-summary-clickable:active{transform:scale(.992)}
+    .insight-summary-clickable:focus-visible{outline:2px solid var(--accent-blue);outline-offset:2px}
+    .insight-click-hint{font-size:8px;color:var(--text-muted);font-weight:750;margin-top:3px}
+
 .insight-kpi-clickable:active{transform:scale(.985)}
 .insight-kpi-clickable:focus-visible{outline:2px solid var(--accent-blue);outline-offset:2px}
 .insights-records-modal-content{min-height:auto;max-height:82vh;display:flex;flex-direction:column}
@@ -916,9 +924,9 @@
 <div class="app-container">
 
   <div class="header">
-    <div style="display: flex; align-items: center; gap: 6px;">
-      <span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">Hello,</span>
-      <select id="globalUserSelect" onchange="onGlobalUserChange()" style="padding: 4px 8px; border-radius: 10px; font-size: 15px; font-weight: 700; background: transparent; color: var(--text-main); border: none; outline: none; cursor: pointer; width: auto; display: inline-block;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span style="font-size: 20px; font-weight: 700; color: var(--text-muted);">Hello,</span>
+      <select id="globalUserSelect" onchange="onGlobalUserChange()" style="padding: 4px 8px; border-radius: 10px; font-size: 20px; font-weight: 800; background: transparent; color: var(--text-main); border: none; outline: none; cursor: pointer; width: auto; display: inline-block;">
         <option value="Jebel" style="background: var(--card-bg); color: var(--text-main);">Jebel</option>
         <option value="Reshma" style="background: var(--card-bg); color: var(--text-main);">Reshma</option>
       </select>
@@ -1220,7 +1228,7 @@
       </div>
 
       <div class="insights-hero">
-        <div class="insights-card insights-balance">
+        <div class="insights-card insights-balance insight-summary-clickable" onclick="openInsightBreakdown('balance')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightBreakdown('balance')}" aria-label="View balance breakdown">
           <div class="insights-balance-head">
             <div>
               <div class="insights-balance-kicker">Overall balance</div>
@@ -1251,13 +1259,13 @@
           <div class="insight-kpi-sub" id="expenseKpiSub">0 records · Tap to view</div>
           <div class="insight-kpi-track track-red"><span id="expenseKpiFill"></span></div>
         </div>
-        <div class="insights-card insight-kpi">
+        <div class="insights-card insight-kpi insight-summary-clickable" onclick="openInsightBreakdown('savings')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightBreakdown('savings')}" aria-label="View savings breakdown">
           <div class="insight-kpi-title">Savings</div>
           <div class="insight-kpi-value" id="dashSavingsValue">0</div>
           <div class="insight-kpi-sub" id="dashSavingsRateChip">0% of income</div>
           <div class="insight-kpi-track track-purple"><span id="dashSavingsRangeFill"></span></div>
         </div>
-        <div class="insights-card insight-kpi">
+        <div class="insights-card insight-kpi insight-summary-clickable" onclick="openInsightBreakdown('cash')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightBreakdown('cash')}" aria-label="View cash left breakdown">
           <div class="insight-kpi-title">Cash left</div>
           <div class="insight-kpi-value" id="dashCashLeftKpi">0</div>
           <div class="insight-kpi-sub">Income − expenses</div>
@@ -1266,7 +1274,7 @@
       </div>
 
       <div class="insights-lower">
-        <div class="insights-card insights-panel">
+        <div class="insights-card insights-panel insight-summary-clickable" onclick="openInsightBreakdown('categories')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightBreakdown('categories')}" aria-label="View spending category breakdown">
           <div class="insights-panel-head">
             <div>
               <div class="insights-panel-title">Top spending categories</div>
@@ -1277,7 +1285,7 @@
           <div class="insight-category-list" id="insightsCategoryList"></div>
         </div>
 
-        <div class="insights-card insights-panel">
+        <div class="insights-card insights-panel insight-summary-clickable" onclick="openInsightBreakdown('highest')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightBreakdown('highest')}" aria-label="View highest spending breakdown">
           <div class="insights-panel-head">
             <div>
               <div class="insights-panel-title">Highest spend</div>
@@ -1299,7 +1307,7 @@
       </div>
 
       <div class="insight-feature-grid">
-        <div class="insight-feature-card">
+        <div class="insight-feature-card insight-summary-clickable" onclick="openInsightBreakdown('health')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightBreakdown('health')}" aria-label="View financial health breakdown">
           <div class="feature-head">
             <div><div class="feature-title">Financial health</div><div class="feature-sub">A quick score based on savings, spending and balance</div></div>
             <span class="insights-status" id="healthStatus">Good</span>
@@ -1315,7 +1323,7 @@
           </div>
         </div>
 
-        <div class="insight-feature-card">
+        <div class="insight-feature-card insight-summary-clickable" onclick="openInsightBreakdown('budget')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightBreakdown('budget')}" aria-label="View budget breakdown">
           <div class="feature-head"><div><div class="feature-title">Budget health</div><div class="feature-sub">Suggested household spending limit</div></div><span class="insight-small-sub" id="budgetStatus">Set your limit</span></div>
           <div class="budget-total" id="budgetSpent">0 / 0</div>
           <div class="budget-track"><span id="budgetFill"></span></div>
@@ -1325,18 +1333,18 @@
       </div>
 
       <div class="insight-feature-grid">
-        <div class="insight-feature-card">
+        <div class="insight-feature-card insight-summary-clickable" onclick="openInsightBreakdown('payments')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightBreakdown('payments')}" aria-label="View payment method breakdown">
           <div class="feature-head"><div><div class="feature-title">Payment methods</div><div class="feature-sub">Where your outgoing money is being paid</div></div><span class="insight-small-sub" id="paymentTotalLabel">0</span></div>
           <div class="payment-list" id="paymentAnalyticsList"></div>
         </div>
 
-        <div class="insight-feature-card">
+        <div class="insight-feature-card insight-summary-clickable" onclick="openInsightBreakdown('smart')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightBreakdown('smart')}" aria-label="View smart insights details">
           <div class="feature-head"><div><div class="feature-title">Smart insights</div><div class="feature-sub">Automatic observations from your transactions</div></div><span class="insight-small-sub">Live</span></div>
           <div class="smart-list" id="smartInsightsList"></div>
           <div class="month-compare">
-            <div class="compare-box"><div class="compare-label">Income</div><div class="compare-value" id="compareIncome">0</div><div class="compare-delta" id="compareIncomeDelta">—</div></div>
-            <div class="compare-box"><div class="compare-label">Expense</div><div class="compare-value" id="compareExpense">0</div><div class="compare-delta" id="compareExpenseDelta">—</div></div>
-            <div class="compare-box"><div class="compare-label">Savings</div><div class="compare-value" id="compareSavings">0</div><div class="compare-delta" id="compareSavingsDelta">—</div></div>
+            <div class="compare-box insight-summary-clickable" onclick="event.stopPropagation();openInsightBreakdown('income')" role="button" tabindex="0" aria-label="View income breakdown"><div class="compare-label">Income</div><div class="compare-value" id="compareIncome">0</div><div class="compare-delta" id="compareIncomeDelta">—</div></div>
+            <div class="compare-box insight-summary-clickable" onclick="event.stopPropagation();openInsightBreakdown('expense')" role="button" tabindex="0" aria-label="View expense breakdown"><div class="compare-label">Expense</div><div class="compare-value" id="compareExpense">0</div><div class="compare-delta" id="compareExpenseDelta">—</div></div>
+            <div class="compare-box insight-summary-clickable" onclick="event.stopPropagation();openInsightBreakdown('savings')" role="button" tabindex="0" aria-label="View savings breakdown"><div class="compare-label">Savings</div><div class="compare-value" id="compareSavings">0</div><div class="compare-delta" id="compareSavingsDelta">—</div></div>
           </div>
         </div>
       </div>
@@ -1459,6 +1467,9 @@
     </div>
  
 
+  </div>
+
+  <!-- GLOBAL MODALS: kept outside all tab-content containers -->
   <!-- SEARCH MODAL -->
   <div id="searchModal" class="modal-overlay" onclick="closeSearchModal(event)">
     <div class="modal-content search-panel" onclick="event.stopPropagation()">
@@ -1518,6 +1529,21 @@
         <button class="close-btn" onclick="closeCategoryModal()">✕</button>
       </div>
       <div id="modalTransactionList" class="transaction-list"></div>
+    </div>
+  </div>
+
+  <!-- GENERIC INSIGHTS BREAKDOWN MODAL -->
+  <div id="insightBreakdownModal" class="modal-overlay" onclick="closeInsightBreakdown(event)">
+    <div class="modal-content insights-records-modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div><h3 id="insightBreakdownTitle">Details</h3><div class="search-subtitle" id="insightBreakdownSubtitle">Breakdown for the selected Insights view</div></div>
+        <button class="close-btn" onclick="closeInsightBreakdown()">✕</button>
+      </div>
+      <div class="insights-records-summary">
+        <strong id="insightBreakdownTotal">₹0</strong>
+        <span id="insightBreakdownCount">0 records</span>
+      </div>
+      <div id="insightBreakdownBody" class="transaction-list"></div>
     </div>
   </div>
 
@@ -1792,8 +1818,20 @@
     }
 
     function applyGlobalUser(user) {
-      document.getElementById('txUser').value = user;
-      document.getElementById('fuelUser').value = user;
+      const txUser = document.getElementById('txUser');
+      const fuelUser = document.getElementById('fuelUser');
+      const ledgerUser = document.getElementById('ledgerFilterUser');
+      const insightsUser = document.getElementById('insightsFilterUser');
+
+      if (txUser) txUser.value = user;
+      if (fuelUser) fuelUser.value = user;
+      if (ledgerUser) ledgerUser.value = user;
+      if (insightsUser) insightsUser.value = user;
+
+      // Refresh the active views so the selected person is reflected immediately.
+      const activeTab = document.querySelector('.tab-content.active-tab');
+      if (activeTab?.id === 'Ledger') generateLedger();
+      if (activeTab?.id === 'Insights') generateInsights();
     }
 
     function resetActiveTabFields() {
@@ -2794,6 +2832,116 @@
       }
     }
 
+    function openInsightBreakdown(kind) {
+      const modal = document.getElementById('insightBreakdownModal');
+      const title = document.getElementById('insightBreakdownTitle');
+      const subtitle = document.getElementById('insightBreakdownSubtitle');
+      const totalEl = document.getElementById('insightBreakdownTotal');
+      const countEl = document.getElementById('insightBreakdownCount');
+      const body = document.getElementById('insightBreakdownBody');
+      if (!modal || !body) return;
+
+      const { txs, selectedUser, timeRange } = getInsightTransactions();
+      const userLabel = selectedUser === 'Us' ? 'Jebel + Reshma' : selectedUser;
+      const periodLabel = timeRange === 'all' ? 'All available history' : timeRange === '7d' ? 'Last 7 days' : timeRange === '30d' ? 'Last 30 days' : 'Last 3 months';
+      const expenses = txs.filter(tx => ['Expense','Fuel','Service'].includes(tx.type));
+      const income = txs.filter(tx => tx.type === 'Income');
+      const savings = txs.filter(tx => tx.type === 'Savings');
+      const money = n => formatINR(Number(n || 0));
+      const dateText = d => parseSafeDate(d)?.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) || 'Unknown date';
+      const txRows = (rows, sign='−') => rows.slice().sort((a,b)=>b.date-a.date).map(tx => {
+        const emoji = emojis[tx.cat] || (tx.type === 'Fuel' ? '⛽' : tx.type === 'Service' ? '🔧' : tx.type === 'Income' ? '↘' : '↗');
+        return `<div class="insights-popup-record" onclick='openRecordDetail(${JSON.stringify(tx).replace(/'/g, "&#39;")})'>
+          <div class="insights-popup-record-icon">${emoji}</div>
+          <div class="insights-popup-record-main">
+            <div class="insights-popup-record-title">${tab4Escape(tx.cat || tx.type)}${tx.desc ? ' · ' + tab4Escape(tx.desc) : ''}</div>
+            <div class="insights-popup-record-meta">${dateText(tx.date)} · ${tab4Escape(tx.user || 'User')}${tx.paymentMethod ? ' · ' + tab4Escape(tx.paymentMethod) : ''}</div>
+          </div>
+          <div class="insights-popup-record-amt">${sign}${money(tx.amount)}</div>
+        </div>`;
+      }).join('');
+
+      let html = '';
+      let titleText = 'Details';
+      let subtitleText = `${userLabel} · ${periodLabel}`;
+      let total = 0;
+      let count = 0;
+
+      if (kind === 'balance') {
+        const inc = income.reduce((s,t)=>s+t.amount,0), exp = expenses.reduce((s,t)=>s+t.amount,0), sav = savings.reduce((s,t)=>s+t.amount,0);
+        total = inc-exp-sav; count = txs.length; titleText='Overall Balance Breakdown';
+        html = `<div class="insight-detail-summary-grid">
+          <div><span>Income</span><strong>${money(inc)}</strong></div>
+          <div><span>Expenses</span><strong>−${money(exp)}</strong></div>
+          <div><span>Savings</span><strong>−${money(sav)}</strong></div>
+          <div><span>Balance</span><strong>${money(total)}</strong></div>
+        </div><div class="insight-detail-section-title">Transactions contributing to this balance</div>${txRows(txs, '')}`;
+      } else if (kind === 'savings') {
+        total=savings.reduce((s,t)=>s+t.amount,0); count=savings.length; titleText='Savings Breakdown';
+        const byCat={}; savings.forEach(t=>{const k=t.cat||'Savings';byCat[k]=(byCat[k]||0)+t.amount;});
+        html = `<div class="insight-detail-section-title">Savings by category</div>` + Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([n,a])=>`<div class="insight-breakdown-row"><span>${tab4Escape(n)}</span><strong>${money(a)}</strong></div>`).join('') + `<div class="insight-detail-section-title">Savings records</div>${txRows(savings,'+')}`;
+      } else if (kind === 'cash') {
+        const inc=income.reduce((s,t)=>s+t.amount,0), exp=expenses.reduce((s,t)=>s+t.amount,0); total=inc-exp; count=income.length+expenses.length; titleText='Cash Left Breakdown';
+        html=`<div class="insight-detail-summary-grid"><div><span>Income</span><strong>${money(inc)}</strong></div><div><span>Expenses</span><strong>−${money(exp)}</strong></div><div><span>Cash left</span><strong>${money(total)}</strong></div></div><div class="insight-detail-section-title">Income records</div>${txRows(income,'+')}<div class="insight-detail-section-title">Expense records</div>${txRows(expenses,'−')}`;
+      } else if (kind === 'categories') {
+        const cats={}; expenses.forEach(t=>{const k=(t.type==='Fuel'||t.type==='Service')?`Veh - ${t.cat||'Vehicle'}`:(t.cat||'Uncategorised');cats[k]=(cats[k]||0)+t.amount;}); total=expenses.reduce((s,t)=>s+t.amount,0); count=expenses.length; titleText='Spending Category Breakdown';
+        html=`<div class="insight-detail-section-title">Category totals</div>`+Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([n,a])=>`<div class="insight-breakdown-row"><span>${tab4Escape(n)}</span><strong>${money(a)}</strong></div>`).join('')+`<div class="insight-detail-section-title">Tap a category to see its records</div>`+Object.keys(cats).sort((a,b)=>cats[b]-cats[a]).map(n=>`<button type="button" class="insight-breakdown-button" onclick='closeInsightBreakdown();setTimeout(()=>showInsightCategoryBreakdown(${JSON.stringify(n)}),180)'>${tab4Escape(n)}<span>${money(cats[n])}</span></button>`).join('');
+      } else if (kind === 'highest') {
+        const rows=expenses.slice().sort((a,b)=>b.amount-a.amount).slice(0,10); total=rows.reduce((s,t)=>s+t.amount,0); count=rows.length; titleText='Highest Spending Breakdown'; html=`<div class="insight-detail-section-title">Largest outgoing records</div>${txRows(rows,'−')}`;
+      } else if (kind === 'health') {
+        const inc=income.reduce((s,t)=>s+t.amount,0), exp=expenses.reduce((s,t)=>s+t.amount,0), sav=savings.reduce((s,t)=>s+t.amount,0); const savingsRate=inc>0?sav/inc*100:0, spentPct=inc>0?exp/inc*100:0; let score=50; score+=Math.min(35,Math.max(0,savingsRate*1.5)); score-=Math.min(30,Math.max(0,(spentPct-60)*.65)); if(inc>0&&exp+sav<=inc)score+=10;if(inc>0&&exp>inc)score-=15;score=Math.round(Math.max(0,Math.min(100,score))); total=score;count=txs.length;titleText='Financial Health Breakdown';html=`<div class="insight-detail-summary-grid"><div><span>Health score</span><strong>${score}/100</strong></div><div><span>Savings rate</span><strong>${savingsRate.toFixed(0)}%</strong></div><div><span>Income spent</span><strong>${spentPct.toFixed(0)}%</strong></div><div><span>Activity</span><strong>${txs.length}</strong></div></div><div class="insight-detail-section-title">How the score is assessed</div><div class="insight-detail-note">Savings, spending as a share of income, whether expenses + savings stay within income, and whether expenses exceed income all contribute to the score.</div>`;
+      } else if (kind === 'budget') {
+        const budget=Math.max(1,Number(localStorage.getItem('householdMonthlyBudget'))||50000); total=expenses.reduce((s,t)=>s+t.amount,0);count=expenses.length;titleText='Budget Breakdown'; const cats={};expenses.forEach(t=>{const k=(t.type==='Fuel'||t.type==='Service')?`Veh - ${t.cat||'Vehicle'}`:(t.cat||'Uncategorised');cats[k]=(cats[k]||0)+t.amount;}); html=`<div class="insight-detail-summary-grid"><div><span>Budget</span><strong>${money(budget)}</strong></div><div><span>Spent</span><strong>${money(total)}</strong></div><div><span>Remaining</span><strong>${money(budget-total)}</strong></div><div><span>Used</span><strong>${Math.min(100,total/budget*100).toFixed(0)}%</strong></div></div><div class="insight-detail-section-title">Spending against budget</div>`+Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([n,a])=>`<div class="insight-breakdown-row"><span>${tab4Escape(n)}</span><strong>${money(a)}</strong></div>`).join('');
+      } else if (kind === 'payments') {
+        const pays={};expenses.forEach(t=>{const k=t.paymentMethod||'Not specified';pays[k]=(pays[k]||0)+t.amount;}); total=expenses.reduce((s,t)=>s+t.amount,0);count=expenses.length;titleText='Payment Method Breakdown';html=`<div class="insight-detail-section-title">Outgoing money by payment method</div>`+Object.entries(pays).sort((a,b)=>b[1]-a[1]).map(([n,a])=>`<button type="button" class="insight-breakdown-button" onclick='closeInsightBreakdown();setTimeout(()=>showPaymentBreakdown(${JSON.stringify(n)}),180)'>${tab4Escape(n)}<span>${money(a)}</span></button>`).join('');
+      } else if (kind === 'smart') {
+        total=expenses.reduce((s,t)=>s+t.amount,0);count=txs.length;titleText='Smart Insights Details';const cats={};expenses.forEach(t=>{const k=t.cat||t.type;cats[k]=(cats[k]||0)+t.amount;});const top=Object.entries(cats).sort((a,b)=>b[1]-a[1])[0];const inc=income.reduce((s,t)=>s+t.amount,0),sav=savings.reduce((s,t)=>s+t.amount,0),rate=inc?sav/inc*100:0;html=`<div class="insight-detail-note">${top?`Your largest spending category is <b>${tab4Escape(top[0])}</b> at <b>${money(top[1])}</b>.`:''}${inc?` Your savings rate is <b>${rate.toFixed(0)}%</b> of income.`:''}${inc&&total>inc?` Expenses are higher than income by <b>${money(total-inc)}</b>.`:inc?` Income covers expenses with <b>${money(inc-total)}</b> left before savings.`:' Add income and expense records to unlock more observations.'}</div>`;
+      } else if (['income','expense'].includes(kind)) {
+        return openInsightsRecords(kind === 'income' ? 'Income' : 'Expense');
+      } else return;
+
+      if (title) title.textContent=titleText;
+      if (subtitle) subtitle.textContent=subtitleText;
+      if (totalEl) totalEl.textContent=kind==='health'?`${total}/100`:money(total);
+      if (countEl) countEl.textContent=`${count.toLocaleString('en-IN')} records · ${userLabel}`;
+      body.innerHTML=html || '<div class="insight-empty">No details available.</div>';
+      modal.style.display='flex';
+      setTimeout(()=>modal.classList.add('show'),10);
+    }
+
+    function showInsightCategoryBreakdown(categoryName) {
+      const { txs } = getInsightTransactions();
+      const rows=txs.filter(tx=>{
+        if(categoryName.startsWith('Veh - ')) return ['Fuel','Service'].includes(tx.type) && `Veh - ${tx.cat||'Vehicle'}`===categoryName;
+        return ['Expense','Fuel','Service'].includes(tx.type) && (tx.cat||'Uncategorised')===categoryName;
+      });
+      const modal=document.getElementById('insightBreakdownModal'),body=document.getElementById('insightBreakdownBody');
+      document.getElementById('insightBreakdownTitle').textContent=categoryName;
+      document.getElementById('insightBreakdownSubtitle').textContent='Category records';
+      document.getElementById('insightBreakdownTotal').textContent=formatINR(rows.reduce((s,t)=>s+t.amount,0));
+      document.getElementById('insightBreakdownCount').textContent=`${rows.length} records`;
+      body.innerHTML=rows.length?rows.sort((a,b)=>b.date-a.date).map(tx=>`<div class="insights-popup-record" onclick='openRecordDetail(${JSON.stringify(tx).replace(/'/g,"&#39;")})'><div class="insights-popup-record-icon">${emojis[tx.cat]||'↗'}</div><div class="insights-popup-record-main"><div class="insights-popup-record-title">${tab4Escape(tx.desc||tx.cat||tx.type)}</div><div class="insights-popup-record-meta">${tx.date.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})} · ${tab4Escape(tx.user||'User')}</div></div><div class="insights-popup-record-amt">−${formatINR(tx.amount)}</div></div>`).join(''):'<div class="insight-empty">No records found.</div>';
+      modal.style.display='flex';setTimeout(()=>modal.classList.add('show'),10);
+    }
+
+    function showPaymentBreakdown(paymentMethod) {
+      const { txs } = getInsightTransactions();
+      const rows=txs.filter(tx=>['Expense','Fuel','Service'].includes(tx.type) && (tx.paymentMethod||'Not specified')===paymentMethod);
+      const modal=document.getElementById('insightBreakdownModal'),body=document.getElementById('insightBreakdownBody');
+      document.getElementById('insightBreakdownTitle').textContent=paymentMethod;
+      document.getElementById('insightBreakdownSubtitle').textContent='Payment method records';
+      document.getElementById('insightBreakdownTotal').textContent=formatINR(rows.reduce((s,t)=>s+t.amount,0));
+      document.getElementById('insightBreakdownCount').textContent=`${rows.length} records`;
+      body.innerHTML=rows.length?rows.sort((a,b)=>b.date-a.date).map(tx=>`<div class="insights-popup-record" onclick='openRecordDetail(${JSON.stringify(tx).replace(/'/g,"&#39;")})'><div class="insights-popup-record-icon">${tx.type==='Fuel'?'⛽':tx.type==='Service'?'🔧':'↗'}</div><div class="insights-popup-record-main"><div class="insights-popup-record-title">${tab4Escape(tx.cat||tx.type)}${tx.desc?' · '+tab4Escape(tx.desc):''}</div><div class="insights-popup-record-meta">${tx.date.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})} · ${tab4Escape(tx.user||'User')}</div></div><div class="insights-popup-record-amt">−${formatINR(tx.amount)}</div></div>`).join(''):'<div class="insight-empty">No records found.</div>';
+      modal.style.display='flex';setTimeout(()=>modal.classList.add('show'),10);
+    }
+
+    function closeInsightBreakdown(event) {
+      if (event && event.target.id !== 'insightBreakdownModal') return;
+      const modal=document.getElementById('insightBreakdownModal'); if(!modal)return;
+      modal.classList.remove('show');setTimeout(()=>modal.style.display='none',250);
+    }
+
     function openInsightsRecords(type) {
       const modal = document.getElementById('insightsRecordsModal');
       const title = document.getElementById('insightsRecordsTitle');
@@ -3217,5 +3365,6 @@ function initTab4Extras(){loadRecurringPayments();renderSpendingCalendar();}
       </button>
     </div>
   </div>
+</div>
 </body>
 </html>
