@@ -1528,6 +1528,166 @@
     let receiptBase64 = "";
     let currentTxType = 'Expense';
 
+    // Local-first sync state. Pending writes survive refreshes and temporary network failures.
+    const PENDING_SYNC_KEY = 'trackerPendingSync';
+    let pendingSync = loadPendingSync();
+
+    function loadPendingSync() {
+      try {
+        const value = JSON.parse(localStorage.getItem(PENDING_SYNC_KEY) || '[]');
+        return Array.isArray(value) ? value : [];
+      } catch (e) {
+        console.warn('Could not read pending sync queue:', e);
+        return [];
+      }
+    }
+
+    function savePendingSync() {
+      localStorage.setItem(PENDING_SYNC_KEY, JSON.stringify(pendingSync));
+    }
+
+    function getHeaderIndex(data = allTransactions) {
+      if (!Array.isArray(data)) return -1;
+      for (let i = 0; i < Math.min(data.length, 8); i++) {
+        const row = data[i];
+        if (!Array.isArray(row)) continue;
+        const joined = row.map(v => String(v == null ? '' : v).trim().toLowerCase()).join('|');
+        if (joined.includes('date') && joined.includes('type') && joined.includes('amount')) return i;
+      }
+      return -1;
+    }
+
+    function getTransactionRows(data = allTransactions) {
+      if (!Array.isArray(data)) return [];
+      const headerIndex = getHeaderIndex(data);
+      return data.slice(headerIndex >= 0 ? headerIndex + 1 : 0).filter(Array.isArray);
+    }
+
+    function normalizeTransactionRow(row) {
+      if (!Array.isArray(row)) return null;
+      const date = parseRobustDate(row[0]);
+      if (!date || isNaN(date.getTime())) return null;
+      return {
+        raw: row,
+        date,
+        type: normalizeTransactionType(row[1]),
+        cat: String(row[2] == null ? '' : row[2]).trim(),
+        amount: parseTransactionAmount(row[3]),
+        desc: String(row[4] == null ? '' : row[4]).trim(),
+        user: String(row[5] == null ? '' : row[5]).trim(),
+        project: String(row[6] == null ? '' : row[6]).trim(),
+        receipt: String(row[7] == null ? '' : row[7]).trim(),
+        odo: parseTransactionAmount(row[8]),
+        litres: parseTransactionAmount(row[9]),
+        paymentMethod: String(row[10] == null ? '' : row[10]).trim()
+      };
+    }
+
+    function getNormalizedTransactions() {
+      return getTransactionRows().map(normalizeTransactionRow).filter(Boolean);
+    }
+
+    function transactionFingerprint(tx) {
+      const value = {
+        date: String(tx.date || ''),
+        type: normalizeTransactionType(tx.type),
+        category: String(tx.category || tx.cat || '').trim(),
+        amount: parseTransactionAmount(tx.amount),
+        description: String(tx.description || tx.desc || '').trim(),
+        user: String(tx.user || '').trim(),
+        project: String(tx.project || 'General').trim(),
+        image: String(tx.image || tx.receipt || '').trim(),
+        odometer: parseTransactionAmount(tx.odometer || tx.odo),
+        litres: parseTransactionAmount(tx.litres),
+        paymentMethod: String(tx.paymentMethod || '').trim()
+      };
+      return JSON.stringify(value);
+    }
+
+    function payloadToRow(payload) {
+      return [
+        payload.date, payload.type, payload.category, payload.amount,
+        payload.description, payload.user, payload.project || 'General',
+        payload.image || '', payload.odometer || '', payload.litres || '',
+        payload.paymentMethod || ''
+      ];
+    }
+
+    function ensureLocalHeader() {
+      if (!Array.isArray(allTransactions)) allTransactions = [];
+      if (getHeaderIndex(allTransactions) < 0) {
+        allTransactions.unshift([
+          'Date', 'Type', 'Category', 'Amount', 'Description', 'User',
+          'Project', 'Receipt', 'Odometer', 'Litres', 'Payment Method'
+        ]);
+      }
+    }
+
+    function addLocalTransaction(payload) {
+      ensureLocalHeader();
+      allTransactions.push(payloadToRow(payload));
+      localStorage.setItem('trackerData', JSON.stringify(allTransactions));
+    }
+
+    function removePendingPayload(payload) {
+      const fp = transactionFingerprint(payload);
+      pendingSync = pendingSync.filter(item => transactionFingerprint(item) !== fp);
+      savePendingSync();
+    }
+
+    function mergeServerDataWithPending(serverData) {
+      const data = Array.isArray(serverData) ? serverData : [];
+      const headerIndex = getHeaderIndex(data);
+      const header = headerIndex >= 0 ? data[headerIndex] : [
+        'Date', 'Type', 'Category', 'Amount', 'Description', 'User',
+        'Project', 'Receipt', 'Odometer', 'Litres', 'Payment Method'
+      ];
+      const serverRows = data.filter((row, index) => Array.isArray(row) && index !== headerIndex);
+      const serverFingerprints = new Set(
+        serverRows.map(row => transactionFingerprint({
+          date: row[0], type: row[1], category: row[2], amount: row[3],
+          description: row[4], user: row[5], project: row[6], image: row[7],
+          odometer: row[8], litres: row[9], paymentMethod: row[10]
+        }))
+      );
+
+      const stillPending = [];
+      const pendingRows = [];
+      pendingSync.forEach(payload => {
+        if (serverFingerprints.has(transactionFingerprint(payload))) return;
+        stillPending.push(payload);
+        pendingRows.push(payloadToRow(payload));
+      });
+
+      pendingSync = stillPending;
+      savePendingSync();
+      return [header, ...serverRows, ...pendingRows];
+    }
+
+    function renderAfterDataChange() {
+      try { renderRecurringPayments(); renderSpendingCalendar(); } catch (e) { console.warn('Tab 4 refresh failed:', e); }
+      try {
+        if (document.getElementById('Ledger').classList.contains('active-tab')) generateLedger();
+        if (document.getElementById('Insights').classList.contains('active-tab')) generateInsights();
+        if (!document.getElementById('Ledger').classList.contains('active-tab') && !document.getElementById('Insights').classList.contains('active-tab')) calculateTopBalance();
+        populateSearchFilters();
+        renderCreditCards();
+      } catch (e) { console.error('Render after data change failed:', e); }
+    }
+
+    function updateSyncIndicator(text, isError = false) {
+      const el = document.getElementById('ledgerLoadingIndicator');
+      if (!el) return;
+      el.textContent = text;
+      el.style.color = isError ? 'var(--accent-red)' : 'var(--text-muted)';
+      el.style.display = 'block';
+      clearTimeout(updateSyncIndicator.timer);
+      updateSyncIndicator.timer = setTimeout(() => {
+        el.style.display = 'none';
+        el.style.color = 'var(--text-muted)';
+      }, isError ? 2200 : 1000);
+    }
+
     const bikesList = ['Hornet 2.0', 'Yamaha FZ', 'Dio'];
 
     const expenseCategories = `
@@ -1721,20 +1881,11 @@
       }
     }
 
-    function getLastServiceOdo(vehicleName) {
-      let lastOdo = null;
-      for(let i = allTransactions.length - 1; i >= 1; i--) {
-        let type = String(allTransactions[i][1]).trim();
-        let cat = String(allTransactions[i][2]).trim();
-        if(type === 'Service' && cat === vehicleName) {
-          let odo = parseFloat(allTransactions[i][8]) || 0;
-          if(odo > 0) {
-            lastOdo = odo;
-            break;
-          }
-        }
-      }
-      return lastOdo;
+        function getLastServiceOdo(vehicleName) {
+      const txs = getNormalizedTransactions()
+        .filter(tx => tx.type === 'Service' && tx.cat === vehicleName && tx.odo > 0)
+        .sort((a, b) => b.date - a.date);
+      return txs.length ? txs[0].odo : null;
     }
 
     function calculateMileagePreview() {
@@ -1888,16 +2039,15 @@
       return d;
     }
 
-    function calculateTopBalance() {
-      let totalInc = 0; let totalExp = 0; let totalSav = 0;
-      for(let i = 1; i < allTransactions.length; i++) {
-        let type = String(allTransactions[i][1]).trim();
-        let amount = parseFloat(allTransactions[i][3]) || 0;
-        if(type === 'Income') totalInc += amount;
-        if(type === 'Expense' || type === 'Fuel' || type === 'Service') totalExp += amount;
-        if(type === 'Savings') totalSav += amount;
-      }
-      document.getElementById('topBalance').innerText = formatINR(totalInc - totalExp - totalSav);
+        function calculateTopBalance() {
+      let totalInc = 0, totalExp = 0, totalSav = 0;
+      getNormalizedTransactions().forEach(tx => {
+        if (tx.type === 'Income') totalInc += tx.amount;
+        else if (tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') totalExp += tx.amount;
+        else if (tx.type === 'Savings') totalSav += tx.amount;
+      });
+      const el = document.getElementById('topBalance');
+      if (el) el.innerText = formatINR(totalInc - totalExp - totalSav);
     }
 
     function updateCameraBtn() {
@@ -1906,41 +2056,79 @@
         document.getElementById('cameraIconSpan').innerText = "✅ Attached";
         const reader = new FileReader();
         reader.onload = function(e) { receiptBase64 = e.target.result; };
+        reader.onerror = function() { receiptBase64 = ''; document.getElementById('cameraIconSpan').innerText = '⚠️ Attach failed'; };
         reader.readAsDataURL(file);
       }
     }
 
-    function executeSave(payload, btnId) {
-      if(!payload.amount || !payload.category || !payload.date) return alert("Date, Amount, and Category/Source/Savings Type are required.");
+        async function executeSave(payload, btnId) {
+      const amount = parseTransactionAmount(payload.amount);
+      if (!payload.date || amount <= 0 || !String(payload.category || '').trim()) {
+        alert('Date, Amount, and Category/Source/Savings Type are required.');
+        return;
+      }
 
       const btn = document.getElementById(btnId);
+      if (!btn) return;
       btn.classList.add('loading');
+      const originalText = btn.innerText;
 
-      if(allTransactions.length === 0) {
-        allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres", "Payment Method"]);
+      const normalizedPayload = {
+        ...payload,
+        amount,
+        date: String(payload.date),
+        category: String(payload.category).trim(),
+        description: String(payload.description || '').trim(),
+        user: String(payload.user || 'Jebel').trim(),
+        project: String(payload.project || 'General').trim(),
+        image: payload.image || '',
+        odometer: payload.odometer || '',
+        litres: payload.litres || '',
+        paymentMethod: String(payload.paymentMethod || '').trim(),
+        clientId: payload.clientId || (crypto.randomUUID ? crypto.randomUUID() : 'client-' + Date.now() + '-' + Math.random().toString(36).slice(2))
+      };
+
+      // Always save locally first so a network problem cannot erase the user's entry.
+      addLocalTransaction(normalizedPayload);
+      pendingSync.push(normalizedPayload);
+      savePendingSync();
+      renderAfterDataChange();
+
+      try {
+        const res = await fetch(URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(normalizedPayload)
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+
+        // Apps Script normally returns JSON. If it returns another success payload,
+        // the write may still have succeeded, so only the HTTP status is required here.
+        removePendingPayload(normalizedPayload);
+        btn.classList.remove('loading');
+        btn.innerText = 'Done ✓';
+        btn.style.backgroundColor = 'var(--accent-green)';
+        btn.style.color = '#ffffff';
+        setTimeout(() => {
+          btn.innerText = originalText;
+          btn.style.backgroundColor = '';
+          btn.style.color = '';
+        }, 1400);
+        updateSyncIndicator('Saved & synced ✓');
+        syncWithGoogle(false);
+      } catch (err) {
+        console.error('Google Sheets save failed:', err);
+        btn.classList.remove('loading');
+        btn.innerText = 'Saved offline';
+        btn.style.backgroundColor = 'var(--accent-blue)';
+        btn.style.color = '#ffffff';
+        updateSyncIndicator('Saved locally • waiting to sync', true);
+        setTimeout(() => {
+          btn.innerText = originalText;
+          btn.style.backgroundColor = '';
+          btn.style.color = '';
+        }, 1800);
       }
-      
-      allTransactions.push([payload.date, payload.type, payload.category, payload.amount, payload.description, payload.user, payload.project, payload.image, payload.odometer, payload.litres, payload.paymentMethod]);
-      localStorage.setItem('trackerData', JSON.stringify(allTransactions));
-      calculateTopBalance();
-
-      fetch(URL, {
-        method: 'POST',
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      }).then(res => res.json()).then(() => {
-        btn.classList.remove('loading');
-        btn.innerText = "Done ✓";
-        btn.style.backgroundColor = "var(--accent-green)";
-        btn.style.color = "#ffffff";
-        setTimeout(() => location.reload(), 800);
-      }).catch(() => {
-        btn.classList.remove('loading');
-        btn.innerText = "Done ✓";
-        btn.style.backgroundColor = "var(--accent-green)";
-        btn.style.color = "#ffffff";
-        setTimeout(() => location.reload(), 800);
-      });
     }
 
     function saveUnifiedData() {
@@ -1979,73 +2167,79 @@
 
     function forceSync() { syncWithGoogle(true); }
 
+    window.addEventListener('online', () => {
+      if (pendingSync.length) syncWithGoogle(true);
+    });
+
+    // Retry queued writes periodically, but never more often than once per minute.
+    setInterval(() => {
+      if (navigator.onLine && pendingSync.length) syncWithGoogle(false);
+    }, 60000);
+
     async function syncWithGoogle(showLoading = false) {
-      const loading = document.getElementById('ledgerLoadingIndicator');
-      if(showLoading && loading) {
-        loading.textContent = 'Syncing data…';
-        loading.style.display = 'block';
-      }
+      if (showLoading) updateSyncIndicator('Syncing data…');
 
       try {
-        // Cache-bust the GET so the ledger does not receive an old cached response.
         const syncUrl = URL + (URL.includes('?') ? '&' : '?') + '_ts=' + Date.now();
-        const response = await fetch(syncUrl, {
-          method: 'GET',
-          cache: 'no-store',
-          redirect: 'follow'
-        });
+        const response = await fetch(syncUrl, { method: 'GET', cache: 'no-store', redirect: 'follow' });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
 
-        if(!response.ok) {
-          throw new Error('HTTP ' + response.status);
-        }
-
-        const contentType = response.headers.get('content-type') || '';
         const raw = await response.text();
         let data;
+        try { data = JSON.parse(raw); }
+        catch (e) { throw new Error('Google Sheets returned a non-JSON response'); }
+        if (!Array.isArray(data)) throw new Error('Unexpected Google Sheets response');
 
-        try {
-          data = JSON.parse(raw);
-        } catch(e) {
-          throw new Error('Google Sheets returned a non-JSON response');
+        // Never discard locally queued records. Keep them visible until the server
+        // confirms the same transaction exists.
+        allTransactions = mergeServerDataWithPending(data);
+        localStorage.setItem('trackerData', JSON.stringify(allTransactions));
+        renderAfterDataChange();
+
+        if (pendingSync.length) {
+          await flushPendingSync();
+          if (!pendingSync.length) {
+            // Refresh once after queued writes complete so the UI reflects server data.
+            const refreshUrl = URL + (URL.includes('?') ? '&' : '?') + '_ts=' + Date.now();
+            const refresh = await fetch(refreshUrl, { method: 'GET', cache: 'no-store', redirect: 'follow' });
+            if (refresh.ok) {
+              const refreshed = await refresh.json();
+              if (Array.isArray(refreshed)) {
+                allTransactions = mergeServerDataWithPending(refreshed);
+                localStorage.setItem('trackerData', JSON.stringify(allTransactions));
+                renderAfterDataChange();
+              }
+            }
+          }
         }
 
-        if(!Array.isArray(data)) {
-          throw new Error('Unexpected Google Sheets response');
-        }
-
-        // Keep the sheet header + rows exactly as expected by the rest of the app.
-        allTransactions = data;
-        localStorage.setItem('trackerData', JSON.stringify(data));
-        try { renderRecurringPayments(); renderSpendingCalendar(); } catch (e) { console.warn('Tab 4 extras refresh failed', e); }
-
-        try {
-          if(document.getElementById('Ledger').classList.contains('active-tab')) generateLedger();
-          if(document.getElementById('Insights').classList.contains('active-tab')) generateInsights();
-          if(!document.getElementById('Ledger').classList.contains('active-tab') && !document.getElementById('Insights').classList.contains('active-tab')) calculateTopBalance();
-        } catch (renderErr) {
-          console.error('Dashboard render error after sync:', renderErr);
-        }
-
-        if(showLoading && loading) {
-          loading.textContent = 'Synced ✓';
-          loading.style.color = 'var(--accent-green)';
-          setTimeout(() => {
-            loading.style.display = 'none';
-            loading.style.color = 'var(--text-muted)';
-          }, 900);
-        }
+        updateSyncIndicator(pendingSync.length ? `Synced • ${pendingSync.length} pending` : 'Synced ✓');
       } catch (err) {
         console.error('Google Sheets sync failed:', err);
-        // Do not replace the working local cache. The ledger can continue offline.
-        if(showLoading && loading) {
-          loading.textContent = 'Offline • showing saved data';
-          loading.style.color = 'var(--accent-red)';
-          setTimeout(() => {
-            loading.style.display = 'none';
-            loading.style.color = 'var(--text-muted)';
-          }, 1800);
+        // Keep the local cache exactly as-is when GET fails.
+        renderAfterDataChange();
+        if (showLoading || pendingSync.length) updateSyncIndicator(`Offline • ${pendingSync.length} pending`, true);
+      }
+    }
+
+    async function flushPendingSync() {
+      if (!pendingSync.length) return;
+      const queueSnapshot = [...pendingSync];
+      for (const payload of queueSnapshot) {
+        // It may have been removed by a previous server refresh.
+        if (!pendingSync.some(item => transactionFingerprint(item) === transactionFingerprint(payload))) continue;
+        try {
+          const res = await fetch(URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          removePendingPayload(payload);
+        } catch (err) {
+          console.warn('Pending transaction still waiting to sync:', err);
+          break;
         }
-        if(document.getElementById('Ledger').classList.contains('active-tab')) generateLedger();
       }
     }
 
@@ -2086,7 +2280,7 @@
       } else if(range === '30d' || range === '90d') {
         start = new Date(today); start.setDate(start.getDate() - (range === '30d' ? 29 : 89)); start.setHours(0,0,0,0);
       } else if(range === 'all') {
-        const allDates = [...allTransactions.slice(1)].map(r => parseSafeDate(String(r[0]))).filter(d => !isNaN(d.getTime()));
+        const allDates = getNormalizedTransactions().map(r => r.date).filter(d => !isNaN(d.getTime()));
         if(allDates.length) start = new Date(Math.min(...allDates.map(d => d.getTime()))); else start = new Date(today);
         start.setHours(0,0,0,0);
       } else {
@@ -2133,14 +2327,7 @@
       let periodRecords = [];
       let totalCumulativeSavings = 0;
 
-      let sortedTxs = [...allTransactions.slice(1)].map(row => ({
-        date: parseSafeDate(String(row[0])), type: String(row[1]).trim(),
-        cat: String(row[2]).trim(), amount: parseFloat(row[3]) || 0,
-        desc: String(row[4] || ''), user: String(row[5] || 'Jebel').trim(),
-        project: String(row[6] || 'General').trim(), receipt: String(row[7] || ''),
-        odo: parseFloat(row[8]) || 0, litres: parseFloat(row[9]) || 0,
-        paymentMethod: String(row[10] || '')
-      })).filter(tx => !isNaN(tx.date.getTime())).sort((a, b) => b.date - a.date);
+      let sortedTxs = getNormalizedTransactions().sort((a, b) => b.date - a.date);
 
       for(let tx of sortedTxs) {
         if(tx.type === 'Savings' && (selectedUser === 'Us' || tx.user === selectedUser)) {
@@ -2292,24 +2479,11 @@
       return null;
     }
 
-    function getInsightRows() {
-      if (!Array.isArray(allTransactions)) return [];
-      // Find the header row rather than assuming it is always row 1.
-      let headerIndex = -1;
-      for (let i = 0; i < Math.min(allTransactions.length, 8); i++) {
-        const row = allTransactions[i];
-        if (Array.isArray(row)) {
-          const joined = row.map(v => String(v == null ? '' : v).trim().toLowerCase()).join('|');
-          if (joined.includes('date') && joined.includes('type') && joined.includes('amount')) {
-            headerIndex = i; break;
-          }
-        }
-      }
-      const start = headerIndex >= 0 ? headerIndex + 1 : 0;
-      return allTransactions.slice(start).filter(Array.isArray);
+        function getInsightRows() {
+      return getTransactionRows();
     }
 
-    function getInsightTransactions() {
+        function getInsightTransactions() {
       const userEl = document.getElementById('insightsFilterUser');
       const rangeEl = document.getElementById('insightsTimeRange');
       const selectedUser = userEl ? userEl.value : 'Us';
@@ -2323,20 +2497,12 @@
       else startDate.setFullYear(now.getFullYear() - 50);
       startDate.setHours(0,0,0,0);
 
-      const rows = getInsightRows();
-      const txs = rows.map(row => ({
-        date: parseRobustDate(row[0]),
-        type: normalizeTransactionType(row[1]),
-        cat: String(row[2] == null ? '' : row[2]).trim(),
-        amount: parseTransactionAmount(row[3]),
-        desc: String(row[4] == null ? '' : row[4]).trim(),
-        user: String(row[5] == null ? '' : row[5]).trim()
-      })).filter(tx => {
-        if (!tx.date) return false;
-        const userOk = selectedUser === 'Us' || tx.user.toLowerCase() === selectedUser.toLowerCase();
-        const dateOk = tx.date >= startDate;
-        return userOk && dateOk && tx.amount >= 0;
-      }).sort((a,b) => a.date - b.date);
+      const txs = getNormalizedTransactions()
+        .filter(tx => {
+          const userOk = selectedUser === 'Us' || tx.user.toLowerCase() === selectedUser.toLowerCase();
+          return userOk && tx.date >= startDate && tx.amount >= 0;
+        })
+        .sort((a,b) => a.date - b.date);
 
       return { txs, startDate, timeRange, selectedUser };
     }
@@ -2702,28 +2868,11 @@
       setTimeout(() => modal.style.display = 'none', 300);
     }
 
-    function openSearchModal() {
-      document.getElementById('searchModal').style.display = 'flex';
-      setTimeout(() => document.getElementById('searchModal').classList.add('show'), 10);
-      document.getElementById('searchInput').focus();
-    }
     function closeSearchModal(event) {
       if(event && event.target.id !== 'searchModal') return; 
       const modal = document.getElementById('searchModal');
       modal.classList.remove('show');
       setTimeout(() => modal.style.display = 'none', 300);
-    }
-
-    function performSearch() {
-      let query = document.getElementById('searchInput').value.toLowerCase();
-      let list = document.getElementById('searchResultsList');
-      if(query.length < 2) { list.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">Type at least 2 characters...</div>'; return; }
-
-      let results = [...allTransactions.slice(1)].filter(row => {
-        return row.some(cell => String(cell).toLowerCase().includes(query));
-      }).reverse();
-
-      renderTxList(list, results, true);
     }
 
     function showCategoryDetails(categoryName) {
@@ -2828,18 +2977,7 @@
 let creditCards = JSON.parse(localStorage.getItem('householdCreditCards') || '[]');
 
 function getSearchableTransactions(){
-  return getInsightRows().map(row => ({
-    raw: row,
-    date: parseRobustDate(row[0]),
-    type: normalizeTransactionType(row[1]),
-    cat: String(row[2] == null ? '' : row[2]).trim(),
-    amount: parseTransactionAmount(row[3]),
-    desc: String(row[4] == null ? '' : row[4]).trim(),
-    user: String(row[5] == null ? '' : row[5]).trim(),
-    project: String(row[6] == null ? '' : row[6]).trim(),
-    receipt: String(row[7] == null ? '' : row[7]).trim(),
-    paymentMethod: String(row[10] == null ? '' : row[10]).trim()
-  })).filter(x => x.date && !isNaN(x.date.getTime()));
+  return getNormalizedTransactions();
 }
 
 function populateSearchFilters(){
@@ -3008,14 +3146,13 @@ function renderSpendingCalendar(){
   var title=document.getElementById('spendingCalendarMonth');
   if(title)title.textContent=spendingCalendarDate.toLocaleDateString('en-IN',{month:'short',year:'numeric'});
   var totals={};
-  var rows=Array.isArray(allTransactions)?allTransactions.slice(1):[];
-  rows.forEach(function(r){
-    var d=parseSafeDate(String(r[0]||'')),type=String(r[1]||'').trim(),amount=parseFloat(r[3])||0;
-    if(!d||isNaN(d.getTime())||d.getFullYear()!==y||d.getMonth()!==m)return;
-    if(['Expense','Fuel','Service'].indexOf(type)<0)return;
-    totals[d.getDate()]=(totals[d.getDate()]||0)+amount;
+  getNormalizedTransactions().forEach(function(tx){
+    var d=tx.date;
+    if(d.getFullYear()!==y||d.getMonth()!==m)return;
+    if(['Expense','Fuel','Service'].indexOf(tx.type)<0)return;
+    totals[d.getDate()]=(totals[d.getDate()]||0)+tx.amount;
   });
-  var monthTotal=Object.keys(totals).reduce(function(s,k){return s+totals[k];},0);
+  var monthTotal=Object.keys(totals).reduce(function(sum,k){return sum+totals[k];},0);
   var totalEl=document.getElementById('spendingCalendarTotal');
   if(totalEl)totalEl.innerHTML='₹'+Math.round(monthTotal).toLocaleString('en-IN')+' <span>this month</span>';
   var first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
@@ -3033,10 +3170,9 @@ function renderSpendingCalendar(){
 }
 function showSpendingDay(day){
   var y=spendingCalendarDate.getFullYear(),m=spendingCalendarDate.getMonth(),total=0,count=0;
-  (Array.isArray(allTransactions)?allTransactions.slice(1):[]).forEach(function(r){
-    var d=parseSafeDate(String(r[0]||'')),type=String(r[1]||'').trim(),amount=parseFloat(r[3])||0;
-    if(!d||isNaN(d.getTime()))return;
-    if(d.getFullYear()===y&&d.getMonth()===m&&d.getDate()===day&&['Expense','Fuel','Service'].indexOf(type)>=0){total+=amount;count++;}
+  getNormalizedTransactions().forEach(function(tx){
+    var d=tx.date;
+    if(d.getFullYear()===y&&d.getMonth()===m&&d.getDate()===day&&['Expense','Fuel','Service'].indexOf(tx.type)>=0){total+=tx.amount;count++;}
   });
   var summary=document.getElementById('spendingCalendarSummary');
   if(summary)summary.textContent=new Date(y,m,day).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})+' · ₹'+Math.round(total).toLocaleString('en-IN')+' spent · '+count+' transaction'+(count===1?'':'s');
