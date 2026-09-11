@@ -1282,11 +1282,6 @@
 
     function showCategoryDetails(categoryName) {
       try {
-        // Hide category modal first so it doesn't linger underneath when opening details
-        let catModal = document.getElementById('categoryModal');
-        catModal.classList.remove('show');
-        setTimeout(() => catModal.style.display = 'none', 150);
-
         document.getElementById('modalCategoryTitle').innerText = categoryName;
         const listContainer = document.getElementById('modalTransactionList');
         listContainer.innerHTML = ''; 
@@ -1322,8 +1317,9 @@
 
         renderTxList(listContainer, filteredTxs);
 
-        catModal.style.display = 'flex';
-        setTimeout(() => catModal.classList.add('show'), 10);
+        const modal = document.getElementById('categoryModal');
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('show'), 10);
       } catch(e) {
         alert("Failed to load details: " + e.message);
       }
@@ -1365,8 +1361,10 @@
           itemEl.onclick = function() {
             let catModal = document.getElementById('categoryModal');
             catModal.classList.remove('show');
-            setTimeout(() => catModal.style.display = 'none', 150);
-            openRecordDetail(txObj);
+            setTimeout(() => {
+              catModal.style.display = 'none';
+              openRecordDetail(txObj);
+            }, 200);
           };
 
           container.appendChild(itemEl);
