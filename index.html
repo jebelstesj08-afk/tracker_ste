@@ -206,7 +206,7 @@
       </select>
     </div>
 
-    <!-- Details and Payment Method in a Single Line with Receipt Icon -->
+    <!-- Details, Payment Method & Tiny Receipt Icon Row -->
     <div style="display: flex; gap: 8px; align-items: flex-end; margin-bottom: 16px;">
       <div class="input-group" style="flex: 1; margin-bottom: 0;">
         <label>Details</label>
@@ -304,7 +304,7 @@
       <div id="mileagePreviewText" style="color: var(--text-muted); font-weight: 500; font-size: 13px; border-top: 1px solid var(--border-color); padding-top: 6px; margin-top: 6px;"></div>
     </div>
 
-    <!-- Details and Payment Method in a Single Line -->
+    <!-- Details, Payment Method & Tiny Receipt Icon Row -->
     <div style="display: flex; gap: 8px; align-items: flex-end; margin-bottom: 16px;">
       <div class="input-group" style="flex: 1; margin-bottom: 0;">
         <label>Details / Station</label>
@@ -323,7 +323,7 @@
         </select>
       </div>
       <div class="file-upload-wrapper" style="height: 52px; width: 52px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0;" title="Attach Receipt">
-        <span style="font-size: 20px;">📎</span>
+        <span id="fuelReceiptIconSpan" style="font-size: 20px;">📎</span>
         <input type="file" id="fuelReceipt" accept="image/*" capture="environment" onchange="updateFuelReceiptBtn(this)">
       </div>
     </div>
@@ -363,7 +363,7 @@
       </select>
     </div>
 
-    <!-- Details and Payment Method in a Single Line -->
+    <!-- Details, Payment Method & Tiny Receipt Icon Row -->
     <div style="display: flex; gap: 8px; align-items: flex-end; margin-bottom: 16px;">
       <div class="input-group" style="flex: 1; margin-bottom: 0;">
         <label>Details</label>
@@ -382,7 +382,7 @@
         </select>
       </div>
       <div class="file-upload-wrapper" style="height: 52px; width: 52px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0;" title="Attach Receipt">
-        <span style="font-size: 20px;">📎</span>
+        <span id="savReceiptIconSpan" style="font-size: 20px;">📎</span>
         <input type="file" id="savReceipt" accept="image/*" capture="environment" onchange="updateSavingsReceiptBtn(this)">
       </div>
     </div>
@@ -603,6 +603,7 @@
         document.getElementById('savDesc').value = '';
         document.getElementById('savPaymentMethod').selectedIndex = 0;
         savReceiptBase64 = "";
+        document.getElementById('savReceiptIconSpan').innerText = "📎";
       }
     }
 
@@ -617,6 +618,7 @@
       document.getElementById('fuelDesc').value = '';
       document.getElementById('fuelPaymentMethod').selectedIndex = 0;
       fuelReceiptBase64 = "";
+      document.getElementById('fuelReceiptIconSpan').innerText = "📎";
       document.getElementById('mileagePreviewBox').style.display = 'none';
     }
 
@@ -855,6 +857,7 @@
 
     function updateFuelReceiptBtn(input) {
       if (input.files[0]) {
+        document.getElementById('fuelReceiptIconSpan').innerText = "✅";
         const reader = new FileReader();
         reader.onload = function(e) { fuelReceiptBase64 = e.target.result; };
         reader.readAsDataURL(input.files[0]);
@@ -863,6 +866,7 @@
 
     function updateSavingsReceiptBtn(input) {
       if (input.files[0]) {
+        document.getElementById('savReceiptIconSpan').innerText = "✅";
         const reader = new FileReader();
         reader.onload = function(e) { savReceiptBase64 = e.target.result; };
         reader.readAsDataURL(input.files[0]);
@@ -921,62 +925,50 @@
     }
 
     function saveUnifiedData() {
-      let desc = document.getElementById('txDesc').value;
-      let method = document.getElementById('txPaymentMethod').value;
-      let fullDesc = method ? (desc ? `${desc} [${method}]` : method) : desc;
-
       let payload = {
         date: document.getElementById('txDate').value,
         type: currentTxType,
         category: document.getElementById('txCat').value,
         amount: document.getElementById('txAmount').value,
-        description: fullDesc,
+        description: document.getElementById('txDesc').value,
         user: document.getElementById('txUser').value,
         project: 'General',
         image: currentTxType === 'Expense' ? receiptBase64 : '',
         odometer: '', litres: '',
-        paymentMethod: method
+        paymentMethod: document.getElementById('txPaymentMethod').value
       };
       executeSave(payload, currentTxType === 'Expense' ? "Uploading securely..." : "Recording income...", currentTxType === 'Expense' ? "Your expense was recorded!" : "Income recorded!");
     }
 
     function saveFuelData() {
       let isService = document.getElementById('fuelLogType').value === 'Service';
-      let desc = document.getElementById('fuelDesc').value;
-      let method = document.getElementById('fuelPaymentMethod').value;
-      let fullDesc = method ? (desc ? `${desc} [${method}]` : method) : desc;
-
       let payload = {
         date: document.getElementById('fuelDate').value,
         type: isService ? "Service" : "Fuel",
         category: document.getElementById('fuelVehicle').value,
         amount: document.getElementById('fuelAmount').value,
-        description: fullDesc,
+        description: document.getElementById('fuelDesc').value,
         user: document.getElementById('fuelUser').value,
         project: "Automotive",
         image: fuelReceiptBase64,
         odometer: document.getElementById('fuelOdo').value,
         litres: isService ? "" : document.getElementById('fuelLitres').value,
-        paymentMethod: method
+        paymentMethod: document.getElementById('fuelPaymentMethod').value
       };
       executeSave(payload, isService ? "Logging service..." : "Logging fuel...", isService ? "Service recorded!" : "Fuel logged!");
     }
 
     function saveSavingsData() {
-      let desc = document.getElementById('savDesc').value;
-      let method = document.getElementById('savPaymentMethod').value;
-      let fullDesc = method ? (desc ? `${desc} [${method}]` : method) : desc;
-
       let payload = {
         date: document.getElementById('savDate').value,
         type: "Savings",
         category: document.getElementById('savCat').value,
         amount: document.getElementById('savAmount').value,
-        description: fullDesc,
+        description: document.getElementById('savDesc').value,
         user: document.getElementById('savUser').value,
         project: "Investments",
         image: savReceiptBase64, odometer: "", litres: "",
-        paymentMethod: method
+        paymentMethod: document.getElementById('savPaymentMethod').value
       };
       executeSave(payload, "Recording investment...", "Investment recorded!");
     }
@@ -1021,7 +1013,8 @@
         desc: String(row[4] || ''), user: String(row[5] || 'Jebel').trim(),
         project: String(row[6] || 'General').trim(),
         receipt: String(row[7] || ''),
-        odo: parseFloat(row[8]) || 0, litres: parseFloat(row[9]) || 0
+        odo: parseFloat(row[8]) || 0, litres: parseFloat(row[9]) || 0,
+        paymentMethod: String(row[10] || '')
       })).sort((a, b) => b.date - a.date);
 
       for(let tx of sortedTxs) {
@@ -1068,6 +1061,7 @@
             let amtStr = formatINR(row.amount);
             let subText = `${row.type} • ${row.cat}`;
             if(row.desc) subText += ` • ${row.desc}`;
+            if(row.paymentMethod) subText += ` [${row.paymentMethod}]`;
             html += `
               <div class="transaction-item">
                 <div class="tx-left">
