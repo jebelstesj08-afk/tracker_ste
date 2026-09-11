@@ -163,7 +163,6 @@
       <div style="flex: 1; overflow: hidden;" id="mainBalanceHeaderContainer">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
           <span class="balance-label" id="topLabel" style="margin-bottom: 0;">Main balance</span>
-          <!-- Reset button for 1st & 3rd sections -->
           <button id="sectionResetBtn" onclick="resetActiveTabFields()" style="background: transparent; border: none; cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 8px; color: var(--text-muted);" title="Clear fields">↺</button>
         </div>
         <h1 class="balance-amount" id="topBalance">0</h1>
@@ -209,15 +208,29 @@
       </select>
     </div>
 
-    <div class="two-col" style="align-items: flex-end;" id="receiptRow">
-      <div class="input-group" style="flex: 4;">
+    <!-- Details and Payment Method Row -->
+    <div class="two-col">
+      <div class="input-group" style="flex: 1;">
         <label>Details</label>
         <input type="text" id="txDesc" placeholder="Add a note (optional)">
       </div>
-      <div class="input-group file-upload-wrapper" style="flex: 1; margin-bottom: 0;">
-        <button class="save-btn btn-camera" id="cameraBtnDisplay" style="height: 52px; margin-top:0; padding:0; border-radius: var(--radius-md);">📸</button>
-        <input type="file" id="txReceipt" accept="image/*" capture="environment" onchange="updateCameraBtn()">
+      <div class="input-group" style="flex: 1;">
+        <label>Payment Method</label>
+        <select id="txPaymentMethod">
+          <option value="" disabled selected>Select Method...</option>
+          <option value="Google pay upi">Google pay upi</option>
+          <option value="Axis my zone cc">Axis my zone cc</option>
+          <option value="Axis flipkart cc">Axis flipkart cc</option>
+          <option value="Axis indianoil cc">Axis indianoil cc</option>
+          <option value="Hdfc moneyback cc">Hdfc moneyback cc</option>
+          <option value="Icici amazon pay cc">Icici amazon pay cc</option>
+        </select>
       </div>
+    </div>
+
+    <div class="input-group file-upload-wrapper" id="receiptRow" style="margin-bottom: 16px;">
+      <button class="save-btn btn-camera" id="cameraBtnDisplay" style="height: 52px; margin-top:0; border-radius: var(--radius-md);">📸 Attach Receipt</button>
+      <input type="file" id="txReceipt" accept="image/*" capture="environment" onchange="updateCameraBtn()">
     </div>
     
     <button class="save-btn btn-expense" id="txSaveBtn" onclick="saveUnifiedData()">Add Expense</button>
@@ -277,7 +290,6 @@
     <div class="input-group">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
         <label style="margin-bottom: 0;">Odometer Reading (km)</label>
-        <!-- Tiny reset icon for odometer / fuel section -->
         <button onclick="resetFuelFields()" style="background: transparent; border: none; cursor: pointer; font-size: 13px; color: var(--text-muted); padding: 0 4px;" title="Reset Odometer & fields">↺ Reset</button>
       </div>
       <input type="number" id="fuelOdo" placeholder="Current km reading..." oninput="calculateMileagePreview()" style="padding: 10px 16px; font-size: 15px;">
@@ -295,9 +307,24 @@
       <div id="mileagePreviewText" style="color: var(--text-muted); font-weight: 500; font-size: 13px; border-top: 1px solid var(--border-color); padding-top: 6px; margin-top: 6px;"></div>
     </div>
 
-    <div class="input-group">
-      <label>Details / Station (Optional)</label>
-      <input type="text" id="fuelDesc" placeholder="e.g. NTP Petroleum or Oil Change">
+    <!-- Details and Payment Method Row for Vehicle Tab -->
+    <div class="two-col">
+      <div class="input-group" style="flex: 1;">
+        <label>Details / Station</label>
+        <input type="text" id="fuelDesc" placeholder="e.g. NTP Petroleum or Oil Change">
+      </div>
+      <div class="input-group" style="flex: 1;">
+        <label>Payment Method</label>
+        <select id="fuelPaymentMethod">
+          <option value="" disabled selected>Select Method...</option>
+          <option value="Google pay upi">Google pay upi</option>
+          <option value="Axis my zone cc">Axis my zone cc</option>
+          <option value="Axis flipkart cc">Axis flipkart cc</option>
+          <option value="Axis indianoil cc">Axis indianoil cc</option>
+          <option value="Hdfc moneyback cc">Hdfc moneyback cc</option>
+          <option value="Icici amazon pay cc">Icici amazon pay cc</option>
+        </select>
+      </div>
     </div>
 
     <button class="save-btn btn-fuel" id="vehicleLogBtn" onclick="saveFuelData()">Log Fuel Fill</button>
@@ -334,10 +361,27 @@
         <option value="Other Investment">Other Investment</option>
       </select>
     </div>
-    <div class="input-group">
-      <label>Details</label>
-      <input type="text" id="savDesc" placeholder="e.g. Monthly installment note">
+
+    <!-- Details and Payment Method Row for Savings Tab -->
+    <div class="two-col">
+      <div class="input-group" style="flex: 1;">
+        <label>Details</label>
+        <input type="text" id="savDesc" placeholder="e.g. Monthly installment note">
+      </div>
+      <div class="input-group" style="flex: 1;">
+        <label>Payment Method</label>
+        <select id="savPaymentMethod">
+          <option value="" disabled selected>Select Method...</option>
+          <option value="Google pay upi">Google pay upi</option>
+          <option value="Axis my zone cc">Axis my zone cc</option>
+          <option value="Axis flipkart cc">Axis flipkart cc</option>
+          <option value="Axis indianoil cc">Axis indianoil cc</option>
+          <option value="Hdfc moneyback cc">Hdfc moneyback cc</option>
+          <option value="Icici amazon pay cc">Icici amazon pay cc</option>
+        </select>
+      </div>
     </div>
+
     <button class="save-btn btn-sav" onclick="saveSavingsData()">Record Investment</button>
   </div>
 
@@ -541,9 +585,10 @@
         document.getElementById('txUser').value = currentUser;
         document.getElementById('txCat').selectedIndex = 0;
         document.getElementById('txDesc').value = '';
+        document.getElementById('txPaymentMethod').selectedIndex = 0;
         receiptBase64 = "";
         const btn = document.getElementById('cameraBtnDisplay');
-        btn.innerText = "📸";
+        btn.innerText = "📸 Attach Receipt";
         btn.style.backgroundColor = "var(--card-bg)";
         btn.style.color = "var(--text-main)";
         btn.style.border = "1px solid var(--border-color)";
@@ -553,6 +598,7 @@
         document.getElementById('savUser').value = currentUser;
         document.getElementById('savCat').selectedIndex = 0;
         document.getElementById('savDesc').value = '';
+        document.getElementById('savPaymentMethod').selectedIndex = 0;
       }
     }
 
@@ -565,6 +611,7 @@
       document.getElementById('fuelLitres').value = '';
       document.getElementById('fuelOdo').value = '';
       document.getElementById('fuelDesc').value = '';
+      document.getElementById('fuelPaymentMethod').selectedIndex = 0;
       document.getElementById('mileagePreviewBox').style.display = 'none';
     }
 
@@ -589,7 +636,7 @@
         catSelect.innerHTML = expenseCategories;
         saveBtn.innerText = 'Add Expense';
         saveBtn.className = 'save-btn btn-expense';
-        receiptRow.style.display = 'flex';
+        receiptRow.style.display = 'block';
       } else {
         incBtn.style.background = 'var(--card-bg)';
         incBtn.style.color = 'var(--text-main)';
@@ -602,7 +649,7 @@
         catSelect.innerHTML = incomeCategories;
         saveBtn.innerText = 'Add Income';
         saveBtn.className = 'save-btn btn-income';
-        receiptRow.style.display = 'flex';
+        receiptRow.style.display = 'none'; // hide receipt upload for income if not needed, or keep
       }
     }
 
@@ -798,7 +845,7 @@
       const file = document.getElementById('txReceipt').files[0];
       const btn = document.getElementById('cameraBtnDisplay');
       if (file) {
-        btn.innerText = "✅";
+        btn.innerText = "✅ Attached";
         btn.style.backgroundColor = "var(--accent-green)";
         btn.style.color = "white";
         btn.style.border = "none";
@@ -838,10 +885,10 @@
       if(!payload.amount || !payload.category || !payload.date) return alert("Date, Amount, and Category/Source are required.");
 
       if(allTransactions.length === 0) {
-        allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres"]);
+        allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres", "PaymentMethod"]);
       }
       
-      allTransactions.push([payload.date, payload.type, payload.category, payload.amount, payload.description, payload.user, payload.project, payload.image, payload.odometer, payload.litres]);
+      allTransactions.push([payload.date, payload.type, payload.category, payload.amount, payload.description, payload.user, payload.project, payload.image, payload.odometer, payload.litres, payload.paymentMethod]);
       localStorage.setItem('trackerData', JSON.stringify(allTransactions));
       calculateTopBalance();
 
@@ -861,47 +908,62 @@
     }
 
     function saveUnifiedData() {
+      let desc = document.getElementById('txDesc').value;
+      let method = document.getElementById('txPaymentMethod').value;
+      let fullDesc = method ? (desc ? `${desc} [${method}]` : method) : desc;
+
       let payload = {
         date: document.getElementById('txDate').value,
         type: currentTxType,
         category: document.getElementById('txCat').value,
         amount: document.getElementById('txAmount').value,
-        description: document.getElementById('txDesc').value,
+        description: fullDesc,
         user: document.getElementById('txUser').value,
         project: 'General',
         image: currentTxType === 'Expense' ? receiptBase64 : '',
-        odometer: '', litres: ''
+        odometer: '', litres: '',
+        paymentMethod: method
       };
       executeSave(payload, currentTxType === 'Expense' ? "Uploading securely..." : "Recording income...", currentTxType === 'Expense' ? "Your expense was recorded!" : "Income recorded!");
     }
 
     function saveFuelData() {
       let isService = document.getElementById('fuelLogType').value === 'Service';
+      let desc = document.getElementById('fuelDesc').value;
+      let method = document.getElementById('fuelPaymentMethod').value;
+      let fullDesc = method ? (desc ? `${desc} [${method}]` : method) : desc;
+
       let payload = {
         date: document.getElementById('fuelDate').value,
         type: isService ? "Service" : "Fuel",
         category: document.getElementById('fuelVehicle').value,
         amount: document.getElementById('fuelAmount').value,
-        description: document.getElementById('fuelDesc').value,
+        description: fullDesc,
         user: document.getElementById('fuelUser').value,
         project: "Automotive",
         image: "",
         odometer: document.getElementById('fuelOdo').value,
-        litres: isService ? "" : document.getElementById('fuelLitres').value
+        litres: isService ? "" : document.getElementById('fuelLitres').value,
+        paymentMethod: method
       };
       executeSave(payload, isService ? "Logging service..." : "Logging fuel...", isService ? "Service recorded!" : "Fuel logged!");
     }
 
     function saveSavingsData() {
+      let desc = document.getElementById('savDesc').value;
+      let method = document.getElementById('savPaymentMethod').value;
+      let fullDesc = method ? (desc ? `${desc} [${method}]` : method) : desc;
+
       let payload = {
         date: document.getElementById('savDate').value,
         type: "Savings",
         category: document.getElementById('savCat').value,
         amount: document.getElementById('savAmount').value,
-        description: document.getElementById('savDesc').value,
+        description: fullDesc,
         user: document.getElementById('savUser').value,
         project: "Investments",
-        image: "", odometer: "", litres: ""
+        image: "", odometer: "", litres: "",
+        paymentMethod: method
       };
       executeSave(payload, "Recording investment...", "Investment recorded!");
     }
