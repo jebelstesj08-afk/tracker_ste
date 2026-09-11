@@ -8,175 +8,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Tracker">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js">
-);
-  document.querySelectorAll('.insight-mode-panel').forEach(function(panel){
-    panel.classList.toggle('active',
-      panel.id === (mode === 'household' ? 'householdInsightPanel' : 'vehicleInsightPanel')
-    );
-  });
-  if(mode === 'vehicle') updateVehicleInsightMode();
-}
-function updateVehicleInsightMode(){
-  var rows = Array.isArray(allTransactions) ? allTransactions.slice(1) : [];
-  var data = rows.map(function(r){
-    return {
-      date: parseSafeDate(String(r[0]||'')),
-      type: String(r[1]||'').trim(),
-      cat: String(r[2]||'').trim(),
-      amount: parseFloat(r[3])||0,
-      desc: String(r[4]||'').trim(),
-      odo: parseFloat(r[8])||0,
-      litres: parseFloat(r[9])||0
-    };
-  }).filter(function(x){ return x.date && !isNaN(x.date.getTime()); });
-
-  var fuel = data.filter(function(x){return x.type === 'Fuel';});
-  var service = data.filter(function(x){return x.type === 'Service';});
-  var money = function(n){return '₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});};
-  var set = function(id,val){var e=document.getElementById(id);if(e)e.textContent=val;};
-
-  var fuelSpend = fuel.reduce(function(s,x){return s+x.amount;},0);
-  var litres = fuel.reduce(function(s,x){return s+x.litres;},0);
-  var odos = fuel.map(function(x){return x.odo;}).filter(function(x){return x>0;});
-  var distance = odos.length>1 ? Math.max.apply(null,odos)-Math.min.apply(null,odos) : 0;
-  var mileage = litres>0 && distance>0 ? distance/litres : 0;
-
-  set('v4FuelSpend',money(fuelSpend));
-  set('v4Litres',litres.toFixed(1)+' L');
-  set('v4Distance',distance.toLocaleString('en-IN')+' km');
-  set('v4Mileage',mileage ? mileage.toFixed(1)+' km/L' : '— km/L');
-
-  var fuelBox=document.getElementById('v4FuelHistory');
-  if(fuelBox){
-    fuelBox.innerHTML=fuel.slice(-8).reverse().map(function(x){
-      return '<div class="p3-row"><div class="p3-row-main"><div class="p3-row-name">'+
-        escapeHtml(x.cat||'Fuel')+'</div><div class="p3-row-meta">'+
-        x.date.toLocaleDateString('en-IN')+
-        (x.litres?' · '+x.litres+' L':'')+
-        (x.odo?' · '+x.odo.toLocaleString('en-IN')+' km':'')+
-        '</div></div><div class="p3-row-value">'+money(x.amount)+'</div></div>';
-    }).join('') || '<div class="p3-alert">No fuel records available.</div>';
-  }
-
-  var serviceBox=document.getElementById('v4ServiceHistory');
-  if(serviceBox){
-    serviceBox.innerHTML=service.slice(-8).reverse().map(function(x){
-      return '<div class="p3-row"><div class="p3-row-main"><div class="p3-row-name">'+
-        escapeHtml(x.cat||'Service')+'</div><div class="p3-row-meta">'+
-        x.date.toLocaleDateString('en-IN')+' · '+escapeHtml(x.desc||'Service record')+
-        '</div></div><div class="p3-row-value">'+money(x.amount)+'</div></div>';
-    }).join('') || '<div class="p3-alert">No service records available.</div>';
-  }
-}
-
-
-/* ===== RECURRING PAYMENTS + SPENDING CALENDAR ===== */
-var recurringPayments = [];
-var spendingCalendarDate = new Date();
-
-function tab4Escape(v){
-  return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function loadRecurringPayments(){
-  try{recurringPayments=JSON.parse(localStorage.getItem('householdRecurringPayments')||'[]');}
-  catch(e){recurringPayments=[];}
-  renderRecurringPayments();
-}
-function saveRecurringStore(){localStorage.setItem('householdRecurringPayments',JSON.stringify(recurringPayments));}
-function openRecurringPayment(){
-  var m=document.getElementById('recurringPaymentModal');
-  if(m){m.classList.add('open');m.setAttribute('aria-hidden','false');}
-}
-function closeRecurringPayment(){
-  var m=document.getElementById('recurringPaymentModal');
-  if(m){m.classList.remove('open');m.setAttribute('aria-hidden','true');}
-}
-function saveRecurringPayment(){
-  var name=(document.getElementById('recurringName')||{}).value||'';
-  var amount=parseFloat((document.getElementById('recurringAmount')||{}).value)||0;
-  var frequency=(document.getElementById('recurringFrequency')||{}).value||'Monthly';
-  var due=(document.getElementById('recurringDue')||{}).value||'';
-  var category=(document.getElementById('recurringCategory')||{}).value||'Bills';
-  if(!name.trim()||amount<=0||!due){alert('Please enter a name, amount and next due date.');return;}
-  recurringPayments.push({id:Date.now(),name:name.trim(),amount:amount,frequency:frequency,due:due,category:category.trim()||'Bills'});
-  saveRecurringStore();renderRecurringPayments();closeRecurringPayment();
-  ['recurringName','recurringAmount','recurringDue','recurringCategory'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
-}
-function deleteRecurringPayment(id){
-  recurringPayments=recurringPayments.filter(function(x){return x.id!==id;});
-  saveRecurringStore();renderRecurringPayments();
-}
-function renderRecurringPayments(){
-  var box=document.getElementById('recurringPaymentsList');if(!box)return;
-  var monthly=0,upcoming=0,now=new Date();now.setHours(0,0,0,0);
-  recurringPayments.forEach(function(x){
-    var a=Number(x.amount)||0;
-    if(x.frequency==='Monthly')monthly+=a;
-    else if(x.frequency==='Weekly')monthly+=a*52/12;
-    else if(x.frequency==='Yearly')monthly+=a/12;
-    var due=new Date((x.due||'')+'T00:00:00');
-    if(x.due&&due>=now&&due<=new Date(now.getTime()+30*86400000))upcoming++;
-  });
-  var mt=document.getElementById('recurringMonthlyTotal'),uc=document.getElementById('recurringUpcomingCount');
-  if(mt)mt.textContent='₹'+Math.round(monthly).toLocaleString('en-IN');
-  if(uc)uc.textContent=String(upcoming);
-  if(!recurringPayments.length){
-    box.innerHTML='<div class="calendar-summary">No recurring payments yet. Tap ＋ to add one.</div>';return;
-  }
-  var money=function(n){return '₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});};
-  box.innerHTML=recurringPayments.slice().sort(function(a,b){return String(a.due).localeCompare(String(b.due));}).map(function(x){
-    var d=new Date(x.due+'T00:00:00');
-    var due=d.toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
-    return '<div class="recurring-item"><div class="recurring-main"><div class="recurring-name">'+tab4Escape(x.name)+'</div><div class="recurring-meta">'+tab4Escape(x.category)+' · '+tab4Escape(x.frequency)+' · Due '+due+'</div></div><div class="recurring-amount">'+money(x.amount)+'</div><button class="recurring-delete" onclick="deleteRecurringPayment('+x.id+')" aria-label="Delete">×</button></div>';
-  }).join('');
-}
-function changeSpendingMonth(delta){
-  spendingCalendarDate=new Date(spendingCalendarDate.getFullYear(),spendingCalendarDate.getMonth()+delta,1);
-  renderSpendingCalendar();
-}
-function renderSpendingCalendar(){
-  var grid=document.getElementById('spendingCalendarGrid');if(!grid)return;
-  var y=spendingCalendarDate.getFullYear(),m=spendingCalendarDate.getMonth();
-  var title=document.getElementById('spendingCalendarMonth');
-  if(title)title.textContent=spendingCalendarDate.toLocaleDateString('en-IN',{month:'short',year:'numeric'});
-  var totals={};
-  var rows=Array.isArray(allTransactions)?allTransactions.slice(1):[];
-  rows.forEach(function(r){
-    var d=parseSafeDate(String(r[0]||'')),type=String(r[1]||'').trim(),amount=parseFloat(r[3])||0;
-    if(!d||isNaN(d.getTime())||d.getFullYear()!==y||d.getMonth()!==m)return;
-    if(['Expense','Fuel','Service'].indexOf(type)<0)return;
-    totals[d.getDate()]=(totals[d.getDate()]||0)+amount;
-  });
-  var monthTotal=Object.keys(totals).reduce(function(s,k){return s+totals[k];},0);
-  var totalEl=document.getElementById('spendingCalendarTotal');
-  if(totalEl)totalEl.innerHTML='₹'+Math.round(monthTotal).toLocaleString('en-IN')+' <span>this month</span>';
-  var first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
-  var max=Object.keys(totals).reduce(function(mx,k){return Math.max(mx,totals[k]);},0),cells=[];
-  for(var i=0;i<first;i++)cells.push('<div class="calendar-day empty"></div>');
-  for(var day=1;day<=days;day++){
-    var amt=totals[day]||0;
-    var level=!amt?'':(max&&amt>max*.66?'high':(max&&amt>max*.33?'medium':'low'));
-    var now=new Date(),today=now.getFullYear()===y&&now.getMonth()===m&&now.getDate()===day;
-    cells.push('<button type="button" class="calendar-day '+(amt?'has-spend ':'')+level+(today?' today':'')+'" onclick="showSpendingDay('+day+')"><span class="calendar-date">'+day+'</span><span class="calendar-amount">'+(amt?'₹'+Math.round(amt).toLocaleString('en-IN'):'—')+'</span></button>');
-  }
-  grid.innerHTML=cells.join('');
-  var summary=document.getElementById('spendingCalendarSummary');
-  if(summary)summary.textContent='Tap a day to see its spending.';
-}
-function showSpendingDay(day){
-  var y=spendingCalendarDate.getFullYear(),m=spendingCalendarDate.getMonth(),total=0,count=0;
-  (Array.isArray(allTransactions)?allTransactions.slice(1):[]).forEach(function(r){
-    var d=parseSafeDate(String(r[0]||'')),type=String(r[1]||'').trim(),amount=parseFloat(r[3])||0;
-    if(!d||isNaN(d.getTime()))return;
-    if(d.getFullYear()===y&&d.getMonth()===m&&d.getDate()===day&&['Expense','Fuel','Service'].indexOf(type)>=0){total+=amount;count++;}
-  });
-  var summary=document.getElementById('spendingCalendarSummary');
-  if(summary)summary.textContent=new Date(y,m,day).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})+' · ₹'+Math.round(total).toLocaleString('en-IN')+' spent · '+count+' transaction'+(count===1?'':'s');
-}
-document.addEventListener('DOMContentLoaded',function(){loadRecurringPayments();renderSpendingCalendar();});
-
-</script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     :root {
@@ -880,6 +712,68 @@ document.addEventListener('DOMContentLoaded',function(){loadRecurringPayments();
   .calendar-amount{font-size:6.5px}
 }
 
+
+/* ===== CREDIT CARD TRACKER + TRANSACTION SEARCH ===== */
+.credit-card-dashboard{margin-top:12px;border-radius:20px;padding:14px;min-width:0;overflow:hidden}
+.credit-head{display:flex;align-items:center;gap:10px;min-width:0}
+.credit-head-icon{width:38px;height:38px;flex:0 0 38px;border-radius:12px;background:var(--input-bg);display:grid;place-items:center;font-size:18px}
+.credit-head-copy{min-width:0;flex:1}
+.credit-add-btn{width:34px;height:34px;border:0;border-radius:11px;background:var(--text-main);color:var(--card-bg);font-size:19px;cursor:pointer}
+.credit-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:12px 0 4px}
+.credit-summary-grid>div{background:var(--input-bg);border-radius:11px;padding:9px;min-width:0}
+.credit-summary-grid span{display:block;font-size:8px;color:var(--text-muted);font-weight:800;text-transform:uppercase}
+.credit-summary-grid strong{display:block;margin-top:3px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.credit-cards-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+.credit-card-item{border:1px solid var(--border-color);border-radius:14px;padding:10px;min-width:0;background:var(--card-bg)}
+.credit-card-top{display:flex;align-items:center;gap:8px}
+.credit-card-mark{width:30px;height:30px;border-radius:9px;background:var(--input-bg);display:grid;place-items:center;font-size:13px;flex:0 0 30px}
+.credit-card-info{min-width:0;flex:1}
+.credit-card-name{font-size:11px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.credit-card-number{font-size:8px;color:var(--text-muted);margin-top:2px}
+.credit-card-spend{font-size:12px;font-weight:900;margin-top:9px}
+.credit-card-meta{display:flex;justify-content:space-between;gap:6px;margin-top:3px;font-size:8px;color:var(--text-muted);font-weight:700}
+.credit-card-track{height:5px;background:var(--input-bg);border-radius:99px;overflow:hidden;margin-top:7px}
+.credit-card-track span{display:block;height:100%;border-radius:99px;background:var(--accent-blue)}
+.credit-card-empty{padding:14px 4px;color:var(--text-muted);font-size:10px;font-weight:650}
+.search-panel{min-height:88vh!important}
+.search-subtitle{font-size:10px;color:var(--text-muted);font-weight:600;margin-top:3px}
+.search-filter-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:2px 0 10px}
+.search-filter-grid select,.search-filter-grid input{width:100%;min-width:0;padding:11px 10px;border:1px solid var(--border-color);border-radius:12px;background:var(--card-bg);color:var(--text-main);font-size:11px;font-weight:700;outline:none}
+.search-result-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:2px 1px 3px;font-size:9px;color:var(--text-muted);font-weight:800}
+.search-result-head button{border:0;background:var(--input-bg);color:var(--text-main);padding:6px 9px;border-radius:999px;font-size:9px;font-weight:800}
+.search-empty{text-align:center;color:var(--text-muted);padding:28px 10px;font-size:11px;font-weight:650}
+@media(max-width:520px){
+  .credit-cards-list{grid-template-columns:1fr}
+  .credit-summary-grid{gap:5px}
+  .credit-summary-grid strong{font-size:12px}
+  .search-filter-grid{gap:6px}
+  .search-filter-grid select,.search-filter-grid input{font-size:10px;padding:10px 8px}
+}
+
+
+/* FINAL SPENDING CALENDAR REDESIGN */
+.spending-calendar-card{padding:14px!important}
+.calendar-shell{margin-top:12px}
+.calendar-monthbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.calendar-monthbar button{width:32px;height:32px;border:0;border-radius:10px;background:var(--input-bg);color:var(--text-main);font-size:20px;line-height:1;cursor:pointer}
+.calendar-month-label{font-size:13px;font-weight:900}
+.calendar-total{font-size:18px!important;font-weight:900!important;margin:0 0 10px!important}
+.calendar-total span{font-size:9px!important;color:var(--text-muted);font-weight:700}
+.calendar-weekdays,.calendar-grid{grid-template-columns:repeat(7,minmax(0,1fr));gap:5px!important}
+.calendar-weekdays span{font-size:8px;padding-bottom:2px}
+.calendar-day{height:43px!important;min-height:43px!important;border:0!important;border-radius:11px!important;padding:5px!important;background:var(--input-bg)!important;display:flex;flex-direction:column;justify-content:space-between;text-align:left}
+.calendar-day.empty{background:transparent!important}
+.calendar-day:not(.empty){cursor:pointer}
+.calendar-day.today{outline:2px solid var(--accent-blue)!important;outline-offset:-2px}
+.calendar-day.has-spend{box-shadow:inset 0 -3px 0 var(--accent-blue)}
+.calendar-date{font-size:9px!important;font-weight:850!important}
+.calendar-amount{font-size:7px!important;font-weight:800!important;margin-top:2px!important;color:var(--text-muted)}
+.calendar-day.low .calendar-amount{color:var(--accent-green)!important}
+.calendar-day.medium .calendar-amount{color:var(--accent-blue)!important}
+.calendar-day.high .calendar-amount{color:var(--accent-red)!important}
+.calendar-summary{margin-top:10px!important;padding:9px 10px!important;border-radius:11px!important;font-size:9px!important}
+@media(max-width:520px){.spending-calendar-card{padding:12px!important}.calendar-day{height:40px!important;min-height:40px!important;padding:4px!important;border-radius:9px!important}.calendar-weekdays,.calendar-grid{gap:3px!important}.calendar-monthbar button{width:30px;height:30px}.calendar-month-label{font-size:12px}}
+
 </style>
 </head>
 <body>
@@ -1375,19 +1269,52 @@ document.addEventListener('DOMContentLoaded',function(){loadRecurringPayments();
               <div class="tab4-feature-title">Spending Calendar</div>
               <div class="tab4-feature-sub">Daily household spending</div>
             </div>
-            <div class="calendar-nav">
-              <button type="button" onclick="changeSpendingMonth(-1)" aria-label="Previous month">‹</button>
-              <span id="spendingCalendarMonth"></span>
-              <button type="button" onclick="changeSpendingMonth(1)" aria-label="Next month">›</button>
-            </div>
           </div>
           <div class="calendar-total" id="spendingCalendarTotal">₹0 <span>this month</span></div>
+          <div class="calendar-shell">
+          <div class="calendar-monthbar"><button type="button" onclick="changeSpendingMonth(-1)" aria-label="Previous month">‹</button><span id="spendingCalendarMonth" class="calendar-month-label"></span><button type="button" onclick="changeSpendingMonth(1)" aria-label="Next month">›</button></div>
           <div class="spending-calendar">
             <div class="calendar-weekdays"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
             <div id="spendingCalendarGrid" class="calendar-grid"></div>
           </div>
           <div id="spendingCalendarSummary" class="calendar-summary">Tap a day to see its spending.</div>
         </section>
+      </div>
+
+      <section class="credit-card-dashboard insights-card">
+        <div class="credit-head">
+          <div class="credit-head-icon">💳</div>
+          <div class="credit-head-copy">
+            <div class="feature-title">Credit Card Tracker</div>
+            <div class="feature-sub">Monitor card spending and available limits</div>
+          </div>
+          <button type="button" class="credit-add-btn" onclick="openCreditCardModal()">＋</button>
+        </div>
+        <div class="credit-summary-grid">
+          <div><span>Card spend</span><strong id="creditSpendTotal">₹0</strong></div>
+          <div><span>Cards tracked</span><strong id="creditCardsCount">0</strong></div>
+          <div><span>Available limit</span><strong id="creditAvailableTotal">—</strong></div>
+        </div>
+        <div id="creditCardsList" class="credit-cards-list"></div>
+      </section>
+
+      <div id="creditCardModal" class="recurring-modal" aria-hidden="true">
+        <div class="recurring-modal-card">
+          <div class="recurring-modal-head">
+            <div>
+              <div class="insights-panel-title">Add Credit Card</div>
+              <div class="insights-panel-sub">Card details are saved locally on this device</div>
+            </div>
+            <button type="button" class="recurring-close-btn" onclick="closeCreditCardModal()">×</button>
+          </div>
+          <div class="recurring-form">
+            <label>Card Name<input id="creditCardName" type="text" placeholder="Axis My Zone"></label>
+            <label>Last 4 digits<input id="creditCardLast4" type="text" inputmode="numeric" maxlength="4" placeholder="1234"></label>
+            <label>Credit Limit<input id="creditCardLimit" type="number" min="0" step="100" placeholder="100000"></label>
+            <label>Payment Due Day<input id="creditCardDueDay" type="number" min="1" max="31" placeholder="10"></label>
+            <button type="button" class="recurring-save-btn" onclick="saveCreditCard()">Add Card</button>
+          </div>
+        </div>
       </div>
 
       <div id="recurringPaymentModal" class="recurring-modal" aria-hidden="true">
@@ -1454,15 +1381,24 @@ document.addEventListener('DOMContentLoaded',function(){loadRecurringPayments();
 
   <!-- SEARCH MODAL -->
   <div id="searchModal" class="modal-overlay" onclick="closeSearchModal(event)">
-    <div class="modal-content" style="min-height: 80vh;" onclick="event.stopPropagation()">
+    <div class="modal-content search-panel" onclick="event.stopPropagation()">
       <div class="modal-header">
-        <h3 style="font-size:24px;">Search History</h3>
+        <div><h3>Search Transactions</h3><div class="search-subtitle">Find any expense, income, fuel or savings entry</div></div>
         <button class="close-btn" onclick="closeSearchModal()">✕</button>
       </div>
-      <input type="text" id="searchInput" placeholder="Search categories, notes, amounts..." onkeyup="performSearch()">
-      <div id="searchResultsList" class="transaction-list" style="margin-top: 10px;">
-        <div style="text-align:center; color:var(--text-muted); padding:20px;">Type to search all transactions...</div>
+      <input type="search" id="searchInput" placeholder="Search description, category, amount..." oninput="performSearch()">
+      <div class="search-filter-grid">
+        <select id="searchType" onchange="performSearch()"><option value="">All types</option><option>Expense</option><option>Income</option><option>Fuel</option><option>Service</option><option>Savings</option></select>
+        <select id="searchCategory" onchange="performSearch()"><option value="">All categories</option></select>
+        <select id="searchPayment" onchange="performSearch()"><option value="">All payment methods</option></select>
+        <select id="searchUser" onchange="performSearch()"><option value="">All people</option><option>Jebel</option><option>Reshma</option></select>
+        <input type="date" id="searchFrom" onchange="performSearch()">
+        <input type="date" id="searchTo" onchange="performSearch()">
+        <input type="number" id="searchMinAmount" min="0" step="1" placeholder="Min amount" oninput="performSearch()">
+        <input type="number" id="searchMaxAmount" min="0" step="1" placeholder="Max amount" oninput="performSearch()">
       </div>
+      <div class="search-result-head"><span id="searchResultCount">0 results</span><button type="button" onclick="clearSearchFilters()">Clear filters</button></div>
+      <div id="searchResultsList" class="transaction-list"><div class="search-empty">Start typing or choose a filter.</div></div>
     </div>
   </div>
 
@@ -1550,6 +1486,7 @@ document.addEventListener('DOMContentLoaded',function(){loadRecurringPayments();
     };
 
     window.onload = function() {
+      initTab4Extras();
       applySavedTheme();
       let savedUser = localStorage.getItem('globalUser') || 'Jebel';
       document.getElementById('globalUserSelect').value = savedUser;
@@ -1589,6 +1526,8 @@ document.addEventListener('DOMContentLoaded',function(){loadRecurringPayments();
       calculateTopBalance();
       syncWithGoogle(false);
       calculateMileagePreview();
+      renderCreditCards();
+      populateSearchFilters();
     };
 
     function onGlobalUserChange() {
@@ -1982,6 +1921,7 @@ document.addEventListener('DOMContentLoaded',function(){loadRecurringPayments();
         // Keep the sheet header + rows exactly as expected by the rest of the app.
         allTransactions = data;
         localStorage.setItem('trackerData', JSON.stringify(data));
+        try { renderRecurringPayments(); renderSpendingCalendar(); } catch (e) { console.warn('Tab 4 extras refresh failed', e); }
 
         try {
           if(document.getElementById('Ledger').classList.contains('active-tab')) generateLedger();
@@ -2711,6 +2651,225 @@ document.addEventListener('DOMContentLoaded',function(){loadRecurringPayments();
       modal.classList.remove('show');
       setTimeout(() => modal.style.display = 'none', 300);
     }
-  </script>
+  
+/* ===== PRO FEATURES: CREDIT CARD TRACKER + FILTERED SEARCH ===== */
+let creditCards = JSON.parse(localStorage.getItem('householdCreditCards') || '[]');
+
+function getSearchableTransactions(){
+  return getInsightRows().map(row => ({
+    raw: row,
+    date: parseRobustDate(row[0]),
+    type: normalizeTransactionType(row[1]),
+    cat: String(row[2] == null ? '' : row[2]).trim(),
+    amount: parseTransactionAmount(row[3]),
+    desc: String(row[4] == null ? '' : row[4]).trim(),
+    user: String(row[5] == null ? '' : row[5]).trim(),
+    project: String(row[6] == null ? '' : row[6]).trim(),
+    receipt: String(row[7] == null ? '' : row[7]).trim(),
+    paymentMethod: String(row[10] == null ? '' : row[10]).trim()
+  })).filter(x => x.date && !isNaN(x.date.getTime()));
+}
+
+function populateSearchFilters(){
+  const txs=getSearchableTransactions();
+  const fill=(id,values,placeholder)=>{
+    const el=document.getElementById(id); if(!el)return;
+    const old=el.value;
+    const unique=[...new Set(values.filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+    el.innerHTML='<option value="">'+placeholder+'</option>'+unique.map(v=>'<option value="'+tab4Escape(v)+'">'+tab4Escape(v)+'</option>').join('');
+    if(unique.includes(old))el.value=old;
+  };
+  fill('searchCategory',txs.map(x=>x.cat),'All categories');
+  fill('searchPayment',txs.map(x=>x.paymentMethod),'All payment methods');
+}
+
+function performSearch(){
+  const list=document.getElementById('searchResultsList'); if(!list)return;
+  const q=(document.getElementById('searchInput')?.value||'').trim().toLowerCase();
+  const type=document.getElementById('searchType')?.value||'';
+  const cat=document.getElementById('searchCategory')?.value||'';
+  const payment=document.getElementById('searchPayment')?.value||'';
+  const user=document.getElementById('searchUser')?.value||'';
+  const from=document.getElementById('searchFrom')?.value||'';
+  const to=document.getElementById('searchTo')?.value||'';
+  const min=document.getElementById('searchMinAmount')?.value;
+  const max=document.getElementById('searchMaxAmount')?.value;
+  if(!q && !type && !cat && !payment && !user && !from && !to && !min && !max){
+    list.innerHTML='<div class="search-empty">Start typing or choose a filter.</div>';
+    const c=document.getElementById('searchResultCount');if(c)c.textContent='0 results';return;
+  }
+  const fromD=from?new Date(from+'T00:00:00'):null;
+  const toD=to?new Date(to+'T23:59:59'):null;
+  const minN=min===''||min==null?null:Number(min), maxN=max===''||max==null?null:Number(max);
+  const results=getSearchableTransactions().filter(tx=>{
+    const hay=[tx.type,tx.cat,tx.desc,tx.user,tx.project,tx.paymentMethod,String(tx.amount)].join(' ').toLowerCase();
+    return (!q||hay.includes(q)) && (!type||tx.type===type) && (!cat||tx.cat===cat) && (!payment||tx.paymentMethod===payment) && (!user||tx.user===user) && (!fromD||tx.date>=fromD) && (!toD||tx.date<=toD) && (minN==null||tx.amount>=minN) && (maxN==null||tx.amount<=maxN);
+  }).sort((a,b)=>b.date-a.date);
+  const c=document.getElementById('searchResultCount');if(c)c.textContent=results.length+' result'+(results.length===1?'':'s');
+  if(!results.length){list.innerHTML='<div class="search-empty">No transactions match these filters.</div>';return;}
+  list.innerHTML=results.map(tx=>{
+    const sign=tx.type==='Income'||tx.type==='Savings'?'+':'−';
+    const cls=tx.type==='Income'?'income':tx.type==='Savings'?'savings':'expense';
+    const d=tx.date.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    const icon=emojis[tx.cat] || (tx.type==='Fuel'?'⛽':tx.type==='Service'?'🔧':tx.type==='Income'?'↙':tx.type==='Savings'?'💰':'↗');
+    return '<div class="transaction-item" onclick=\'openRecordDetail('+JSON.stringify(tx).replace(/'/g,'&#39;')+')\'><div class="tx-left"><div class="tx-desc">'+tab4Escape(tx.desc||tx.cat||tx.type)+'</div><div class="tx-meta">'+tab4Escape(tx.type)+' · '+tab4Escape(tx.cat)+' · '+d+(tx.user?' · '+tab4Escape(tx.user):'')+(tx.paymentMethod?' · '+tab4Escape(tx.paymentMethod):'')+'</div></div><div style="display:flex;align-items:center;gap:7px"><span>'+icon+'</span><div class="tx-amt '+cls+'">'+sign+formatINR(tx.amount)+'</div></div></div>';
+  }).join('');
+}
+function clearSearchFilters(){
+  ['searchInput','searchFrom','searchTo','searchMinAmount','searchMaxAmount'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['searchType','searchCategory','searchPayment','searchUser'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  performSearch();
+}
+function openSearchModal(){
+  const modal=document.getElementById('searchModal'); if(!modal)return;
+  populateSearchFilters();
+  modal.style.display='flex'; setTimeout(()=>modal.classList.add('show'),10);
+  setTimeout(()=>document.getElementById('searchInput')?.focus(),40);
+}
+
+function cardStorageSave(){localStorage.setItem('householdCreditCards',JSON.stringify(creditCards));}
+function openCreditCardModal(){const m=document.getElementById('creditCardModal');if(m){m.style.display='flex';setTimeout(()=>m.classList.add('show'),10);}}
+function closeCreditCardModal(){const m=document.getElementById('creditCardModal');if(m){m.classList.remove('show');setTimeout(()=>m.style.display='none',250);}}
+function saveCreditCard(){
+  const name=(document.getElementById('creditCardName')?.value||'').trim();
+  const last4=(document.getElementById('creditCardLast4')?.value||'').replace(/\D/g,'').slice(-4);
+  const limit=Number(document.getElementById('creditCardLimit')?.value||0);
+  const dueDay=Number(document.getElementById('creditCardDueDay')?.value||0);
+  if(!name){alert('Enter the card name.');return;}
+  creditCards.push({id:Date.now(),name,last4,limit,dueDay});
+  cardStorageSave();renderCreditCards();closeCreditCardModal();
+  ['creditCardName','creditCardLast4','creditCardLimit','creditCardDueDay'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+}
+function deleteCreditCard(id){creditCards=creditCards.filter(c=>c.id!==id);cardStorageSave();renderCreditCards();}
+function renderCreditCards(){
+  const list=document.getElementById('creditCardsList');if(!list)return;
+  const txs=getSearchableTransactions().filter(t=>t.type==='Expense'||t.type==='Fuel'||t.type==='Service');
+  const detected={};
+  txs.forEach(t=>{if(/credit|\bcc\b/i.test(t.paymentMethod)){const k=t.paymentMethod;detected[k]=(detected[k]||0)+t.amount;}});
+  const merged=creditCards.slice();
+  Object.keys(detected).forEach(name=>{if(!merged.some(c=>c.name.toLowerCase()===name.toLowerCase()))merged.push({id:'det-'+name,name,last4:'',limit:0,dueDay:0,detected:true});});
+  const total=Object.values(detected).reduce((a,b)=>a+b,0);
+  const available=creditCards.filter(c=>Number(c.limit)>0).reduce((s,c)=>s+Math.max(0,Number(c.limit)-getCardSpend(c.name)),0);
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set('creditSpendTotal',formatINR(total));set('creditCardsCount',merged.length);set('creditAvailableTotal',creditCards.some(c=>Number(c.limit)>0)?formatINR(available):'—');
+  if(!merged.length){list.innerHTML='<div class="credit-card-empty">No credit-card transactions detected. Tap ＋ to add a card and track its limit.</div>';return;}
+  list.innerHTML=merged.map(c=>{
+    const spend=getCardSpend(c.name); const lim=Number(c.limit)||0; const pct=lim?Math.min(100,spend/lim*100):0;
+    const due=c.dueDay?'Due day '+c.dueDay:'Set due day';
+    return '<div class="credit-card-item"><div class="credit-card-top"><div class="credit-card-mark">💳</div><div class="credit-card-info"><div class="credit-card-name">'+tab4Escape(c.name)+'</div><div class="credit-card-number">'+(c.last4?'•••• '+tab4Escape(c.last4):'Detected from transactions')+'</div></div>'+(c.detected?'':'<button class="recurring-delete" onclick="deleteCreditCard('+c.id+')" aria-label="Delete card">×</button>')+'</div><div class="credit-card-spend">'+formatINR(spend)+' <span style="font-size:8px;color:var(--text-muted);font-weight:700">spent</span></div><div class="credit-card-meta"><span>'+(lim?formatINR(Math.max(0,lim-spend))+' available': 'Limit not set')+'</span><span>'+due+'</span></div>'+(lim?'<div class="credit-card-track"><span style="width:'+pct+'%"></span></div>':'')+'</div>';
+  }).join('');
+}
+function getCardSpend(name){
+  const key=String(name||'').trim().toLowerCase();
+  return getSearchableTransactions().filter(t=>(t.type==='Expense'||t.type==='Fuel'||t.type==='Service') && String(t.paymentMethod||'').trim().toLowerCase()===key).reduce((s,t)=>s+t.amount,0);
+}
+
+
+
+/* ===== RECURRING PAYMENTS + SPENDING CALENDAR ===== */
+var recurringPayments = [];
+var spendingCalendarDate = new Date();
+
+function tab4Escape(v){
+  return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function loadRecurringPayments(){
+  try{recurringPayments=JSON.parse(localStorage.getItem('householdRecurringPayments')||'[]');}
+  catch(e){recurringPayments=[];}
+  renderRecurringPayments();
+}
+function saveRecurringStore(){localStorage.setItem('householdRecurringPayments',JSON.stringify(recurringPayments));}
+function openRecurringPayment(){
+  var m=document.getElementById('recurringPaymentModal');
+  if(m){m.classList.add('open');m.setAttribute('aria-hidden','false');}
+}
+function closeRecurringPayment(){
+  var m=document.getElementById('recurringPaymentModal');
+  if(m){m.classList.remove('open');m.setAttribute('aria-hidden','true');}
+}
+function saveRecurringPayment(){
+  var name=(document.getElementById('recurringName')||{}).value||'';
+  var amount=parseFloat((document.getElementById('recurringAmount')||{}).value)||0;
+  var frequency=(document.getElementById('recurringFrequency')||{}).value||'Monthly';
+  var due=(document.getElementById('recurringDue')||{}).value||'';
+  var category=(document.getElementById('recurringCategory')||{}).value||'Bills';
+  if(!name.trim()||amount<=0||!due){alert('Please enter a name, amount and next due date.');return;}
+  recurringPayments.push({id:Date.now(),name:name.trim(),amount:amount,frequency:frequency,due:due,category:category.trim()||'Bills'});
+  saveRecurringStore();renderRecurringPayments();closeRecurringPayment();
+  ['recurringName','recurringAmount','recurringDue','recurringCategory'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+}
+function deleteRecurringPayment(id){
+  recurringPayments=recurringPayments.filter(function(x){return x.id!==id;});
+  saveRecurringStore();renderRecurringPayments();
+}
+function renderRecurringPayments(){
+  var box=document.getElementById('recurringPaymentsList');if(!box)return;
+  var monthly=0,upcoming=0,now=new Date();now.setHours(0,0,0,0);
+  recurringPayments.forEach(function(x){
+    var a=Number(x.amount)||0;
+    if(x.frequency==='Monthly')monthly+=a;
+    else if(x.frequency==='Weekly')monthly+=a*52/12;
+    else if(x.frequency==='Yearly')monthly+=a/12;
+    var due=new Date((x.due||'')+'T00:00:00');
+    if(x.due&&due>=now&&due<=new Date(now.getTime()+30*86400000))upcoming++;
+  });
+  var mt=document.getElementById('recurringMonthlyTotal'),uc=document.getElementById('recurringUpcomingCount');
+  if(mt)mt.textContent='₹'+Math.round(monthly).toLocaleString('en-IN');
+  if(uc)uc.textContent=String(upcoming);
+  if(!recurringPayments.length){
+    box.innerHTML='<div class="calendar-summary">No recurring payments yet. Tap ＋ to add one.</div>';return;
+  }
+  var money=function(n){return '₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});};
+  box.innerHTML=recurringPayments.slice().sort(function(a,b){return String(a.due).localeCompare(String(b.due));}).map(function(x){
+    var d=new Date(x.due+'T00:00:00');
+    var due=d.toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+    return '<div class="recurring-item"><div class="recurring-main"><div class="recurring-name">'+tab4Escape(x.name)+'</div><div class="recurring-meta">'+tab4Escape(x.category)+' · '+tab4Escape(x.frequency)+' · Due '+due+'</div></div><div class="recurring-amount">'+money(x.amount)+'</div><button class="recurring-delete" onclick="deleteRecurringPayment('+x.id+')" aria-label="Delete">×</button></div>';
+  }).join('');
+}
+function changeSpendingMonth(delta){
+  spendingCalendarDate=new Date(spendingCalendarDate.getFullYear(),spendingCalendarDate.getMonth()+delta,1);
+  renderSpendingCalendar();
+}
+function renderSpendingCalendar(){
+  var grid=document.getElementById('spendingCalendarGrid');if(!grid)return;
+  var y=spendingCalendarDate.getFullYear(),m=spendingCalendarDate.getMonth();
+  var title=document.getElementById('spendingCalendarMonth');
+  if(title)title.textContent=spendingCalendarDate.toLocaleDateString('en-IN',{month:'short',year:'numeric'});
+  var totals={};
+  var rows=Array.isArray(allTransactions)?allTransactions.slice(1):[];
+  rows.forEach(function(r){
+    var d=parseSafeDate(String(r[0]||'')),type=String(r[1]||'').trim(),amount=parseFloat(r[3])||0;
+    if(!d||isNaN(d.getTime())||d.getFullYear()!==y||d.getMonth()!==m)return;
+    if(['Expense','Fuel','Service'].indexOf(type)<0)return;
+    totals[d.getDate()]=(totals[d.getDate()]||0)+amount;
+  });
+  var monthTotal=Object.keys(totals).reduce(function(s,k){return s+totals[k];},0);
+  var totalEl=document.getElementById('spendingCalendarTotal');
+  if(totalEl)totalEl.innerHTML='₹'+Math.round(monthTotal).toLocaleString('en-IN')+' <span>this month</span>';
+  var first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
+  var max=Object.keys(totals).reduce(function(mx,k){return Math.max(mx,totals[k]);},0),cells=[];
+  for(var i=0;i<first;i++)cells.push('<div class="calendar-day empty"></div>');
+  for(var day=1;day<=days;day++){
+    var amt=totals[day]||0;
+    var level=!amt?'':(max&&amt>max*.66?'high':(max&&amt>max*.33?'medium':'low'));
+    var now=new Date(),today=now.getFullYear()===y&&now.getMonth()===m&&now.getDate()===day;
+    cells.push('<button type="button" class="calendar-day '+(amt?'has-spend ':'')+level+(today?' today':'')+'" onclick="showSpendingDay('+day+')"><span class="calendar-date">'+day+'</span><span class="calendar-amount">'+(amt?'₹'+Math.round(amt).toLocaleString('en-IN'):'—')+'</span></button>');
+  }
+  grid.innerHTML=cells.join('');
+  var summary=document.getElementById('spendingCalendarSummary');
+  if(summary)summary.textContent='Tap a day to see its spending.';
+}
+function showSpendingDay(day){
+  var y=spendingCalendarDate.getFullYear(),m=spendingCalendarDate.getMonth(),total=0,count=0;
+  (Array.isArray(allTransactions)?allTransactions.slice(1):[]).forEach(function(r){
+    var d=parseSafeDate(String(r[0]||'')),type=String(r[1]||'').trim(),amount=parseFloat(r[3])||0;
+    if(!d||isNaN(d.getTime()))return;
+    if(d.getFullYear()===y&&d.getMonth()===m&&d.getDate()===day&&['Expense','Fuel','Service'].indexOf(type)>=0){total+=amount;count++;}
+  });
+  var summary=document.getElementById('spendingCalendarSummary');
+  if(summary)summary.textContent=new Date(y,m,day).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})+' · ₹'+Math.round(total).toLocaleString('en-IN')+' spent · '+count+' transaction'+(count===1?'':'s');
+}
+function initTab4Extras(){loadRecurringPayments();renderSpendingCalendar();}
+</script>
 </body>
 </html>
