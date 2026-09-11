@@ -1538,20 +1538,72 @@
     function forceSync() { syncWithGoogle(true); }
 
     async function syncWithGoogle(showLoading = false) {
-      if(showLoading) document.getElementById('ledgerLoadingIndicator').style.display = 'block';
+      const loading = document.getElementById('ledgerLoadingIndicator');
+      if(showLoading && loading) {
+        loading.textContent = 'Syncing data…';
+        loading.style.display = 'block';
+      }
+
       try {
-        let response = await fetch(URL);
-        let data = await response.json(); 
-        allTransactions = data; 
+        // Cache-bust the GET so the ledger does not receive an old cached response.
+        const syncUrl = URL + (URL.includes('?') ? '&' : '?') + '_ts=' + Date.now();
+        const response = await fetch(syncUrl, {
+          method: 'GET',
+          cache: 'no-store',
+          redirect: 'follow'
+        });
+
+        if(!response.ok) {
+          throw new Error('HTTP ' + response.status);
+        }
+
+        const contentType = response.headers.get('content-type') || '';
+        const raw = await response.text();
+        let data;
+
+        try {
+          data = JSON.parse(raw);
+        } catch(e) {
+          throw new Error('Google Sheets returned a non-JSON response');
+        }
+
+        if(!Array.isArray(data)) {
+          throw new Error('Unexpected Google Sheets response');
+        }
+
+        // Keep the sheet header + rows exactly as expected by the rest of the app.
+        allTransactions = data;
         localStorage.setItem('trackerData', JSON.stringify(data));
-        
-        if(document.getElementById('Ledger').classList.contains('active-tab')) generateLedger();
-        if(document.getElementById('Insights').classList.contains('active-tab')) generateInsights();
-        else calculateTopBalance();
+
+        if(document.getElementById('Ledger').classList.contains('active-tab')) {
+          generateLedger();
+        }
+        if(document.getElementById('Insights').classList.contains('active-tab')) {
+          generateInsights();
+        } else if(!document.getElementById('Ledger').classList.contains('active-tab')) {
+          calculateTopBalance();
+        }
+
+        if(showLoading && loading) {
+          loading.textContent = 'Synced ✓';
+          loading.style.color = 'var(--accent-green)';
+          setTimeout(() => {
+            loading.style.display = 'none';
+            loading.style.color = 'var(--text-muted)';
+          }, 900);
+        }
       } catch (err) {
-        if(showLoading) alert("Could not reach Google Sheets. Showing offline data.");
-      } finally {
-        if(showLoading) document.getElementById('ledgerLoadingIndicator').style.display = 'none';
+        console.error('Google Sheets sync failed:', err);
+        // Do not replace the working local cache. The ledger can continue offline.
+        if(showLoading && loading) {
+          loading.textContent = 'Offline • showing saved data';
+          loading.style.color = 'var(--accent-red)';
+          setTimeout(() => {
+            loading.style.display = 'none';
+            loading.style.color = 'var(--text-muted)';
+          }, 1800);
+        }
+        if(document.getElementById('Ledger').classList.contains('active-tab')) generateLedger();
       }
     }
 
