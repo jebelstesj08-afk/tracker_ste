@@ -163,7 +163,7 @@
       <div style="flex: 1; overflow: hidden;" id="mainBalanceHeaderContainer">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
           <span class="balance-label" id="topLabel" style="margin-bottom: 0;">Main balance</span>
-          <button id="sectionResetBtn" onclick="resetActiveTabFields()" style="background: transparent; border: none; cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 8px; color: var(--text-muted);" title="Clear fields">↺</button>
+          <button id="sectionResetBtn" onclick="resetActiveTabFields()" style="background: transparent; border: none; cursor: pointer; font-size: 13px; color: var(--text-muted); padding: 0 4px;" title="Clear fields">↺ Reset</button>
         </div>
         <h1 class="balance-amount" id="topBalance">0</h1>
       </div>
@@ -649,7 +649,7 @@
         catSelect.innerHTML = incomeCategories;
         saveBtn.innerText = 'Add Income';
         saveBtn.className = 'save-btn btn-income';
-        receiptRow.style.display = 'none'; // hide receipt upload for income if not needed, or keep
+        receiptRow.style.display = 'none';
       }
     }
 
