@@ -215,11 +215,11 @@
 
     <!-- Details and Payment Method in a Single Line -->
     <div class="two-col">
-      <div class="input-group" style="flex: 1;">
+      <div class="input-group">
         <label>Details</label>
         <input type="text" id="txDesc" placeholder="Add a note (optional)">
       </div>
-      <div class="input-group" style="flex: 1;">
+      <div class="input-group">
         <label>Payment Method</label>
         <select id="txPaymentMethod">
           <option value="" disabled selected>Select Method...</option>
@@ -309,11 +309,11 @@
 
     <!-- Details and Payment Method in a Single Line -->
     <div class="two-col">
-      <div class="input-group" style="flex: 1;">
+      <div class="input-group">
         <label>Details / Station</label>
         <input type="text" id="fuelDesc" placeholder="e.g. NTP Petroleum or Oil Change">
       </div>
-      <div class="input-group" style="flex: 1;">
+      <div class="input-group">
         <label>Payment Method</label>
         <select id="fuelPaymentMethod">
           <option value="" disabled selected>Select Method...</option>
@@ -364,11 +364,11 @@
 
     <!-- Details and Payment Method in a Single Line -->
     <div class="two-col">
-      <div class="input-group" style="flex: 1;">
+      <div class="input-group">
         <label>Details</label>
         <input type="text" id="savDesc" placeholder="e.g. Monthly installment note">
       </div>
-      <div class="input-group" style="flex: 1;">
+      <div class="input-group">
         <label>Payment Method</label>
         <select id="savPaymentMethod">
           <option value="" disabled selected>Select Method...</option>
@@ -632,7 +632,7 @@
         catSelect.innerHTML = expenseCategories;
         saveBtn.innerText = 'Add Expense';
         saveBtn.className = 'save-btn btn-expense';
-        receiptContainer.style.display = 'block';
+        receiptContainer.style.display = 'inline-block';
       } else {
         incBtn.style.background = 'var(--card-bg)';
         incBtn.style.color = 'var(--text-main)';
@@ -873,7 +873,7 @@
       if(!payload.amount || !payload.category || !payload.date) return alert("Date, Amount, and Category/Source are required.");
 
       if(allTransactions.length === 0) {
-        allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres", "PaymentMethod"]);
+        allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres", "Payment Method"]);
       }
       
       allTransactions.push([payload.date, payload.type, payload.category, payload.amount, payload.description, payload.user, payload.project, payload.image, payload.odometer, payload.litres, payload.paymentMethod]);
@@ -896,62 +896,50 @@
     }
 
     function saveUnifiedData() {
-      let desc = document.getElementById('txDesc').value;
-      let method = document.getElementById('txPaymentMethod').value;
-      let fullDesc = method ? (desc ? `${desc} [${method}]` : method) : desc;
-
       let payload = {
         date: document.getElementById('txDate').value,
         type: currentTxType,
         category: document.getElementById('txCat').value,
         amount: document.getElementById('txAmount').value,
-        description: fullDesc,
+        description: document.getElementById('txDesc').value,
         user: document.getElementById('txUser').value,
         project: 'General',
         image: currentTxType === 'Expense' ? receiptBase64 : '',
         odometer: '', litres: '',
-        paymentMethod: method
+        paymentMethod: document.getElementById('txPaymentMethod').value
       };
       executeSave(payload, currentTxType === 'Expense' ? "Uploading securely..." : "Recording income...", currentTxType === 'Expense' ? "Your expense was recorded!" : "Income recorded!");
     }
 
     function saveFuelData() {
       let isService = document.getElementById('fuelLogType').value === 'Service';
-      let desc = document.getElementById('fuelDesc').value;
-      let method = document.getElementById('fuelPaymentMethod').value;
-      let fullDesc = method ? (desc ? `${desc} [${method}]` : method) : desc;
-
       let payload = {
         date: document.getElementById('fuelDate').value,
         type: isService ? "Service" : "Fuel",
         category: document.getElementById('fuelVehicle').value,
         amount: document.getElementById('fuelAmount').value,
-        description: fullDesc,
+        description: document.getElementById('fuelDesc').value,
         user: document.getElementById('fuelUser').value,
         project: "Automotive",
         image: "",
         odometer: document.getElementById('fuelOdo').value,
         litres: isService ? "" : document.getElementById('fuelLitres').value,
-        paymentMethod: method
+        paymentMethod: document.getElementById('fuelPaymentMethod').value
       };
       executeSave(payload, isService ? "Logging service..." : "Logging fuel...", isService ? "Service recorded!" : "Fuel logged!");
     }
 
     function saveSavingsData() {
-      let desc = document.getElementById('savDesc').value;
-      let method = document.getElementById('savPaymentMethod').value;
-      let fullDesc = method ? (desc ? `${desc} [${method}]` : method) : desc;
-
       let payload = {
         date: document.getElementById('savDate').value,
         type: "Savings",
         category: document.getElementById('savCat').value,
         amount: document.getElementById('savAmount').value,
-        description: fullDesc,
+        description: document.getElementById('savDesc').value,
         user: document.getElementById('savUser').value,
         project: "Investments",
         image: "", odometer: "", litres: "",
-        paymentMethod: method
+        paymentMethod: document.getElementById('savPaymentMethod').value
       };
       executeSave(payload, "Recording investment...", "Investment recorded!");
     }
@@ -1206,15 +1194,17 @@
           let desc = String(row[4] || cat);
           let user = String(row[5]);
           let receipt = String(row[7]);
+          let method = String(row[10] || '');
           
           let receiptHTML = (receipt && receipt !== "Upload Failed" && receipt !== "") ? `<a href="${receipt}" target="_blank" class="tx-receipt-link">📎 Receipt</a>` : '';
+          let methodHTML = method ? `<span style="font-size: 11px; background: var(--input-bg); padding: 2px 6px; border-radius: 6px; color: var(--text-muted); margin-left: 6px;">${method}</span>` : '';
           
           let subTag = isSearch ? `<span style="background:var(--input-bg); padding:2px 6px; border-radius:4px; font-size:10px;">${cat}</span>` : '';
 
           container.innerHTML += `
             <div class="transaction-item">
               <div class="tx-left">
-                <span class="tx-desc">${desc} ${subTag}</span>
+                <span class="tx-desc">${desc} ${subTag} ${methodHTML}</span>
                 <span class="tx-meta">${dateStr} • ${user}</span>
                 ${receiptHTML}
               </div>
