@@ -8,12 +8,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Tracker">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-function setInsightMode(mode){
-  document.querySelectorAll('.insight-mode-btn').forEach(function(btn){
-    btn.classList.toggle('active', btn.dataset.mode === mode);
-  });
+  <script src="https://cdn.jsdelivr.net/npm/chart.js">
+);
   document.querySelectorAll('.insight-mode-panel').forEach(function(panel){
     panel.classList.toggle('active',
       panel.id === (mode === 'household' ? 'householdInsightPanel' : 'vehicleInsightPanel')
@@ -1164,11 +1160,6 @@ document.addEventListener('DOMContentLoaded',function(){loadRecurringPayments();
 
   <!-- TAB 4: INSIGHTS / ANALYTICS TAB -->
   <div id="Insights" class="tab-content">
-
-    <div class="insight-mode-switch" role="tablist" aria-label="Analytics type">
-      <button type="button" class="insight-mode-btn active" data-mode="household" onclick="setInsightMode('household')">🏠 Household Analytics</button>
-      <button type="button" class="insight-mode-btn" data-mode="vehicle" onclick="setInsightMode('vehicle')">🚗 Vehicle Analytics</button>
-    </div>
     <div id="householdInsightPanel" class="insight-mode-panel active">
 
     <div class="insights-page">
@@ -1425,42 +1416,7 @@ document.addEventListener('DOMContentLoaded',function(){loadRecurringPayments();
         </div>
       </div>
     </div>
-    <div id="vehicleInsightPanel" class="insight-mode-panel">
-      <div class="insights-card vehicle-analytics-card">
-        <div class="insights-panel-head">
-          <div>
-            <div class="insights-panel-title">Vehicle Analytics</div>
-            <div class="insights-panel-sub">Fuel and service performance from your existing vehicle records</div>
-          </div>
-        </div>
-        <div class="vehicle-kpi-grid">
-          <div class="vehicle-kpi"><span>Fuel Spend</span><strong id="v4FuelSpend">₹0</strong></div>
-          <div class="vehicle-kpi"><span>Fuel Litres</span><strong id="v4Litres">0 L</strong></div>
-          <div class="vehicle-kpi"><span>Distance</span><strong id="v4Distance">0 km</strong></div>
-          <div class="vehicle-kpi"><span>Mileage</span><strong id="v4Mileage">— km/L</strong></div>
-        </div>
-      </div>
-      <div class="insights-card vehicle-analytics-card">
-        <div class="insights-panel-head">
-          <div>
-            <div class="insights-panel-title">Recent Fuel</div>
-            <div class="insights-panel-sub">Latest fuel records</div>
-          </div>
-        </div>
-        <div id="v4FuelHistory" class="safe-list"></div>
-      </div>
-      <div class="insights-card vehicle-analytics-card">
-        <div class="insights-panel-head">
-          <div>
-            <div class="insights-panel-title">Service Records</div>
-            <div class="insights-panel-sub">Latest maintenance records</div>
-          </div>
-        </div>
-        <div id="v4ServiceHistory" class="safe-list"></div>
-      </div>
-    </div>
-
-  <!-- NAVIGATION BAR -->
+<!-- NAVIGATION BAR -->
   <div class="nav-wrapper">
     <div class="nav-pill">
       <button id="nav-Transactions" class="active-nav" onclick="showTab('Transactions')" title="Add Entry" aria-label="Add Entry">
