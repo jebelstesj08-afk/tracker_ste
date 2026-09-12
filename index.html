@@ -392,15 +392,22 @@
     .modal-header h3 { margin: 0; font-size: 22px; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px; }
     .close-btn { background: var(--input-bg); border: none; color: var(--text-main); width: 36px; height: 36px; border-radius: 18px; font-size: 16px; font-weight: bold; cursor: pointer; display:flex; justify-content:center; align-items:center; }
     .transaction-list { overflow-y: auto; flex: 1; padding-bottom: 20px; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
-     #recordDetailModal .modal-content, #categoryModal .modal-content, #insightsRecordsModal .modal-content, #searchModal .modal-content { max-height:88vh; min-height:0; overflow:hidden; }
-     #recordDetailModal .modal-content, #categoryModal .modal-content { height:82vh; max-height:82vh; min-height:0; }
-     #recordDetailBody, #categoryModal .transaction-list, #insightsRecordsList { min-height:0; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
-    #recordDetailModal .modal-content, #categoryModal .modal-content { overflow:hidden; }
-    #recordDetailBody { flex:1 1 auto; height:0; min-height:0; max-height:none; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-y; }
-    #modalTransactionList { flex:1 1 auto; height:0; min-height:0; max-height:none; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-y; }
-    html.detail-modal-open, body.detail-modal-open { overflow:hidden; width:100%; }
-    #recordDetailModal .modal-content, #categoryModal .modal-content, #insightsRecordsModal .modal-content, #searchModal .modal-content { touch-action:auto; }
-    #recordDetailBody, #modalTransactionList, #insightsRecordsList, #searchResults { touch-action:pan-y; }
+     /* Ledger/detail sheets: the sheet itself is the scroll container.
+        This avoids nested iOS scroll containers and prevents the frozen-page
+        behaviour caused by locking body/html while a fixed modal is open. */
+     #recordDetailModal .modal-content, #categoryModal .modal-content, #insightsRecordsModal .modal-content, #searchModal .modal-content {
+       max-height:88vh; min-height:0; overflow-y:auto; overflow-x:hidden;
+       -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+       touch-action:pan-y;
+     }
+     #recordDetailModal .modal-content, #categoryModal .modal-content { height:82vh; max-height:82vh; }
+     #recordDetailBody, #modalTransactionList, #insightsRecordsList, #searchResultsList {
+       min-height:0; overflow:visible; height:auto; max-height:none;
+       -webkit-overflow-scrolling:auto; touch-action:auto;
+     }
+     /* The overlay itself is not a scroll container. Background gestures are
+        blocked by the small touch handler below only when they start outside
+        the modal content. */
     
     .transaction-item { background: transparent; padding: 14px 0; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); cursor: pointer; }
     .transaction-item:last-child { border-bottom: none; }
@@ -1647,7 +1654,7 @@
     function forceCloseTransientModals(){
       ['recordDetailModal','categoryModal','insightsRecordsModal','searchModal'].forEach(function(id){
         const m=document.getElementById(id);
-        if(m){ m.classList.remove('show'); m.style.display='none'; }
+        if(m){ m.classList.remove('show','detail-scroll-overlay'); m.style.display='none'; }
       });
       // Always release the Ledger/detail page lock when changing tabs.
       lockDetailModal(false);
@@ -3127,7 +3134,8 @@
       let modal = document.getElementById('recordDetailModal');
       if(!modal) return;
       modal.classList.remove('show');
-      // Release the body lock immediately so the Ledger can scroll again.
+      modal.classList.remove('detail-scroll-overlay');
+      // No body lock is used; background scrolling is unaffected after close.
       lockDetailModal(false);
       setTimeout(() => modal.style.display = 'none', 300);
     }
@@ -3143,35 +3151,29 @@
       catch(e) { alert('Unable to open category details.'); }
     }
 
-    // Lock only the document scrollbars. Do NOT make body position:fixed on iOS;
-    // that can freeze nested modal scrolling. The modal itself is fixed and its
-    // inner list is the only element allowed to scroll.
+    // Never lock body/html for Ledger details. On iOS that can freeze the
+    // document after a modal is opened/closed. The modal overlay blocks only
+    // background swipes; the modal-content remains a native scroll container.
     function lockDetailModal(lock) {
-      const body = document.body;
-      const html = document.documentElement;
-      if (!body || !html) return;
-      if (lock) {
-        body.classList.add('detail-modal-open');
-        html.classList.add('detail-modal-open');
-      } else {
-        body.classList.remove('detail-modal-open');
-        html.classList.remove('detail-modal-open');
-      }
+      // Kept as a compatibility function because existing open/close code calls it.
+      // There is intentionally no document scroll locking here.
     }
 
-    // Keep background scrolling disabled while a Ledger detail modal is open,
-    // but never cancel touch events that start inside a scrollable modal body.
-    if (!window.__ledgerTouchGuardInstalled) {
-      document.addEventListener('touchmove', function(e) {
-        if (!document.body.classList.contains('detail-modal-open')) return;
-        const target = e.target;
-        const scrollArea = target && target.closest && target.closest(
-          '#recordDetailBody, #modalTransactionList, #insightsRecordsList, #searchResultsList'
-        );
-        if (scrollArea) return;
-        e.preventDefault();
-      }, { passive: false });
-      window.__ledgerTouchGuardInstalled = true;
+    if (!window.__detailOverlayTouchHandlersInstalled) {
+      ['recordDetailModal','categoryModal','insightsRecordsModal','searchModal'].forEach(function(id){
+        const modal = document.getElementById(id);
+        if (!modal) return;
+        modal.addEventListener('touchmove', function(e){
+          if (modal.style.display === 'none' || getComputedStyle(modal).display === 'none') return;
+          const content = e.target && e.target.closest ? e.target.closest('.modal-content') : null;
+          // Allow every touch gesture that starts inside the sheet. The sheet
+          // itself is scrollable, so this is what iOS needs.
+          if (content) return;
+          // Only the dimmed background is prevented.
+          e.preventDefault();
+        }, {passive:false});
+      });
+      window.__detailOverlayTouchHandlersInstalled = true;
     }
 
     function showCategoryDetails(categoryName) {
@@ -3270,6 +3272,7 @@
       if(event && event.target.id !== 'categoryModal') return; 
       const modal = document.getElementById('categoryModal');
       modal.classList.remove('show');
+      modal.classList.remove('detail-scroll-overlay');
       setTimeout(() => { modal.style.display = 'none'; lockDetailModal(false); }, 300);
     }
   
