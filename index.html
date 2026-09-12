@@ -38,6 +38,10 @@
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
+    body { background:#dfe2e8; }
+    .app-container { width:393px; max-width:100%; min-height:100vh; margin:0 auto; background:var(--bg-color); position:relative; box-shadow:0 0 40px rgba(0,0,0,.12); }
+    @media(max-width:520px){ .app-container{width:100%;box-shadow:none;} }
+
     html, body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main);
@@ -45,7 +49,9 @@
     }
     body.emi-modal-open { overflow:hidden; position:fixed; width:100%; height:100%; touch-action:auto; }
 
-    .app-container { min-height: 100vh; padding-bottom: 180px; }
+    .app-container { min-height: 100vh; padding-bottom: 180px; width: min(393px, 100vw); margin: 0 auto; overflow-x: hidden; }
+    /* iPhone 13/15 canvas: keep the entire application at phone width on desktop too. */
+    @media (min-width: 394px) { body { background: #eef0f3; } .app-container { box-shadow: 0 0 40px rgba(0,0,0,.08); min-height: 100vh; } }
     #Insights { padding-bottom: 180px !important; }
 
     .header { padding: 15px 20px; padding-top: max(40px, env(safe-area-inset-top)); display: flex; justify-content: space-between; align-items: center; }
@@ -305,8 +311,9 @@
     .nav-wrapper {
       position: fixed;
       bottom: 0;
-      left: 0;
-      width: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(393px, 100vw);
       display: flex;
       justify-content: center;
       z-index: 5000;
@@ -325,7 +332,7 @@
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
       pointer-events: auto;
-      width: min(94%, 380px);
+      width: calc(100% - 24px);
       max-width: 380px;
       border: 1px solid rgba(255,255,255,0.08);
     }
@@ -396,7 +403,7 @@
         This avoids nested iOS scroll containers and prevents the frozen-page
         behaviour caused by locking body/html while a fixed modal is open. */
      #recordDetailModal .modal-content, #categoryModal .modal-content, #insightsRecordsModal .modal-content, #searchModal .modal-content {
-       max-height:88vh; min-height:0; overflow-y:auto; overflow-x:hidden;
+       width:min(393px,100vw); max-height:88vh; min-height:0; overflow-y:auto; overflow-x:hidden;
        -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
        touch-action:pan-y;
      }
@@ -904,10 +911,11 @@
 /* ===== ALWAYS-VISIBLE BOTTOM PILL NAV ===== */
 .nav-wrapper{
   position:fixed!important;
-  left:0!important;
-  right:0!important;
+  left:50%!important;
+  right:auto!important;
   bottom:0!important;
-  width:100%!important;
+  width:min(393px,100vw)!important;
+  transform:translateX(-50%)!important;
   height:auto!important;
   min-height:68px!important;
   display:flex!important;
@@ -930,9 +938,10 @@
 /* Bottom navigation: direct body child, always visible in preview */
 .nav-wrapper{
   position:fixed!important;
-  left:0!important; right:0!important; bottom:0!important;
+  left:50%!important; right:auto!important; bottom:0!important;
   display:flex!important; justify-content:center!important; align-items:flex-end!important;
-  width:100%!important; min-height:76px!important;
+  width:min(393px,100vw)!important; min-height:76px!important;
+  transform:translateX(-50%)!important;
   padding:0 12px 10px!important;
   z-index:999999!important;
   visibility:visible!important; opacity:1!important;
@@ -942,13 +951,46 @@
   display:flex!important;
   visibility:visible!important; opacity:1!important;
   pointer-events:auto!important;
-  width:min(94vw,380px)!important;
+  width:calc(100% - 24px)!important;
 }
 @media(max-width:520px){
   .nav-wrapper{min-height:72px!important;padding-bottom:8px!important}
-  .nav-pill{width:min(92vw,360px)!important}
+  .nav-pill{width:calc(100% - 24px)!important}
 }
 
+
+
+/* ===== PHONE CANVAS: 393px / iPhone 13-15 ===== */
+html, body {
+  width:100%;
+  min-width:0;
+}
+body {
+  margin:0;
+}
+.app-container {
+  width:100%;
+  max-width:393px;
+  min-height:100vh;
+  margin:0 auto;
+  overflow-x:hidden;
+  box-sizing:border-box;
+}
+@media (min-width:394px) {
+  body {
+    background:var(--page-bg);
+  }
+  .app-container {
+    width:393px;
+    max-width:393px;
+    margin:0 auto;
+  }
+}
+@media (max-width:393px) {
+  .app-container {
+    width:100%;
+  }
+}
 </style>
 </head>
 <body>
@@ -2604,6 +2646,8 @@
       document.getElementById('ledgerKpiRecords').innerText = periodRecords.length;
 
       const container = document.getElementById('ledgerDynamicContainer');
+      // Stable click target for dynamically rendered Ledger records.
+      window.__ledgerPeriodRecords = periodRecords;
       container.innerHTML = '';
 
       const total = totalExp + totalInc + totalSavingsPeriod;
@@ -2620,8 +2664,9 @@
             const amtClass = ledgerAmountClass(row.type);
             const sign = row.type === 'Income' ? '+' : '−';
             const subtitle = `${row.type} • ${row.cat}${row.paymentMethod ? ' • ' + row.paymentMethod : ''}`;
+            const txPayload = encodeURIComponent(JSON.stringify({date:row.date,type:row.type,cat:row.cat,amount:row.amount,desc:row.desc,user:row.user,project:row.project,receipt:row.receipt,odo:row.odo,litres:row.litres,paymentMethod:row.paymentMethod}));
             html += `
-              <div class="ledger-record" data-tx="${encodeURIComponent(JSON.stringify(row))}" onclick="openRecordDetailEncoded(this.dataset.tx)">
+              <div class="ledger-record" data-ledger-action="record" data-tx="${txPayload}">
                 <div class="ledger-record-icon">${ledgerIconFor(row)}</div>
                 <div class="ledger-record-main">
                   <div class="ledger-record-title">${row.desc || row.cat}</div>
@@ -2646,7 +2691,7 @@
             const pct = Math.max(3, Math.round((amt / maxVal) * 100));
             const share = totalExp ? ((amt / totalExp) * 100).toFixed(1) : '0.0';
             html += `
-              <div class="ledger-category-card" data-category="${encodeURIComponent(catName)}" onclick="showCategoryDetailsEncoded(this.dataset.category)">
+              <div class="ledger-category-card" data-ledger-action="category" data-category="${encodeURIComponent(catName)}">
                 <div class="ledger-category-top">
                   <div class="ledger-category-left">
                     <div class="ledger-category-icon" style="background:${color}20;">${emoji}</div>
@@ -2662,7 +2707,7 @@
         }
       } else if(viewMode === 'savings') {
         html += `<div class="ledger-section-head"><div><div class="ledger-section-title">Savings portfolio</div><div class="ledger-section-subtitle">All-time savings for the selected person</div></div></div>`;
-        html += `<div class="ledger-savings-hero" onclick="showCategoryDetails('All Savings')"><div class="ledger-savings-hero-row"><div><div class="ledger-savings-hero-label">Total saved</div><div class="ledger-savings-hero-value">${formatINR(totalCumulativeSavings)}</div><div class="ledger-savings-hero-note">${formatINR(totalSavingsPeriod)} added in this period</div></div><div style="font-size:28px; opacity:.9;">💰</div></div></div>`;
+        html += `<div class="ledger-savings-hero" data-ledger-action="category" data-category="All%20Savings"><div class="ledger-savings-hero-row"><div><div class="ledger-savings-hero-label">Total saved</div><div class="ledger-savings-hero-value">${formatINR(totalCumulativeSavings)}</div><div class="ledger-savings-hero-note">${formatINR(totalSavingsPeriod)} added in this period</div></div><div style="font-size:28px; opacity:.9;">💰</div></div></div>`;
         const entries = Object.entries(savingsPortfolio).sort((a,b)=>b[1]-a[1]);
         html += `<div style="height:8px"></div><div class="ledger-section-head"><div><div class="ledger-section-title">By savings type</div><div class="ledger-section-subtitle">Tap any item to see the underlying records</div></div></div>`;
         if(!entries.length) {
@@ -2675,7 +2720,7 @@
             const emoji = emojis[catName] || '📈';
             const pct = Math.max(3, Math.round((amt / maxSav) * 100));
             html += `
-              <div class="ledger-category-card" data-category="${encodeURIComponent(catName)}" onclick="showCategoryDetailsEncoded(this.dataset.category)">
+              <div class="ledger-category-card" data-ledger-action="category" data-category="${encodeURIComponent(catName)}">
                 <div class="ledger-category-top"><div class="ledger-category-left"><div class="ledger-category-icon" style="background:${color}20;">${emoji}</div><div class="ledger-category-name">${catName}</div></div><div class="ledger-category-amt">${formatINR(amt)}</div></div>
                 <div class="ledger-category-track"><div class="ledger-category-fill" style="width:${pct}%; background:${color};"></div></div>
               </div>`;
@@ -2686,6 +2731,32 @@
 
       container.innerHTML = html;
     }
+
+    // Ledger click handling is delegated from the stable container.
+    // The transaction/category payload lives on the clicked element, so it does
+    // not depend on array indexes or object identity after a refresh/filter.
+    (function installLedgerDelegation(){
+      const container=document.getElementById('ledgerDynamicContainer');
+      if(!container || container.__ledgerDelegationInstalled) return;
+      container.__ledgerDelegationInstalled=true;
+      container.addEventListener('click', function(event){
+        const record=event.target.closest ? event.target.closest('.ledger-record') : null;
+        if(record && container.contains(record)){
+          event.preventDefault(); event.stopPropagation();
+          const encoded=record.getAttribute('data-tx');
+          try{ if(encoded) openRecordDetail(JSON.parse(decodeURIComponent(encoded))); }
+          catch(e){ console.error(e); alert('Unable to open record details.'); }
+          return;
+        }
+        const category=event.target.closest ? event.target.closest('.ledger-category-card, .ledger-savings-hero') : null;
+        if(category && container.contains(category)){
+          event.preventDefault(); event.stopPropagation();
+          const encoded=category.getAttribute('data-category') || '';
+          try{ showCategoryDetails(decodeURIComponent(encoded)); }
+          catch(e){ console.error(e); alert('Unable to open category details: '+e.message); }
+        }
+      }, false);
+    })();
 
     function normalizeTransactionType(value) {
       const t = String(value == null ? '' : value).trim().toLowerCase();
@@ -3111,22 +3182,25 @@
     }
 
     function openRecordDetail(tx) {
-      let dateStr = parseSafeDate(tx.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-      let body = document.getElementById('recordDetailBody');
-      body.innerHTML = `
-        <div><b>Type:</b> ${tx.type}</div>
-        <div><b>Category / Source:</b> ${tx.cat}</div>
-        <div><b>Amount:</b> ${formatINR(tx.amount)}</div>
-        <div><b>User:</b> ${tx.user}</div>
-        <div><b>Date:</b> ${dateStr}</div>
-        <div><b>Details:</b> ${tx.desc || 'None'}</div>
-        <div><b>Payment Method:</b> ${tx.paymentMethod || 'Not specified'}</div>
-        ${tx.receipt ? `<div><b>Receipt:</b> <a href="${tx.receipt}" target="_blank" style="color:var(--accent-blue);">View Image</a></div>` : ''}
-      `;
-      let modal = document.getElementById('recordDetailModal');
-      modal.style.display = 'flex';
-      lockDetailModal(true);
-      setTimeout(() => modal.classList.add('show'), 10);
+      const modal=document.getElementById('recordDetailModal');
+      const body=document.getElementById('recordDetailBody');
+      if(!modal || !body || !tx) return;
+      const d=parseSafeDate(tx.date);
+      const dateStr=d && !isNaN(d.getTime()) ? d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : String(tx.date||'');
+      body.innerHTML='';
+      const fields=[['Type',tx.type],['Category / Source',tx.cat],['Amount',formatINR(tx.amount)],['User',tx.user],['Date',dateStr],['Details',tx.desc||'None'],['Payment Method',tx.paymentMethod||'Not specified']];
+      fields.forEach(([label,value])=>{
+        const row=document.createElement('div'); row.style.padding='4px 0';
+        const b=document.createElement('b'); b.textContent=label+': ';
+        row.appendChild(b); row.appendChild(document.createTextNode(String(value==null?'':value))); body.appendChild(row);
+      });
+      if(tx.receipt){
+        const row=document.createElement('div'); row.style.padding='4px 0';
+        const b=document.createElement('b'); b.textContent='Receipt: ';
+        const a=document.createElement('a'); a.href=String(tx.receipt); a.target='_blank'; a.rel='noopener'; a.textContent='View Image'; a.style.color='var(--accent-blue)';
+        row.append(b,a); body.appendChild(row);
+      }
+      modal.style.display='flex'; modal.classList.add('show');
     }
 
     function closeRecordDetailModal(event) {
@@ -3159,22 +3233,8 @@
       // There is intentionally no document scroll locking here.
     }
 
-    if (!window.__detailOverlayTouchHandlersInstalled) {
-      ['recordDetailModal','categoryModal','insightsRecordsModal','searchModal'].forEach(function(id){
-        const modal = document.getElementById(id);
-        if (!modal) return;
-        modal.addEventListener('touchmove', function(e){
-          if (modal.style.display === 'none' || getComputedStyle(modal).display === 'none') return;
-          const content = e.target && e.target.closest ? e.target.closest('.modal-content') : null;
-          // Allow every touch gesture that starts inside the sheet. The sheet
-          // itself is scrollable, so this is what iOS needs.
-          if (content) return;
-          // Only the dimmed background is prevented.
-          e.preventDefault();
-        }, {passive:false});
-      });
-      window.__detailOverlayTouchHandlersInstalled = true;
-    }
+    // Ledger details use normal browser click/touch behavior. No global touch
+    // interception is required.
 
     function showCategoryDetails(categoryName) {
       try {
@@ -3214,8 +3274,7 @@
 
         const modal = document.getElementById('categoryModal');
         modal.style.display = 'flex';
-        lockDetailModal(true);
-        setTimeout(() => modal.classList.add('show'), 10);
+        modal.classList.add('show');
       } catch(e) {
         alert("Failed to load details: " + e.message);
       }
@@ -3257,11 +3316,11 @@
           itemEl.onclick = function(event) {
             if (event) event.stopPropagation();
             const catModal = document.getElementById('categoryModal');
-            catModal.classList.remove('show');
-            setTimeout(() => {
+            if (catModal) {
+              catModal.classList.remove('show');
               catModal.style.display = 'none';
-              openRecordDetail(txObj);
-            }, 120);
+            }
+            openRecordDetail(txObj);
           };
 
           container.appendChild(itemEl);
