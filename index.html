@@ -2705,7 +2705,7 @@ body.emi-modal-open .nav-wrapper{display:none!important}
             const sign = row.type === 'Income' ? '+' : '−';
             const subtitle = `${row.type} • ${row.cat}${row.paymentMethod ? ' • ' + row.paymentMethod : ''}`;
             html += `
-              <div class="ledger-record" role="button" tabindex="0" aria-label="View transaction details" onclick='openRecordDetail(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
+              <div class="ledger-record" role="button" tabindex="0" aria-label="View transaction details" onclick='openRecordDetailEncoded("${encodeURIComponent(JSON.stringify(row))}")'>
                 <div class="ledger-record-icon">${ledgerIconFor(row)}</div>
                 <div class="ledger-record-main">
                   <div class="ledger-record-title">${row.desc || row.cat}</div>
@@ -2731,7 +2731,7 @@ body.emi-modal-open .nav-wrapper{display:none!important}
             const share = totalExp ? ((amt / totalExp) * 100).toFixed(1) : '0.0';
             const catCount = periodRecords.filter(tx => { const displayCat = (tx.type === 'Fuel' || tx.type === 'Service') ? `Veh - ${tx.cat}` : tx.cat; return displayCat === catName; }).length;
             html += `
-              <div class="ledger-category-card" data-ledger-action="category" data-category="${encodeURIComponent(catName)}">
+              <div class="ledger-category-card" data-ledger-action="category" data-category="${encodeURIComponent(catName)}" role="button" tabindex="0" onclick='showCategoryDetailsEncoded("${encodeURIComponent(catName)}")'>
                 <div class="ledger-category-top">
                   <div class="ledger-category-left">
                     <div class="ledger-category-icon" style="background:${color}20;">${emoji}</div>
@@ -2747,7 +2747,7 @@ body.emi-modal-open .nav-wrapper{display:none!important}
         }
       } else if(viewMode === 'savings') {
         html += `<div class="ledger-section-head"><div><div class="ledger-section-title">Savings portfolio</div><div class="ledger-section-subtitle">All-time savings for the selected person</div></div></div>`;
-        html += `<div class="ledger-savings-hero" data-ledger-action="category" data-category="All%20Savings"><div class="ledger-savings-hero-row"><div><div class="ledger-savings-hero-label">Total saved</div><div class="ledger-savings-hero-value">${formatINR(totalCumulativeSavings)}</div><div class="ledger-savings-hero-note">${formatINR(totalSavingsPeriod)} added in this period</div></div><div style="font-size:28px; opacity:.9;">💰</div></div></div>`;
+        html += `<div class="ledger-savings-hero" data-ledger-action="category" data-category="All%20Savings" role="button" tabindex="0" onclick='showCategoryDetailsEncoded("All%20Savings")'><div class="ledger-savings-hero-row"><div><div class="ledger-savings-hero-label">Total saved</div><div class="ledger-savings-hero-value">${formatINR(totalCumulativeSavings)}</div><div class="ledger-savings-hero-note">${formatINR(totalSavingsPeriod)} added in this period</div></div><div style="font-size:28px; opacity:.9;">💰</div></div></div>`;
         const entries = Object.entries(savingsPortfolio).sort((a,b)=>b[1]-a[1]);
         html += `<div style="height:8px"></div><div class="ledger-section-head"><div><div class="ledger-section-title">By savings type</div><div class="ledger-section-subtitle">Tap any item to see the underlying records</div></div></div>`;
         if(!entries.length) {
@@ -2761,7 +2761,7 @@ body.emi-modal-open .nav-wrapper{display:none!important}
             const pct = Math.max(3, Math.round((amt / maxSav) * 100));
             const catCount = periodRecords.filter(tx => tx.type === 'Savings' && tx.cat === catName).length;
             html += `
-              <div class="ledger-category-card" data-ledger-action="category" data-category="${encodeURIComponent(catName)}">
+              <div class="ledger-category-card" data-ledger-action="category" data-category="${encodeURIComponent(catName)}" role="button" tabindex="0" onclick='showCategoryDetailsEncoded("${encodeURIComponent(catName)}")'>
                 <div class="ledger-category-top"><div class="ledger-category-left"><div class="ledger-category-icon" style="background:${color}20;">${emoji}</div><div><div class="ledger-category-name">${catName}</div><div class="ledger-category-count">${catCount} transaction${catCount===1?'':'s'}</div></div></div><div class="ledger-category-amt">${formatINR(amt)}</div></div>
                 <div class="ledger-category-track"><div class="ledger-category-fill" style="width:${pct}%; background:${color};"></div></div>
               </div>`;
