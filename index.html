@@ -984,8 +984,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 
 /* Clear clickable affordances. */
 .ledger-record,.ledger-category-card,.ledger-savings-hero,.insight-category-row,.insight-record{position:relative}
-.ledger-record::after,.ledger-category-card::after,.ledger-savings-hero::after,.insight-category-row::after,.insight-record::after{content:'›';font-size:20px;line-height:1;color:var(--text-muted);font-weight:700;opacity:.65}
-.ledger-record::after{margin-left:0}
+.ledger-category-card::after,.ledger-savings-hero::after,.insight-category-row::after,.insight-record::after{content:'›';font-size:20px;line-height:1;color:var(--text-muted);font-weight:700;opacity:.65}
 .ledger-category-card::after,.ledger-savings-hero::after{position:absolute;right:12px;top:50%;transform:translateY(-50%)}
 .ledger-category-card{padding-right:34px}
 .ledger-savings-hero{padding-right:42px;cursor:pointer}
@@ -2718,13 +2717,13 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
             const sign = row.type === 'Income' ? '+' : '−';
             const subtitle = `${row.type} • ${row.cat}${row.paymentMethod ? ' • ' + row.paymentMethod : ''}`;
             html += `
-              <div class="ledger-record" data-ledger-action="record" data-tx-index="${periodRecords.indexOf(row)}" role="button" tabindex="0" aria-label="View transaction details" onclick="openLedgerRecordByIndex(${periodRecords.indexOf(row)})">
+              <div class="ledger-record" role="button" tabindex="0" aria-label="View transaction details" onclick='openRecordDetail(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
                 <div class="ledger-record-icon">${ledgerIconFor(row)}</div>
                 <div class="ledger-record-main">
                   <div class="ledger-record-title">${row.desc || row.cat}</div>
                   <div class="ledger-record-meta">${subtitle} • ${dateStr} • ${row.user}</div>
                 </div>
-                <div class="ledger-record-amount ${amtClass}">${sign}${formatINR(row.amount)}</div><span aria-hidden="true" style="font-size:20px;color:var(--text-muted);">›</span>
+                <div class="ledger-record-amount ${amtClass}">${sign}${formatINR(row.amount)}</div>
               </div>`;
           });
           html += `</div>`;
