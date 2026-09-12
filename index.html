@@ -38,10 +38,6 @@
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-    body { background:#dfe2e8; }
-    .app-container { width:393px; max-width:100%; min-height:100vh; margin:0 auto; background:var(--bg-color); position:relative; box-shadow:0 0 40px rgba(0,0,0,.12); }
-    @media(max-width:520px){ .app-container{width:100%;box-shadow:none;} }
-
     html, body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main);
@@ -959,38 +955,79 @@
 }
 
 
+/* ===== POLISHED iPHONE UI ===== */
+.app-container{width:100%;max-width:393px;margin:0 auto;padding-bottom:150px;overflow-x:hidden}
+@media (min-width:394px){body{background:#eef0f3}.app-container{width:393px;max-width:393px;box-shadow:0 0 40px rgba(0,0,0,.08)}}
+.header{padding-top:max(32px,env(safe-area-inset-top));padding-bottom:8px}
+.balance-section{padding-top:6px;padding-bottom:18px}
+#Fuel{margin-top:-8px}
+#Insights{padding-bottom:150px!important}
 
-/* ===== PHONE CANVAS: 393px / iPhone 13-15 ===== */
-html, body {
-  width:100%;
-  min-width:0;
+/* Fixed navigation never covers page content; detail sheets hide it. */
+.app-container{padding-bottom:145px}
+body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:none!important} body:has(.modal-overlay.show) .nav-wrapper{display:none!important}
+.modal-content{padding-bottom:calc(24px + env(safe-area-inset-bottom) + 18px)}
+#recordDetailModal .modal-content,#categoryModal .modal-content,#insightsRecordsModal .modal-content,#searchModal .modal-content{width:100%;max-width:393px;max-height:82vh;height:82vh;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+#recordDetailBody,#modalTransactionList,#insightsRecordsList,#searchResultsList{overflow:visible!important;max-height:none!important;touch-action:auto!important}
+
+/* EMI summary: 2 x 2 gives important dates/amounts room to breathe. */
+.emi-summary-grid{grid-template-columns:1fr 1fr;gap:10px}
+.emi-summary-card{min-height:92px;padding:15px}
+.emi-summary-label{font-size:9px}
+.emi-summary-value{font-size:21px}
+.emi-card-grid{grid-template-columns:1fr 1fr;gap:12px}
+.emi-metric-value{font-size:15px}
+.emi-next{padding:11px 12px}
+.emi-current-label{font-size:10px;color:var(--text-muted);font-weight:800}
+.emi-view-schedule{width:100%;margin-top:8px;background:transparent;color:var(--accent-blue);border:0;font-size:10px;font-weight:850;padding:8px;text-align:center}
+.emi-free-label{white-space:nowrap}
+
+/* Clear clickable affordances. */
+.ledger-record,.ledger-category-card,.ledger-savings-hero,.insight-category-row,.insight-record{position:relative}
+.ledger-record::after,.ledger-category-card::after,.ledger-savings-hero::after,.insight-category-row::after,.insight-record::after{content:'›';font-size:20px;line-height:1;color:var(--text-muted);font-weight:700;opacity:.65}
+.ledger-record::after{margin-left:0}
+.ledger-category-card::after,.ledger-savings-hero::after{position:absolute;right:12px;top:50%;transform:translateY(-50%)}
+.ledger-category-card{padding-right:34px}
+.ledger-savings-hero{padding-right:42px;cursor:pointer}
+.ledger-record{padding-right:8px}
+.ledger-record-amount{margin-left:auto}
+.ledger-record .ledger-record-main{min-width:0}
+
+/* Counts make category/savings rows more informative. */
+.ledger-category-count{font-size:9px;color:var(--text-muted);font-weight:700;margin-top:2px}
+
+/* Insights breakdown rows are explicitly interactive. */
+.insight-category-row,.insight-record{cursor:pointer;border-radius:12px;padding:8px 6px;transition:background .15s ease}
+.insight-category-row:active,.insight-record:active{background:var(--input-bg)}
+.insight-category-row::after,.insight-record::after{position:absolute;right:0;top:50%;transform:translateY(-50%)}
+.insight-category-row{padding-right:22px}
+.insight-record{padding-right:22px}
+.insight-kpi-clickable::after{content:'Tap for details ›';display:block;font-size:8px;color:var(--accent-blue);font-weight:800;margin-top:3px}
+
+/* Service status is an informational card with a clear history affordance. */
+#lastServiceCard{cursor:pointer;padding:12px 14px!important}
+#lastServiceCard::after{content:'›';font-size:20px;color:var(--text-muted);margin-left:8px}
+
+/* Comfortable touch targets on the phone canvas. */
+.ledger-record,.ledger-category-card,.insight-category-row,.insight-record,.emi-card{min-height:52px}
+@media(max-width:393px){.app-container{max-width:100%}.emi-selected-grid{grid-template-columns:1fr 1fr}}
+
+
+/* Desktop preview intentionally uses the same internal geometry as iPhone 13/15. */
+@media (min-width:394px){
+  .ledger-kpis{grid-template-columns:1fr 1fr!important}
+  .ledger-filter-grid{grid-template-columns:1fr 1fr!important}
+  .insights-hero{grid-template-columns:1fr!important}
+  .insights-side{display:grid!important;grid-template-columns:repeat(3,1fr)!important}
+  .insights-kpi-grid{grid-template-columns:1fr 1fr!important}
+  .insights-lower{grid-template-columns:1fr!important}
+  .insight-feature-grid{grid-template-columns:1fr!important}
+  .emi-summary-grid{grid-template-columns:1fr 1fr!important}
+  .emi-card-grid{grid-template-columns:1fr 1fr!important}
+  .emi-selected-grid{grid-template-columns:1fr 1fr!important}
 }
-body {
-  margin:0;
-}
-.app-container {
-  width:100%;
-  max-width:393px;
-  min-height:100vh;
-  margin:0 auto;
-  overflow-x:hidden;
-  box-sizing:border-box;
-}
-@media (min-width:394px) {
-  body {
-    background:var(--page-bg);
-  }
-  .app-container {
-    width:393px;
-    max-width:393px;
-    margin:0 auto;
-  }
-}
-@media (max-width:393px) {
-  .app-container {
-    width:100%;
-  }
-}
+.emi-card .emi-metric-label:nth-child(1){ }
+
 </style>
 </head>
 <body>
@@ -1117,7 +1154,7 @@ body {
     </div>
 
     <!-- Last Service Odometer Info Card -->
-    <div id="lastServiceCard" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 16px; font-size: 14px; display: flex; justify-content: space-between; align-items: center;">
+    <div id="lastServiceCard" role="button" tabindex="0" aria-label="View service history for selected vehicle" onclick="openVehicleServiceHistory()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openVehicleServiceHistory()}" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 16px; font-size: 14px; display: flex; justify-content: space-between; align-items: center;">
       <span style="color: var(--text-muted); font-weight: 600;">Last Service Odometer:</span>
       <span id="lastServiceOdoText" style="font-weight: 800; color: var(--accent-blue);">Not recorded</span>
     </div>
@@ -1325,7 +1362,7 @@ body {
       </div>
 
       <div class="insights-hero">
-        <div class="insights-card insights-balance">
+        <div class="insights-card insights-balance insight-kpi-clickable" onclick="openInsightsSummaryDetails('balance')" role="button" tabindex="0" aria-label="View overall balance breakdown" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightsSummaryDetails('balance')}">
           <div class="insights-balance-head">
             <div>
               <div class="insights-balance-kicker">Overall balance</div>
@@ -1356,13 +1393,13 @@ body {
           <div class="insight-kpi-sub" id="expenseKpiSub">0 records · Tap to view</div>
           <div class="insight-kpi-track track-red"><span id="expenseKpiFill"></span></div>
         </div>
-        <div class="insights-card insight-kpi">
+        <div class="insights-card insight-kpi insight-kpi-clickable" onclick="openInsightsRecords('Savings')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightsRecords('Savings')}" aria-label="View all savings records">
           <div class="insight-kpi-title">Savings</div>
           <div class="insight-kpi-value" id="dashSavingsValue">0</div>
           <div class="insight-kpi-sub" id="dashSavingsRateChip">0% of income</div>
           <div class="insight-kpi-track track-purple"><span id="dashSavingsRangeFill"></span></div>
         </div>
-        <div class="insights-card insight-kpi">
+        <div class="insights-card insight-kpi insight-kpi-clickable" onclick="openInsightsSummaryDetails('cash')" role="button" tabindex="0" aria-label="View cash left breakdown" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightsSummaryDetails('cash')}">
           <div class="insight-kpi-title">Cash left</div>
           <div class="insight-kpi-value" id="dashCashLeftKpi">0</div>
           <div class="insight-kpi-sub">Income − expenses</div>
@@ -1700,6 +1737,7 @@ body {
       });
       // Always release the Ledger/detail page lock when changing tabs.
       lockDetailModal(false);
+      document.body.classList.remove('ui-detail-open');
     }
 
     function getTab4Mode(){ return localStorage.getItem('tab4Mode') || 'emi'; }
@@ -1825,7 +1863,7 @@ body {
       }).filter(Boolean);
       const freeFrom=completionDates.length ? completionDates.sort().slice(-1)[0] : '';
       const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-      set('emiTotalMonthly',money(monthly)); set('emiTotalOutstanding',money(outstanding)); set('emiDueThisMonth',money(dueAmount)); set('emiTotalRemaining',String(remaining)); set('emiFreeFrom',emiMonthYear(freeFrom));
+      set('emiTotalMonthly',money(monthly)); set('emiTotalOutstanding',money(outstanding)); set('emiDueThisMonth',money(dueAmount)); set('emiFreeFrom',emiMonthYear(freeFrom));
       set('emiLoanCount',active.length+' active loan'+(active.length===1?'':'s'));
       const list=document.getElementById('emiLoansList'); if(!list)return;
       if(!emiLoans.length){ list.innerHTML='<div class="emi-empty"><div style="font-size:28px;margin-bottom:8px">🏦</div>No EMI loans added yet.<br><br>Tap ＋ Add Loan to enter an existing or new loan.</div>'; return; }
@@ -1841,10 +1879,13 @@ body {
         const options=rows.length ? rows.map(r=>`<option value="${Number(r.emiNo)}" ${next&&Number(r.emiNo)===Number(next.emiNo)?'selected':''}>EMI #${Number(r.emiNo)} · ${emiDate(r.date)} · ${money(r.emi)} · ${String(r.status||'Pending')}</option>`).join('') : '<option value="">No EMI schedule</option>';
         return `<div class="emi-card" onclick="openEMIDetails('${escEMI(x.loanId)}')">
           <div class="emi-card-head"><div><div class="emi-loan-name">${escEMI(x.loanName||'Unnamed Loan')}</div><div class="emi-lender">${escEMI(x.lender||'')} · ${escEMI(x.borrower||'')}</div></div><span class="emi-status ${closed?'closed':''}">${escEMI(x.status||'Active')}</span></div>
-          <div class="emi-card-grid"><div><div class="emi-metric-label">EMI</div><div class="emi-metric-value">${money(x.emiAmount)}</div></div><div><div class="emi-metric-label">Outstanding</div><div class="emi-metric-value">${money(x.outstandingPrincipal)}</div></div><div><div class="emi-metric-label">Completion</div><div class="emi-metric-value">${emiMonthYear(completionDate)}</div></div><div><div class="emi-metric-label">Next EMI</div><div class="emi-metric-value">${emiDate(displayNextDate)}</div></div></div>
+          <div class="emi-card-grid"><div><div class="emi-metric-label">EMI</div><div class="emi-metric-value">${money(x.emiAmount)}</div></div><div><div class="emi-metric-label">Outstanding Principal</div><div class="emi-metric-value">${money(x.outstandingPrincipal)}</div></div><div><div class="emi-metric-label">Completion</div><div class="emi-metric-value">${emiMonthYear(completionDate)}</div></div><div><div class="emi-metric-label">Next EMI</div><div class="emi-metric-value">${emiDate(displayNextDate)}</div></div></div>
           <div class="emi-next"><span>Current / last paid EMI</span><strong>#${displayCurrent}</strong></div>
+          <div style="margin-top:10px;font-size:10px;color:var(--text-muted);font-weight:800;">NEXT PAYMENT</div>
+          ${next ? `<div class="emi-next" style="margin-top:5px;"><strong>EMI #${Number(next.emiNo)}</strong><span>${emiDate(next.date)} · ${money(next.emi)}</span></div>` : '<div class="emi-next"><strong>All EMIs paid</strong><span>Loan complete</span></div>'}
           <select class="emi-card-select" aria-label="Select EMI for ${escEMI(x.loanName)}" onclick="event.stopPropagation()" onchange="openEMIDetails('${escEMI(x.loanId)}', this.value)">${options}</select>
-           ${next ? `<button type="button" class="emi-btn primary" style="width:100%;margin-top:9px" onclick="event.stopPropagation();markEMIPaid('${escEMI(x.loanId)}',${Number(next.emiNo)})">✓ Mark EMI #${Number(next.emiNo)} as Paid</button>` : ''}
+          ${next ? `<button type="button" class="emi-btn primary" style="width:100%;margin-top:9px" onclick="event.stopPropagation();markEMIPaid('${escEMI(x.loanId)}',${Number(next.emiNo)})">✓ Mark Current EMI #${Number(next.emiNo)} as Paid</button>` : ''}
+          <button type="button" class="emi-view-schedule" onclick="event.stopPropagation();openEMIDetails('${escEMI(x.loanId)}')">View full EMI schedule ›</button>
         </div>`;
       }).join('');
     }
@@ -1961,7 +2002,7 @@ body {
           <div><b>EMI amount</b><br>${money(selected?.emi||x.emiAmount)}</div><div><b>Interest</b><br>${money(selected?.interest||0)}</div>
           <div><b>Principal</b><br>${money(selected?.principal||0)}</div><div><b>Selected EMI date</b><br>${emiDate(selectedDate)}</div>
           <div><b>Current / last paid EMI</b><br>#${stats.current}</div><div><b>Next unpaid EMI</b><br>#${nextNo} · ${emiDate(next?.date||x.nextEMIDate)}</div>
-          <div><b>Remaining EMIs</b><br>${rows.length?stats.unpaid.length:Number(x.remainingEMIs||0)}</div><div><b>Loan final date</b><br>${emiDate(finalDate)}</div>
+          <div><b>Unpaid EMIs</b><br>${rows.length?stats.unpaid.length:Number(x.remainingEMIs||0)}</div><div><b>EMI-free date</b><br>${emiDate(finalDate)}</div>
         </div>
         <div class="emi-actions" style="margin-top:15px"><button class="emi-btn" onclick="openEMILoanModal('${escEMI(x.loanId)}');closeEMIDetails()">Edit</button>${payButton}<button class="emi-btn" onclick="deleteEMILoan('${escEMI(x.loanId)}')">Delete</button></div>
         <div class="emi-schedule"><div class="emi-schedule-head"><span>#</span><span>Date</span><span>EMI</span><span>Principal</span><span>Status</span></div>${scheduleHTML}</div>
@@ -2664,15 +2705,14 @@ body {
             const amtClass = ledgerAmountClass(row.type);
             const sign = row.type === 'Income' ? '+' : '−';
             const subtitle = `${row.type} • ${row.cat}${row.paymentMethod ? ' • ' + row.paymentMethod : ''}`;
-            const txPayload = encodeURIComponent(JSON.stringify({date:row.date,type:row.type,cat:row.cat,amount:row.amount,desc:row.desc,user:row.user,project:row.project,receipt:row.receipt,odo:row.odo,litres:row.litres,paymentMethod:row.paymentMethod}));
             html += `
-              <div class="ledger-record" data-ledger-action="record" data-tx="${txPayload}">
+              <div class="ledger-record" data-ledger-action="record" data-tx-index="${periodRecords.indexOf(row)}" role="button" tabindex="0" aria-label="View transaction details">
                 <div class="ledger-record-icon">${ledgerIconFor(row)}</div>
                 <div class="ledger-record-main">
                   <div class="ledger-record-title">${row.desc || row.cat}</div>
                   <div class="ledger-record-meta">${subtitle} • ${dateStr} • ${row.user}</div>
                 </div>
-                <div class="ledger-record-amount ${amtClass}">${sign}${formatINR(row.amount)}</div>
+                <div class="ledger-record-amount ${amtClass}">${sign}${formatINR(row.amount)}</div><span aria-hidden="true" style="font-size:20px;color:var(--text-muted);">›</span>
               </div>`;
           });
           html += `</div>`;
@@ -2690,12 +2730,13 @@ body {
             const emoji = emojis[catName.replace('Veh - ', '')] || emojis[catName] || '🏷️';
             const pct = Math.max(3, Math.round((amt / maxVal) * 100));
             const share = totalExp ? ((amt / totalExp) * 100).toFixed(1) : '0.0';
+            const catCount = periodRecords.filter(tx => { const displayCat = (tx.type === 'Fuel' || tx.type === 'Service') ? `Veh - ${tx.cat}` : tx.cat; return displayCat === catName; }).length;
             html += `
               <div class="ledger-category-card" data-ledger-action="category" data-category="${encodeURIComponent(catName)}">
                 <div class="ledger-category-top">
                   <div class="ledger-category-left">
                     <div class="ledger-category-icon" style="background:${color}20;">${emoji}</div>
-                    <div class="ledger-category-name">${catName}</div>
+                    <div><div class="ledger-category-name">${catName}</div><div class="ledger-category-count">${catCount} transaction${catCount===1?'':'s'}</div></div>
                   </div>
                   <div class="ledger-category-amt">${formatINR(amt)}</div>
                 </div>
@@ -2719,9 +2760,10 @@ body {
             const color = appColors[index % appColors.length];
             const emoji = emojis[catName] || '📈';
             const pct = Math.max(3, Math.round((amt / maxSav) * 100));
+            const catCount = periodRecords.filter(tx => tx.type === 'Savings' && tx.cat === catName).length;
             html += `
               <div class="ledger-category-card" data-ledger-action="category" data-category="${encodeURIComponent(catName)}">
-                <div class="ledger-category-top"><div class="ledger-category-left"><div class="ledger-category-icon" style="background:${color}20;">${emoji}</div><div class="ledger-category-name">${catName}</div></div><div class="ledger-category-amt">${formatINR(amt)}</div></div>
+                <div class="ledger-category-top"><div class="ledger-category-left"><div class="ledger-category-icon" style="background:${color}20;">${emoji}</div><div><div class="ledger-category-name">${catName}</div><div class="ledger-category-count">${catCount} transaction${catCount===1?'':'s'}</div></div></div><div class="ledger-category-amt">${formatINR(amt)}</div></div>
                 <div class="ledger-category-track"><div class="ledger-category-fill" style="width:${pct}%; background:${color};"></div></div>
               </div>`;
           });
@@ -2732,28 +2774,36 @@ body {
       container.innerHTML = html;
     }
 
-    // Ledger click handling is delegated from the stable container.
-    // The transaction/category payload lives on the clicked element, so it does
-    // not depend on array indexes or object identity after a refresh/filter.
+    // Robust Ledger interaction: use one delegated pointer/click handler on the
+    // stable container instead of inline onclick handlers on dynamically-created
+    // cards. This avoids iOS Safari issues with regenerated DOM nodes and
+    // guarantees Recent Records / Categories / Savings remain clickable.
     (function installLedgerDelegation(){
-      const container=document.getElementById('ledgerDynamicContainer');
-      if(!container || container.__ledgerDelegationInstalled) return;
-      container.__ledgerDelegationInstalled=true;
+      const container = document.getElementById('ledgerDynamicContainer');
+      if (!container || container.__ledgerDelegationInstalled) return;
+      container.__ledgerDelegationInstalled = true;
       container.addEventListener('click', function(event){
-        const record=event.target.closest ? event.target.closest('.ledger-record') : null;
-        if(record && container.contains(record)){
-          event.preventDefault(); event.stopPropagation();
-          const encoded=record.getAttribute('data-tx');
-          try{ if(encoded) openRecordDetail(JSON.parse(decodeURIComponent(encoded))); }
-          catch(e){ console.error(e); alert('Unable to open record details.'); }
+        const record = event.target.closest('.ledger-record');
+        if (record && container.contains(record)) {
+          event.preventDefault();
+          event.stopPropagation();
+          const index = Number(record.getAttribute('data-tx-index'));
+          const rows = Array.isArray(window.__ledgerPeriodRecords) ? window.__ledgerPeriodRecords : [];
+          const tx = rows[index];
+          if (tx) {
+            openRecordDetail(tx);
+          } else {
+            console.warn('Ledger record not found for index:', index);
+          }
           return;
         }
-        const category=event.target.closest ? event.target.closest('.ledger-category-card, .ledger-savings-hero') : null;
-        if(category && container.contains(category)){
-          event.preventDefault(); event.stopPropagation();
-          const encoded=category.getAttribute('data-category') || '';
-          try{ showCategoryDetails(decodeURIComponent(encoded)); }
-          catch(e){ console.error(e); alert('Unable to open category details: '+e.message); }
+        const category = event.target.closest('.ledger-category-card, .ledger-savings-hero');
+        if (category && container.contains(category)) {
+          event.preventDefault();
+          event.stopPropagation();
+          const encoded = category.getAttribute('data-category') || '';
+          try { showCategoryDetails(decodeURIComponent(encoded)); }
+          catch(e) { alert('Unable to open details: ' + e.message); }
         }
       }, false);
     })();
@@ -3091,7 +3141,7 @@ body {
               const emoji = emojis[name.replace('Veh - ','')] || '◈';
               const pct = Math.max(4, amount / maxCat * 100);
               const share = totalExp > 0 ? (amount / totalExp * 100).toFixed(0) : '0';
-              return `<div class="insight-category-row">
+              return `<div class="insight-category-row" role="button" tabindex="0" data-category-name="${tab4Escape(name)}">
                 <div class="insight-category-icon">${emoji}</div>
                 <div class="insight-category-main"><div class="insight-category-name">${name}</div><div class="insight-category-bar"><span style="width:${pct}%"></span></div></div>
                 <div class="insight-category-amt">${formatINR(amount)}<div style="font-size:8px;color:var(--text-muted);text-align:right;margin-top:2px">${share}%</div></div>
@@ -3108,7 +3158,7 @@ body {
             hiEl.innerHTML = highest.map(tx => {
               const emoji = emojis[tx.cat] || (tx.type === 'Fuel' ? '⛽' : tx.type === 'Service' ? '🔧' : '↗');
               const date = tx.date.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-              return `<div class="insight-record">
+              return `<div class="insight-record" role="button" tabindex="0" data-tx-json="${encodeURIComponent(JSON.stringify(tx))}">
                 <div class="insight-record-icon">${emoji}</div>
                 <div class="insight-record-main"><div class="insight-record-title">${tx.cat || tx.type}${tx.desc ? ' · ' + tx.desc : ''}</div><div class="insight-record-meta">${date} · ${tx.user || 'User'}</div></div>
                 <div class="insight-record-amt">−${formatINR(tx.amount)}</div>
@@ -3132,6 +3182,56 @@ body {
       }
     }
 
+    function openInsightsSummaryDetails(kind){
+      const modal=document.getElementById('insightsRecordsModal');
+      const title=document.getElementById('insightsRecordsTitle');
+      const totalEl=document.getElementById('insightsRecordsTotal');
+      const countEl=document.getElementById('insightsRecordsCount');
+      const list=document.getElementById('insightsRecordsList');
+      if(!modal||!list)return;
+      const {txs,selectedUser,timeRange}=getInsightTransactions();
+      const income=txs.filter(t=>t.type==='Income');
+      const outgoing=txs.filter(t=>t.type==='Expense'||t.type==='Fuel'||t.type==='Service');
+      const savings=txs.filter(t=>t.type==='Savings');
+      const sum=a=>a.reduce((n,t)=>n+Number(t.amount||0),0);
+      const inc=sum(income),exp=sum(outgoing),sav=sum(savings),cash=inc-exp,balance=cash-sav;
+      if(title)title.textContent=kind==='balance'?'Balance Breakdown':'Cash Left Breakdown';
+      if(totalEl)totalEl.textContent=formatINR(kind==='balance'?balance:cash);
+      if(countEl)countEl.textContent=(selectedUser==='Us'?'Jebel + Reshma':selectedUser)+' · '+(timeRange==='all'?'All time':'Selected period');
+      const rows=[['Income',inc,'income','Income Records'],['Expenses',exp,'expense','Expense Records'],['Savings',sav,'savings','Savings Records']];
+      list.innerHTML=rows.map(([label,amount,cls,target])=>`<div class="insights-popup-record" role="button" tabindex="0" onclick="openInsightsRecords('${label==='Expenses'?'Expense':label}')"><div class="insights-popup-record-icon">${label==='Income'?'↘':label==='Expenses'?'↗':'💰'}</div><div class="insights-popup-record-main"><div class="insights-popup-record-title">${target}</div><div class="insights-popup-record-meta">Tap to see the underlying records</div></div><div class="insights-popup-record-amt ${cls}">${formatINR(amount)}</div></div>`).join('')+
+        `<div class="insights-popup-record" style="cursor:default"><div class="insights-popup-record-icon">=</div><div class="insights-popup-record-main"><div class="insights-popup-record-title">${kind==='balance'?'Balance':'Cash left'}</div><div class="insights-popup-record-meta">${kind==='balance'?'Income − expenses − savings':'Income − expenses'}</div></div><div class="insights-popup-record-amt">${formatINR(kind==='balance'?balance:cash)}</div></div>`;
+      modal.style.display='flex';
+      document.body.classList.add('ui-detail-open');
+      requestAnimationFrame(()=>modal.classList.add('show'));
+    }
+
+    function openInsightCategoryDetails(categoryName){
+      const modal=document.getElementById('insightsRecordsModal');
+      const title=document.getElementById('insightsRecordsTitle');
+      const totalEl=document.getElementById('insightsRecordsTotal');
+      const countEl=document.getElementById('insightsRecordsCount');
+      const list=document.getElementById('insightsRecordsList');
+      if(!modal||!list)return;
+      const {txs,selectedUser}=getInsightTransactions();
+      const wanted=txs.filter(tx=>{
+        const displayCat=(tx.type==='Fuel'||tx.type==='Service')?'Veh - '+tx.cat:tx.cat;
+        return displayCat===categoryName;
+      }).sort((a,b)=>b.date-a.date);
+      const total=wanted.reduce((sum,tx)=>sum+Number(tx.amount||0),0);
+      if(title)title.textContent=categoryName+' Details';
+      if(totalEl)totalEl.textContent=formatINR(total);
+      if(countEl)countEl.textContent=wanted.length+' transaction'+(wanted.length===1?'':'s')+' · '+(selectedUser==='Us'?'Jebel + Reshma':selectedUser);
+      list.innerHTML=wanted.length?wanted.map(tx=>{
+        const emoji=emojis[tx.cat]||(tx.type==='Fuel'?'⛽':tx.type==='Service'?'🔧':'↗');
+        const date=tx.date.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+        return `<div class="insights-popup-record" onclick='openRecordDetail(${JSON.stringify(tx).replace(/'/g,'&#39;')})'><div class="insights-popup-record-icon">${emoji}</div><div class="insights-popup-record-main"><div class="insights-popup-record-title">${tab4Escape(tx.desc||tx.cat||tx.type)}</div><div class="insights-popup-record-meta">${date} · ${tab4Escape(tx.user||'User')}</div></div><div class="insights-popup-record-amt">${tx.type==='Income'?'+':'−'}${formatINR(tx.amount)}</div></div>`;
+      }).join(''):'<div class="insight-empty">No records found.</div>';
+      modal.style.display='flex';
+      document.body.classList.add('ui-detail-open');
+      requestAnimationFrame(()=>modal.classList.add('show'));
+    }
+
     function openInsightsRecords(type) {
       const modal = document.getElementById('insightsRecordsModal');
       const title = document.getElementById('insightsRecordsTitle');
@@ -3143,10 +3243,12 @@ body {
       const { txs, selectedUser, timeRange } = getInsightTransactions();
       const wanted = type === 'Income'
         ? txs.filter(tx => tx.type === 'Income')
-        : txs.filter(tx => tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service');
+        : type === 'Savings'
+          ? txs.filter(tx => tx.type === 'Savings')
+          : txs.filter(tx => tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service');
 
       const total = wanted.reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
-      if (title) title.textContent = type === 'Income' ? 'Income Records' : 'Expense Records';
+      if (title) title.textContent = type === 'Income' ? 'Income Records' : type === 'Savings' ? 'Savings Records' : 'Expense Records';
       if (totalEl) totalEl.textContent = formatINR(total);
       if (countEl) countEl.textContent = `${wanted.length.toLocaleString('en-IN')} records · ${selectedUser === 'Us' ? 'Jebel + Reshma' : selectedUser}`;
 
@@ -3170,6 +3272,7 @@ body {
       }
 
       modal.style.display = 'flex';
+      document.body.classList.add('ui-detail-open');
       setTimeout(() => modal.classList.add('show'), 10);
     }
 
@@ -3178,29 +3281,28 @@ body {
       const modal = document.getElementById('insightsRecordsModal');
       if (!modal) return;
       modal.classList.remove('show');
+      document.body.classList.remove('ui-detail-open');
       setTimeout(() => modal.style.display = 'none', 250);
     }
 
     function openRecordDetail(tx) {
-      const modal=document.getElementById('recordDetailModal');
-      const body=document.getElementById('recordDetailBody');
-      if(!modal || !body || !tx) return;
-      const d=parseSafeDate(tx.date);
-      const dateStr=d && !isNaN(d.getTime()) ? d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : String(tx.date||'');
-      body.innerHTML='';
-      const fields=[['Type',tx.type],['Category / Source',tx.cat],['Amount',formatINR(tx.amount)],['User',tx.user],['Date',dateStr],['Details',tx.desc||'None'],['Payment Method',tx.paymentMethod||'Not specified']];
-      fields.forEach(([label,value])=>{
-        const row=document.createElement('div'); row.style.padding='4px 0';
-        const b=document.createElement('b'); b.textContent=label+': ';
-        row.appendChild(b); row.appendChild(document.createTextNode(String(value==null?'':value))); body.appendChild(row);
-      });
-      if(tx.receipt){
-        const row=document.createElement('div'); row.style.padding='4px 0';
-        const b=document.createElement('b'); b.textContent='Receipt: ';
-        const a=document.createElement('a'); a.href=String(tx.receipt); a.target='_blank'; a.rel='noopener'; a.textContent='View Image'; a.style.color='var(--accent-blue)';
-        row.append(b,a); body.appendChild(row);
-      }
-      modal.style.display='flex'; modal.classList.add('show');
+      let dateStr = parseSafeDate(tx.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+      let body = document.getElementById('recordDetailBody');
+      body.innerHTML = `
+        <div><b>Type:</b> ${tx.type}</div>
+        <div><b>Category / Source:</b> ${tx.cat}</div>
+        <div><b>Amount:</b> ${formatINR(tx.amount)}</div>
+        <div><b>User:</b> ${tx.user}</div>
+        <div><b>Date:</b> ${dateStr}</div>
+        <div><b>Details:</b> ${tx.desc || 'None'}</div>
+        <div><b>Payment Method:</b> ${tx.paymentMethod || 'Not specified'}</div>
+        ${tx.receipt ? `<div><b>Receipt:</b> <a href="${tx.receipt}" target="_blank" style="color:var(--accent-blue);">View Image</a></div>` : ''}
+      `;
+      let modal = document.getElementById('recordDetailModal');
+      modal.style.display = 'flex';
+      document.body.classList.add('ui-detail-open');
+      lockDetailModal(true);
+      setTimeout(() => modal.classList.add('show'), 10);
     }
 
     function closeRecordDetailModal(event) {
@@ -3211,6 +3313,7 @@ body {
       modal.classList.remove('detail-scroll-overlay');
       // No body lock is used; background scrolling is unaffected after close.
       lockDetailModal(false);
+      document.body.classList.remove('ui-detail-open');
       setTimeout(() => modal.style.display = 'none', 300);
     }
 
@@ -3235,6 +3338,20 @@ body {
 
     // Ledger details use normal browser click/touch behavior. No global touch
     // interception is required.
+
+    function openVehicleServiceHistory(){
+      const vehicle=(document.getElementById('fuelVehicle')||{}).value||'';
+      const modal=document.getElementById('categoryModal');
+      const title=document.getElementById('modalCategoryTitle');
+      const list=document.getElementById('modalTransactionList');
+      if(!modal||!list)return;
+      const rows=getInsightRows().filter(row=>normalizeTransactionType(row[1])==='Service' && String(row[2]||'').trim()===vehicle);
+      if(title)title.textContent=vehicle+' · Service History';
+      renderTxList(list, rows.slice().reverse());
+      modal.style.display='flex';
+      document.body.classList.add('ui-detail-open');
+      requestAnimationFrame(()=>modal.classList.add('show'));
+    }
 
     function showCategoryDetails(categoryName) {
       try {
@@ -3274,7 +3391,9 @@ body {
 
         const modal = document.getElementById('categoryModal');
         modal.style.display = 'flex';
-        modal.classList.add('show');
+        document.body.classList.add('ui-detail-open');
+        lockDetailModal(true);
+        setTimeout(() => modal.classList.add('show'), 10);
       } catch(e) {
         alert("Failed to load details: " + e.message);
       }
@@ -3332,7 +3451,7 @@ body {
       const modal = document.getElementById('categoryModal');
       modal.classList.remove('show');
       modal.classList.remove('detail-scroll-overlay');
-      setTimeout(() => { modal.style.display = 'none'; lockDetailModal(false); }, 300);
+      setTimeout(() => { modal.style.display = 'none'; lockDetailModal(false); document.body.classList.remove('ui-detail-open'); }, 300);
     }
   
 /* ===== PRO FEATURES: CREDIT CARD TRACKER + FILTERED SEARCH ===== */
@@ -3553,6 +3672,52 @@ function showSpendingDay(day){
   if(summary)summary.textContent=new Date(y,m,day).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})+' · ₹'+Math.round(total).toLocaleString('en-IN')+' spent · '+count+' transaction'+(count===1?'':'s');
 }
 function initTab4Extras(){loadRecurringPayments();renderSpendingCalendar();}
+
+/* ===== FINAL INTERACTION SAFETY PATCH ===== */
+(function(){
+  function wireDelegatedTap(containerId, selector, handler){
+    const c=document.getElementById(containerId); if(!c) return;
+    if(c.__safeTapInstalled) return;
+    c.__safeTapInstalled=true;
+    c.addEventListener('click',function(e){
+      const el=e.target.closest(selector);
+      if(!el || !c.contains(el)) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      handler(el,e);
+    },true);
+  }
+  wireDelegatedTap('ledgerDynamicContainer','.ledger-record',function(el){
+    const idx=Number(el.getAttribute('data-tx-index'));
+    const rows=Array.isArray(window.__ledgerPeriodRecords)?window.__ledgerPeriodRecords:[];
+    if(rows[idx]) openRecordDetail(rows[idx]);
+  });
+  wireDelegatedTap('ledgerDynamicContainer','.ledger-category-card,.ledger-savings-hero',function(el){
+    const encoded=el.getAttribute('data-category')||'';
+    try{showCategoryDetails(decodeURIComponent(encoded));}catch(err){console.error(err);}
+  });
+  wireDelegatedTap('insightsCategoryList','.insight-category-row',function(el){
+    const name=el.getAttribute('data-category-name');
+    if(name) openInsightCategoryDetails(name);
+  });
+  wireDelegatedTap('insightsHighestList','.insight-record',function(el){
+    const raw=el.getAttribute('data-tx-json');
+    if(raw){try{openRecordDetail(JSON.parse(decodeURIComponent(raw)));}catch(err){console.error(err);}}
+  });
+})();
+
+/* Hide bottom navigation whenever any detail/modal sheet is visible. */
+(function(){
+  const ids=['recordDetailModal','categoryModal','insightsRecordsModal','searchModal','emiLoanModal','emiDetailsModal'];
+  function syncNav(){
+    const open=ids.some(id=>{const m=document.getElementById(id);return m&&m.classList.contains('show');});
+    document.body.classList.toggle('ui-detail-open',open);
+  }
+  const observer=new MutationObserver(syncNav);
+  ids.forEach(id=>{const m=document.getElementById(id);if(m)observer.observe(m,{attributes:true,attributeFilter:['class','style']});});
+  syncNav();
+})();
+
 </script>
 
 
