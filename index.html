@@ -984,8 +984,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:none!i
 
 /* Clear clickable affordances. */
 .ledger-record,.ledger-category-card,.ledger-savings-hero,.insight-category-row,.insight-record{position:relative}
-.ledger-record::after,.ledger-category-card::after,.ledger-savings-hero::after,.insight-category-row::after,.insight-record::after{content:'›';font-size:20px;line-height:1;color:var(--text-muted);font-weight:700;opacity:.65}
-.ledger-record::after{margin-left:0}
+.ledger-category-card::after,.ledger-savings-hero::after,.insight-category-row::after,.insight-record::after{content:'›';font-size:20px;line-height:1;color:var(--text-muted);font-weight:700;opacity:.65}
 .ledger-category-card::after,.ledger-savings-hero::after{position:absolute;right:12px;top:50%;transform:translateY(-50%)}
 .ledger-category-card{padding-right:34px}
 .ledger-savings-hero{padding-right:42px;cursor:pointer}
@@ -2706,13 +2705,13 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:none!i
             const sign = row.type === 'Income' ? '+' : '−';
             const subtitle = `${row.type} • ${row.cat}${row.paymentMethod ? ' • ' + row.paymentMethod : ''}`;
             html += `
-              <div class="ledger-record" data-ledger-action="record" data-tx-index="${periodRecords.indexOf(row)}" role="button" tabindex="0" aria-label="View transaction details">
+              <div class="ledger-record" data-tx-index="${periodRecords.indexOf(row)}" role="button" tabindex="0" aria-label="View transaction details" onclick="openLedgerRecordByIndex(${periodRecords.indexOf(row)})">
                 <div class="ledger-record-icon">${ledgerIconFor(row)}</div>
                 <div class="ledger-record-main">
                   <div class="ledger-record-title">${row.desc || row.cat}</div>
                   <div class="ledger-record-meta">${subtitle} • ${dateStr} • ${row.user}</div>
                 </div>
-                <div class="ledger-record-amount ${amtClass}">${sign}${formatINR(row.amount)}</div><span aria-hidden="true" style="font-size:20px;color:var(--text-muted);">›</span>
+                <div class="ledger-record-amount ${amtClass}">${sign}${formatINR(row.amount)}</div>
               </div>`;
           });
           html += `</div>`;
@@ -2778,35 +2777,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:none!i
     // stable container instead of inline onclick handlers on dynamically-created
     // cards. This avoids iOS Safari issues with regenerated DOM nodes and
     // guarantees Recent Records / Categories / Savings remain clickable.
-    (function installLedgerDelegation(){
-      const container = document.getElementById('ledgerDynamicContainer');
-      if (!container || container.__ledgerDelegationInstalled) return;
-      container.__ledgerDelegationInstalled = true;
-      container.addEventListener('click', function(event){
-        const record = event.target.closest('.ledger-record');
-        if (record && container.contains(record)) {
-          event.preventDefault();
-          event.stopPropagation();
-          const index = Number(record.getAttribute('data-tx-index'));
-          const rows = Array.isArray(window.__ledgerPeriodRecords) ? window.__ledgerPeriodRecords : [];
-          const tx = rows[index];
-          if (tx) {
-            openRecordDetail(tx);
-          } else {
-            console.warn('Ledger record not found for index:', index);
-          }
-          return;
-        }
-        const category = event.target.closest('.ledger-category-card, .ledger-savings-hero');
-        if (category && container.contains(category)) {
-          event.preventDefault();
-          event.stopPropagation();
-          const encoded = category.getAttribute('data-category') || '';
-          try { showCategoryDetails(decodeURIComponent(encoded)); }
-          catch(e) { alert('Unable to open details: ' + e.message); }
-        }
-      }, false);
-    })();
+
 
     function normalizeTransactionType(value) {
       const t = String(value == null ? '' : value).trim().toLowerCase();
@@ -3285,6 +3256,16 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:none!i
       setTimeout(() => modal.style.display = 'none', 250);
     }
 
+    function openLedgerRecordByIndex(index) {
+      const rows = Array.isArray(window.__ledgerPeriodRecords) ? window.__ledgerPeriodRecords : [];
+      const tx = rows[Number(index)];
+      if (tx) {
+        openRecordDetail(tx);
+      } else {
+        console.warn('Ledger record not found:', index);
+      }
+    }
+
     function openRecordDetail(tx) {
       let dateStr = parseSafeDate(tx.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
       let body = document.getElementById('recordDetailBody');
@@ -3687,15 +3668,6 @@ function initTab4Extras(){loadRecurringPayments();renderSpendingCalendar();}
       handler(el,e);
     },true);
   }
-  wireDelegatedTap('ledgerDynamicContainer','.ledger-record',function(el){
-    const idx=Number(el.getAttribute('data-tx-index'));
-    const rows=Array.isArray(window.__ledgerPeriodRecords)?window.__ledgerPeriodRecords:[];
-    if(rows[idx]) openRecordDetail(rows[idx]);
-  });
-  wireDelegatedTap('ledgerDynamicContainer','.ledger-category-card,.ledger-savings-hero',function(el){
-    const encoded=el.getAttribute('data-category')||'';
-    try{showCategoryDetails(decodeURIComponent(encoded));}catch(err){console.error(err);}
-  });
   wireDelegatedTap('insightsCategoryList','.insight-category-row',function(el){
     const name=el.getAttribute('data-category-name');
     if(name) openInsightCategoryDetails(name);
