@@ -422,7 +422,7 @@
     .emi-card-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.emi-loan-name{font-size:16px;font-weight:900}.emi-lender{font-size:10px;color:var(--text-muted);margin-top:3px}.emi-status{padding:5px 8px;border-radius:999px;font-size:9px;font-weight:900;background:rgba(52,199,89,.12);color:#1f9d53}.emi-status.closed{background:var(--input-bg);color:var(--text-muted)}
     .emi-card-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:15px}.emi-metric-label{font-size:9px;color:var(--text-muted);font-weight:750}.emi-metric-value{font-size:14px;font-weight:850;margin-top:3px}.emi-next{background:var(--input-bg);border-radius:14px;padding:10px;margin-top:12px;display:flex;justify-content:space-between;gap:10px;align-items:center}.emi-next strong{font-size:12px}.emi-next span{font-size:10px;color:var(--text-muted)}
     .emi-empty{background:var(--card-bg);border:1px dashed var(--border-color);border-radius:20px;padding:35px 18px;text-align:center;color:var(--text-muted);font-size:12px}
-    .emi-modal-content{max-height:88vh;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}.emi-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.emi-form-grid label{font-size:11px;color:var(--text-muted);font-weight:750}.emi-form-grid input{margin-top:6px}.emi-full{grid-column:1/-1}.emi-schedule{margin-top:12px;border:1px solid var(--border-color);border-radius:15px;overflow:auto;max-height:48vh;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}.emi-schedule-head,.emi-schedule-row{display:grid;grid-template-columns:52px 1.2fr .9fr .9fr .8fr;gap:7px;align-items:center;padding:9px 10px;font-size:10px}.emi-schedule-head{background:var(--input-bg);font-weight:850;color:var(--text-muted);position:sticky;top:0;z-index:2}.emi-schedule-row{border-top:1px solid var(--border-color);cursor:pointer}.emi-schedule-row:hover{background:var(--card-bg)}.emi-schedule-row.selected{background:rgba(0,122,255,.09);outline:1px solid var(--accent-blue)}.emi-paid{color:var(--accent-green);font-weight:850}.emi-pending{color:var(--accent-red);font-weight:850}.emi-import-note{padding:10px 12px;border-radius:12px;background:var(--input-bg);font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.5}.emi-card-select{width:100%;margin-top:10px;padding:9px 10px;border-radius:11px;border:1px solid var(--border-color);background:var(--input-bg);color:var(--text-main);font-size:10px;font-weight:800}.emi-selected-label{font-size:9px;color:var(--text-muted);font-weight:800;text-transform:uppercase;letter-spacing:.45px;margin-top:14px}.emi-selected-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:7px}.emi-selected-stat{background:var(--input-bg);border-radius:11px;padding:10px;min-width:0}.emi-selected-stat span{display:block;font-size:8px;color:var(--text-muted);font-weight:750}.emi-selected-stat strong{display:block;font-size:13px;font-weight:900;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.emi-selected-note{margin-top:8px;padding:9px 10px;border-radius:11px;background:var(--input-bg);font-size:9px;color:var(--text-muted);font-weight:700}.emi-detail-scroll{max-height:calc(88vh - 70px);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:10px}
+    .emi-modal-content{height:min(88vh,760px);max-height:88vh;min-height:0;overflow:hidden;overscroll-behavior:contain;touch-action:none}.emi-modal-content>.modal-header{flex:0 0 auto}.emi-modal-content>#emiDetailsBody{min-height:0;flex:1;display:flex;flex-direction:column;overflow:hidden}.emi-modal-content>#emiDetailsBody>.emi-detail-scroll{flex:1;min-height:0;max-height:none;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}.emi-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.emi-form-grid label{font-size:11px;color:var(--text-muted);font-weight:750}.emi-form-grid input{margin-top:6px}.emi-full{grid-column:1/-1}.emi-schedule{margin-top:12px;border:1px solid var(--border-color);border-radius:15px;overflow:auto;max-height:48vh;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}.emi-schedule-head,.emi-schedule-row{display:grid;grid-template-columns:52px 1.2fr .9fr .9fr .8fr;gap:7px;align-items:center;padding:9px 10px;font-size:10px}.emi-schedule-head{background:var(--input-bg);font-weight:850;color:var(--text-muted);position:sticky;top:0;z-index:2}.emi-schedule-row{border-top:1px solid var(--border-color);cursor:pointer}.emi-schedule-row:hover{background:var(--card-bg)}.emi-schedule-row.selected{background:rgba(0,122,255,.09);outline:1px solid var(--accent-blue)}.emi-paid{color:var(--accent-green);font-weight:850}.emi-pending{color:var(--accent-red);font-weight:850}.emi-import-note{padding:10px 12px;border-radius:12px;background:var(--input-bg);font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.5}.emi-card-select{width:100%;margin-top:10px;padding:9px 10px;border-radius:11px;border:1px solid var(--border-color);background:var(--input-bg);color:var(--text-main);font-size:10px;font-weight:800}.emi-selected-label{font-size:9px;color:var(--text-muted);font-weight:800;text-transform:uppercase;letter-spacing:.45px;margin-top:14px}.emi-selected-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:7px}.emi-selected-stat{background:var(--input-bg);border-radius:11px;padding:10px;min-width:0}.emi-selected-stat span{display:block;font-size:8px;color:var(--text-muted);font-weight:750}.emi-selected-stat strong{display:block;font-size:13px;font-weight:900;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.emi-selected-note{margin-top:8px;padding:9px 10px;border-radius:11px;background:var(--input-bg);font-size:9px;color:var(--text-muted);font-weight:700}.emi-detail-scroll{max-height:calc(88vh - 70px);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:10px}
     @media(max-width:650px){.emi-summary-grid{grid-template-columns:1fr 1fr}.emi-card-grid{grid-template-columns:1fr 1fr}.emi-form-grid{grid-template-columns:1fr}.emi-full{grid-column:auto}.emi-schedule{overflow:auto}.emi-schedule-head,.emi-schedule-row{min-width:430px}.emi-toolbar{align-items:flex-start}.emi-actions{flex-wrap:wrap}}
 
     /* ===== FINAL INSIGHTS MAKEOVER ===== */
@@ -1621,6 +1621,33 @@
     let emiLoans = [];
     let emiSchedules = {};
     let editingEMILoanId = null;
+    let emiModalScrollY = 0;
+
+    /* Lock the page behind EMI modals. This also fixes the iPhone/iPad
+       behaviour where the background page used to scroll while the modal
+       itself was open. */
+    function setEMIModalLock(lock){
+      const body = document.body;
+      if(!body) return;
+      if(lock){
+        if(!body.classList.contains('emi-modal-open')){
+          emiModalScrollY = window.scrollY || window.pageYOffset || 0;
+          body.style.top = (-emiModalScrollY) + 'px';
+        }
+        body.classList.add('emi-modal-open');
+      }else{
+        body.classList.remove('emi-modal-open');
+        body.style.top = '';
+        window.scrollTo(0, emiModalScrollY || 0);
+      }
+    }
+
+    function forceCloseTransientModals(){
+      ['recordDetailModal','categoryModal','insightsRecordsModal','searchModal'].forEach(function(id){
+        const m=document.getElementById(id);
+        if(m){ m.classList.remove('show'); m.style.display='none'; }
+      });
+    }
 
     function getTab4Mode(){ return localStorage.getItem('tab4Mode') || 'emi'; }
     function setTab4Mode(mode){
@@ -2186,6 +2213,16 @@
     }
 
     function showTab(tabName) {
+      // Never carry a detail modal from one tab into another.
+      forceCloseTransientModals();
+      if(tabName !== 'Insights'){
+        const emiDetails=document.getElementById('emiDetailsModal');
+        const emiLoan=document.getElementById('emiLoanModal');
+        if(emiDetails){emiDetails.classList.remove('show');emiDetails.style.display='none';}
+        if(emiLoan){emiLoan.classList.remove('show');emiLoan.style.display='none';}
+        setEMIModalLock(false);
+      }
+
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active-tab'));
       document.getElementById(tabName).classList.add('active-tab');
       
