@@ -43,7 +43,7 @@
       margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main);
       min-height: 100%; overflow-x: hidden;
     }
-    body.emi-modal-open { overflow:hidden; position:fixed; width:100%; }
+    body.emi-modal-open { overflow:hidden; position:fixed; width:100%; height:100%; touch-action:none; }
 
     .app-container { min-height: 100vh; padding-bottom: 180px; }
     #Insights { padding-bottom: 180px !important; }
@@ -272,6 +272,7 @@
     .ledger-record-amount.expense { color:var(--accent-red); }
     .ledger-record-amount.income { color:var(--accent-green); }
     .ledger-record-amount.savings { color:var(--accent-blue); }
+     .ledger-details-btn{border:1px solid var(--border-color);background:var(--input-bg);color:var(--text-main);border-radius:9px;padding:6px 8px;font-size:9px;font-weight:800;cursor:pointer;white-space:nowrap}
 
     .ledger-category-list { display:flex; flex-direction:column; gap:9px; }
     .ledger-category-card { background:var(--card-bg); border:1px solid var(--border-color); border-radius:18px; padding:13px; box-shadow:0 7px 20px rgba(0,0,0,.025); cursor:pointer; }
@@ -390,7 +391,9 @@
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .modal-header h3 { margin: 0; font-size: 22px; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px; }
     .close-btn { background: var(--input-bg); border: none; color: var(--text-main); width: 36px; height: 36px; border-radius: 18px; font-size: 16px; font-weight: bold; cursor: pointer; display:flex; justify-content:center; align-items:center; }
-    .transaction-list { overflow-y: auto; flex: 1; padding-bottom: 20px; }
+    .transaction-list { overflow-y: auto; flex: 1; padding-bottom: 20px; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+     #recordDetailModal .modal-content, #categoryModal .modal-content, #insightsRecordsModal .modal-content, #searchModal .modal-content { max-height:88vh; min-height:0; overflow:hidden; }
+     #recordDetailBody, #categoryModal .transaction-list, #insightsRecordsList { min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
     
     .transaction-item { background: transparent; padding: 14px 0; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); cursor: pointer; }
     .transaction-item:last-child { border-bottom: none; }
@@ -1173,14 +1176,6 @@
       </div>
 
       <div class="ledger-kpis">
-        <div class="ledger-kpi expense">
-          <div class="ledger-kpi-label">Spending</div>
-          <div class="ledger-kpi-value" id="ledgerKpiExpense">0</div>
-        </div>
-        <div class="ledger-kpi income">
-          <div class="ledger-kpi-label">Income</div>
-          <div class="ledger-kpi-value" id="ledgerKpiIncome">0</div>
-        </div>
         <div class="ledger-kpi savings">
           <div class="ledger-kpi-label">Savings</div>
           <div class="ledger-kpi-value" id="ledgerKpiSavings">0</div>
@@ -1691,6 +1686,7 @@
     function parseScheduleJSON(v){ try { const x=typeof v==='string'?JSON.parse(v||'[]'):v; return Array.isArray(x)?x:[]; } catch(e){ return []; } }
     function money(n){ return '₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0}); }
     function emiDate(d){ if(!d)return '—'; const x=new Date(String(d).includes('T')?d:d+'T00:00:00'); return isNaN(x.getTime())?'—':x.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }
+     function emiMonthYear(d){ if(!d)return '—'; const x=new Date(String(d).includes('T')?d:d+'T00:00:00'); return isNaN(x.getTime())?'—':x.toLocaleDateString('en-IN',{month:'short',year:'numeric'}); }
     function escEMI(v){ return tab4Escape(v); }
 
     async function refreshEMILoans(){
@@ -1736,14 +1732,15 @@
 
     function getLoanScheduleStats(x, selectedEmiNo) {
       const rows = getScheduleForLoan(x).slice().sort((a,b)=>Number(a.emiNo)-Number(b.emiNo));
-      const unpaid = rows.filter(r => String(r.status || 'Pending').toLowerCase() !== 'paid');
+      const actualRows = rows.filter(r => Number(r.emiNo) > 0);
+      const unpaid = actualRows.filter(r => String(r.status || 'Pending').toLowerCase() !== 'paid');
       const next = unpaid[0] || null;
-      const current = rows.filter(r => String(r.status || 'Pending').toLowerCase() === 'paid')
+      const current = actualRows.filter(r => String(r.status || 'Pending').toLowerCase() === 'paid')
         .reduce((m,r)=>Math.max(m, Number(r.emiNo)||0), Number(x.currentEMINo)||0);
       const selected = selectedEmiNo != null
-        ? (rows.find(r => Number(r.emiNo) === Number(selectedEmiNo)) || next || rows[0] || null)
-        : (next || rows[0] || null);
-      return { rows, unpaid, next, current, selected };
+        ? (rows.find(r => Number(r.emiNo) === Number(selectedEmiNo)) || next || actualRows[0] || rows[0] || null)
+        : (next || actualRows[0] || rows[0] || null);
+      return { rows, actualRows, unpaid, next, current, selected };
     }
 
     function renderEMILoans(){
@@ -1773,12 +1770,14 @@
         const displayRemaining=rows.length?stats.unpaid.length:Number(x.remainingEMIs||0);
         const displayCurrent=rows.length?stats.current:Number(x.currentEMINo||0);
         const displayNextDate=next?.date||x.nextEMIDate||'';
+         const completionDate=stats.actualRows?.length ? stats.actualRows[stats.actualRows.length-1].date : (x.endDate||'');
         const options=rows.length ? rows.map(r=>`<option value="${Number(r.emiNo)}" ${next&&Number(r.emiNo)===Number(next.emiNo)?'selected':''}>EMI #${Number(r.emiNo)} · ${emiDate(r.date)} · ${money(r.emi)} · ${String(r.status||'Pending')}</option>`).join('') : '<option value="">No EMI schedule</option>';
         return `<div class="emi-card" onclick="openEMIDetails('${escEMI(x.loanId)}')">
           <div class="emi-card-head"><div><div class="emi-loan-name">${escEMI(x.loanName||'Unnamed Loan')}</div><div class="emi-lender">${escEMI(x.lender||'')} · ${escEMI(x.borrower||'')}</div></div><span class="emi-status ${closed?'closed':''}">${escEMI(x.status||'Active')}</span></div>
-          <div class="emi-card-grid"><div><div class="emi-metric-label">EMI</div><div class="emi-metric-value">${money(x.emiAmount)}</div></div><div><div class="emi-metric-label">Outstanding</div><div class="emi-metric-value">${money(x.outstandingPrincipal)}</div></div><div><div class="emi-metric-label">Remaining</div><div class="emi-metric-value">${displayRemaining}</div></div><div><div class="emi-metric-label">Next EMI</div><div class="emi-metric-value">${emiDate(displayNextDate)}</div></div></div>
+          <div class="emi-card-grid"><div><div class="emi-metric-label">EMI</div><div class="emi-metric-value">${money(x.emiAmount)}</div></div><div><div class="emi-metric-label">Outstanding</div><div class="emi-metric-value">${money(x.outstandingPrincipal)}</div></div><div><div class="emi-metric-label">Completion</div><div class="emi-metric-value">${emiMonthYear(completionDate)}</div></div><div><div class="emi-metric-label">Next EMI</div><div class="emi-metric-value">${emiDate(displayNextDate)}</div></div></div>
           <div class="emi-next"><span>Current / last paid EMI</span><strong>#${displayCurrent}</strong></div>
           <select class="emi-card-select" aria-label="Select EMI for ${escEMI(x.loanName)}" onclick="event.stopPropagation()" onchange="openEMIDetails('${escEMI(x.loanId)}', this.value)">${options}</select>
+           ${next ? `<button type="button" class="emi-btn primary" style="width:100%;margin-top:9px" onclick="event.stopPropagation();markEMIPaid('${escEMI(x.loanId)}',${Number(next.emiNo)})">✓ Mark EMI #${Number(next.emiNo)} as Paid</button>` : ''}
         </div>`;
       }).join('');
     }
@@ -1865,11 +1864,12 @@
             return String(r.status||'Pending').toLowerCase()!=='paid' && !isNaN(d.getTime()) && d.getFullYear()===selectedMonth.getFullYear() && d.getMonth()===selectedMonth.getMonth();
           }).reduce((s,r)=>s+Number(r.emi||0),0)
         : (selectedMonth && selectedMonth.getFullYear()===new Date().getFullYear() && selectedMonth.getMonth()===new Date().getMonth() ? Number(x.emiAmount||0) : 0);
-      const finalDate=rows.length ? rows[rows.length-1].date : (x.endDate||'');
+      const finalDate=stats.actualRows?.length ? stats.actualRows[stats.actualRows.length-1].date : (x.endDate||'');
       const nextNo=next?Number(next.emiNo):Number(x.currentEMINo||0)+1;
-      const payButton=(x.status!=='Closed' && selected && String(selected.status).toLowerCase()!=='paid')
-        ? `<button class="emi-btn primary" onclick="markEMIPaid('${escEMI(x.loanId)}',${selectedNo})">Mark EMI #${selectedNo} Paid</button>`
-        : (x.status!=='Closed' && next ? `<button class="emi-btn primary" onclick="markEMIPaid('${escEMI(x.loanId)}',${nextNo})">Mark EMI #${nextNo} Paid</button>` : '');
+      const payTarget = selected && selectedNo > 0 && String(selected.status||'Pending').toLowerCase()!=='paid' ? selectedNo : nextNo;
+      const payButton=(x.status!=='Closed' && payTarget > 0 && next)
+         ? `<button class="emi-btn primary" onclick="markEMIPaid('${escEMI(x.loanId)}',${payTarget})">✓ Mark EMI #${payTarget} Paid</button>`
+         : '';
 
       const selector=rows.length ? `<label class="emi-selected-label">Selected EMI<select class="emi-card-select" onchange="openEMIDetails('${escEMI(x.loanId)}', this.value)">${rows.map(r=>`<option value="${Number(r.emiNo)}" ${Number(r.emiNo)===selectedNo?'selected':''}>EMI #${Number(r.emiNo)} · ${emiDate(r.date)} · ${money(r.emi)} · ${String(r.status||'Pending')}</option>`).join('')}</select></label>` : '';
       const scheduleHTML=rows.length ? rows.map(r=>{
@@ -2566,8 +2566,8 @@
 
       document.getElementById('topBalance').innerText = formatINR(totalExp);
       document.getElementById('secondaryBalance').innerText = formatINR(totalInc);
-      document.getElementById('ledgerKpiExpense').innerText = formatINR(totalExp);
-      document.getElementById('ledgerKpiIncome').innerText = formatINR(totalInc);
+      if(document.getElementById('ledgerKpiExpense')) document.getElementById('ledgerKpiExpense').innerText = formatINR(totalExp);
+      if(document.getElementById('ledgerKpiIncome')) document.getElementById('ledgerKpiIncome').innerText = formatINR(totalInc);
       document.getElementById('ledgerKpiSavings').innerText = formatINR(totalSavingsPeriod);
       document.getElementById('ledgerKpiRecords').innerText = periodRecords.length;
 
@@ -3199,7 +3199,7 @@
       if(event && event.target.id !== 'categoryModal') return; 
       const modal = document.getElementById('categoryModal');
       modal.classList.remove('show');
-      setTimeout(() => modal.style.display = 'none', 300);
+      setTimeout(() => { modal.style.display = 'none'; setEMIModalLock(false); }, 300);
     }
   
 /* ===== PRO FEATURES: CREDIT CARD TRACKER + FILTERED SEARCH ===== */
