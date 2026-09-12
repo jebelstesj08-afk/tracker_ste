@@ -965,7 +965,7 @@
 
 /* Fixed navigation never covers page content; detail sheets hide it. */
 .app-container{padding-bottom:145px}
-body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:none!important} body:has(.modal-overlay.show) .nav-wrapper{display:none!important}
+body.emi-modal-open .nav-wrapper{display:none!important}
 .modal-content{padding-bottom:calc(24px + env(safe-area-inset-bottom) + 18px)}
 #recordDetailModal .modal-content,#categoryModal .modal-content,#insightsRecordsModal .modal-content,#searchModal .modal-content{width:100%;max-width:393px;max-height:82vh;height:82vh;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 #recordDetailBody,#modalTransactionList,#insightsRecordsList,#searchResultsList{overflow:visible!important;max-height:none!important;touch-action:auto!important}
@@ -2705,7 +2705,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:none!i
             const sign = row.type === 'Income' ? '+' : '−';
             const subtitle = `${row.type} • ${row.cat}${row.paymentMethod ? ' • ' + row.paymentMethod : ''}`;
             html += `
-              <div class="ledger-record" data-tx-index="${periodRecords.indexOf(row)}" role="button" tabindex="0" aria-label="View transaction details" onclick="openLedgerRecordByIndex(${periodRecords.indexOf(row)})">
+              <div class="ledger-record" role="button" tabindex="0" aria-label="View transaction details" onclick='openRecordDetail(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
                 <div class="ledger-record-icon">${ledgerIconFor(row)}</div>
                 <div class="ledger-record-main">
                   <div class="ledger-record-title">${row.desc || row.cat}</div>
@@ -3254,16 +3254,6 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:none!i
       modal.classList.remove('show');
       document.body.classList.remove('ui-detail-open');
       setTimeout(() => modal.style.display = 'none', 250);
-    }
-
-    function openLedgerRecordByIndex(index) {
-      const rows = Array.isArray(window.__ledgerPeriodRecords) ? window.__ledgerPeriodRecords : [];
-      const tx = rows[Number(index)];
-      if (tx) {
-        openRecordDetail(tx);
-      } else {
-        console.warn('Ledger record not found:', index);
-      }
     }
 
     function openRecordDetail(tx) {
