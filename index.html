@@ -402,6 +402,28 @@
     #searchInput { margin-bottom: 15px; padding: 16px; font-size: 18px; font-weight: 600; border-radius: 16px; border: 1px solid var(--border-color); background: var(--card-bg); width: 100%; color: var(--text-main); }
 
 
+
+    /* ===== EMI LOANS MANAGER ===== */
+    .emi-page{max-width:1120px;margin:0 auto;padding-bottom:30px}
+    .emi-mode-switch{display:flex;gap:6px;padding:5px;margin:0 0 14px;background:var(--input-bg);border:1px solid var(--border-color);border-radius:16px;width:100%;box-sizing:border-box}
+    .emi-mode-btn{flex:1;border:0;background:transparent;color:var(--text-muted);padding:11px 8px;border-radius:12px;font-size:12px;font-weight:850;cursor:pointer}
+    .emi-mode-btn.active{background:var(--card-bg);color:var(--text-main);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    .emi-panel{display:none}.emi-panel.active{display:block}
+    .emi-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:12px}
+    .emi-summary-card{background:var(--card-bg);border:1px solid var(--border-color);border-radius:18px;padding:14px;cursor:pointer}
+    .emi-summary-label{font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:var(--text-muted);font-weight:850}
+    .emi-summary-value{font-size:22px;font-weight:900;margin-top:5px;letter-spacing:-.7px}
+    .emi-toolbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:12px 0}
+    .emi-toolbar-title{font-size:18px;font-weight:900}.emi-toolbar-sub{font-size:10px;color:var(--text-muted);margin-top:3px}
+    .emi-actions{display:flex;gap:7px}.emi-btn{border:0;border-radius:12px;padding:10px 13px;font-size:11px;font-weight:850;cursor:pointer;background:var(--card-bg);color:var(--text-main);border:1px solid var(--border-color)}
+    .emi-btn.primary{background:var(--text-main);color:var(--bg-color);border-color:var(--text-main)}
+    .emi-list{display:grid;gap:10px}.emi-card{background:var(--card-bg);border:1px solid var(--border-color);border-radius:22px;padding:16px;box-shadow:0 8px 22px rgba(0,0,0,.04);cursor:pointer}
+    .emi-card-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.emi-loan-name{font-size:16px;font-weight:900}.emi-lender{font-size:10px;color:var(--text-muted);margin-top:3px}.emi-status{padding:5px 8px;border-radius:999px;font-size:9px;font-weight:900;background:rgba(52,199,89,.12);color:#1f9d53}.emi-status.closed{background:var(--input-bg);color:var(--text-muted)}
+    .emi-card-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:15px}.emi-metric-label{font-size:9px;color:var(--text-muted);font-weight:750}.emi-metric-value{font-size:14px;font-weight:850;margin-top:3px}.emi-next{background:var(--input-bg);border-radius:14px;padding:10px;margin-top:12px;display:flex;justify-content:space-between;gap:10px;align-items:center}.emi-next strong{font-size:12px}.emi-next span{font-size:10px;color:var(--text-muted)}
+    .emi-empty{background:var(--card-bg);border:1px dashed var(--border-color);border-radius:20px;padding:35px 18px;text-align:center;color:var(--text-muted);font-size:12px}
+    .emi-modal-content{max-height:88vh}.emi-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.emi-form-grid label{font-size:11px;color:var(--text-muted);font-weight:750}.emi-form-grid input{margin-top:6px}.emi-full{grid-column:1/-1}.emi-schedule{margin-top:12px;border:1px solid var(--border-color);border-radius:15px;overflow:auto;max-height:48vh;-webkit-overflow-scrolling:touch}.emi-schedule-head,.emi-schedule-row{display:grid;grid-template-columns:52px 1.2fr .9fr .9fr .8fr;gap:7px;align-items:center;padding:9px 10px;font-size:10px}.emi-schedule-head{background:var(--input-bg);font-weight:850;color:var(--text-muted)}.emi-schedule-row{border-top:1px solid var(--border-color)}.emi-paid{color:var(--accent-green);font-weight:850}.emi-pending{color:var(--accent-red);font-weight:850}.emi-import-note{padding:10px 12px;border-radius:12px;background:var(--input-bg);font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.5}
+    @media(max-width:650px){.emi-summary-grid{grid-template-columns:1fr 1fr}.emi-card-grid{grid-template-columns:1fr 1fr}.emi-form-grid{grid-template-columns:1fr}.emi-full{grid-column:auto}.emi-schedule{overflow:auto}.emi-schedule-head,.emi-schedule-row{min-width:430px}.emi-toolbar{align-items:flex-start}.emi-actions{flex-wrap:wrap}}
+
     /* ===== FINAL INSIGHTS MAKEOVER ===== */
     #Insights { padding: 0 14px 170px !important; }
     .insights-page { max-width: 1120px; margin: 0 auto; }
@@ -909,43 +931,6 @@
   .nav-pill{width:min(92vw,360px)!important}
 }
 
-
-/* ===== EMI LOANS MANAGER ===== */
-.emi-mode-switch{display:flex;gap:8px;margin:0 0 14px;background:var(--input-bg);padding:5px;border-radius:14px}
-.emi-mode-btn{flex:1;border:0;background:transparent;color:var(--text-muted);padding:10px 12px;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer}
-.emi-mode-btn.active{background:var(--card-bg);color:var(--text-main);box-shadow:0 2px 8px rgba(0,0,0,.08)}
-.emi-panel{display:block}
-.emi-panel[hidden]{display:none!important}
-.emi-command{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
-.emi-command-title{font-size:22px;font-weight:900;letter-spacing:-.5px}
-.emi-command-sub{font-size:11px;color:var(--text-muted);font-weight:650;margin-top:3px}
-.emi-add-btn{border:0;background:var(--text-main);color:var(--card-bg);width:38px;height:38px;border-radius:12px;font-size:22px;cursor:pointer}
-.emi-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:14px}
-.emi-summary-card{background:var(--card-bg);border:1px solid var(--border-color);border-radius:16px;padding:13px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.03)}
-.emi-summary-card span{display:block;color:var(--text-muted);font-size:10px;font-weight:750}
-.emi-summary-card strong{display:block;margin-top:5px;font-size:18px;font-weight:900}
-.emi-loan-list{display:flex;flex-direction:column;gap:10px}
-.emi-loan-card{background:var(--card-bg);border:1px solid var(--border-color);border-radius:18px;padding:14px;box-shadow:0 2px 10px rgba(0,0,0,.03)}
-.emi-loan-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.emi-loan-name{font-size:14px;font-weight:900}
-.emi-loan-meta{font-size:10px;color:var(--text-muted);font-weight:650;margin-top:3px}
-.emi-status{font-size:9px;font-weight:900;padding:5px 8px;border-radius:999px;background:rgba(52,199,89,.12);color:#1f9d53}
-.emi-status.closed{background:rgba(142,142,147,.12);color:var(--text-muted)}
-.emi-card-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:13px}
-.emi-card-stat{background:var(--input-bg);border-radius:11px;padding:9px;min-width:0}
-.emi-card-stat span{display:block;color:var(--text-muted);font-size:8px;font-weight:700}
-.emi-card-stat strong{display:block;font-size:11px;font-weight:900;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.emi-next{margin-top:10px;padding:10px 11px;border-radius:12px;background:var(--input-bg);display:flex;justify-content:space-between;gap:10px;align-items:center}
-.emi-next-label{font-size:9px;color:var(--text-muted);font-weight:750}.emi-next-value{font-size:12px;font-weight:900}
-.emi-card-actions{display:flex;gap:7px;margin-top:11px}.emi-action-btn{flex:1;border:1px solid var(--border-color);background:var(--card-bg);color:var(--text-main);border-radius:10px;padding:9px;font-size:10px;font-weight:850;cursor:pointer}.emi-action-btn.primary{background:var(--text-main);color:var(--card-bg);border-color:var(--text-main)}
-.emi-empty{background:var(--card-bg);border:1px dashed var(--border-color);border-radius:18px;padding:28px 15px;text-align:center;color:var(--text-muted)}
-.emi-empty-icon{font-size:30px}.emi-empty-title{font-size:14px;font-weight:900;color:var(--text-main);margin-top:8px}.emi-empty-sub{font-size:10px;margin-top:4px}
-.emi-detail-list{display:flex;flex-direction:column;gap:7px}.emi-detail-row{display:flex;justify-content:space-between;gap:10px;padding:10px 11px;background:var(--input-bg);border-radius:11px;font-size:11px}.emi-detail-row span{color:var(--text-muted);font-weight:700}.emi-detail-row strong{font-weight:900;text-align:right}
-.emi-modal-card{width:min(480px,100%);background:var(--card-bg);border-radius:22px 22px 0 0;padding:17px;max-height:90vh;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;box-sizing:border-box;box-shadow:0 -10px 35px rgba(0,0,0,.18)}
-.emi-modal-card form,.emi-form{display:flex;flex-direction:column;gap:11px}.emi-form label{display:block;font-size:10px;font-weight:800;color:var(--text-muted)}.emi-form input,.emi-form select{width:100%;box-sizing:border-box;margin-top:5px;padding:11px 12px;border:1px solid var(--border-color);border-radius:11px;background:var(--input-bg);color:var(--text-main);font:inherit;outline:none}.emi-form input:focus,.emi-form select:focus{border-color:var(--text-main)}
-.emi-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.emi-save-btn{border:0;background:var(--text-main);color:var(--card-bg);padding:12px;border-radius:12px;font-weight:900;cursor:pointer;margin-top:3px}.emi-delete-btn{border:0;background:rgba(255,59,48,.1);color:var(--accent-red);padding:10px;border-radius:11px;font-weight:850;cursor:pointer}
-@media(max-width:520px){.emi-summary-grid{grid-template-columns:1fr 1fr}.emi-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.emi-form-grid{grid-template-columns:1fr}.emi-command-title{font-size:20px}}
-
 </style>
 </head>
 <body>
@@ -1226,25 +1211,38 @@
 
   <!-- TAB 4: INSIGHTS / ANALYTICS TAB -->
   <div id="Insights" class="tab-content">
-    <div class="emi-mode-switch" role="tablist" aria-label="Tab 4 view">
-      <button id="emiModeBtn" class="emi-mode-btn active" type="button" onclick="showEmiMode()">🏦 EMI Loans</button>
-      <button id="insightsModeBtn" class="emi-mode-btn" type="button" onclick="showInsightsMode()">📊 Insights</button>
+    <div class="emi-mode-switch" role="tablist" aria-label="Tab 4 sections">
+      <button id="emiModeBtn" class="emi-mode-btn active" onclick="setTab4Mode('emi')" type="button">🏦 EMI Loans</button>
+      <button id="insightsModeBtn" class="emi-mode-btn" onclick="setTab4Mode('insights')" type="button">📊 Insights</button>
     </div>
 
-    <section id="emiPanel" class="emi-panel">
-      <div class="emi-command">
-        <div><div class="emi-command-title">EMI Loans</div><div class="emi-command-sub">Maintain your existing and ongoing loans</div></div>
-        <button type="button" class="emi-add-btn" onclick="openEMIModal()" aria-label="Add EMI loan">＋</button>
-      </div>
-      <div class="emi-summary-grid">
-        <div class="emi-summary-card" onclick="openEMISummary('monthly')"><span>Monthly EMI</span><strong id="emiMonthlyTotal">₹0</strong></div>
-        <div class="emi-summary-card" onclick="openEMISummary('due')"><span>Due in 30 days</span><strong id="emiDueCount">0</strong></div>
-        <div class="emi-summary-card" onclick="openEMISummary('outstanding')"><span>Total outstanding</span><strong id="emiOutstandingTotal">₹0</strong></div>
-      </div>
-      <div id="emiLoanList" class="emi-loan-list"></div>
-    </section>
+    <div id="emiLoansPanel" class="emi-panel active">
+      <div class="emi-page">
+        <div class="insights-command">
+          <div class="insights-command-left">
+            <div class="insights-eyebrow">Loan management</div>
+            <div class="insights-title">EMI Loans</div>
+            <div class="insights-subtitle">Track existing loans, upcoming EMIs and remaining balances.</div>
+          </div>
+          <div class="insights-status" id="emiDataStatus"><span class="insights-status-dot"></span><span>Live data</span></div>
+        </div>
 
-    <div id="householdInsightPanel" class="insight-mode-panel" style="display:none;"> class="insight-mode-panel active">
+        <div class="emi-summary-grid">
+          <div class="emi-summary-card" onclick="openEMISummary('monthly')"><div class="emi-summary-label">Monthly EMI</div><div class="emi-summary-value" id="emiTotalMonthly">₹0</div></div>
+          <div class="emi-summary-card" onclick="openEMISummary('outstanding')"><div class="emi-summary-label">Outstanding</div><div class="emi-summary-value" id="emiTotalOutstanding">₹0</div></div>
+          <div class="emi-summary-card" onclick="openEMISummary('due')"><div class="emi-summary-label">Due This Month</div><div class="emi-summary-value" id="emiDueThisMonth">0</div></div>
+          <div class="emi-summary-card" onclick="openEMISummary('remaining')"><div class="emi-summary-label">Remaining EMIs</div><div class="emi-summary-value" id="emiTotalRemaining">0</div></div>
+        </div>
+
+        <div class="emi-toolbar">
+          <div><div class="emi-toolbar-title">Your Loans</div><div class="emi-toolbar-sub" id="emiLoanCount">0 active loans</div><div class="emi-toolbar-sub">Detailed installments are read from EMI_Schedule</div></div>
+          <div class="emi-actions"><button class="emi-btn" type="button" onclick="refreshEMILoans()">↻ Refresh</button><button class="emi-btn primary" type="button" onclick="openEMILoanModal()">＋ Add Loan</button></div>
+        </div>
+        <div id="emiLoansList" class="emi-list"></div>
+      </div>
+    </div>
+
+    <div id="householdInsightPanel" class="insight-mode-panel">
 
     <div class="insights-page">
       <div class="insights-command">
@@ -1514,56 +1512,6 @@
     </div>
  
 
-  <!-- EMI LOAN MODAL -->
-  <div id="emiLoanModal" class="recurring-modal" aria-hidden="true">
-    <div class="emi-modal-card" onclick="event.stopPropagation()">
-      <div class="recurring-modal-head">
-        <div><div class="insights-panel-title" id="emiModalTitle">Add EMI Loan</div><div class="insights-panel-sub">Enter the current position of an existing loan manually.</div></div>
-        <button type="button" class="recurring-close-btn" onclick="closeEMIModal()">×</button>
-      </div>
-      <div class="emi-form">
-        <input type="hidden" id="emiLoanId">
-        <label>Loan Name<input id="emiLoanName" type="text" placeholder="HDFC Personal Loan"></label>
-        <div class="emi-form-grid">
-          <label>Lender<input id="emiLender" type="text" placeholder="HDFC Bank"></label>
-          <label>Borrower<select id="emiBorrower"><option value="Jebel">Jebel</option><option value="Reshma">Reshma</option></select></label>
-        </div>
-        <label>Loan / Account Reference<input id="emiLoanAccount" type="text" placeholder="Optional"></label>
-        <div class="emi-form-grid">
-          <label>Original Loan Amount<input id="emiOriginalAmount" type="number" min="0" step="0.01" placeholder="500000"></label>
-          <label>Outstanding Principal<input id="emiOutstanding" type="number" min="0" step="0.01" placeholder="250000"></label>
-        </div>
-        <div class="emi-form-grid">
-          <label>EMI Amount<input id="emiAmount" type="number" min="0" step="0.01" placeholder="12450"></label>
-          <label>Interest Rate %<input id="emiInterest" type="number" min="0" step="0.01" placeholder="10.5"></label>
-        </div>
-        <div class="emi-form-grid">
-          <label>Total Tenure (months)<input id="emiTenure" type="number" min="1" step="1" placeholder="36"></label>
-          <label>Current / Last Paid EMI No.<input id="emiCurrentNo" type="number" min="0" step="1" placeholder="18"></label>
-        </div>
-        <div class="emi-form-grid">
-          <label>Next EMI Date<input id="emiNextDate" type="date"></label>
-          <label>Remaining EMIs<input id="emiRemaining" type="number" min="0" step="1" placeholder="18"></label>
-        </div>
-        <div class="emi-form-grid">
-          <label>Loan Start Date<input id="emiStartDate" type="date"></label>
-          <label>Final EMI Date<input id="emiEndDate" type="date"></label>
-        </div>
-        <label>Status<select id="emiStatus"><option value="Active">Active</option><option value="Closed">Closed</option></select></label>
-        <button type="button" class="emi-save-btn" onclick="saveEMILoan()">Save Loan</button>
-        <button type="button" id="emiDeleteBtn" class="emi-delete-btn" style="display:none" onclick="deleteEMILoanFromModal()">Delete Loan</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- EMI DETAILS MODAL -->
-  <div id="emiDetailsModal" class="recurring-modal" aria-hidden="true">
-    <div class="emi-modal-card" onclick="event.stopPropagation()">
-      <div class="recurring-modal-head"><div><div class="insights-panel-title" id="emiDetailsTitle">Loan Details</div><div class="insights-panel-sub" id="emiDetailsSub"></div></div><button type="button" class="recurring-close-btn" onclick="closeEMIDetails()">×</button></div>
-      <div id="emiDetailsBody" class="emi-detail-list" style="margin-top:12px"></div>
-    </div>
-  </div>
-
   <!-- SEARCH MODAL -->
   <div id="searchModal" class="modal-overlay" onclick="closeSearchModal(event)">
     <div class="modal-content search-panel" onclick="event.stopPropagation()">
@@ -1584,6 +1532,40 @@
       </div>
       <div class="search-result-head"><span id="searchResultCount">0 results</span><button type="button" onclick="clearSearchFilters()">Clear filters</button></div>
       <div id="searchResultsList" class="transaction-list"><div class="search-empty">Start typing or choose a filter.</div></div>
+    </div>
+  </div>
+
+  <!-- EMI LOAN MODAL -->
+  <div id="emiLoanModal" class="modal-overlay" onclick="closeEMILoanModal(event)">
+    <div class="modal-content emi-modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header"><h3 id="emiLoanModalTitle">Add EMI Loan</h3><button class="close-btn" type="button" onclick="closeEMILoanModal()">✕</button></div>
+      <div class="emi-form-grid">
+        <label>Loan name<input id="emiLoanName" placeholder="HDFC Personal Loan"></label>
+        <label>Lender<input id="emiLender" placeholder="HDFC Bank"></label>
+        <label>Loan account / reference<input id="emiLoanAccount" placeholder="Optional"></label>
+        <label>Borrower<select id="emiBorrower"><option>Jebel</option><option>Reshma</option></select></label>
+        <label>Original amount<input id="emiOriginalAmount" type="number" step="0.01" min="0"></label>
+        <label>Outstanding principal<input id="emiOutstanding" type="number" step="0.01" min="0"></label>
+        <label>EMI amount<input id="emiAmount" type="number" step="0.01" min="0"></label>
+        <label>Interest rate %<input id="emiInterestRate" type="number" step="0.01" min="0"></label>
+        <label>Total tenure (months)<input id="emiTenure" type="number" min="1"></label>
+        <label>Loan start date<input id="emiStartDate" type="date"></label>
+        <label>Current / last paid EMI no.<input id="emiCurrentNo" type="number" min="0" placeholder="For existing loan"></label>
+        <label>Next EMI date<input id="emiNextDate" type="date"></label>
+        <label>Remaining EMIs<input id="emiRemaining" type="number" min="0" placeholder="18"></label>
+        <label>Final EMI date<input id="emiEndDate" type="date"></label>
+        <label>Status<select id="emiStatus"><option>Active</option><option>Closed</option></select></label>
+        <div class="emi-import-note emi-full">Enter the current position of the loan manually. The detailed EMI schedule is maintained in the <b>EMI_Schedule</b> spreadsheet tab.</div>
+      </div>
+      <button id="emiSaveBtn" class="save-btn btn-income" type="button" onclick="saveEMILoan()">Save Loan</button>
+    </div>
+  </div>
+
+  <!-- EMI LOAN DETAILS MODAL -->
+  <div id="emiDetailsModal" class="modal-overlay" onclick="closeEMIDetails(event)">
+    <div class="modal-content emi-modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header"><h3 id="emiDetailsTitle">Loan Details</h3><button class="close-btn" type="button" onclick="closeEMIDetails()">✕</button></div>
+      <div id="emiDetailsBody"></div>
     </div>
   </div>
 
@@ -1632,6 +1614,211 @@
     let allTransactions = JSON.parse(localStorage.getItem('trackerData')) || [];
     let receiptBase64 = "";
     let currentTxType = 'Expense';
+
+    /* ===== EMI LOANS ===== */
+    const EMI_SHEET_ACTION = 'loans';
+    let emiLoans = [];
+    let emiSchedules = {};
+    let editingEMILoanId = null;
+
+    function getTab4Mode(){ return localStorage.getItem('tab4Mode') || 'emi'; }
+    function setTab4Mode(mode){
+      const emi = mode === 'emi';
+      document.getElementById('emiLoansPanel')?.classList.toggle('active', emi);
+      document.getElementById('householdInsightPanel')?.classList.toggle('active', !emi);
+      document.getElementById('emiModeBtn')?.classList.toggle('active', emi);
+      document.getElementById('insightsModeBtn')?.classList.toggle('active', !emi);
+      localStorage.setItem('tab4Mode', mode);
+      if(emi) refreshEMILoans(); else generateInsights();
+    }
+
+    function jsonHeaders(){ return { 'Content-Type':'text/plain;charset=utf-8' }; }
+    async function postEMI(payload){
+      const res = await fetch(URL, {method:'POST', headers:jsonHeaders(), body:JSON.stringify(payload)});
+      const data = await res.json();
+      if(data.result !== 'success') throw new Error(data.message || 'Server error');
+      return data;
+    }
+
+    function normalizeEMILoan(row){
+      if(Array.isArray(row)){
+        return {
+          loanId:String(row[0]||''), loanName:String(row[1]||''), lender:String(row[2]||''),
+          loanAccount:String(row[3]||''), borrower:String(row[4]||''), originalAmount:Number(row[5])||0,
+          outstandingPrincipal:Number(row[6])||0, emiAmount:Number(row[7])||0, interestRate:Number(row[8])||0,
+          tenureMonths:Number(row[9])||0, startDate:normaliseDateInput(row[10]), currentEMINo:Number(row[11])||0,
+          nextEMIDate:normaliseDateInput(row[12]), remainingEMIs:Number(row[13])||0,
+          endDate:normaliseDateInput(row[14]), status:String(row[15]||'Active'), scheduleJSON:String(row[16]||'[]'),
+          pdfName:String(row[17]||''), lastUpdated:String(row[18]||'')
+        };
+      }
+      return row || {};
+    }
+    function normaliseDateInput(v){
+      if(!v)return '';
+      if(/^\d{4}-\d{2}-\d{2}$/.test(String(v)))return String(v);
+      const d=new Date(v);
+      return isNaN(d.getTime())?'':d.toISOString().slice(0,10);
+    }
+    function parseScheduleJSON(v){ try { const x=typeof v==='string'?JSON.parse(v||'[]'):v; return Array.isArray(x)?x:[]; } catch(e){ return []; } }
+    function money(n){ return '₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0}); }
+    function emiDate(d){ if(!d)return '—'; const x=new Date(String(d).includes('T')?d:d+'T00:00:00'); return isNaN(x.getTime())?'—':x.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }
+    function escEMI(v){ return tab4Escape(v); }
+
+    async function refreshEMILoans(){
+      const status=document.getElementById('emiDataStatus');
+      if(status) status.innerHTML='<span class="insights-status-dot"></span><span>Syncing…</span>';
+      try{
+        const res=await fetch(URL+'?action='+EMI_SHEET_ACTION+'&t='+Date.now(), {cache:'no-store'});
+        const data=await res.json();
+        if(data.result!=='success') throw new Error(data.message||'Unable to load EMI loans');
+        emiLoans=(data.data||[]).slice(1).map(normalizeEMILoan).filter(x=>x.loanId && x.loanId !== 'LoanID');
+        emiSchedules={};
+        (data.schedules||[]).slice(1).forEach(r=>{
+          const x=normalizeEMISchedule(r);
+          if(!x.loanId)return;
+          if(!emiSchedules[x.loanId])emiSchedules[x.loanId]=[];
+          emiSchedules[x.loanId].push(x);
+        });
+        Object.keys(emiSchedules).forEach(k=>emiSchedules[k].sort((a,b)=>Number(a.emiNo)-Number(b.emiNo)));
+        localStorage.setItem('emiLoansCache',JSON.stringify(emiLoans));
+        localStorage.setItem('emiSchedulesCache',JSON.stringify(emiSchedules));
+        renderEMILoans();
+        if(status) status.innerHTML='<span class="insights-status-dot"></span><span>Live data</span>';
+      }catch(e){
+        try{ emiLoans=JSON.parse(localStorage.getItem('emiLoansCache')||'[]'); }catch(_){ emiLoans=[]; }
+        try{ emiSchedules=JSON.parse(localStorage.getItem('emiSchedulesCache')||'{}'); }catch(_){ emiSchedules={}; }
+        renderEMILoans();
+        if(status) status.innerHTML='<span class="insights-status-dot" style="background:var(--accent-red)"></span><span>Offline cache</span>';
+      }
+    }
+
+    function normalizeEMISchedule(row){
+      if(Array.isArray(row)){
+        return {loanId:String(row[0]||''),emiNo:Number(row[1])||0,date:normaliseDateInput(row[2]),emi:Number(row[3])||0,principal:Number(row[4])||0,interest:Number(row[5])||0,outstanding:Number(row[6])||0,status:String(row[7]||'Pending')};
+      }
+      return row||{};
+    }
+
+    function getScheduleForLoan(x){
+      const rows=emiSchedules[x.loanId];
+      if(Array.isArray(rows)&&rows.length)return rows;
+      return parseScheduleJSON(x.scheduleJSON);
+    }
+
+    function renderEMILoans(){
+      const active=emiLoans.filter(x=>String(x.status||'Active').toLowerCase()!=='closed');
+      const monthly=active.reduce((s,x)=>s+Number(x.emiAmount||0),0);
+      const outstanding=active.reduce((s,x)=>s+Number(x.outstandingPrincipal||0),0);
+      const now=new Date(); now.setHours(0,0,0,0);
+      const due=active.filter(x=>{const d=new Date((x.nextEMIDate||'')+'T00:00:00');return !isNaN(d.getTime())&&d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();}).length;
+      const remaining=active.reduce((s,x)=>s+Number(x.remainingEMIs||0),0);
+      const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+      set('emiTotalMonthly',money(monthly)); set('emiTotalOutstanding',money(outstanding)); set('emiDueThisMonth',String(due)); set('emiTotalRemaining',String(remaining));
+      set('emiLoanCount',active.length+' active loan'+(active.length===1?'':'s'));
+      const list=document.getElementById('emiLoansList'); if(!list)return;
+      if(!emiLoans.length){ list.innerHTML='<div class="emi-empty"><div style="font-size:28px;margin-bottom:8px">🏦</div>No EMI loans added yet.<br><br>Tap ＋ Add Loan to enter an existing or new loan.</div>'; return; }
+      list.innerHTML=emiLoans.slice().sort((a,b)=>String(a.nextEMIDate).localeCompare(String(b.nextEMIDate))).map(x=>{
+        const closed=String(x.status||'Active').toLowerCase()==='closed';
+        return `<div class="emi-card" onclick="openEMIDetails('${escEMI(x.loanId)}')">
+          <div class="emi-card-head"><div><div class="emi-loan-name">${escEMI(x.loanName||'Unnamed Loan')}</div><div class="emi-lender">${escEMI(x.lender||'')} · ${escEMI(x.borrower||'')}</div></div><span class="emi-status ${closed?'closed':''}">${escEMI(x.status||'Active')}</span></div>
+          <div class="emi-card-grid"><div><div class="emi-metric-label">EMI</div><div class="emi-metric-value">${money(x.emiAmount)}</div></div><div><div class="emi-metric-label">Outstanding</div><div class="emi-metric-value">${money(x.outstandingPrincipal)}</div></div><div><div class="emi-metric-label">Remaining</div><div class="emi-metric-value">${displayRemaining}</div></div><div><div class="emi-metric-label">Next EMI</div><div class="emi-metric-value">${emiDate(x.nextEMIDate)}</div></div></div>
+          <div class="emi-next"><span>Current / last paid EMI</span><strong>#${displayCurrent}</strong></div>
+        </div>`;
+      }).join('');
+    }
+
+    function openEMILoanModal(id){
+      editingEMILoanId=id||null;
+      document.getElementById('emiLoanModalTitle').textContent=id?'Edit EMI Loan':'Add EMI Loan';
+      ['emiLoanName','emiLender','emiLoanAccount','emiOriginalAmount','emiOutstanding','emiAmount','emiInterestRate','emiTenure','emiStartDate','emiCurrentNo','emiNextDate'].forEach(k=>{const e=document.getElementById(k);if(e)e.value='';});
+      document.getElementById('emiBorrower').value=document.getElementById('globalUserSelect')?.value==='Reshma'?'Reshma':'Jebel';
+      document.getElementById('emiStatus').value='Active';
+      if(id){
+        const x=emiLoans.find(a=>a.loanId===id); if(!x)return;
+        document.getElementById('emiLoanName').value=x.loanName||''; document.getElementById('emiLender').value=x.lender||''; document.getElementById('emiLoanAccount').value=x.loanAccount||''; document.getElementById('emiBorrower').value=x.borrower||'Jebel';
+        document.getElementById('emiOriginalAmount').value=x.originalAmount||''; document.getElementById('emiOutstanding').value=x.outstandingPrincipal||''; document.getElementById('emiAmount').value=x.emiAmount||''; document.getElementById('emiInterestRate').value=x.interestRate||'';
+        document.getElementById('emiTenure').value=x.tenureMonths||''; document.getElementById('emiStartDate').value=normaliseDateInput(x.startDate); document.getElementById('emiCurrentNo').value=x.currentEMINo||''; document.getElementById('emiNextDate').value=normaliseDateInput(x.nextEMIDate); document.getElementById('emiRemaining').value=x.remainingEMIs||''; document.getElementById('emiEndDate').value=normaliseDateInput(x.endDate); document.getElementById('emiStatus').value=x.status||'Active';
+      }
+      const m=document.getElementById('emiLoanModal');m.style.display='flex';setTimeout(()=>m.classList.add('show'),10);
+    }
+    function closeEMILoanModal(event){if(event&&event.target.id!=='emiLoanModal')return;const m=document.getElementById('emiLoanModal');if(!m)return;m.classList.remove('show');setTimeout(()=>m.style.display='none',250);}
+
+    async function saveEMILoan(){
+      const name=document.getElementById('emiLoanName').value.trim(), lender=document.getElementById('emiLender').value.trim();
+      if(!name||!lender){alert('Loan name and lender are required.');return;}
+      const btn=document.getElementById('emiSaveBtn');btn.classList.add('loading');
+      const loanId=editingEMILoanId||('LOAN-'+Date.now());
+      const currentNo=Number(document.getElementById('emiCurrentNo').value)||0;
+      const payload={action:editingEMILoanId?'updateLoan':'saveLoan',loan:{
+        loanId,loanName:name,lender,loanAccount:document.getElementById('emiLoanAccount').value.trim(),borrower:document.getElementById('emiBorrower').value,
+        originalAmount:Number(document.getElementById('emiOriginalAmount').value)||0,outstandingPrincipal:Number(document.getElementById('emiOutstanding').value)||0,
+        emiAmount:Number(document.getElementById('emiAmount').value)||0,interestRate:Number(document.getElementById('emiInterestRate').value)||0,
+        tenureMonths:Number(document.getElementById('emiTenure').value)||0,startDate:document.getElementById('emiStartDate').value||'',currentEMINo:currentNo,
+        nextEMIDate:document.getElementById('emiNextDate').value||'',remainingEMIs:Number(document.getElementById('emiRemaining')?.value)||0,
+        endDate:document.getElementById('emiEndDate')?.value||'',status:document.getElementById('emiStatus').value,lastUpdated:new Date().toISOString()
+      }};
+      // If the detailed schedule is already in EMI_Schedule, derive the current summary from it when possible.
+      const schedule=emiSchedules[loanId]||[];
+      if(schedule.length){
+        const next=schedule.find(r=>String(r.status).toLowerCase()!=='paid');
+        const paid=schedule.filter(r=>String(r.status).toLowerCase()==='paid');
+        payload.loan.currentEMINo=currentNo || (paid.length?Math.max.apply(null,paid.map(r=>Number(r.emiNo)||0)):0);
+        payload.loan.nextEMIDate=next ? next.date : payload.loan.nextEMIDate;
+        payload.loan.remainingEMIs=schedule.filter(r=>String(r.status).toLowerCase()!=='paid').length;
+        payload.loan.endDate=schedule[schedule.length-1].date || payload.loan.endDate;
+        if(next && !payload.loan.emiAmount) payload.loan.emiAmount=Number(next.emi)||0;
+      } else {
+        payload.loan.remainingEMIs=Number(document.getElementById('emiRemaining')?.value)||Math.max(0,payload.loan.tenureMonths-currentNo);
+      }
+      try{ await postEMI(payload); closeEMILoanModal(); await refreshEMILoans(); }catch(e){alert('Could not save loan: '+e.message);}finally{btn.classList.remove('loading');}
+    }
+
+    async function markEMIPaid(loanId,emiNo){
+      if(!confirm('Mark EMI #'+emiNo+' as paid?'))return;
+      try{
+        await postEMI({action:'markEMIPaid',loanId:String(loanId),emiNo:Number(emiNo)});
+        await refreshEMILoans();
+        openEMIDetails(loanId);
+      }catch(e){alert('Could not update EMI: '+e.message);}
+    }
+
+    async function deleteEMILoan(loanId){
+      if(!confirm('Delete this loan and its EMI schedule?'))return;
+      try{await postEMI({action:'deleteLoan',loanId:String(loanId)});await refreshEMILoans();closeEMIDetails();}catch(e){alert('Could not delete loan: '+e.message);}
+    }
+    function openEMIDetails(loanId){
+      const x=emiLoans.find(a=>String(a.loanId)===String(loanId));if(!x)return;
+      const rows=getScheduleForLoan(x), body=document.getElementById('emiDetailsBody');
+      const next=rows.find(r=>String(r.status).toLowerCase()!=='paid');
+      const nextNo=next?Number(next.emiNo):Number(x.currentEMINo||0)+1;
+      const displayNextDate=next?.date||x.nextEMIDate||'';
+      const displayRemaining=rows.length?rows.filter(r=>String(r.status).toLowerCase()!=='paid').length:Number(x.remainingEMIs||0);
+      const paidRows=rows.filter(r=>String(r.status).toLowerCase()==='paid');
+      const displayCurrent=rows.length?(paidRows.length?Math.max.apply(null,paidRows.map(r=>Number(r.emiNo)||0)):0):Number(x.currentEMINo||0);
+      const payButton = (x.status !== 'Closed' && next) ? `<button class="emi-btn primary" onclick="markEMIPaid('${escEMI(x.loanId)}',${nextNo})">Mark EMI #${nextNo} Paid</button>` : '';
+      body.innerHTML=`<div class="emi-form-grid">
+        <div><b>Lender</b><br>${escEMI(x.lender)}</div><div><b>Borrower</b><br>${escEMI(x.borrower)}</div>
+        <div><b>Loan account</b><br>${escEMI(x.loanAccount||'—')}</div><div><b>Original amount</b><br>${money(x.originalAmount)}</div>
+        <div><b>Outstanding</b><br>${money(x.outstandingPrincipal)}</div><div><b>EMI</b><br>${money(x.emiAmount)}</div>
+        <div><b>Interest rate</b><br>${x.interestRate||0}%</div><div><b>Tenure</b><br>${x.tenureMonths||0} months</div>
+        <div><b>Current / last paid EMI</b><br>#${displayCurrent}</div><div><b>Next EMI</b><br>${emiDate(displayNextDate)}</div>
+        <div><b>Remaining</b><br>${displayRemaining}</div><div><b>End date</b><br>${emiDate(x.endDate||(rows.length?rows[rows.length-1].date:''))}</div>
+      </div>
+      <div class="emi-actions" style="margin-top:15px"><button class="emi-btn" onclick="openEMILoanModal('${escEMI(x.loanId)}');closeEMIDetails()">Edit</button>${payButton}<button class="emi-btn" onclick="deleteEMILoan('${escEMI(x.loanId)}')">Delete</button></div>
+      <div class="emi-schedule"><div class="emi-schedule-head"><span>#</span><span>Date</span><span>EMI</span><span>Principal</span><span>Status</span></div>${rows.length?rows.map(r=>`<div class="emi-schedule-row"><span>${Number(r.emiNo)}</span><span>${emiDate(r.date)}</span><span>${money(r.emi)}</span><span>${money(r.principal)}</span><span class="${String(r.status).toLowerCase()==='paid'?'emi-paid':'emi-pending'}">${escEMI(r.status)}</span></div>`).join(''):'<div style="padding:14px;color:var(--text-muted);font-size:10px">No detailed schedule found in EMI_Schedule.</div>'}</div>`;
+      const m=document.getElementById('emiDetailsModal');m.style.display='flex';setTimeout(()=>m.classList.add('show'),10);
+    }
+    function closeEMIDetails(event){if(event&&event.target.id!=='emiDetailsModal')return;const m=document.getElementById('emiDetailsModal');if(!m)return;m.classList.remove('show');setTimeout(()=>m.style.display='none',250);}
+    function openEMISummary(kind){
+      const active=emiLoans.filter(x=>String(x.status||'Active').toLowerCase()!=='closed'); let title='', html='';
+      if(kind==='monthly'){title='Monthly EMI Breakdown';html=active.map(x=>`<div class="transaction-item" onclick="openEMIDetails('${escEMI(x.loanId)}')"><div class="tx-left"><div class="tx-desc">${escEMI(x.loanName)}</div><div class="tx-meta">${escEMI(x.lender)} · ${emiDate(x.nextEMIDate)}</div></div><div class="tx-amt">${money(x.emiAmount)}</div></div>`).join('')||'<div class="insight-empty">No active loans.</div>';}
+      if(kind==='outstanding'){title='Outstanding Loans';html=active.map(x=>`<div class="transaction-item" onclick="openEMIDetails('${escEMI(x.loanId)}')"><div class="tx-left"><div class="tx-desc">${escEMI(x.loanName)}</div><div class="tx-meta">${escEMI(x.lender)}</div></div><div class="tx-amt">${money(x.outstandingPrincipal)}</div></div>`).join('')||'<div class="insight-empty">No active loans.</div>';}
+      if(kind==='due'){title='EMIs Due This Month';const now=new Date();html=active.filter(x=>{const d=new Date((x.nextEMIDate||'')+'T00:00:00');return !isNaN(d.getTime())&&d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();}).map(x=>`<div class="transaction-item" onclick="openEMIDetails('${escEMI(x.loanId)}')"><div class="tx-left"><div class="tx-desc">${escEMI(x.loanName)}</div><div class="tx-meta">Due ${emiDate(x.nextEMIDate)}</div></div><div class="tx-amt">${money(x.emiAmount)}</div></div>`).join('')||'<div class="insight-empty">No EMI due this month.</div>';}
+      if(kind==='remaining'){title='Remaining EMIs';html=active.map(x=>`<div class="transaction-item" onclick="openEMIDetails('${escEMI(x.loanId)}')"><div class="tx-left"><div class="tx-desc">${escEMI(x.loanName)}</div><div class="tx-meta">${escEMI(x.lender)}</div></div><div class="tx-amt">${displayRemaining}</div></div>`).join('')||'<div class="insight-empty">No active loans.</div>';}
+      const m=document.getElementById('emiDetailsModal');document.getElementById('emiDetailsTitle').textContent=title;document.getElementById('emiDetailsBody').innerHTML=html;m.style.display='flex';setTimeout(()=>m.classList.add('show'),10);
+    }
+
 
     const bikesList = ['Hornet 2.0', 'Yamaha FZ', 'Dio'];
 
@@ -1725,6 +1912,7 @@
 
       calculateTopBalance();
       syncWithGoogle(false);
+      refreshEMILoans();
       calculateMileagePreview();
       renderCreditCards();
       populateSearchFilters();
@@ -1739,6 +1927,12 @@
     function applyGlobalUser(user) {
       document.getElementById('txUser').value = user;
       document.getElementById('fuelUser').value = user;
+      const emiBorrower = document.getElementById('emiBorrower');
+      if (emiBorrower && (user === 'Jebel' || user === 'Reshma')) emiBorrower.value = user;
+      const insightsUser = document.getElementById('insightsFilterUser');
+      if (insightsUser && (user === 'Jebel' || user === 'Reshma')) insightsUser.value = user;
+      const ledgerUser = document.getElementById('ledgerFilterUser');
+      if (ledgerUser && (user === 'Jebel' || user === 'Reshma')) ledgerUser.value = user;
     }
 
     function resetActiveTabFields() {
@@ -1941,8 +2135,7 @@
 
       if(tabName === 'Insights') {
         headerSection.style.display = "none";
-        showEmiMode();
-        loadEMILoans();
+        setTab4Mode(getTab4Mode());
       } else if(tabName === 'Ledger') {
         headerSection.style.display = "block";
         mainBalanceContainer.style.display = "block";
@@ -2808,29 +3001,6 @@
       setTimeout(() => modal.style.display = 'none', 300);
     }
 
-    function openSearchModal() {
-      document.getElementById('searchModal').style.display = 'flex';
-      setTimeout(() => document.getElementById('searchModal').classList.add('show'), 10);
-      document.getElementById('searchInput').focus();
-    }
-    function closeSearchModal(event) {
-      if(event && event.target.id !== 'searchModal') return; 
-      const modal = document.getElementById('searchModal');
-      modal.classList.remove('show');
-      setTimeout(() => modal.style.display = 'none', 300);
-    }
-
-    function performSearch() {
-      let query = document.getElementById('searchInput').value.toLowerCase();
-      let list = document.getElementById('searchResultsList');
-      if(query.length < 2) { list.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">Type at least 2 characters...</div>'; return; }
-
-      let results = [...allTransactions.slice(1)].filter(row => {
-        return row.some(cell => String(cell).toLowerCase().includes(query));
-      }).reverse();
-
-      renderTxList(list, results, true);
-    }
 
     function showCategoryDetails(categoryName) {
       try {
@@ -3147,7 +3317,7 @@ function showSpendingDay(day){
   var summary=document.getElementById('spendingCalendarSummary');
   if(summary)summary.textContent=new Date(y,m,day).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})+' · ₹'+Math.round(total).toLocaleString('en-IN')+' spent · '+count+' transaction'+(count===1?'':'s');
 }
-function initTab4Extras(){loadRecurringPayments();renderSpendingCalendar();showEmiMode();loadEMILoans();}
+function initTab4Extras(){loadRecurringPayments();renderSpendingCalendar();}
 </script>
 
 
