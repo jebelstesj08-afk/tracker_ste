@@ -2025,7 +2025,18 @@
 
       if(tabName === 'Insights') {
         headerSection.style.display = "none";
-        generateInsights();
+        // Fetch the latest Google Sheets data whenever Insights is opened.
+        // The manual Refresh button remains available as well.
+        syncWithGoogle(false).then(() => {
+          // syncWithGoogle updates allTransactions; render only after the fetch
+          // completes so Insights never shows the previous cached snapshot first.
+          if (document.getElementById('Insights').classList.contains('active-tab')) {
+            generateInsights();
+          }
+        }).catch(() => {
+          // syncWithGoogle already preserves local data on failure.
+          generateInsights();
+        });
       } else if(tabName === 'Ledger') {
         headerSection.style.display = "block";
         mainBalanceContainer.style.display = "block";
