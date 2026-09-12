@@ -10,6 +10,7 @@
   <meta name="apple-mobile-web-app-title" content="Tracker">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";}</script>
 
   <style>
     :root {
@@ -379,11 +380,9 @@
     
     #loadingIndicator { text-align: center; color: var(--text-muted); display: none; margin: 10px 0; font-size: 14px; font-weight: 500; }
 
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; opacity: 0; transition: opacity 0.3s ease; z-index: 2000; }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; opacity: 0; transition: opacity 0.3s ease; }
     .modal-overlay.show { display: flex; opacity: 1; }
     
-    #searchModal { z-index: 2200; }
-    #insightsRecordsModal { z-index: 2300; }
     #categoryModal { z-index: 2400; }
     #recordDetailModal { z-index: 3000; }
 
@@ -404,6 +403,28 @@
 
     #searchInput { margin-bottom: 15px; padding: 16px; font-size: 18px; font-weight: 600; border-radius: 16px; border: 1px solid var(--border-color); background: var(--card-bg); width: 100%; color: var(--text-main); }
 
+
+
+    /* ===== EMI LOANS MANAGER ===== */
+    .emi-page{max-width:1120px;margin:0 auto;padding-bottom:30px}
+    .emi-mode-switch{display:flex;gap:6px;padding:5px;margin:0 0 14px;background:var(--input-bg);border:1px solid var(--border-color);border-radius:16px;width:100%;box-sizing:border-box}
+    .emi-mode-btn{flex:1;border:0;background:transparent;color:var(--text-muted);padding:11px 8px;border-radius:12px;font-size:12px;font-weight:850;cursor:pointer}
+    .emi-mode-btn.active{background:var(--card-bg);color:var(--text-main);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    .emi-panel{display:none}.emi-panel.active{display:block}
+    .emi-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:12px}
+    .emi-summary-card{background:var(--card-bg);border:1px solid var(--border-color);border-radius:18px;padding:14px;cursor:pointer}
+    .emi-summary-label{font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:var(--text-muted);font-weight:850}
+    .emi-summary-value{font-size:22px;font-weight:900;margin-top:5px;letter-spacing:-.7px}
+    .emi-toolbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:12px 0}
+    .emi-toolbar-title{font-size:18px;font-weight:900}.emi-toolbar-sub{font-size:10px;color:var(--text-muted);margin-top:3px}
+    .emi-actions{display:flex;gap:7px}.emi-btn{border:0;border-radius:12px;padding:10px 13px;font-size:11px;font-weight:850;cursor:pointer;background:var(--card-bg);color:var(--text-main);border:1px solid var(--border-color)}
+    .emi-btn.primary{background:var(--text-main);color:var(--bg-color);border-color:var(--text-main)}
+    .emi-list{display:grid;gap:10px}.emi-card{background:var(--card-bg);border:1px solid var(--border-color);border-radius:22px;padding:16px;box-shadow:0 8px 22px rgba(0,0,0,.04);cursor:pointer}
+    .emi-card-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.emi-loan-name{font-size:16px;font-weight:900}.emi-lender{font-size:10px;color:var(--text-muted);margin-top:3px}.emi-status{padding:5px 8px;border-radius:999px;font-size:9px;font-weight:900;background:rgba(52,199,89,.12);color:#1f9d53}.emi-status.closed{background:var(--input-bg);color:var(--text-muted)}
+    .emi-card-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:15px}.emi-metric-label{font-size:9px;color:var(--text-muted);font-weight:750}.emi-metric-value{font-size:14px;font-weight:850;margin-top:3px}.emi-next{background:var(--input-bg);border-radius:14px;padding:10px;margin-top:12px;display:flex;justify-content:space-between;gap:10px;align-items:center}.emi-next strong{font-size:12px}.emi-next span{font-size:10px;color:var(--text-muted)}
+    .emi-empty{background:var(--card-bg);border:1px dashed var(--border-color);border-radius:20px;padding:35px 18px;text-align:center;color:var(--text-muted);font-size:12px}
+    .emi-modal-content{max-height:88vh}.emi-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.emi-form-grid label{font-size:11px;color:var(--text-muted);font-weight:750}.emi-form-grid input{margin-top:6px}.emi-full{grid-column:1/-1}.emi-schedule{margin-top:12px;border:1px solid var(--border-color);border-radius:15px;overflow:hidden}.emi-schedule-head,.emi-schedule-row{display:grid;grid-template-columns:52px 1.2fr .9fr .9fr .8fr;gap:7px;align-items:center;padding:9px 10px;font-size:10px}.emi-schedule-head{background:var(--input-bg);font-weight:850;color:var(--text-muted)}.emi-schedule-row{border-top:1px solid var(--border-color)}.emi-paid{color:var(--accent-green);font-weight:850}.emi-pending{color:var(--accent-red);font-weight:850}.emi-import-note{padding:10px 12px;border-radius:12px;background:var(--input-bg);font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.5}
+    @media(max-width:650px){.emi-summary-grid{grid-template-columns:1fr 1fr}.emi-card-grid{grid-template-columns:1fr 1fr}.emi-form-grid{grid-template-columns:1fr}.emi-full{grid-column:auto}.emi-schedule{overflow:auto}.emi-schedule-head,.emi-schedule-row{min-width:430px}.emi-toolbar{align-items:flex-start}.emi-actions{flex-wrap:wrap}}
 
     /* ===== FINAL INSIGHTS MAKEOVER ===== */
     #Insights { padding: 0 14px 170px !important; }
@@ -842,12 +863,6 @@
 
 /* ===== TAB 4 KPI RECORD POPUPS ===== */
 .insight-kpi-clickable{cursor:pointer;transition:transform .16s ease,box-shadow .16s ease}
-    .insight-summary-clickable{cursor:pointer;transition:transform .16s ease,box-shadow .16s ease;position:relative}
-    .insight-summary-clickable:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.07)}
-    .insight-summary-clickable:active{transform:scale(.992)}
-    .insight-summary-clickable:focus-visible{outline:2px solid var(--accent-blue);outline-offset:2px}
-    .insight-click-hint{font-size:8px;color:var(--text-muted);font-weight:750;margin-top:3px}
-
 .insight-kpi-clickable:active{transform:scale(.985)}
 .insight-kpi-clickable:focus-visible{outline:2px solid var(--accent-blue);outline-offset:2px}
 .insights-records-modal-content{min-height:auto;max-height:82vh;display:flex;flex-direction:column}
@@ -918,24 +933,16 @@
   .nav-pill{width:min(92vw,360px)!important}
 }
 
-
-/* Tab 4: EMI-first mode */
-.tab4-mode-switch{display:flex;gap:6px;padding:5px;background:var(--input-bg);border:1px solid var(--border-color);border-radius:16px;margin:0 0 12px}
-.tab4-mode-btn{flex:1;border:0;background:transparent;color:var(--text-muted);padding:11px 12px;border-radius:12px;font-size:12px;font-weight:850;cursor:pointer}
-.tab4-mode-btn.active{background:var(--card-bg);color:var(--text-main);box-shadow:0 4px 14px rgba(0,0,0,.07)}
-.tab4-mode-view{display:none}.tab4-mode-view.active{display:block}
-.emi-dashboard{max-width:1120px;margin:0 auto;padding-bottom:20px}.emi-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:4px 0 12px}.emi-title{font-size:24px;font-weight:950;letter-spacing:-1px}.emi-sub{font-size:10px;color:var(--text-muted);font-weight:650;margin-top:4px}.emi-add{border:0;border-radius:13px;background:var(--text-main);color:var(--card-bg);padding:10px 13px;font-weight:850;cursor:pointer;white-space:nowrap}.emi-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:12px}.emi-summary-card{padding:14px;border-radius:18px}.emi-summary-card span{display:block;font-size:9px;color:var(--text-muted);font-weight:750;text-transform:uppercase;letter-spacing:.4px}.emi-summary-card strong{display:block;font-size:19px;margin-top:6px;letter-spacing:-.5px}.emi-loans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.emi-card{border-radius:20px;padding:15px;position:relative}.emi-card-head{display:flex;justify-content:space-between;gap:10px}.emi-card-name{font-size:15px;font-weight:900}.emi-card-lender{font-size:9px;color:var(--text-muted);margin-top:3px;font-weight:700}.emi-badge{font-size:8px;font-weight:900;padding:6px 8px;border-radius:999px;background:var(--input-bg);white-space:nowrap}.emi-card-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:13px}.emi-metric span{display:block;font-size:8px;color:var(--text-muted);font-weight:700}.emi-metric strong{display:block;font-size:13px;margin-top:3px}.emi-actions{display:flex;gap:7px;margin-top:13px}.emi-actions button{flex:1;border:1px solid var(--border-color);background:var(--input-bg);color:var(--text-main);border-radius:11px;padding:9px;font-size:10px;font-weight:850;cursor:pointer}.emi-actions .danger{color:var(--accent-red)}.emi-empty{padding:28px 16px;text-align:center;border:1px dashed var(--border-color);border-radius:20px;color:var(--text-muted);font-size:11px;font-weight:700;grid-column:1/-1}.emi-modal{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:3000;display:none;align-items:flex-end;justify-content:center;padding:12px}.emi-modal.open{display:flex}.emi-modal-card{width:min(680px,100%);max-height:90vh;overflow:auto;background:var(--card-bg);border-radius:24px;padding:17px;box-shadow:0 24px 70px rgba(0,0,0,.28)}.emi-modal-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px}.emi-close{border:0;background:var(--input-bg);color:var(--text-main);width:34px;height:34px;border-radius:11px;font-size:18px;cursor:pointer}.emi-form{display:grid;grid-template-columns:1fr 1fr;gap:9px}.emi-form label{font-size:9px;color:var(--text-muted);font-weight:800}.emi-form input{margin-top:5px;padding:11px;font-size:13px}.emi-form .full{grid-column:1/-1}.emi-file{padding:11px;border:1px dashed var(--border-color);border-radius:13px;background:var(--input-bg);width:100%;margin-top:5px;font-size:11px}.emi-import-status{font-size:10px;color:var(--text-muted);line-height:1.45;padding:9px;border-radius:12px;background:var(--input-bg);margin-top:8px}.emi-schedule-preview{margin-top:10px;border:1px solid var(--border-color);border-radius:14px;overflow:auto;max-height:190px}.emi-schedule-preview table{width:100%;border-collapse:collapse;font-size:9px}.emi-schedule-preview th,.emi-schedule-preview td{padding:7px;border-bottom:1px solid var(--border-color);text-align:left;white-space:nowrap}.emi-save{width:100%;border:0;background:var(--text-main);color:var(--card-bg);border-radius:13px;padding:13px;margin-top:10px;font-weight:900;cursor:pointer}.emi-detail-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--border-color);font-size:10px}.emi-detail-row:last-child{border-bottom:0}.emi-detail-row span:first-child{color:var(--text-muted);font-weight:700}.emi-detail-row strong{text-align:right}@media(max-width:760px){.emi-summary{grid-template-columns:repeat(2,1fr)}.emi-loans{grid-template-columns:1fr}.emi-form{grid-template-columns:1fr}.emi-form .full{grid-column:auto}}
-
-  </style>
+</style>
 </head>
 <body>
 
 <div class="app-container">
 
   <div class="header">
-    <div style="display: flex; align-items: center; gap: 8px;">
-      <span style="font-size: 20px; font-weight: 700; color: var(--text-muted);">Hello,</span>
-      <select id="globalUserSelect" onchange="onGlobalUserChange()" style="padding: 4px 8px; border-radius: 10px; font-size: 20px; font-weight: 800; background: transparent; color: var(--text-main); border: none; outline: none; cursor: pointer; width: auto; display: inline-block;">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">Hello,</span>
+      <select id="globalUserSelect" onchange="onGlobalUserChange()" style="padding: 4px 8px; border-radius: 10px; font-size: 15px; font-weight: 700; background: transparent; color: var(--text-main); border: none; outline: none; cursor: pointer; width: auto; display: inline-block;">
         <option value="Jebel" style="background: var(--card-bg); color: var(--text-main);">Jebel</option>
         <option value="Reshma" style="background: var(--card-bg); color: var(--text-main);">Reshma</option>
       </select>
@@ -1206,23 +1213,38 @@
 
   <!-- TAB 4: INSIGHTS / ANALYTICS TAB -->
   <div id="Insights" class="tab-content">
-    <div class="tab4-mode-switch" role="tablist" aria-label="Tab 4 sections">
-      <button id="tab4ModeEmi" class="tab4-mode-btn active" type="button" onclick="setTab4Mode('emi')">🏦 EMI Loans</button>
-      <button id="tab4ModeInsights" class="tab4-mode-btn" type="button" onclick="setTab4Mode('insights')">📊 Insights</button>
+    <div class="emi-mode-switch" role="tablist" aria-label="Tab 4 sections">
+      <button id="emiModeBtn" class="emi-mode-btn active" onclick="setTab4Mode('emi')" type="button">🏦 EMI Loans</button>
+      <button id="insightsModeBtn" class="emi-mode-btn" onclick="setTab4Mode('insights')" type="button">📊 Insights</button>
     </div>
-    <div id="tab4EmiView" class="tab4-mode-view active">
-      <div class="emi-dashboard">
-        <div class="emi-head"><div><div class="emi-title">EMI Loans</div><div class="emi-sub">Existing and ongoing loans. Upload a payment schedule PDF to pre-fill details.</div></div><button type="button" class="emi-add" onclick="openEmiModal()">＋ Add Loan</button></div>
-        <div class="emi-summary">
-          <div class="insights-card emi-summary-card"><span>Monthly EMI</span><strong id="emiMonthlyTotal">₹0</strong></div>
-          <div class="insights-card emi-summary-card"><span>Outstanding</span><strong id="emiOutstandingTotal">₹0</strong></div>
-          <div class="insights-card emi-summary-card"><span>Due this month</span><strong id="emiDueCount">0</strong></div>
-          <div class="insights-card emi-summary-card"><span>Active loans</span><strong id="emiActiveCount">0</strong></div>
+
+    <div id="emiLoansPanel" class="emi-panel active">
+      <div class="emi-page">
+        <div class="insights-command">
+          <div class="insights-command-left">
+            <div class="insights-eyebrow">Loan management</div>
+            <div class="insights-title">EMI Loans</div>
+            <div class="insights-subtitle">Track existing loans, upcoming EMIs and remaining balances.</div>
+          </div>
+          <div class="insights-status" id="emiDataStatus"><span class="insights-status-dot"></span><span>Live data</span></div>
         </div>
-        <div id="emiLoansList" class="emi-loans"></div>
+
+        <div class="emi-summary-grid">
+          <div class="emi-summary-card" onclick="openEMISummary('monthly')"><div class="emi-summary-label">Monthly EMI</div><div class="emi-summary-value" id="emiTotalMonthly">₹0</div></div>
+          <div class="emi-summary-card" onclick="openEMISummary('outstanding')"><div class="emi-summary-label">Outstanding</div><div class="emi-summary-value" id="emiTotalOutstanding">₹0</div></div>
+          <div class="emi-summary-card" onclick="openEMISummary('due')"><div class="emi-summary-label">Due This Month</div><div class="emi-summary-value" id="emiDueThisMonth">0</div></div>
+          <div class="emi-summary-card" onclick="openEMISummary('remaining')"><div class="emi-summary-label">Remaining EMIs</div><div class="emi-summary-value" id="emiTotalRemaining">0</div></div>
+        </div>
+
+        <div class="emi-toolbar">
+          <div><div class="emi-toolbar-title">Your Loans</div><div class="emi-toolbar-sub" id="emiLoanCount">0 active loans</div></div>
+          <div class="emi-actions"><button class="emi-btn" type="button" onclick="refreshEMILoans()">↻ Refresh</button><button class="emi-btn primary" type="button" onclick="openEMILoanModal()">＋ Add Loan</button></div>
+        </div>
+        <div id="emiLoansList" class="emi-list"></div>
       </div>
     </div>
-    <div id="householdInsightPanel" class="insight-mode-panel active">
+
+    <div id="householdInsightPanel" class="insight-mode-panel">
 
     <div class="insights-page">
       <div class="insights-command">
@@ -1253,7 +1275,7 @@
       </div>
 
       <div class="insights-hero">
-        <div class="insights-card insights-balance insight-summary-clickable" onclick="openInsightBreakdown('balance')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightBreakdown('balance')}" aria-label="View balance breakdown">
+        <div class="insights-card insights-balance">
           <div class="insights-balance-head">
             <div>
               <div class="insights-balance-kicker">Overall balance</div>
@@ -1284,13 +1306,13 @@
           <div class="insight-kpi-sub" id="expenseKpiSub">0 records · Tap to view</div>
           <div class="insight-kpi-track track-red"><span id="expenseKpiFill"></span></div>
         </div>
-        <div class="insights-card insight-kpi insight-summary-clickable" onclick="openInsightBreakdown('savings')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightBreakdown('savings')}" aria-label="View savings breakdown">
+        <div class="insights-card insight-kpi">
           <div class="insight-kpi-title">Savings</div>
           <div class="insight-kpi-value" id="dashSavingsValue">0</div>
           <div class="insight-kpi-sub" id="dashSavingsRateChip">0% of income</div>
           <div class="insight-kpi-track track-purple"><span id="dashSavingsRangeFill"></span></div>
         </div>
-        <div class="insights-card insight-kpi insight-summary-clickable" onclick="openInsightBreakdown('cash')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightBreakdown('cash')}" aria-label="View cash left breakdown">
+        <div class="insights-card insight-kpi">
           <div class="insight-kpi-title">Cash left</div>
           <div class="insight-kpi-value" id="dashCashLeftKpi">0</div>
           <div class="insight-kpi-sub">Income − expenses</div>
@@ -1299,7 +1321,7 @@
       </div>
 
       <div class="insights-lower">
-        <div class="insights-card insights-panel insight-summary-clickable" onclick="openInsightBreakdown('categories')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightBreakdown('categories')}" aria-label="View spending category breakdown">
+        <div class="insights-card insights-panel">
           <div class="insights-panel-head">
             <div>
               <div class="insights-panel-title">Top spending categories</div>
@@ -1310,7 +1332,7 @@
           <div class="insight-category-list" id="insightsCategoryList"></div>
         </div>
 
-        <div class="insights-card insights-panel insight-summary-clickable" onclick="openInsightBreakdown('highest')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightBreakdown('highest')}" aria-label="View highest spending breakdown">
+        <div class="insights-card insights-panel">
           <div class="insights-panel-head">
             <div>
               <div class="insights-panel-title">Highest spend</div>
@@ -1332,7 +1354,7 @@
       </div>
 
       <div class="insight-feature-grid">
-        <div class="insight-feature-card insight-summary-clickable" onclick="openInsightBreakdown('health')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightBreakdown('health')}" aria-label="View financial health breakdown">
+        <div class="insight-feature-card">
           <div class="feature-head">
             <div><div class="feature-title">Financial health</div><div class="feature-sub">A quick score based on savings, spending and balance</div></div>
             <span class="insights-status" id="healthStatus">Good</span>
@@ -1348,7 +1370,7 @@
           </div>
         </div>
 
-        <div class="insight-feature-card insight-summary-clickable" onclick="openInsightBreakdown('budget')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightBreakdown('budget')}" aria-label="View budget breakdown">
+        <div class="insight-feature-card">
           <div class="feature-head"><div><div class="feature-title">Budget health</div><div class="feature-sub">Suggested household spending limit</div></div><span class="insight-small-sub" id="budgetStatus">Set your limit</span></div>
           <div class="budget-total" id="budgetSpent">0 / 0</div>
           <div class="budget-track"><span id="budgetFill"></span></div>
@@ -1358,18 +1380,18 @@
       </div>
 
       <div class="insight-feature-grid">
-        <div class="insight-feature-card insight-summary-clickable" onclick="openInsightBreakdown('payments')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightBreakdown('payments')}" aria-label="View payment method breakdown">
+        <div class="insight-feature-card">
           <div class="feature-head"><div><div class="feature-title">Payment methods</div><div class="feature-sub">Where your outgoing money is being paid</div></div><span class="insight-small-sub" id="paymentTotalLabel">0</span></div>
           <div class="payment-list" id="paymentAnalyticsList"></div>
         </div>
 
-        <div class="insight-feature-card insight-summary-clickable" onclick="openInsightBreakdown('smart')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightBreakdown('smart')}" aria-label="View smart insights details">
+        <div class="insight-feature-card">
           <div class="feature-head"><div><div class="feature-title">Smart insights</div><div class="feature-sub">Automatic observations from your transactions</div></div><span class="insight-small-sub">Live</span></div>
           <div class="smart-list" id="smartInsightsList"></div>
           <div class="month-compare">
-            <div class="compare-box insight-summary-clickable" onclick="event.stopPropagation();openInsightBreakdown('income')" role="button" tabindex="0" aria-label="View income breakdown"><div class="compare-label">Income</div><div class="compare-value" id="compareIncome">0</div><div class="compare-delta" id="compareIncomeDelta">—</div></div>
-            <div class="compare-box insight-summary-clickable" onclick="event.stopPropagation();openInsightBreakdown('expense')" role="button" tabindex="0" aria-label="View expense breakdown"><div class="compare-label">Expense</div><div class="compare-value" id="compareExpense">0</div><div class="compare-delta" id="compareExpenseDelta">—</div></div>
-            <div class="compare-box insight-summary-clickable" onclick="event.stopPropagation();openInsightBreakdown('savings')" role="button" tabindex="0" aria-label="View savings breakdown"><div class="compare-label">Savings</div><div class="compare-value" id="compareSavings">0</div><div class="compare-delta" id="compareSavingsDelta">—</div></div>
+            <div class="compare-box"><div class="compare-label">Income</div><div class="compare-value" id="compareIncome">0</div><div class="compare-delta" id="compareIncomeDelta">—</div></div>
+            <div class="compare-box"><div class="compare-label">Expense</div><div class="compare-value" id="compareExpense">0</div><div class="compare-delta" id="compareExpenseDelta">—</div></div>
+            <div class="compare-box"><div class="compare-label">Savings</div><div class="compare-value" id="compareSavings">0</div><div class="compare-delta" id="compareSavingsDelta">—</div></div>
           </div>
         </div>
       </div>
@@ -1492,24 +1514,6 @@
     </div>
  
 
-  </div>
-
-
-    <div id="emiModal" class="emi-modal" aria-hidden="true" onclick="closeEmiModal(event)">
-      <div class="emi-modal-card" onclick="event.stopPropagation()">
-        <div class="emi-modal-head"><div><div class="insights-panel-title">Add / Import EMI Loan</div><div class="insights-panel-sub">Upload the payment schedule PDF, review the detected details, then save.</div></div><button type="button" class="emi-close" onclick="closeEmiModal()">×</button></div>
-        <div class="emi-form">
-          <label>Loan name<input id="emiLoanName" type="text" placeholder="Personal Loan"></label><label>Lender<input id="emiLender" type="text" placeholder="HDFC Bank"></label>
-          <label>EMI amount<input id="emiAmount" type="number" min="0" step="0.01" placeholder="12450"></label><label>Next payment<input id="emiNextDate" type="date"></label>
-          <label>Outstanding balance<input id="emiOutstanding" type="number" min="0" step="0.01" placeholder="214850"></label><label>Remaining EMIs<input id="emiRemaining" type="number" min="0" step="1" placeholder="18"></label>
-          <label>Current EMI number<input id="emiCurrentNo" type="number" min="0" step="1" placeholder="19"></label><label>Total tenure<input id="emiTenure" type="number" min="0" step="1" placeholder="36"></label>
-          <label class="full">Payment schedule PDF<input id="emiPdf" class="emi-file" type="file" accept="application/pdf" onchange="importEmiPdf(event)"></label>
-        </div>
-        <div id="emiImportStatus" class="emi-import-status">No PDF imported yet.</div><div id="emiSchedulePreview" class="emi-schedule-preview" style="display:none"></div><button type="button" class="emi-save" onclick="saveEmiLoan()">Save Loan</button>
-      </div>
-    </div>
-
-  <!-- GLOBAL MODALS: kept outside all tab-content containers -->
   <!-- SEARCH MODAL -->
   <div id="searchModal" class="modal-overlay" onclick="closeSearchModal(event)">
     <div class="modal-content search-panel" onclick="event.stopPropagation()">
@@ -1530,6 +1534,40 @@
       </div>
       <div class="search-result-head"><span id="searchResultCount">0 results</span><button type="button" onclick="clearSearchFilters()">Clear filters</button></div>
       <div id="searchResultsList" class="transaction-list"><div class="search-empty">Start typing or choose a filter.</div></div>
+    </div>
+  </div>
+
+  <!-- EMI LOAN MODAL -->
+  <div id="emiLoanModal" class="modal-overlay" onclick="closeEMILoanModal(event)">
+    <div class="modal-content emi-modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header"><h3 id="emiLoanModalTitle">Add EMI Loan</h3><button class="close-btn" type="button" onclick="closeEMILoanModal()">✕</button></div>
+      <div class="emi-form-grid">
+        <label>Loan name<input id="emiLoanName" placeholder="HDFC Personal Loan"></label>
+        <label>Lender<input id="emiLender" placeholder="HDFC Bank"></label>
+        <label>Loan account / reference<input id="emiLoanAccount" placeholder="Optional"></label>
+        <label>Borrower<select id="emiBorrower"><option>Jebel</option><option>Reshma</option></select></label>
+        <label>Original amount<input id="emiOriginalAmount" type="number" step="0.01" min="0"></label>
+        <label>Outstanding principal<input id="emiOutstanding" type="number" step="0.01" min="0"></label>
+        <label>EMI amount<input id="emiAmount" type="number" step="0.01" min="0"></label>
+        <label>Interest rate %<input id="emiInterestRate" type="number" step="0.01" min="0"></label>
+        <label>Total tenure (months)<input id="emiTenure" type="number" min="1"></label>
+        <label>Loan start date<input id="emiStartDate" type="date"></label>
+        <label>Current / last paid EMI no.<input id="emiCurrentNo" type="number" min="0" placeholder="For existing loan"></label>
+        <label>Next EMI date<input id="emiNextDate" type="date"></label>
+        <label>Status<select id="emiStatus"><option>Active</option><option>Closed</option></select></label>
+        <label class="emi-full">Payment schedule PDF<input id="emiPdfFile" type="file" accept="application/pdf"></label>
+        <div id="emiImportStatus" class="emi-import-note emi-full">Upload a schedule PDF to extract installment rows. You can review and correct the loan position before saving.</div>
+        <div id="emiSchedulePreview" class="emi-full"></div>
+      </div>
+      <button id="emiSaveBtn" class="save-btn btn-income" type="button" onclick="saveEMILoan()">Save Loan</button>
+    </div>
+  </div>
+
+  <!-- EMI LOAN DETAILS MODAL -->
+  <div id="emiDetailsModal" class="modal-overlay" onclick="closeEMIDetails(event)">
+    <div class="modal-content emi-modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header"><h3 id="emiDetailsTitle">Loan Details</h3><button class="close-btn" type="button" onclick="closeEMIDetails()">✕</button></div>
+      <div id="emiDetailsBody"></div>
     </div>
   </div>
 
@@ -1572,21 +1610,6 @@
     </div>
   </div>
 
-  <!-- GENERIC INSIGHTS BREAKDOWN MODAL -->
-  <div id="insightBreakdownModal" class="modal-overlay" onclick="closeInsightBreakdown(event)">
-    <div class="modal-content insights-records-modal-content" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <div><h3 id="insightBreakdownTitle">Details</h3><div class="search-subtitle" id="insightBreakdownSubtitle">Breakdown for the selected Insights view</div></div>
-        <button class="close-btn" onclick="closeInsightBreakdown()">✕</button>
-      </div>
-      <div class="insights-records-summary">
-        <strong id="insightBreakdownTotal">₹0</strong>
-        <span id="insightBreakdownCount">0 records</span>
-      </div>
-      <div id="insightBreakdownBody" class="transaction-list"></div>
-    </div>
-  </div>
-
   <script>
     const URL = "https://script.google.com/macros/s/AKfycbwETC4mZPqfomKjCKmIjdXbFktmKBqplCREtHWgoBPET2OCfPcqlCt-QVFMRdFonFytfA/exec"; 
     
@@ -1594,165 +1617,174 @@
     let receiptBase64 = "";
     let currentTxType = 'Expense';
 
-    // Local-first sync state. Pending writes survive refreshes and temporary network failures.
-    const PENDING_SYNC_KEY = 'trackerPendingSync';
-    let pendingSync = loadPendingSync();
+    /* ===== EMI LOANS ===== */
+    const EMI_SHEET_ACTION = 'loans';
+    let emiLoans = [];
+    let editingEMILoanId = null;
+    let currentEMISchedule = [];
 
-    function loadPendingSync() {
-      try {
-        const value = JSON.parse(localStorage.getItem(PENDING_SYNC_KEY) || '[]');
-        return Array.isArray(value) ? value : [];
-      } catch (e) {
-        console.warn('Could not read pending sync queue:', e);
-        return [];
+    function getTab4Mode(){ return localStorage.getItem('tab4Mode') || 'emi'; }
+    function setTab4Mode(mode){
+      const emi = mode === 'emi';
+      document.getElementById('emiLoansPanel')?.classList.toggle('active', emi);
+      document.getElementById('householdInsightPanel')?.classList.toggle('active', !emi);
+      document.getElementById('emiModeBtn')?.classList.toggle('active', emi);
+      document.getElementById('insightsModeBtn')?.classList.toggle('active', !emi);
+      localStorage.setItem('tab4Mode', mode);
+      if(emi) refreshEMILoans(); else generateInsights();
+    }
+
+    function jsonHeaders(){ return { 'Content-Type':'text/plain;charset=utf-8' }; }
+    async function postEMI(payload){
+      const res = await fetch(URL, {method:'POST', headers:jsonHeaders(), body:JSON.stringify(payload)});
+      const data = await res.json();
+      if(data.result !== 'success') throw new Error(data.message || 'Server error');
+      return data;
+    }
+
+    function normalizeEMILoan(row){
+      if(Array.isArray(row)){
+        return { loanId:String(row[0]||''), loanName:String(row[1]||''), lender:String(row[2]||''), loanAccount:String(row[3]||''), borrower:String(row[4]||''), originalAmount:Number(row[5])||0, outstandingPrincipal:Number(row[6])||0, emiAmount:Number(row[7])||0, interestRate:Number(row[8])||0, tenureMonths:Number(row[9])||0, startDate:String(row[10]||''), currentEMINo:Number(row[11])||0, nextEMIDate:String(row[12]||''), remainingEMIs:Number(row[13])||0, endDate:String(row[14]||''), status:String(row[15]||'Active'), scheduleJSON:String(row[16]||'[]'), pdfName:String(row[17]||''), lastUpdated:String(row[18]||'') };
+      }
+      return row || {};
+    }
+    function parseScheduleJSON(v){ try { const x=typeof v==='string'?JSON.parse(v||'[]'):v; return Array.isArray(x)?x:[]; } catch(e){ return []; } }
+    function money(n){ return '₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0}); }
+    function emiDate(d){ if(!d)return '—'; const x=new Date(String(d).includes('T')?d:d+'T00:00:00'); return isNaN(x)?'—':x.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }
+    function escEMI(v){ return tab4Escape(v); }
+
+    async function refreshEMILoans(){
+      const status=document.getElementById('emiDataStatus');
+      if(status) status.innerHTML='<span class="insights-status-dot"></span><span>Syncing…</span>';
+      try{
+        const res=await fetch(URL+'?action='+EMI_SHEET_ACTION+'&t='+Date.now(), {cache:'no-store'});
+        const data=await res.json();
+        if(data.result!=='success') throw new Error(data.message||'Unable to load EMI loans');
+        emiLoans=(data.data||[]).map(normalizeEMILoan);
+        localStorage.setItem('emiLoansCache',JSON.stringify(emiLoans));
+        renderEMILoans();
+        if(status) status.innerHTML='<span class="insights-status-dot"></span><span>Live data</span>';
+      }catch(e){
+        try{ emiLoans=JSON.parse(localStorage.getItem('emiLoansCache')||'[]'); }catch(_){ emiLoans=[]; }
+        renderEMILoans();
+        if(status) status.innerHTML='<span class="insights-status-dot" style="background:var(--accent-red)"></span><span>Offline cache</span>';
       }
     }
 
-    function savePendingSync() {
-      localStorage.setItem(PENDING_SYNC_KEY, JSON.stringify(pendingSync));
+    function renderEMILoans(){
+      const active=emiLoans.filter(x=>String(x.status||'Active').toLowerCase()!=='closed');
+      const monthly=active.reduce((s,x)=>s+Number(x.emiAmount||0),0);
+      const outstanding=active.reduce((s,x)=>s+Number(x.outstandingPrincipal||0),0);
+      const now=new Date(), y=now.getFullYear(), m=now.getMonth();
+      const due=active.filter(x=>{const d=new Date((x.nextEMIDate||'')+'T00:00:00');return !isNaN(d)&&d.getFullYear()===y&&d.getMonth()===m;}).length;
+      const remaining=active.reduce((s,x)=>s+Number(x.remainingEMIs||0),0);
+      document.getElementById('emiTotalMonthly').textContent=money(monthly);
+      document.getElementById('emiTotalOutstanding').textContent=money(outstanding);
+      document.getElementById('emiDueThisMonth').textContent=String(due);
+      document.getElementById('emiTotalRemaining').textContent=String(remaining);
+      document.getElementById('emiLoanCount').textContent=active.length+' active loan'+(active.length===1?'':'s');
+      const list=document.getElementById('emiLoansList'); if(!list)return;
+      if(!emiLoans.length){ list.innerHTML='<div class="emi-empty"><div style="font-size:28px;margin-bottom:8px">🏦</div>No EMI loans added yet.<br><br>Upload a payment schedule PDF or add an existing loan manually.</div>'; return; }
+      list.innerHTML=emiLoans.slice().sort((a,b)=>String(a.nextEMIDate).localeCompare(String(b.nextEMIDate))).map(x=>{
+        const closed=String(x.status||'Active').toLowerCase()==='closed';
+        return `<div class="emi-card" onclick="openEMIDetails('${escEMI(x.loanId)}')">
+          <div class="emi-card-head"><div><div class="emi-loan-name">${escEMI(x.loanName||'Unnamed Loan')}</div><div class="emi-lender">${escEMI(x.lender||'')} · ${escEMI(x.borrower||'')}</div></div><span class="emi-status ${closed?'closed':''}">${escEMI(x.status||'Active')}</span></div>
+          <div class="emi-card-grid"><div><div class="emi-metric-label">EMI</div><div class="emi-metric-value">${money(x.emiAmount)}</div></div><div><div class="emi-metric-label">Outstanding</div><div class="emi-metric-value">${money(x.outstandingPrincipal)}</div></div><div><div class="emi-metric-label">Remaining</div><div class="emi-metric-value">${Number(x.remainingEMIs||0)}</div></div><div><div class="emi-metric-label">Next EMI</div><div class="emi-metric-value">${emiDate(x.nextEMIDate)}</div></div></div>
+          <div class="emi-next"><span>Current / last paid EMI</span><strong>#${Number(x.currentEMINo||0)}</strong></div>
+        </div>`;
+      }).join('');
     }
 
-    function getHeaderIndex(data = allTransactions) {
-      if (!Array.isArray(data)) return -1;
-      for (let i = 0; i < Math.min(data.length, 8); i++) {
-        const row = data[i];
-        if (!Array.isArray(row)) continue;
-        const joined = row.map(v => String(v == null ? '' : v).trim().toLowerCase()).join('|');
-        if (joined.includes('date') && joined.includes('type') && joined.includes('amount')) return i;
+    function openEMILoanModal(id){
+      editingEMILoanId=id||null; currentEMISchedule=[];
+      document.getElementById('emiLoanModalTitle').textContent=id?'Edit EMI Loan':'Add EMI Loan';
+      ['emiLoanName','emiLender','emiLoanAccount','emiOriginalAmount','emiOutstanding','emiAmount','emiInterestRate','emiTenure','emiStartDate','emiCurrentNo','emiNextDate'].forEach(k=>{const e=document.getElementById(k);if(e)e.value='';});
+      document.getElementById('emiBorrower').value=document.getElementById('globalUserSelect')?.value==='Reshma'?'Reshma':'Jebel';
+      document.getElementById('emiStatus').value='Active'; document.getElementById('emiPdfFile').value=''; document.getElementById('emiSchedulePreview').innerHTML='';
+      document.getElementById('emiImportStatus').textContent='Upload a schedule PDF to extract installment rows. You can review and correct the loan position before saving.';
+      if(id){
+        const x=emiLoans.find(a=>a.loanId===id); if(!x)return;
+        document.getElementById('emiLoanName').value=x.loanName; document.getElementById('emiLender').value=x.lender; document.getElementById('emiLoanAccount').value=x.loanAccount; document.getElementById('emiBorrower').value=x.borrower||'Jebel'; document.getElementById('emiOriginalAmount').value=x.originalAmount||''; document.getElementById('emiOutstanding').value=x.outstandingPrincipal||''; document.getElementById('emiAmount').value=x.emiAmount||''; document.getElementById('emiInterestRate').value=x.interestRate||''; document.getElementById('emiTenure').value=x.tenureMonths||''; document.getElementById('emiStartDate').value=x.startDate||''; document.getElementById('emiCurrentNo').value=x.currentEMINo||''; document.getElementById('emiNextDate').value=x.nextEMIDate||''; document.getElementById('emiStatus').value=x.status||'Active'; currentEMISchedule=parseScheduleJSON(x.scheduleJSON); renderEMISchedulePreview(currentEMISchedule); document.getElementById('emiImportStatus').textContent='Existing loan loaded. You can edit its current EMI position or replace the schedule.';
       }
-      return -1;
+      const m=document.getElementById('emiLoanModal');m.style.display='flex';setTimeout(()=>m.classList.add('show'),10);
     }
+    function closeEMILoanModal(event){if(event&&event.target.id!=='emiLoanModal')return;const m=document.getElementById('emiLoanModal');if(!m)return;m.classList.remove('show');setTimeout(()=>m.style.display='none',250);}
 
-    function getTransactionRows(data = allTransactions) {
-      if (!Array.isArray(data)) return [];
-      const headerIndex = getHeaderIndex(data);
-      return data.slice(headerIndex >= 0 ? headerIndex + 1 : 0).filter(Array.isArray);
+    async function importEMIPDF(file){
+      if(!file)return;
+      const note=document.getElementById('emiImportStatus'); note.textContent='Reading PDF schedule…';
+      try{
+        const pdfjs=window.pdfjsLib;
+        if(!pdfjs) throw new Error('PDF reader is still loading. Please try again.');
+        const buf=await file.arrayBuffer(); const pdf=await pdfjs.getDocument({data:buf}).promise; let text='';
+        for(let i=1;i<=pdf.numPages;i++){const page=await pdf.getPage(i);const content=await page.getTextContent();text+='\n'+content.items.map(it=>it.str).join(' ');}
+        const rows=parseEMIScheduleText(text); currentEMISchedule=rows;
+        if(rows.length){ autoFillEMIFromSchedule(rows); renderEMISchedulePreview(rows); note.textContent=`Extracted ${rows.length} installment rows from ${file.name}. Please review before saving.`; }
+        else { note.textContent='PDF text was read, but no clear EMI rows were detected. Enter the loan details manually and use the schedule editor after import.'; }
+      }catch(e){console.error(e);note.textContent='Could not read this PDF automatically. You can still enter the loan manually.';}
     }
-
-    function normalizeTransactionRow(row) {
-      if (!Array.isArray(row)) return null;
-      const date = parseRobustDate(row[0]);
-      if (!date || isNaN(date.getTime())) return null;
-      return {
-        raw: row,
-        date,
-        type: normalizeTransactionType(row[1]),
-        cat: String(row[2] == null ? '' : row[2]).trim(),
-        amount: parseTransactionAmount(row[3]),
-        desc: String(row[4] == null ? '' : row[4]).trim(),
-        user: String(row[5] == null ? '' : row[5]).trim(),
-        project: String(row[6] == null ? '' : row[6]).trim(),
-        receipt: String(row[7] == null ? '' : row[7]).trim(),
-        odo: parseTransactionAmount(row[8]),
-        litres: parseTransactionAmount(row[9]),
-        paymentMethod: String(row[10] == null ? '' : row[10]).trim()
-      };
-    }
-
-    function getNormalizedTransactions() {
-      return getTransactionRows().map(normalizeTransactionRow).filter(Boolean);
-    }
-
-    function transactionFingerprint(tx) {
-      const value = {
-        date: String(tx.date || ''),
-        type: normalizeTransactionType(tx.type),
-        category: String(tx.category || tx.cat || '').trim(),
-        amount: parseTransactionAmount(tx.amount),
-        description: String(tx.description || tx.desc || '').trim(),
-        user: String(tx.user || '').trim(),
-        project: String(tx.project || 'General').trim(),
-        image: String(tx.image || tx.receipt || '').trim(),
-        odometer: parseTransactionAmount(tx.odometer || tx.odo),
-        litres: parseTransactionAmount(tx.litres),
-        paymentMethod: String(tx.paymentMethod || '').trim()
-      };
-      return JSON.stringify(value);
-    }
-
-    function payloadToRow(payload) {
-      return [
-        payload.date, payload.type, payload.category, payload.amount,
-        payload.description, payload.user, payload.project || 'General',
-        payload.image || '', payload.odometer || '', payload.litres || '',
-        payload.paymentMethod || ''
-      ];
-    }
-
-    function ensureLocalHeader() {
-      if (!Array.isArray(allTransactions)) allTransactions = [];
-      if (getHeaderIndex(allTransactions) < 0) {
-        allTransactions.unshift([
-          'Date', 'Type', 'Category', 'Amount', 'Description', 'User',
-          'Project', 'Receipt', 'Odometer', 'Litres', 'Payment Method'
-        ]);
+    function parseEMIScheduleText(text){
+      const lines=text.split(/\n+/).map(x=>x.replace(/\s+/g,' ').trim()).filter(Boolean), out=[];
+      for(const line of lines){
+        const m=line.match(/(?:^|\s)(\d{1,3})\s+(\d{1,2}[\/-][A-Za-z0-9]{3,9}[\/-]\d{2,4}|[A-Za-z]{3,9}[\s-]+\d{1,2}[,\s-]+\d{2,4}|\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})\s+(?:₹|Rs\.?|INR)?\s*([\d,]+(?:\.\d+)?)\b/i);
+        if(!m)continue;
+        const emiNo=Number(m[1]), date=parseFlexibleEMIDate(m[2]), amount=Number(String(m[3]).replace(/,/g,''));
+        if(!isNaN(date.getTime())&&amount>0) out.push({emiNo,date:date.toISOString().slice(0,10),emi:amount,principal:0,interest:0,status:'Pending'});
       }
+      const seen=new Set(); return out.filter(x=>{if(seen.has(x.emiNo))return false;seen.add(x.emiNo);return true;}).sort((a,b)=>a.emiNo-b.emiNo);
+    }
+    function parseFlexibleEMIDate(s){
+      let d=new Date(s); if(!isNaN(d.getTime()))return d;
+      const m=s.match(/^(\d{1,2})[\/-]([A-Za-z]{3,9}|\d{1,2})[\/-]?(\d{2,4})$/); if(m){let day=+m[1], mon=isNaN(+m[2])?new Date('1 '+m[2]+' 2000').getMonth():+m[2]-1, yr=+m[3];if(yr<100)yr+=2000;return new Date(yr,mon,day);}
+      return new Date(NaN);
+    }
+    function autoFillEMIFromSchedule(rows){
+      if(!rows.length)return;
+      const paid=rows.filter(x=>String(x.status).toLowerCase()==='paid');
+      const next=rows.find(x=>String(x.status).toLowerCase()!=='paid')||rows[rows.length-1];
+      if(!document.getElementById('emiAmount').value)document.getElementById('emiAmount').value=next.emi||'';
+      if(!document.getElementById('emiCurrentNo').value)document.getElementById('emiCurrentNo').value=paid.length?Math.max(...paid.map(x=>x.emiNo)):Math.max(0,next.emiNo-1);
+      document.getElementById('emiNextDate').value=next.date||'';
+      if(!document.getElementById('emiTenure').value)document.getElementById('emiTenure').value=rows.length;
+      if(!document.getElementById('emiStartDate').value)document.getElementById('emiStartDate').value=rows[0].date||'';
+    }
+    function renderEMISchedulePreview(rows){
+      const box=document.getElementById('emiSchedulePreview');if(!box)return;if(!rows.length){box.innerHTML='';return;}
+      const visible=rows.slice(0,8); box.innerHTML='<div class="emi-schedule"><div class="emi-schedule-head"><span>#</span><span>Date</span><span>EMI</span><span>Principal</span><span>Status</span></div>'+visible.map(x=>`<div class="emi-schedule-row"><span>${x.emiNo}</span><span>${emiDate(x.date)}</span><span>${money(x.emi)}</span><span>${money(x.principal)}</span><span class="${String(x.status).toLowerCase()==='paid'?'emi-paid':'emi-pending'}">${escEMI(x.status)}</span></div>`).join('')+(rows.length>8?`<div style="padding:9px;text-align:center;color:var(--text-muted);font-size:10px">+ ${rows.length-8} more installments</div>`:'')+'</div>';
+    }
+    async function saveEMILoan(){
+      const name=document.getElementById('emiLoanName').value.trim(), lender=document.getElementById('emiLender').value.trim();
+      if(!name||!lender){alert('Loan name and lender are required.');return;}
+      const btn=document.getElementById('emiSaveBtn');btn.classList.add('loading');
+      const schedule=currentEMISchedule.length?currentEMISchedule:[];
+      const currentNo=Number(document.getElementById('emiCurrentNo').value)||0;
+      const nextDate=document.getElementById('emiNextDate').value||((schedule.find(x=>x.emiNo>currentNo)||{}).date||'');
+      const remaining=schedule.length?schedule.filter(x=>x.emiNo>currentNo&&String(x.status).toLowerCase()!=='paid').length:Math.max(0,(Number(document.getElementById('emiTenure').value)||0)-currentNo);
+      const payload={action:editingEMILoanId?'updateLoan':'saveLoan',loan:{loanId:editingEMILoanId||('LOAN-'+Date.now()),loanName:name,lender,loanAccount:document.getElementById('emiLoanAccount').value.trim(),borrower:document.getElementById('emiBorrower').value,originalAmount:Number(document.getElementById('emiOriginalAmount').value)||0,outstandingPrincipal:Number(document.getElementById('emiOutstanding').value)||0,emiAmount:Number(document.getElementById('emiAmount').value)||0,interestRate:Number(document.getElementById('emiInterestRate').value)||0,tenureMonths:Number(document.getElementById('emiTenure').value)||0,startDate:document.getElementById('emiStartDate').value||'',currentEMINo:currentNo,nextEMIDate:nextDate,remainingEMIs:remaining,endDate:schedule.length?schedule[schedule.length-1].date:'',status:document.getElementById('emiStatus').value,scheduleJSON:JSON.stringify(schedule),pdfName:document.getElementById('emiPdfFile').files[0]?.name||'',lastUpdated:new Date().toISOString()}};
+      try{ await postEMI(payload); closeEMILoanModal(); await refreshEMILoans(); }catch(e){alert('Could not save loan: '+e.message);}finally{btn.classList.remove('loading');}
+    }
+    async function markEMIPaid(loanId,emiNo){
+      const x=emiLoans.find(a=>a.loanId===loanId);if(!x)return;let rows=parseScheduleJSON(x.scheduleJSON);let row=rows.find(r=>Number(r.emiNo)===Number(emiNo));if(row)row.status='Paid';else rows.push({emiNo:Number(emiNo),date:x.nextEMIDate,emi:x.emiAmount,principal:0,interest:0,status:'Paid'});rows.sort((a,b)=>a.emiNo-b.emiNo);
+      const next=rows.find(r=>String(r.status).toLowerCase()!=='paid');const current=rows.filter(r=>String(r.status).toLowerCase()==='paid').reduce((mx,r)=>Math.max(mx,Number(r.emiNo)||0),0);
+      x.currentEMINo=current;x.nextEMIDate=next?next.date:'';x.remainingEMIs=rows.filter(r=>String(r.status).toLowerCase()!=='paid').length;x.scheduleJSON=JSON.stringify(rows);x.lastUpdated=new Date().toISOString();
+      try{await postEMI({action:'updateLoan',loan:x});await refreshEMILoans();openEMIDetails(loanId);}catch(e){alert('Could not update EMI: '+e.message);}
+    }
+    async function deleteEMILoan(loanId){if(!confirm('Delete this loan?'))return;try{await postEMI({action:'deleteLoan',loanId});await refreshEMILoans();closeEMIDetails();}catch(e){alert('Could not delete loan: '+e.message);}}
+    function openEMIDetails(loanId){
+      const x=emiLoans.find(a=>a.loanId===loanId);if(!x)return;const rows=parseScheduleJSON(x.scheduleJSON);const body=document.getElementById('emiDetailsBody');
+      body.innerHTML=`<div class="emi-form-grid"><div><b>Lender</b><br>${escEMI(x.lender)}</div><div><b>Borrower</b><br>${escEMI(x.borrower)}</div><div><b>Original amount</b><br>${money(x.originalAmount)}</div><div><b>Outstanding</b><br>${money(x.outstandingPrincipal)}</div><div><b>EMI</b><br>${money(x.emiAmount)}</div><div><b>Interest rate</b><br>${x.interestRate||0}%</div><div><b>Current / last paid EMI</b><br>#${x.currentEMINo||0}</div><div><b>Next EMI</b><br>${emiDate(x.nextEMIDate)}</div><div><b>Remaining</b><br>${x.remainingEMIs||0}</div><div><b>End date</b><br>${emiDate(x.endDate)}</div></div><div class="emi-actions" style="margin-top:15px"><button class="emi-btn" onclick="openEMILoanModal('${escEMI(x.loanId)}');closeEMIDetails()">Edit</button>${x.nextEMIDate?`<button class="emi-btn primary" onclick="markEMIPaid('${escEMI(x.loanId)}',${Number(x.currentEMINo||0)+1})">Mark EMI #${Number(x.currentEMINo||0)+1} Paid</button>`:''}<button class="emi-btn" onclick="deleteEMILoan('${escEMI(x.loanId)}')">Delete</button></div><div class="emi-schedule"><div class="emi-schedule-head"><span>#</span><span>Date</span><span>EMI</span><span>Principal</span><span>Status</span></div>${rows.length?rows.map(r=>`<div class="emi-schedule-row"><span>${r.emiNo}</span><span>${emiDate(r.date)}</span><span>${money(r.emi)}</span><span>${money(r.principal)}</span><span class="${String(r.status).toLowerCase()==='paid'?'emi-paid':'emi-pending'}">${escEMI(r.status)}</span></div>`).join(''):'<div style="padding:14px;color:var(--text-muted);font-size:10px">No detailed schedule stored.</div>'}</div>`;
+      const m=document.getElementById('emiDetailsModal');m.style.display='flex';setTimeout(()=>m.classList.add('show'),10);
+    }
+    function closeEMIDetails(event){if(event&&event.target.id!=='emiDetailsModal')return;const m=document.getElementById('emiDetailsModal');if(!m)return;m.classList.remove('show');setTimeout(()=>m.style.display='none',250);}
+    function openEMISummary(kind){
+      const active=emiLoans.filter(x=>String(x.status||'Active').toLowerCase()!=='closed'); let title='', html='';
+      if(kind==='monthly'){title='Monthly EMI Breakdown';html=active.map(x=>`<div class="transaction-item"><div class="tx-left"><div class="tx-desc">${escEMI(x.loanName)}</div><div class="tx-meta">${escEMI(x.lender)} · ${emiDate(x.nextEMIDate)}</div></div><div class="tx-amt">${money(x.emiAmount)}</div></div>`).join('')||'<div class="insight-empty">No active loans.</div>';}
+      if(kind==='outstanding'){title='Outstanding Loans';html=active.map(x=>`<div class="transaction-item" onclick="openEMIDetails('${escEMI(x.loanId)}')"><div class="tx-left"><div class="tx-desc">${escEMI(x.loanName)}</div><div class="tx-meta">${escEMI(x.lender)}</div></div><div class="tx-amt">${money(x.outstandingPrincipal)}</div></div>`).join('')||'<div class="insight-empty">No active loans.</div>';}
+      if(kind==='due'){title='EMIs Due This Month';const now=new Date();html=active.filter(x=>{const d=new Date((x.nextEMIDate||'')+'T00:00:00');return !isNaN(d)&&d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();}).map(x=>`<div class="transaction-item" onclick="openEMIDetails('${escEMI(x.loanId)}')"><div class="tx-left"><div class="tx-desc">${escEMI(x.loanName)}</div><div class="tx-meta">Due ${emiDate(x.nextEMIDate)}</div></div><div class="tx-amt">${money(x.emiAmount)}</div></div>`).join('')||'<div class="insight-empty">No EMI due this month.</div>';}
+      if(kind==='remaining'){title='Remaining EMIs';html=active.map(x=>`<div class="transaction-item" onclick="openEMIDetails('${escEMI(x.loanId)}')"><div class="tx-left"><div class="tx-desc">${escEMI(x.loanName)}</div><div class="tx-meta">${escEMI(x.lender)}</div></div><div class="tx-amt">${Number(x.remainingEMIs||0)}</div></div>`).join('')||'<div class="insight-empty">No active loans.</div>';}
+      const m=document.getElementById('emiDetailsModal');document.getElementById('emiDetailsTitle').textContent=title;document.getElementById('emiDetailsBody').innerHTML=html;m.style.display='flex';setTimeout(()=>m.classList.add('show'),10);
     }
 
-    function addLocalTransaction(payload) {
-      ensureLocalHeader();
-      allTransactions.push(payloadToRow(payload));
-      localStorage.setItem('trackerData', JSON.stringify(allTransactions));
-    }
-
-    function removePendingPayload(payload) {
-      const fp = transactionFingerprint(payload);
-      pendingSync = pendingSync.filter(item => transactionFingerprint(item) !== fp);
-      savePendingSync();
-    }
-
-    function mergeServerDataWithPending(serverData) {
-      const data = Array.isArray(serverData) ? serverData : [];
-      const headerIndex = getHeaderIndex(data);
-      const header = headerIndex >= 0 ? data[headerIndex] : [
-        'Date', 'Type', 'Category', 'Amount', 'Description', 'User',
-        'Project', 'Receipt', 'Odometer', 'Litres', 'Payment Method'
-      ];
-      const serverRows = data.filter((row, index) => Array.isArray(row) && index !== headerIndex);
-      const serverFingerprints = new Set(
-        serverRows.map(row => transactionFingerprint({
-          date: row[0], type: row[1], category: row[2], amount: row[3],
-          description: row[4], user: row[5], project: row[6], image: row[7],
-          odometer: row[8], litres: row[9], paymentMethod: row[10]
-        }))
-      );
-
-      const stillPending = [];
-      const pendingRows = [];
-      pendingSync.forEach(payload => {
-        if (serverFingerprints.has(transactionFingerprint(payload))) return;
-        stillPending.push(payload);
-        pendingRows.push(payloadToRow(payload));
-      });
-
-      pendingSync = stillPending;
-      savePendingSync();
-      return [header, ...serverRows, ...pendingRows];
-    }
-
-    function renderAfterDataChange() {
-      try { renderRecurringPayments(); renderSpendingCalendar(); } catch (e) { console.warn('Tab 4 refresh failed:', e); }
-      try {
-        if (document.getElementById('Ledger').classList.contains('active-tab')) generateLedger();
-        if (document.getElementById('Insights').classList.contains('active-tab')) generateInsights();
-        if (!document.getElementById('Ledger').classList.contains('active-tab') && !document.getElementById('Insights').classList.contains('active-tab')) calculateTopBalance();
-        populateSearchFilters();
-        renderCreditCards();
-      } catch (e) { console.error('Render after data change failed:', e); }
-    }
-
-    function updateSyncIndicator(text, isError = false) {
-      const el = document.getElementById('ledgerLoadingIndicator');
-      if (!el) return;
-      el.textContent = text;
-      el.style.color = isError ? 'var(--accent-red)' : 'var(--text-muted)';
-      el.style.display = 'block';
-      clearTimeout(updateSyncIndicator.timer);
-      updateSyncIndicator.timer = setTimeout(() => {
-        el.style.display = 'none';
-        el.style.color = 'var(--text-muted)';
-      }, isError ? 2200 : 1000);
-    }
 
     const bikesList = ['Hornet 2.0', 'Yamaha FZ', 'Dio'];
 
@@ -1846,6 +1878,7 @@
 
       calculateTopBalance();
       syncWithGoogle(false);
+      refreshEMILoans();
       calculateMileagePreview();
       renderCreditCards();
       populateSearchFilters();
@@ -1858,20 +1891,14 @@
     }
 
     function applyGlobalUser(user) {
-      const txUser = document.getElementById('txUser');
-      const fuelUser = document.getElementById('fuelUser');
-      const ledgerUser = document.getElementById('ledgerFilterUser');
+      document.getElementById('txUser').value = user;
+      document.getElementById('fuelUser').value = user;
+      const emiBorrower = document.getElementById('emiBorrower');
+      if (emiBorrower && (user === 'Jebel' || user === 'Reshma')) emiBorrower.value = user;
       const insightsUser = document.getElementById('insightsFilterUser');
-
-      if (txUser) txUser.value = user;
-      if (fuelUser) fuelUser.value = user;
-      if (ledgerUser) ledgerUser.value = user;
-      if (insightsUser) insightsUser.value = user;
-
-      // Refresh the active views so the selected person is reflected immediately.
-      const activeTab = document.querySelector('.tab-content.active-tab');
-      if (activeTab?.id === 'Ledger') generateLedger();
-      if (activeTab?.id === 'Insights') generateInsights();
+      if (insightsUser && (user === 'Jebel' || user === 'Reshma')) insightsUser.value = user;
+      const ledgerUser = document.getElementById('ledgerFilterUser');
+      if (ledgerUser && (user === 'Jebel' || user === 'Reshma')) ledgerUser.value = user;
     }
 
     function resetActiveTabFields() {
@@ -1959,11 +1986,20 @@
       }
     }
 
-        function getLastServiceOdo(vehicleName) {
-      const txs = getNormalizedTransactions()
-        .filter(tx => tx.type === 'Service' && tx.cat === vehicleName && tx.odo > 0)
-        .sort((a, b) => b.date - a.date);
-      return txs.length ? txs[0].odo : null;
+    function getLastServiceOdo(vehicleName) {
+      let lastOdo = null;
+      for(let i = allTransactions.length - 1; i >= 1; i--) {
+        let type = String(allTransactions[i][1]).trim();
+        let cat = String(allTransactions[i][2]).trim();
+        if(type === 'Service' && cat === vehicleName) {
+          let odo = parseFloat(allTransactions[i][8]) || 0;
+          if(odo > 0) {
+            lastOdo = odo;
+            break;
+          }
+        }
+      }
+      return lastOdo;
     }
 
     function calculateMileagePreview() {
@@ -2065,18 +2101,7 @@
 
       if(tabName === 'Insights') {
         headerSection.style.display = "none";
-        // Fetch the latest Google Sheets data whenever Insights is opened.
-        // The manual Refresh button remains available as well.
-        syncWithGoogle(false).then(() => {
-          // syncWithGoogle updates allTransactions; render only after the fetch
-          // completes so Insights never shows the previous cached snapshot first.
-          if (document.getElementById('Insights').classList.contains('active-tab')) {
-            generateInsights();
-          }
-        }).catch(() => {
-          // syncWithGoogle already preserves local data on failure.
-          generateInsights();
-        });
+        setTab4Mode(getTab4Mode());
       } else if(tabName === 'Ledger') {
         headerSection.style.display = "block";
         mainBalanceContainer.style.display = "block";
@@ -2128,15 +2153,16 @@
       return d;
     }
 
-        function calculateTopBalance() {
-      let totalInc = 0, totalExp = 0, totalSav = 0;
-      getNormalizedTransactions().forEach(tx => {
-        if (tx.type === 'Income') totalInc += tx.amount;
-        else if (tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') totalExp += tx.amount;
-        else if (tx.type === 'Savings') totalSav += tx.amount;
-      });
-      const el = document.getElementById('topBalance');
-      if (el) el.innerText = formatINR(totalInc - totalExp - totalSav);
+    function calculateTopBalance() {
+      let totalInc = 0; let totalExp = 0; let totalSav = 0;
+      for(let i = 1; i < allTransactions.length; i++) {
+        let type = String(allTransactions[i][1]).trim();
+        let amount = parseFloat(allTransactions[i][3]) || 0;
+        if(type === 'Income') totalInc += amount;
+        if(type === 'Expense' || type === 'Fuel' || type === 'Service') totalExp += amount;
+        if(type === 'Savings') totalSav += amount;
+      }
+      document.getElementById('topBalance').innerText = formatINR(totalInc - totalExp - totalSav);
     }
 
     function updateCameraBtn() {
@@ -2145,79 +2171,41 @@
         document.getElementById('cameraIconSpan').innerText = "✅ Attached";
         const reader = new FileReader();
         reader.onload = function(e) { receiptBase64 = e.target.result; };
-        reader.onerror = function() { receiptBase64 = ''; document.getElementById('cameraIconSpan').innerText = '⚠️ Attach failed'; };
         reader.readAsDataURL(file);
       }
     }
 
-        async function executeSave(payload, btnId) {
-      const amount = parseTransactionAmount(payload.amount);
-      if (!payload.date || amount <= 0 || !String(payload.category || '').trim()) {
-        alert('Date, Amount, and Category/Source/Savings Type are required.');
-        return;
-      }
+    function executeSave(payload, btnId) {
+      if(!payload.amount || !payload.category || !payload.date) return alert("Date, Amount, and Category/Source/Savings Type are required.");
 
       const btn = document.getElementById(btnId);
-      if (!btn) return;
       btn.classList.add('loading');
-      const originalText = btn.innerText;
 
-      const normalizedPayload = {
-        ...payload,
-        amount,
-        date: String(payload.date),
-        category: String(payload.category).trim(),
-        description: String(payload.description || '').trim(),
-        user: String(payload.user || 'Jebel').trim(),
-        project: String(payload.project || 'General').trim(),
-        image: payload.image || '',
-        odometer: payload.odometer || '',
-        litres: payload.litres || '',
-        paymentMethod: String(payload.paymentMethod || '').trim(),
-        clientId: payload.clientId || (crypto.randomUUID ? crypto.randomUUID() : 'client-' + Date.now() + '-' + Math.random().toString(36).slice(2))
-      };
-
-      // Always save locally first so a network problem cannot erase the user's entry.
-      addLocalTransaction(normalizedPayload);
-      pendingSync.push(normalizedPayload);
-      savePendingSync();
-      renderAfterDataChange();
-
-      try {
-        const res = await fetch(URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(normalizedPayload)
-        });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-
-        // Apps Script normally returns JSON. If it returns another success payload,
-        // the write may still have succeeded, so only the HTTP status is required here.
-        removePendingPayload(normalizedPayload);
-        btn.classList.remove('loading');
-        btn.innerText = 'Done ✓';
-        btn.style.backgroundColor = 'var(--accent-green)';
-        btn.style.color = '#ffffff';
-        setTimeout(() => {
-          btn.innerText = originalText;
-          btn.style.backgroundColor = '';
-          btn.style.color = '';
-        }, 1400);
-        updateSyncIndicator('Saved & synced ✓');
-        syncWithGoogle(false);
-      } catch (err) {
-        console.error('Google Sheets save failed:', err);
-        btn.classList.remove('loading');
-        btn.innerText = 'Saved offline';
-        btn.style.backgroundColor = 'var(--accent-blue)';
-        btn.style.color = '#ffffff';
-        updateSyncIndicator('Saved locally • waiting to sync', true);
-        setTimeout(() => {
-          btn.innerText = originalText;
-          btn.style.backgroundColor = '';
-          btn.style.color = '';
-        }, 1800);
+      if(allTransactions.length === 0) {
+        allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres", "Payment Method"]);
       }
+      
+      allTransactions.push([payload.date, payload.type, payload.category, payload.amount, payload.description, payload.user, payload.project, payload.image, payload.odometer, payload.litres, payload.paymentMethod]);
+      localStorage.setItem('trackerData', JSON.stringify(allTransactions));
+      calculateTopBalance();
+
+      fetch(URL, {
+        method: 'POST',
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      }).then(res => res.json()).then(() => {
+        btn.classList.remove('loading');
+        btn.innerText = "Done ✓";
+        btn.style.backgroundColor = "var(--accent-green)";
+        btn.style.color = "#ffffff";
+        setTimeout(() => location.reload(), 800);
+      }).catch(() => {
+        btn.classList.remove('loading');
+        btn.innerText = "Done ✓";
+        btn.style.backgroundColor = "var(--accent-green)";
+        btn.style.color = "#ffffff";
+        setTimeout(() => location.reload(), 800);
+      });
     }
 
     function saveUnifiedData() {
@@ -2256,79 +2244,73 @@
 
     function forceSync() { syncWithGoogle(true); }
 
-    window.addEventListener('online', () => {
-      if (pendingSync.length) syncWithGoogle(true);
-    });
-
-    // Retry queued writes periodically, but never more often than once per minute.
-    setInterval(() => {
-      if (navigator.onLine && pendingSync.length) syncWithGoogle(false);
-    }, 60000);
-
     async function syncWithGoogle(showLoading = false) {
-      if (showLoading) updateSyncIndicator('Syncing data…');
+      const loading = document.getElementById('ledgerLoadingIndicator');
+      if(showLoading && loading) {
+        loading.textContent = 'Syncing data…';
+        loading.style.display = 'block';
+      }
 
       try {
+        // Cache-bust the GET so the ledger does not receive an old cached response.
         const syncUrl = URL + (URL.includes('?') ? '&' : '?') + '_ts=' + Date.now();
-        const response = await fetch(syncUrl, { method: 'GET', cache: 'no-store', redirect: 'follow' });
-        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const response = await fetch(syncUrl, {
+          method: 'GET',
+          cache: 'no-store',
+          redirect: 'follow'
+        });
 
+        if(!response.ok) {
+          throw new Error('HTTP ' + response.status);
+        }
+
+        const contentType = response.headers.get('content-type') || '';
         const raw = await response.text();
         let data;
-        try { data = JSON.parse(raw); }
-        catch (e) { throw new Error('Google Sheets returned a non-JSON response'); }
-        if (!Array.isArray(data)) throw new Error('Unexpected Google Sheets response');
 
-        // Never discard locally queued records. Keep them visible until the server
-        // confirms the same transaction exists.
-        allTransactions = mergeServerDataWithPending(data);
-        localStorage.setItem('trackerData', JSON.stringify(allTransactions));
-        renderAfterDataChange();
-
-        if (pendingSync.length) {
-          await flushPendingSync();
-          if (!pendingSync.length) {
-            // Refresh once after queued writes complete so the UI reflects server data.
-            const refreshUrl = URL + (URL.includes('?') ? '&' : '?') + '_ts=' + Date.now();
-            const refresh = await fetch(refreshUrl, { method: 'GET', cache: 'no-store', redirect: 'follow' });
-            if (refresh.ok) {
-              const refreshed = await refresh.json();
-              if (Array.isArray(refreshed)) {
-                allTransactions = mergeServerDataWithPending(refreshed);
-                localStorage.setItem('trackerData', JSON.stringify(allTransactions));
-                renderAfterDataChange();
-              }
-            }
-          }
+        try {
+          data = JSON.parse(raw);
+        } catch(e) {
+          throw new Error('Google Sheets returned a non-JSON response');
         }
 
-        updateSyncIndicator(pendingSync.length ? `Synced • ${pendingSync.length} pending` : 'Synced ✓');
+        if(!Array.isArray(data)) {
+          throw new Error('Unexpected Google Sheets response');
+        }
+
+        // Keep the sheet header + rows exactly as expected by the rest of the app.
+        allTransactions = data;
+        localStorage.setItem('trackerData', JSON.stringify(data));
+        try { renderRecurringPayments(); renderSpendingCalendar(); } catch (e) { console.warn('Tab 4 extras refresh failed', e); }
+
+        try {
+          if(document.getElementById('Ledger').classList.contains('active-tab')) generateLedger();
+          if(document.getElementById('Insights').classList.contains('active-tab')) generateInsights();
+          if(!document.getElementById('Ledger').classList.contains('active-tab') && !document.getElementById('Insights').classList.contains('active-tab')) calculateTopBalance();
+        } catch (renderErr) {
+          console.error('Dashboard render error after sync:', renderErr);
+        }
+
+        if(showLoading && loading) {
+          loading.textContent = 'Synced ✓';
+          loading.style.color = 'var(--accent-green)';
+          setTimeout(() => {
+            loading.style.display = 'none';
+            loading.style.color = 'var(--text-muted)';
+          }, 900);
+        }
       } catch (err) {
         console.error('Google Sheets sync failed:', err);
-        // Keep the local cache exactly as-is when GET fails.
-        renderAfterDataChange();
-        if (showLoading || pendingSync.length) updateSyncIndicator(`Offline • ${pendingSync.length} pending`, true);
-      }
-    }
-
-    async function flushPendingSync() {
-      if (!pendingSync.length) return;
-      const queueSnapshot = [...pendingSync];
-      for (const payload of queueSnapshot) {
-        // It may have been removed by a previous server refresh.
-        if (!pendingSync.some(item => transactionFingerprint(item) === transactionFingerprint(payload))) continue;
-        try {
-          const res = await fetch(URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(payload)
-          });
-          if (!res.ok) throw new Error('HTTP ' + res.status);
-          removePendingPayload(payload);
-        } catch (err) {
-          console.warn('Pending transaction still waiting to sync:', err);
-          break;
+        // Do not replace the working local cache. The ledger can continue offline.
+        if(showLoading && loading) {
+          loading.textContent = 'Offline • showing saved data';
+          loading.style.color = 'var(--accent-red)';
+          setTimeout(() => {
+            loading.style.display = 'none';
+            loading.style.color = 'var(--text-muted)';
+          }, 1800);
         }
+        if(document.getElementById('Ledger').classList.contains('active-tab')) generateLedger();
       }
     }
 
@@ -2369,7 +2351,7 @@
       } else if(range === '30d' || range === '90d') {
         start = new Date(today); start.setDate(start.getDate() - (range === '30d' ? 29 : 89)); start.setHours(0,0,0,0);
       } else if(range === 'all') {
-        const allDates = getNormalizedTransactions().map(r => r.date).filter(d => !isNaN(d.getTime()));
+        const allDates = [...allTransactions.slice(1)].map(r => parseSafeDate(String(r[0]))).filter(d => !isNaN(d.getTime()));
         if(allDates.length) start = new Date(Math.min(...allDates.map(d => d.getTime()))); else start = new Date(today);
         start.setHours(0,0,0,0);
       } else {
@@ -2416,7 +2398,14 @@
       let periodRecords = [];
       let totalCumulativeSavings = 0;
 
-      let sortedTxs = getNormalizedTransactions().sort((a, b) => b.date - a.date);
+      let sortedTxs = [...allTransactions.slice(1)].map(row => ({
+        date: parseSafeDate(String(row[0])), type: String(row[1]).trim(),
+        cat: String(row[2]).trim(), amount: parseFloat(row[3]) || 0,
+        desc: String(row[4] || ''), user: String(row[5] || 'Jebel').trim(),
+        project: String(row[6] || 'General').trim(), receipt: String(row[7] || ''),
+        odo: parseFloat(row[8]) || 0, litres: parseFloat(row[9]) || 0,
+        paymentMethod: String(row[10] || '')
+      })).filter(tx => !isNaN(tx.date.getTime())).sort((a, b) => b.date - a.date);
 
       for(let tx of sortedTxs) {
         if(tx.type === 'Savings' && (selectedUser === 'Us' || tx.user === selectedUser)) {
@@ -2568,11 +2557,24 @@
       return null;
     }
 
-        function getInsightRows() {
-      return getTransactionRows();
+    function getInsightRows() {
+      if (!Array.isArray(allTransactions)) return [];
+      // Find the header row rather than assuming it is always row 1.
+      let headerIndex = -1;
+      for (let i = 0; i < Math.min(allTransactions.length, 8); i++) {
+        const row = allTransactions[i];
+        if (Array.isArray(row)) {
+          const joined = row.map(v => String(v == null ? '' : v).trim().toLowerCase()).join('|');
+          if (joined.includes('date') && joined.includes('type') && joined.includes('amount')) {
+            headerIndex = i; break;
+          }
+        }
+      }
+      const start = headerIndex >= 0 ? headerIndex + 1 : 0;
+      return allTransactions.slice(start).filter(Array.isArray);
     }
 
-        function getInsightTransactions() {
+    function getInsightTransactions() {
       const userEl = document.getElementById('insightsFilterUser');
       const rangeEl = document.getElementById('insightsTimeRange');
       const selectedUser = userEl ? userEl.value : 'Us';
@@ -2586,12 +2588,20 @@
       else startDate.setFullYear(now.getFullYear() - 50);
       startDate.setHours(0,0,0,0);
 
-      const txs = getNormalizedTransactions()
-        .filter(tx => {
-          const userOk = selectedUser === 'Us' || tx.user.toLowerCase() === selectedUser.toLowerCase();
-          return userOk && tx.date >= startDate && tx.amount >= 0;
-        })
-        .sort((a,b) => a.date - b.date);
+      const rows = getInsightRows();
+      const txs = rows.map(row => ({
+        date: parseRobustDate(row[0]),
+        type: normalizeTransactionType(row[1]),
+        cat: String(row[2] == null ? '' : row[2]).trim(),
+        amount: parseTransactionAmount(row[3]),
+        desc: String(row[4] == null ? '' : row[4]).trim(),
+        user: String(row[5] == null ? '' : row[5]).trim()
+      })).filter(tx => {
+        if (!tx.date) return false;
+        const userOk = selectedUser === 'Us' || tx.user.toLowerCase() === selectedUser.toLowerCase();
+        const dateOk = tx.date >= startDate;
+        return userOk && dateOk && tx.amount >= 0;
+      }).sort((a,b) => a.date - b.date);
 
       return { txs, startDate, timeRange, selectedUser };
     }
@@ -2883,116 +2893,6 @@
       }
     }
 
-    function openInsightBreakdown(kind) {
-      const modal = document.getElementById('insightBreakdownModal');
-      const title = document.getElementById('insightBreakdownTitle');
-      const subtitle = document.getElementById('insightBreakdownSubtitle');
-      const totalEl = document.getElementById('insightBreakdownTotal');
-      const countEl = document.getElementById('insightBreakdownCount');
-      const body = document.getElementById('insightBreakdownBody');
-      if (!modal || !body) return;
-
-      const { txs, selectedUser, timeRange } = getInsightTransactions();
-      const userLabel = selectedUser === 'Us' ? 'Jebel + Reshma' : selectedUser;
-      const periodLabel = timeRange === 'all' ? 'All available history' : timeRange === '7d' ? 'Last 7 days' : timeRange === '30d' ? 'Last 30 days' : 'Last 3 months';
-      const expenses = txs.filter(tx => ['Expense','Fuel','Service'].includes(tx.type));
-      const income = txs.filter(tx => tx.type === 'Income');
-      const savings = txs.filter(tx => tx.type === 'Savings');
-      const money = n => formatINR(Number(n || 0));
-      const dateText = d => parseSafeDate(d)?.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) || 'Unknown date';
-      const txRows = (rows, sign='−') => rows.slice().sort((a,b)=>b.date-a.date).map(tx => {
-        const emoji = emojis[tx.cat] || (tx.type === 'Fuel' ? '⛽' : tx.type === 'Service' ? '🔧' : tx.type === 'Income' ? '↘' : '↗');
-        return `<div class="insights-popup-record" onclick='openRecordDetail(${JSON.stringify(tx).replace(/'/g, "&#39;")})'>
-          <div class="insights-popup-record-icon">${emoji}</div>
-          <div class="insights-popup-record-main">
-            <div class="insights-popup-record-title">${tab4Escape(tx.cat || tx.type)}${tx.desc ? ' · ' + tab4Escape(tx.desc) : ''}</div>
-            <div class="insights-popup-record-meta">${dateText(tx.date)} · ${tab4Escape(tx.user || 'User')}${tx.paymentMethod ? ' · ' + tab4Escape(tx.paymentMethod) : ''}</div>
-          </div>
-          <div class="insights-popup-record-amt">${sign}${money(tx.amount)}</div>
-        </div>`;
-      }).join('');
-
-      let html = '';
-      let titleText = 'Details';
-      let subtitleText = `${userLabel} · ${periodLabel}`;
-      let total = 0;
-      let count = 0;
-
-      if (kind === 'balance') {
-        const inc = income.reduce((s,t)=>s+t.amount,0), exp = expenses.reduce((s,t)=>s+t.amount,0), sav = savings.reduce((s,t)=>s+t.amount,0);
-        total = inc-exp-sav; count = txs.length; titleText='Overall Balance Breakdown';
-        html = `<div class="insight-detail-summary-grid">
-          <div><span>Income</span><strong>${money(inc)}</strong></div>
-          <div><span>Expenses</span><strong>−${money(exp)}</strong></div>
-          <div><span>Savings</span><strong>−${money(sav)}</strong></div>
-          <div><span>Balance</span><strong>${money(total)}</strong></div>
-        </div><div class="insight-detail-section-title">Transactions contributing to this balance</div>${txRows(txs, '')}`;
-      } else if (kind === 'savings') {
-        total=savings.reduce((s,t)=>s+t.amount,0); count=savings.length; titleText='Savings Breakdown';
-        const byCat={}; savings.forEach(t=>{const k=t.cat||'Savings';byCat[k]=(byCat[k]||0)+t.amount;});
-        html = `<div class="insight-detail-section-title">Savings by category</div>` + Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([n,a])=>`<div class="insight-breakdown-row"><span>${tab4Escape(n)}</span><strong>${money(a)}</strong></div>`).join('') + `<div class="insight-detail-section-title">Savings records</div>${txRows(savings,'+')}`;
-      } else if (kind === 'cash') {
-        const inc=income.reduce((s,t)=>s+t.amount,0), exp=expenses.reduce((s,t)=>s+t.amount,0); total=inc-exp; count=income.length+expenses.length; titleText='Cash Left Breakdown';
-        html=`<div class="insight-detail-summary-grid"><div><span>Income</span><strong>${money(inc)}</strong></div><div><span>Expenses</span><strong>−${money(exp)}</strong></div><div><span>Cash left</span><strong>${money(total)}</strong></div></div><div class="insight-detail-section-title">Income records</div>${txRows(income,'+')}<div class="insight-detail-section-title">Expense records</div>${txRows(expenses,'−')}`;
-      } else if (kind === 'categories') {
-        const cats={}; expenses.forEach(t=>{const k=(t.type==='Fuel'||t.type==='Service')?`Veh - ${t.cat||'Vehicle'}`:(t.cat||'Uncategorised');cats[k]=(cats[k]||0)+t.amount;}); total=expenses.reduce((s,t)=>s+t.amount,0); count=expenses.length; titleText='Spending Category Breakdown';
-        html=`<div class="insight-detail-section-title">Category totals</div>`+Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([n,a])=>`<div class="insight-breakdown-row"><span>${tab4Escape(n)}</span><strong>${money(a)}</strong></div>`).join('')+`<div class="insight-detail-section-title">Tap a category to see its records</div>`+Object.keys(cats).sort((a,b)=>cats[b]-cats[a]).map(n=>`<button type="button" class="insight-breakdown-button" onclick='closeInsightBreakdown();setTimeout(()=>showInsightCategoryBreakdown(${JSON.stringify(n)}),180)'>${tab4Escape(n)}<span>${money(cats[n])}</span></button>`).join('');
-      } else if (kind === 'highest') {
-        const rows=expenses.slice().sort((a,b)=>b.amount-a.amount).slice(0,10); total=rows.reduce((s,t)=>s+t.amount,0); count=rows.length; titleText='Highest Spending Breakdown'; html=`<div class="insight-detail-section-title">Largest outgoing records</div>${txRows(rows,'−')}`;
-      } else if (kind === 'health') {
-        const inc=income.reduce((s,t)=>s+t.amount,0), exp=expenses.reduce((s,t)=>s+t.amount,0), sav=savings.reduce((s,t)=>s+t.amount,0); const savingsRate=inc>0?sav/inc*100:0, spentPct=inc>0?exp/inc*100:0; let score=50; score+=Math.min(35,Math.max(0,savingsRate*1.5)); score-=Math.min(30,Math.max(0,(spentPct-60)*.65)); if(inc>0&&exp+sav<=inc)score+=10;if(inc>0&&exp>inc)score-=15;score=Math.round(Math.max(0,Math.min(100,score))); total=score;count=txs.length;titleText='Financial Health Breakdown';html=`<div class="insight-detail-summary-grid"><div><span>Health score</span><strong>${score}/100</strong></div><div><span>Savings rate</span><strong>${savingsRate.toFixed(0)}%</strong></div><div><span>Income spent</span><strong>${spentPct.toFixed(0)}%</strong></div><div><span>Activity</span><strong>${txs.length}</strong></div></div><div class="insight-detail-section-title">How the score is assessed</div><div class="insight-detail-note">Savings, spending as a share of income, whether expenses + savings stay within income, and whether expenses exceed income all contribute to the score.</div>`;
-      } else if (kind === 'budget') {
-        const budget=Math.max(1,Number(localStorage.getItem('householdMonthlyBudget'))||50000); total=expenses.reduce((s,t)=>s+t.amount,0);count=expenses.length;titleText='Budget Breakdown'; const cats={};expenses.forEach(t=>{const k=(t.type==='Fuel'||t.type==='Service')?`Veh - ${t.cat||'Vehicle'}`:(t.cat||'Uncategorised');cats[k]=(cats[k]||0)+t.amount;}); html=`<div class="insight-detail-summary-grid"><div><span>Budget</span><strong>${money(budget)}</strong></div><div><span>Spent</span><strong>${money(total)}</strong></div><div><span>Remaining</span><strong>${money(budget-total)}</strong></div><div><span>Used</span><strong>${Math.min(100,total/budget*100).toFixed(0)}%</strong></div></div><div class="insight-detail-section-title">Spending against budget</div>`+Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([n,a])=>`<div class="insight-breakdown-row"><span>${tab4Escape(n)}</span><strong>${money(a)}</strong></div>`).join('');
-      } else if (kind === 'payments') {
-        const pays={};expenses.forEach(t=>{const k=t.paymentMethod||'Not specified';pays[k]=(pays[k]||0)+t.amount;}); total=expenses.reduce((s,t)=>s+t.amount,0);count=expenses.length;titleText='Payment Method Breakdown';html=`<div class="insight-detail-section-title">Outgoing money by payment method</div>`+Object.entries(pays).sort((a,b)=>b[1]-a[1]).map(([n,a])=>`<button type="button" class="insight-breakdown-button" onclick='closeInsightBreakdown();setTimeout(()=>showPaymentBreakdown(${JSON.stringify(n)}),180)'>${tab4Escape(n)}<span>${money(a)}</span></button>`).join('');
-      } else if (kind === 'smart') {
-        total=expenses.reduce((s,t)=>s+t.amount,0);count=txs.length;titleText='Smart Insights Details';const cats={};expenses.forEach(t=>{const k=t.cat||t.type;cats[k]=(cats[k]||0)+t.amount;});const top=Object.entries(cats).sort((a,b)=>b[1]-a[1])[0];const inc=income.reduce((s,t)=>s+t.amount,0),sav=savings.reduce((s,t)=>s+t.amount,0),rate=inc?sav/inc*100:0;html=`<div class="insight-detail-note">${top?`Your largest spending category is <b>${tab4Escape(top[0])}</b> at <b>${money(top[1])}</b>.`:''}${inc?` Your savings rate is <b>${rate.toFixed(0)}%</b> of income.`:''}${inc&&total>inc?` Expenses are higher than income by <b>${money(total-inc)}</b>.`:inc?` Income covers expenses with <b>${money(inc-total)}</b> left before savings.`:' Add income and expense records to unlock more observations.'}</div>`;
-      } else if (['income','expense'].includes(kind)) {
-        return openInsightsRecords(kind === 'income' ? 'Income' : 'Expense');
-      } else return;
-
-      if (title) title.textContent=titleText;
-      if (subtitle) subtitle.textContent=subtitleText;
-      if (totalEl) totalEl.textContent=kind==='health'?`${total}/100`:money(total);
-      if (countEl) countEl.textContent=`${count.toLocaleString('en-IN')} records · ${userLabel}`;
-      body.innerHTML=html || '<div class="insight-empty">No details available.</div>';
-      modal.style.display='flex';
-      setTimeout(()=>modal.classList.add('show'),10);
-    }
-
-    function showInsightCategoryBreakdown(categoryName) {
-      const { txs } = getInsightTransactions();
-      const rows=txs.filter(tx=>{
-        if(categoryName.startsWith('Veh - ')) return ['Fuel','Service'].includes(tx.type) && `Veh - ${tx.cat||'Vehicle'}`===categoryName;
-        return ['Expense','Fuel','Service'].includes(tx.type) && (tx.cat||'Uncategorised')===categoryName;
-      });
-      const modal=document.getElementById('insightBreakdownModal'),body=document.getElementById('insightBreakdownBody');
-      document.getElementById('insightBreakdownTitle').textContent=categoryName;
-      document.getElementById('insightBreakdownSubtitle').textContent='Category records';
-      document.getElementById('insightBreakdownTotal').textContent=formatINR(rows.reduce((s,t)=>s+t.amount,0));
-      document.getElementById('insightBreakdownCount').textContent=`${rows.length} records`;
-      body.innerHTML=rows.length?rows.sort((a,b)=>b.date-a.date).map(tx=>`<div class="insights-popup-record" onclick='openRecordDetail(${JSON.stringify(tx).replace(/'/g,"&#39;")})'><div class="insights-popup-record-icon">${emojis[tx.cat]||'↗'}</div><div class="insights-popup-record-main"><div class="insights-popup-record-title">${tab4Escape(tx.desc||tx.cat||tx.type)}</div><div class="insights-popup-record-meta">${tx.date.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})} · ${tab4Escape(tx.user||'User')}</div></div><div class="insights-popup-record-amt">−${formatINR(tx.amount)}</div></div>`).join(''):'<div class="insight-empty">No records found.</div>';
-      modal.style.display='flex';setTimeout(()=>modal.classList.add('show'),10);
-    }
-
-    function showPaymentBreakdown(paymentMethod) {
-      const { txs } = getInsightTransactions();
-      const rows=txs.filter(tx=>['Expense','Fuel','Service'].includes(tx.type) && (tx.paymentMethod||'Not specified')===paymentMethod);
-      const modal=document.getElementById('insightBreakdownModal'),body=document.getElementById('insightBreakdownBody');
-      document.getElementById('insightBreakdownTitle').textContent=paymentMethod;
-      document.getElementById('insightBreakdownSubtitle').textContent='Payment method records';
-      document.getElementById('insightBreakdownTotal').textContent=formatINR(rows.reduce((s,t)=>s+t.amount,0));
-      document.getElementById('insightBreakdownCount').textContent=`${rows.length} records`;
-      body.innerHTML=rows.length?rows.sort((a,b)=>b.date-a.date).map(tx=>`<div class="insights-popup-record" onclick='openRecordDetail(${JSON.stringify(tx).replace(/'/g,"&#39;")})'><div class="insights-popup-record-icon">${tx.type==='Fuel'?'⛽':tx.type==='Service'?'🔧':'↗'}</div><div class="insights-popup-record-main"><div class="insights-popup-record-title">${tab4Escape(tx.cat||tx.type)}${tx.desc?' · '+tab4Escape(tx.desc):''}</div><div class="insights-popup-record-meta">${tx.date.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})} · ${tab4Escape(tx.user||'User')}</div></div><div class="insights-popup-record-amt">−${formatINR(tx.amount)}</div></div>`).join(''):'<div class="insight-empty">No records found.</div>';
-      modal.style.display='flex';setTimeout(()=>modal.classList.add('show'),10);
-    }
-
-    function closeInsightBreakdown(event) {
-      if (event && event.target.id !== 'insightBreakdownModal') return;
-      const modal=document.getElementById('insightBreakdownModal'); if(!modal)return;
-      modal.classList.remove('show');setTimeout(()=>modal.style.display='none',250);
-    }
-
     function openInsightsRecords(type) {
       const modal = document.getElementById('insightsRecordsModal');
       const title = document.getElementById('insightsRecordsTitle');
@@ -3067,12 +2967,6 @@
       setTimeout(() => modal.style.display = 'none', 300);
     }
 
-    function closeSearchModal(event) {
-      if(event && event.target.id !== 'searchModal') return; 
-      const modal = document.getElementById('searchModal');
-      modal.classList.remove('show');
-      setTimeout(() => modal.style.display = 'none', 300);
-    }
 
     function showCategoryDetails(categoryName) {
       try {
@@ -3176,7 +3070,18 @@
 let creditCards = JSON.parse(localStorage.getItem('householdCreditCards') || '[]');
 
 function getSearchableTransactions(){
-  return getNormalizedTransactions();
+  return getInsightRows().map(row => ({
+    raw: row,
+    date: parseRobustDate(row[0]),
+    type: normalizeTransactionType(row[1]),
+    cat: String(row[2] == null ? '' : row[2]).trim(),
+    amount: parseTransactionAmount(row[3]),
+    desc: String(row[4] == null ? '' : row[4]).trim(),
+    user: String(row[5] == null ? '' : row[5]).trim(),
+    project: String(row[6] == null ? '' : row[6]).trim(),
+    receipt: String(row[7] == null ? '' : row[7]).trim(),
+    paymentMethod: String(row[10] == null ? '' : row[10]).trim()
+  })).filter(x => x.date && !isNaN(x.date.getTime()));
 }
 
 function populateSearchFilters(){
@@ -3345,13 +3250,14 @@ function renderSpendingCalendar(){
   var title=document.getElementById('spendingCalendarMonth');
   if(title)title.textContent=spendingCalendarDate.toLocaleDateString('en-IN',{month:'short',year:'numeric'});
   var totals={};
-  getNormalizedTransactions().forEach(function(tx){
-    var d=tx.date;
-    if(d.getFullYear()!==y||d.getMonth()!==m)return;
-    if(['Expense','Fuel','Service'].indexOf(tx.type)<0)return;
-    totals[d.getDate()]=(totals[d.getDate()]||0)+tx.amount;
+  var rows=Array.isArray(allTransactions)?allTransactions.slice(1):[];
+  rows.forEach(function(r){
+    var d=parseSafeDate(String(r[0]||'')),type=String(r[1]||'').trim(),amount=parseFloat(r[3])||0;
+    if(!d||isNaN(d.getTime())||d.getFullYear()!==y||d.getMonth()!==m)return;
+    if(['Expense','Fuel','Service'].indexOf(type)<0)return;
+    totals[d.getDate()]=(totals[d.getDate()]||0)+amount;
   });
-  var monthTotal=Object.keys(totals).reduce(function(sum,k){return sum+totals[k];},0);
+  var monthTotal=Object.keys(totals).reduce(function(s,k){return s+totals[k];},0);
   var totalEl=document.getElementById('spendingCalendarTotal');
   if(totalEl)totalEl.innerHTML='₹'+Math.round(monthTotal).toLocaleString('en-IN')+' <span>this month</span>';
   var first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
@@ -3369,31 +3275,15 @@ function renderSpendingCalendar(){
 }
 function showSpendingDay(day){
   var y=spendingCalendarDate.getFullYear(),m=spendingCalendarDate.getMonth(),total=0,count=0;
-  getNormalizedTransactions().forEach(function(tx){
-    var d=tx.date;
-    if(d.getFullYear()===y&&d.getMonth()===m&&d.getDate()===day&&['Expense','Fuel','Service'].indexOf(tx.type)>=0){total+=tx.amount;count++;}
+  (Array.isArray(allTransactions)?allTransactions.slice(1):[]).forEach(function(r){
+    var d=parseSafeDate(String(r[0]||'')),type=String(r[1]||'').trim(),amount=parseFloat(r[3])||0;
+    if(!d||isNaN(d.getTime()))return;
+    if(d.getFullYear()===y&&d.getMonth()===m&&d.getDate()===day&&['Expense','Fuel','Service'].indexOf(type)>=0){total+=amount;count++;}
   });
   var summary=document.getElementById('spendingCalendarSummary');
   if(summary)summary.textContent=new Date(y,m,day).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})+' · ₹'+Math.round(total).toLocaleString('en-IN')+' spent · '+count+' transaction'+(count===1?'':'s');
 }
-
-/* EMI Loans — default Tab 4 view. Data is stored locally and PDF text is parsed in-browser. */
-var emiLoans=[]; var emiPdfSchedule=[];
-function loadEmiLoans(){try{emiLoans=JSON.parse(localStorage.getItem('emiLoans')||'[]');if(!Array.isArray(emiLoans))emiLoans=[];}catch(e){emiLoans=[];}renderEmiLoans();}
-function saveEmiLoans(){localStorage.setItem('emiLoans',JSON.stringify(emiLoans));}
-function emiMoney(v){return '₹'+Math.round(Number(v)||0).toLocaleString('en-IN');}
-function setTab4Mode(mode){var isEmi=mode==='emi';var ev=document.getElementById('tab4EmiView'),iv=document.getElementById('householdInsightPanel'),tools=document.querySelector('.tab4-tools-grid');if(ev)ev.classList.toggle('active',isEmi);if(iv)iv.style.display=isEmi?'none':'';if(tools)tools.style.display=isEmi?'none':'';document.getElementById('tab4ModeEmi').classList.toggle('active',isEmi);document.getElementById('tab4ModeInsights').classList.toggle('active',!isEmi);localStorage.setItem('tab4Mode',mode);if(isEmi)renderEmiLoans();else generateInsights();}
-function openEmiModal(){var m=document.getElementById('emiModal');if(m){m.classList.add('open');m.setAttribute('aria-hidden','false');}}
-function closeEmiModal(e){var m=document.getElementById('emiModal');if(e&&e.target!==m)return;if(m){m.classList.remove('open');m.setAttribute('aria-hidden','true');}}
-function renderEmiLoans(){var list=document.getElementById('emiLoansList');if(!list)return;var active=emiLoans.filter(function(l){return l.status!=='Closed';});var monthly=active.reduce(function(a,l){return a+(Number(l.emi)||0);},0);var out=active.reduce(function(a,l){return a+(Number(l.outstanding)||0);},0);var ym=new Date().toISOString().slice(0,7);var due=active.filter(function(l){return (l.nextDate||'').slice(0,7)===ym;}).length;document.getElementById('emiMonthlyTotal').textContent=emiMoney(monthly);document.getElementById('emiOutstandingTotal').textContent=emiMoney(out);document.getElementById('emiDueCount').textContent=due;document.getElementById('emiActiveCount').textContent=active.length;if(!emiLoans.length){list.innerHTML='<div class="emi-empty">No EMI loans added yet.<br>Upload a payment-schedule PDF to import an existing loan.</div>';return;}list.innerHTML=emiLoans.map(function(l,i){var dueText=l.status==='Closed'?'Closed':(l.nextDate&&l.nextDate<new Date().toISOString().slice(0,10)?'Payment due':'Active');return '<div class="insights-card emi-card"><div class="emi-card-head"><div><div class="emi-card-name">'+escapeHtml(l.name||'EMI Loan')+'</div><div class="emi-card-lender">'+escapeHtml(l.lender||'')+'</div></div><span class="emi-badge">'+dueText+'</span></div><div class="emi-card-grid"><div class="emi-metric"><span>EMI</span><strong>'+emiMoney(l.emi)+'</strong></div><div class="emi-metric"><span>Next payment</span><strong>'+escapeHtml(l.nextDate||'—')+'</strong></div><div class="emi-metric"><span>Outstanding</span><strong>'+emiMoney(l.outstanding)+'</strong></div><div class="emi-metric"><span>Remaining</span><strong>'+(Number(l.remaining)||0)+' EMI</strong></div></div><div class="emi-actions"><button type="button" onclick="openEmiDetails('+i+')">Details</button><button type="button" onclick="markEmiPaid('+i+')">Mark paid</button><button type="button" class="danger" onclick="deleteEmiLoan('+i+')">Delete</button></div></div>';}).join('');}
-function openEmiDetails(i){var l=emiLoans[i];if(!l)return;var rows=(l.schedule||[]).slice(0,60).map(function(r){return '<div class="emi-detail-row"><span>EMI '+escapeHtml(String(r.no||''))+'</span><strong>'+escapeHtml(r.date||'—')+' · '+emiMoney(r.amount||l.emi)+'</strong></div>';}).join('');var html='<div class="emi-detail-row"><span>Lender</span><strong>'+escapeHtml(l.lender||'—')+'</strong></div><div class="emi-detail-row"><span>EMI</span><strong>'+emiMoney(l.emi)+'</strong></div><div class="emi-detail-row"><span>Next payment</span><strong>'+escapeHtml(l.nextDate||'—')+'</strong></div><div class="emi-detail-row"><span>Outstanding</span><strong>'+emiMoney(l.outstanding)+'</strong></div><div class="emi-detail-row"><span>Current / tenure</span><strong>'+(l.currentNo||'—')+' / '+(l.tenure||'—')+'</strong></div><div class="emi-detail-row"><span>Remaining</span><strong>'+(l.remaining||0)+' EMIs</strong></div>'+(rows?'<div style="margin-top:10px;font-size:10px;font-weight:850">Imported schedule</div>'+rows:'');if(typeof showSimpleModal==='function')showSimpleModal((l.name||'EMI Loan')+' Details',html);else alert(html.replace(/<[^>]+>/g,''));}
-function deleteEmiLoan(i){if(!confirm('Delete this EMI loan?'))return;emiLoans.splice(i,1);saveEmiLoans();renderEmiLoans();}
-function markEmiPaid(i){var l=emiLoans[i];if(!l)return;var nextNo=(Number(l.currentNo)||0)+1;l.currentNo=nextNo;if(Number(l.remaining)>0)l.remaining--;if(l.schedule&&l.schedule.length){var next=l.schedule.find(function(r){return Number(r.no)===nextNo;});if(next){l.nextDate=next.date;l.emi=Number(next.amount)||l.emi;}}else if(l.nextDate){var d=new Date(l.nextDate+'T00:00:00');if(!isNaN(d)){d.setMonth(d.getMonth()+1);l.nextDate=d.toISOString().slice(0,10);}}if(l.remaining<=0&&l.tenure>0)l.status='Closed';saveEmiLoans();renderEmiLoans();}
-function emiDetectNumber(text,re){var m=text.match(re);return m?parseFloat(String(m[1]).replace(/,/g,'')):null;}
-async function importEmiPdf(ev){var file=ev.target.files&&ev.target.files[0];if(!file)return;var status=document.getElementById('emiImportStatus');status.textContent='Reading PDF…';emiPdfSchedule=[];try{if(typeof pdfjsLib==='undefined')throw new Error('PDF reader unavailable');var pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise,text='';for(var n=1;n<=pdf.numPages;n++){var page=await pdf.getPage(n),tc=await page.getTextContent();text+='\n'+tc.items.map(function(x){return x.str;}).join(' ');}var emi=emiDetectNumber(text,/(?:emi|installment)\s*(?:amount)?\s*[:\-]?\s*(?:₹|rs\.?\s*)?([\d,]+(?:\.\d+)?)/i);var out=emiDetectNumber(text,/(?:outstanding|principal\s+outstanding|balance)\s*(?:amount)?\s*[:\-]?\s*(?:₹|rs\.?\s*)?([\d,]+(?:\.\d+)?)/i);var tenure=emiDetectNumber(text,/(?:tenure|total\s+installments?|total\s+emis?)\s*[:\-]?\s*(\d+)/i);var cur=emiDetectNumber(text,/(?:current\s+(?:emi|installment)|installment\s+(?:no|number))\s*[:\-]?\s*(\d+)/i);if(emi!==null)document.getElementById('emiAmount').value=emi;if(out!==null)document.getElementById('emiOutstanding').value=out;if(tenure!==null)document.getElementById('emiTenure').value=tenure;if(cur!==null)document.getElementById('emiCurrentNo').value=cur;var dateM=text.match(/(?:next\s+(?:emi|payment)|due\s+date|payment\s+date)[^\n:]*[:\-]?\s*(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})/i);if(dateM){var a=dateM[1].split(/[\/-]/),y=Number(a[2]);if(y<100)y+=2000;var d=new Date(y,Number(a[1])-1,Number(a[0]));if(!isNaN(d))document.getElementById('emiNextDate').value=d.toISOString().slice(0,10);}status.textContent='PDF read. Detected values have been filled where possible. Please review before saving.';}catch(err){status.textContent='PDF could not be fully parsed. You can enter/correct the loan details manually.';}}
-function saveEmiLoan(){var l={id:Date.now().toString(),name:document.getElementById('emiLoanName').value.trim()||'EMI Loan',lender:document.getElementById('emiLender').value.trim(),emi:Number(document.getElementById('emiAmount').value)||0,nextDate:document.getElementById('emiNextDate').value,outstanding:Number(document.getElementById('emiOutstanding').value)||0,remaining:Number(document.getElementById('emiRemaining').value)||0,currentNo:Number(document.getElementById('emiCurrentNo').value)||0,tenure:Number(document.getElementById('emiTenure').value)||0,status:'Active',schedule:emiPdfSchedule.slice()};if(!l.emi&&!l.nextDate&&!l.outstanding){alert('Enter loan details or upload a PDF first.');return;}emiLoans.push(l);saveEmiLoans();closeEmiModal();['emiLoanName','emiLender','emiAmount','emiNextDate','emiOutstanding','emiRemaining','emiCurrentNo','emiTenure'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('emiPdf').value='';document.getElementById('emiImportStatus').textContent='No PDF imported yet.';document.getElementById('emiSchedulePreview').style.display='none';emiPdfSchedule=[];renderEmiLoans();}
-
-function initTab4Extras(){loadRecurringPayments();renderSpendingCalendar();loadEmiLoans();setTab4Mode(localStorage.getItem('tab4Mode')||'emi');}
+function initTab4Extras(){loadRecurringPayments();renderSpendingCalendar();}
 </script>
 
 
@@ -3433,6 +3323,5 @@ function initTab4Extras(){loadRecurringPayments();renderSpendingCalendar();loadE
       </button>
     </div>
   </div>
-</div>
 </body>
 </html>
