@@ -43,7 +43,7 @@
       margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main);
       min-height: 100%; overflow-x: hidden;
     }
-    body.emi-modal-open { overflow:hidden; position:fixed; width:100%; height:100%; touch-action:none; }
+    body.emi-modal-open { overflow:hidden; position:fixed; width:100%; height:100%; touch-action:auto; }
 
     .app-container { min-height: 100vh; padding-bottom: 180px; }
     #Insights { padding-bottom: 180px !important; }
@@ -380,7 +380,7 @@
     
     #loadingIndicator { text-align: center; color: var(--text-muted); display: none; margin: 10px 0; font-size: 14px; font-weight: 500; }
 
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; opacity: 0; transition: opacity 0.3s ease; }
+    .modal-overlay { position: fixed; inset: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; opacity: 0; transition: opacity 0.3s ease; overflow: hidden; overscroll-behavior: none; touch-action: none; }
     .modal-overlay.show { display: flex; opacity: 1; }
     
     #categoryModal { z-index: 2400; }
@@ -393,11 +393,13 @@
     .close-btn { background: var(--input-bg); border: none; color: var(--text-main); width: 36px; height: 36px; border-radius: 18px; font-size: 16px; font-weight: bold; cursor: pointer; display:flex; justify-content:center; align-items:center; }
     .transaction-list { overflow-y: auto; flex: 1; padding-bottom: 20px; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
      #recordDetailModal .modal-content, #categoryModal .modal-content, #insightsRecordsModal .modal-content, #searchModal .modal-content { max-height:88vh; min-height:0; overflow:hidden; }
-     #recordDetailBody, #categoryModal .transaction-list, #insightsRecordsList { min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
+     #recordDetailModal .modal-content, #categoryModal .modal-content { height:82vh; max-height:82vh; min-height:0; }
+     #recordDetailBody, #categoryModal .transaction-list, #insightsRecordsList { min-height:0; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
     #recordDetailModal .modal-content, #categoryModal .modal-content { overflow:hidden; }
-    #recordDetailBody { max-height:calc(70vh - 80px); overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
+    #recordDetailBody { flex:1 1 auto; height:auto; max-height:none; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-y; }
+    #modalTransactionList { flex:1 1 auto; height:auto; max-height:none; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-y; }
     body.detail-modal-open { overflow:hidden; position:fixed; width:100%; height:100%; }
-    #recordDetailModal .modal-content, #categoryModal .modal-content, #insightsRecordsModal .modal-content, #searchModal .modal-content { touch-action:pan-y; }
+    #recordDetailModal .modal-content, #categoryModal .modal-content, #insightsRecordsModal .modal-content, #searchModal .modal-content { touch-action:auto; }
     #recordDetailBody, #modalTransactionList, #insightsRecordsList, #searchResults { touch-action:pan-y; }
     
     .transaction-item { background: transparent; padding: 14px 0; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); cursor: pointer; }
@@ -430,7 +432,7 @@
     .emi-card-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.emi-loan-name{font-size:16px;font-weight:900}.emi-lender{font-size:10px;color:var(--text-muted);margin-top:3px}.emi-status{padding:5px 8px;border-radius:999px;font-size:9px;font-weight:900;background:rgba(52,199,89,.12);color:#1f9d53}.emi-status.closed{background:var(--input-bg);color:var(--text-muted)}
     .emi-card-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:15px}.emi-metric-label{font-size:9px;color:var(--text-muted);font-weight:750}.emi-metric-value{font-size:14px;font-weight:850;margin-top:3px}.emi-next{background:var(--input-bg);border-radius:14px;padding:10px;margin-top:12px;display:flex;justify-content:space-between;gap:10px;align-items:center}.emi-next strong{font-size:12px}.emi-next span{font-size:10px;color:var(--text-muted)}
     .emi-empty{background:var(--card-bg);border:1px dashed var(--border-color);border-radius:20px;padding:35px 18px;text-align:center;color:var(--text-muted);font-size:12px}
-    .emi-modal-content{height:min(88vh,760px);max-height:88vh;min-height:0;overflow:hidden;overscroll-behavior:contain;touch-action:none}.emi-modal-content>.modal-header{flex:0 0 auto}.emi-modal-content>#emiDetailsBody{min-height:0;flex:1;display:flex;flex-direction:column;overflow:hidden}.emi-modal-content>#emiDetailsBody>.emi-detail-scroll{flex:1;min-height:0;max-height:none;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}.emi-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.emi-form-grid label{font-size:11px;color:var(--text-muted);font-weight:750}.emi-form-grid input{margin-top:6px}.emi-full{grid-column:1/-1}.emi-schedule{margin-top:12px;border:1px solid var(--border-color);border-radius:15px;overflow:auto;max-height:48vh;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}.emi-schedule-head,.emi-schedule-row{display:grid;grid-template-columns:52px 1.2fr .9fr .9fr .8fr;gap:7px;align-items:center;padding:9px 10px;font-size:10px}.emi-schedule-head{background:var(--input-bg);font-weight:850;color:var(--text-muted);position:sticky;top:0;z-index:2}.emi-schedule-row{border-top:1px solid var(--border-color);cursor:pointer}.emi-schedule-row:hover{background:var(--card-bg)}.emi-schedule-row.selected{background:rgba(0,122,255,.09);outline:1px solid var(--accent-blue)}.emi-paid{color:var(--accent-green);font-weight:850}.emi-pending{color:var(--accent-red);font-weight:850}.emi-import-note{padding:10px 12px;border-radius:12px;background:var(--input-bg);font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.5}.emi-card-select{width:100%;margin-top:10px;padding:9px 10px;border-radius:11px;border:1px solid var(--border-color);background:var(--input-bg);color:var(--text-main);font-size:10px;font-weight:800}.emi-selected-label{font-size:9px;color:var(--text-muted);font-weight:800;text-transform:uppercase;letter-spacing:.45px;margin-top:14px}.emi-selected-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:7px}.emi-selected-stat{background:var(--input-bg);border-radius:11px;padding:10px;min-width:0}.emi-selected-stat span{display:block;font-size:8px;color:var(--text-muted);font-weight:750}.emi-selected-stat strong{display:block;font-size:13px;font-weight:900;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.emi-selected-note{margin-top:8px;padding:9px 10px;border-radius:11px;background:var(--input-bg);font-size:9px;color:var(--text-muted);font-weight:700}.emi-detail-scroll{max-height:calc(88vh - 70px);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:10px}
+    .emi-modal-content{height:min(88vh,760px);max-height:88vh;min-height:0;overflow:hidden;overscroll-behavior:contain;touch-action:auto}.emi-modal-content>.modal-header{flex:0 0 auto}.emi-modal-content>#emiDetailsBody{min-height:0;flex:1;display:flex;flex-direction:column;overflow:hidden}.emi-modal-content>#emiDetailsBody>.emi-detail-scroll{flex:1;min-height:0;max-height:none;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}.emi-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.emi-form-grid label{font-size:11px;color:var(--text-muted);font-weight:750}.emi-form-grid input{margin-top:6px}.emi-full{grid-column:1/-1}.emi-schedule{margin-top:12px;border:1px solid var(--border-color);border-radius:15px;overflow:auto;max-height:48vh;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}.emi-schedule-head,.emi-schedule-row{display:grid;grid-template-columns:52px 1.2fr .9fr .9fr .8fr;gap:7px;align-items:center;padding:9px 10px;font-size:10px}.emi-schedule-head{background:var(--input-bg);font-weight:850;color:var(--text-muted);position:sticky;top:0;z-index:2}.emi-schedule-row{border-top:1px solid var(--border-color);cursor:pointer}.emi-schedule-row:hover{background:var(--card-bg)}.emi-schedule-row.selected{background:rgba(0,122,255,.09);outline:1px solid var(--accent-blue)}.emi-paid{color:var(--accent-green);font-weight:850}.emi-pending{color:var(--accent-red);font-weight:850}.emi-import-note{padding:10px 12px;border-radius:12px;background:var(--input-bg);font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.5}.emi-card-select{width:100%;margin-top:10px;padding:9px 10px;border-radius:11px;border:1px solid var(--border-color);background:var(--input-bg);color:var(--text-main);font-size:10px;font-weight:800}.emi-selected-label{font-size:9px;color:var(--text-muted);font-weight:800;text-transform:uppercase;letter-spacing:.45px;margin-top:14px}.emi-selected-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:7px}.emi-selected-stat{background:var(--input-bg);border-radius:11px;padding:10px;min-width:0}.emi-selected-stat span{display:block;font-size:8px;color:var(--text-muted);font-weight:750}.emi-selected-stat strong{display:block;font-size:13px;font-weight:900;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.emi-selected-note{margin-top:8px;padding:9px 10px;border-radius:11px;background:var(--input-bg);font-size:9px;color:var(--text-muted);font-weight:700}.emi-detail-scroll{max-height:calc(88vh - 70px);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:10px}
     @media(max-width:650px){.emi-summary-grid{grid-template-columns:1fr 1fr}.emi-card-grid{grid-template-columns:1fr 1fr}.emi-form-grid{grid-template-columns:1fr}.emi-full{grid-column:auto}.emi-schedule{overflow:auto}.emi-schedule-head,.emi-schedule-row{min-width:430px}.emi-toolbar{align-items:flex-start}.emi-actions{flex-wrap:wrap}}
 
     /* ===== FINAL INSIGHTS MAKEOVER ===== */
@@ -3143,9 +3145,10 @@
 
     let detailModalScrollY = 0;
     function lockDetailModal(lock) {
-      const body=document.body; if(!body)return;
-      if(lock){
-        if(!body.classList.contains('detail-modal-open')){
+      const body = document.body;
+      if (!body) return;
+      if (lock) {
+        if (!body.classList.contains('detail-modal-open')) {
           detailModalScrollY = window.scrollY || window.pageYOffset || 0;
           body.style.top = (-detailModalScrollY) + 'px';
         }
@@ -3155,6 +3158,19 @@
         body.style.top = '';
         window.scrollTo(0, detailModalScrollY || 0);
       }
+    }
+
+    // iOS Safari can ignore body overflow locking when a fixed overlay is open.
+    // Prevent only background touch movement; allow touch movement inside the
+    // actual scrollable detail/list containers.
+    if (!window.__ledgerTouchGuardInstalled) {
+      document.addEventListener('touchmove', function(e) {
+        if (!document.body.classList.contains('detail-modal-open')) return;
+        const target = e.target;
+        if (target && target.closest && target.closest('#recordDetailBody, #modalTransactionList, #insightsRecordsList, #searchResultsList')) return;
+        e.preventDefault();
+      }, { passive: false });
+      window.__ledgerTouchGuardInstalled = true;
     }
 
     function showCategoryDetails(categoryName) {
@@ -3235,13 +3251,14 @@
             <div class="tx-amt">${amt}</div>
           `;
 
-          itemEl.onclick = function() {
-            let catModal = document.getElementById('categoryModal');
+          itemEl.onclick = function(event) {
+            if (event) event.stopPropagation();
+            const catModal = document.getElementById('categoryModal');
             catModal.classList.remove('show');
             setTimeout(() => {
               catModal.style.display = 'none';
               openRecordDetail(txObj);
-            }, 200);
+            }, 120);
           };
 
           container.appendChild(itemEl);
