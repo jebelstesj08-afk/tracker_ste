@@ -43,6 +43,7 @@
       margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main);
       min-height: 100%; overflow-x: hidden;
     }
+    body.emi-modal-open { overflow:hidden; position:fixed; width:100%; }
 
     .app-container { min-height: 100vh; padding-bottom: 180px; }
     #Insights { padding-bottom: 180px !important; }
@@ -421,7 +422,7 @@
     .emi-card-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.emi-loan-name{font-size:16px;font-weight:900}.emi-lender{font-size:10px;color:var(--text-muted);margin-top:3px}.emi-status{padding:5px 8px;border-radius:999px;font-size:9px;font-weight:900;background:rgba(52,199,89,.12);color:#1f9d53}.emi-status.closed{background:var(--input-bg);color:var(--text-muted)}
     .emi-card-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:15px}.emi-metric-label{font-size:9px;color:var(--text-muted);font-weight:750}.emi-metric-value{font-size:14px;font-weight:850;margin-top:3px}.emi-next{background:var(--input-bg);border-radius:14px;padding:10px;margin-top:12px;display:flex;justify-content:space-between;gap:10px;align-items:center}.emi-next strong{font-size:12px}.emi-next span{font-size:10px;color:var(--text-muted)}
     .emi-empty{background:var(--card-bg);border:1px dashed var(--border-color);border-radius:20px;padding:35px 18px;text-align:center;color:var(--text-muted);font-size:12px}
-    .emi-modal-content{max-height:88vh}.emi-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.emi-form-grid label{font-size:11px;color:var(--text-muted);font-weight:750}.emi-form-grid input{margin-top:6px}.emi-full{grid-column:1/-1}.emi-schedule{margin-top:12px;border:1px solid var(--border-color);border-radius:15px;overflow:auto;max-height:48vh;-webkit-overflow-scrolling:touch}.emi-schedule-head,.emi-schedule-row{display:grid;grid-template-columns:52px 1.2fr .9fr .9fr .8fr;gap:7px;align-items:center;padding:9px 10px;font-size:10px}.emi-schedule-head{background:var(--input-bg);font-weight:850;color:var(--text-muted)}.emi-schedule-row{border-top:1px solid var(--border-color)}.emi-paid{color:var(--accent-green);font-weight:850}.emi-pending{color:var(--accent-red);font-weight:850}.emi-import-note{padding:10px 12px;border-radius:12px;background:var(--input-bg);font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.5}
+    .emi-modal-content{max-height:88vh;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}.emi-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.emi-form-grid label{font-size:11px;color:var(--text-muted);font-weight:750}.emi-form-grid input{margin-top:6px}.emi-full{grid-column:1/-1}.emi-schedule{margin-top:12px;border:1px solid var(--border-color);border-radius:15px;overflow:auto;max-height:48vh;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}.emi-schedule-head,.emi-schedule-row{display:grid;grid-template-columns:52px 1.2fr .9fr .9fr .8fr;gap:7px;align-items:center;padding:9px 10px;font-size:10px}.emi-schedule-head{background:var(--input-bg);font-weight:850;color:var(--text-muted);position:sticky;top:0;z-index:2}.emi-schedule-row{border-top:1px solid var(--border-color);cursor:pointer}.emi-schedule-row:hover{background:var(--card-bg)}.emi-schedule-row.selected{background:rgba(0,122,255,.09);outline:1px solid var(--accent-blue)}.emi-paid{color:var(--accent-green);font-weight:850}.emi-pending{color:var(--accent-red);font-weight:850}.emi-import-note{padding:10px 12px;border-radius:12px;background:var(--input-bg);font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.5}.emi-card-select{width:100%;margin-top:10px;padding:9px 10px;border-radius:11px;border:1px solid var(--border-color);background:var(--input-bg);color:var(--text-main);font-size:10px;font-weight:800}.emi-selected-label{font-size:9px;color:var(--text-muted);font-weight:800;text-transform:uppercase;letter-spacing:.45px;margin-top:14px}.emi-selected-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:7px}.emi-selected-stat{background:var(--input-bg);border-radius:11px;padding:10px;min-width:0}.emi-selected-stat span{display:block;font-size:8px;color:var(--text-muted);font-weight:750}.emi-selected-stat strong{display:block;font-size:13px;font-weight:900;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.emi-selected-note{margin-top:8px;padding:9px 10px;border-radius:11px;background:var(--input-bg);font-size:9px;color:var(--text-muted);font-weight:700}.emi-detail-scroll{max-height:calc(88vh - 70px);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:10px}
     @media(max-width:650px){.emi-summary-grid{grid-template-columns:1fr 1fr}.emi-card-grid{grid-template-columns:1fr 1fr}.emi-form-grid{grid-template-columns:1fr}.emi-full{grid-column:auto}.emi-schedule{overflow:auto}.emi-schedule-head,.emi-schedule-row{min-width:430px}.emi-toolbar{align-items:flex-start}.emi-actions{flex-wrap:wrap}}
 
     /* ===== FINAL INSIGHTS MAKEOVER ===== */
@@ -1706,24 +1707,51 @@
       return parseScheduleJSON(x.scheduleJSON);
     }
 
+    function getLoanScheduleStats(x, selectedEmiNo) {
+      const rows = getScheduleForLoan(x).slice().sort((a,b)=>Number(a.emiNo)-Number(b.emiNo));
+      const unpaid = rows.filter(r => String(r.status || 'Pending').toLowerCase() !== 'paid');
+      const next = unpaid[0] || null;
+      const current = rows.filter(r => String(r.status || 'Pending').toLowerCase() === 'paid')
+        .reduce((m,r)=>Math.max(m, Number(r.emiNo)||0), Number(x.currentEMINo)||0);
+      const selected = selectedEmiNo != null
+        ? (rows.find(r => Number(r.emiNo) === Number(selectedEmiNo)) || next || rows[0] || null)
+        : (next || rows[0] || null);
+      return { rows, unpaid, next, current, selected };
+    }
+
     function renderEMILoans(){
       const active=emiLoans.filter(x=>String(x.status||'Active').toLowerCase()!=='closed');
       const monthly=active.reduce((s,x)=>s+Number(x.emiAmount||0),0);
       const outstanding=active.reduce((s,x)=>s+Number(x.outstandingPrincipal||0),0);
       const now=new Date(); now.setHours(0,0,0,0);
-      const due=active.filter(x=>{const d=new Date((x.nextEMIDate||'')+'T00:00:00');return !isNaN(d.getTime())&&d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();}).length;
-      const remaining=active.reduce((s,x)=>s+Number(x.remainingEMIs||0),0);
+      const dueAmount=active.reduce((s,x)=>{
+        const stats=getLoanScheduleStats(x);
+        const d=stats.next ? new Date((stats.next.date||'')+'T00:00:00') : new Date((x.nextEMIDate||'')+'T00:00:00');
+        return !isNaN(d.getTime())&&d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth() ? s + Number(stats.next?.emi || x.emiAmount || 0) : s;
+      },0);
+      const remaining=active.reduce((s,x)=>{
+        const stats=getLoanScheduleStats(x);
+        return s+(stats.rows.length?stats.unpaid.length:Number(x.remainingEMIs||0));
+      },0);
       const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-      set('emiTotalMonthly',money(monthly)); set('emiTotalOutstanding',money(outstanding)); set('emiDueThisMonth',String(due)); set('emiTotalRemaining',String(remaining));
+      set('emiTotalMonthly',money(monthly)); set('emiTotalOutstanding',money(outstanding)); set('emiDueThisMonth',money(dueAmount)); set('emiTotalRemaining',String(remaining));
       set('emiLoanCount',active.length+' active loan'+(active.length===1?'':'s'));
       const list=document.getElementById('emiLoansList'); if(!list)return;
       if(!emiLoans.length){ list.innerHTML='<div class="emi-empty"><div style="font-size:28px;margin-bottom:8px">🏦</div>No EMI loans added yet.<br><br>Tap ＋ Add Loan to enter an existing or new loan.</div>'; return; }
       list.innerHTML=emiLoans.slice().sort((a,b)=>String(a.nextEMIDate).localeCompare(String(b.nextEMIDate))).map(x=>{
         const closed=String(x.status||'Active').toLowerCase()==='closed';
+        const stats=getLoanScheduleStats(x);
+        const rows=stats.rows;
+        const next=stats.next;
+        const displayRemaining=rows.length?stats.unpaid.length:Number(x.remainingEMIs||0);
+        const displayCurrent=rows.length?stats.current:Number(x.currentEMINo||0);
+        const displayNextDate=next?.date||x.nextEMIDate||'';
+        const options=rows.length ? rows.map(r=>`<option value="${Number(r.emiNo)}" ${next&&Number(r.emiNo)===Number(next.emiNo)?'selected':''}>EMI #${Number(r.emiNo)} · ${emiDate(r.date)} · ${money(r.emi)} · ${String(r.status||'Pending')}</option>`).join('') : '<option value="">No EMI schedule</option>';
         return `<div class="emi-card" onclick="openEMIDetails('${escEMI(x.loanId)}')">
           <div class="emi-card-head"><div><div class="emi-loan-name">${escEMI(x.loanName||'Unnamed Loan')}</div><div class="emi-lender">${escEMI(x.lender||'')} · ${escEMI(x.borrower||'')}</div></div><span class="emi-status ${closed?'closed':''}">${escEMI(x.status||'Active')}</span></div>
-          <div class="emi-card-grid"><div><div class="emi-metric-label">EMI</div><div class="emi-metric-value">${money(x.emiAmount)}</div></div><div><div class="emi-metric-label">Outstanding</div><div class="emi-metric-value">${money(x.outstandingPrincipal)}</div></div><div><div class="emi-metric-label">Remaining</div><div class="emi-metric-value">${displayRemaining}</div></div><div><div class="emi-metric-label">Next EMI</div><div class="emi-metric-value">${emiDate(x.nextEMIDate)}</div></div></div>
+          <div class="emi-card-grid"><div><div class="emi-metric-label">EMI</div><div class="emi-metric-value">${money(x.emiAmount)}</div></div><div><div class="emi-metric-label">Outstanding</div><div class="emi-metric-value">${money(x.outstandingPrincipal)}</div></div><div><div class="emi-metric-label">Remaining</div><div class="emi-metric-value">${displayRemaining}</div></div><div><div class="emi-metric-label">Next EMI</div><div class="emi-metric-value">${emiDate(displayNextDate)}</div></div></div>
           <div class="emi-next"><span>Current / last paid EMI</span><strong>#${displayCurrent}</strong></div>
+          <select class="emi-card-select" aria-label="Select EMI for ${escEMI(x.loanName)}" onclick="event.stopPropagation()" onchange="openEMIDetails('${escEMI(x.loanId)}', this.value)">${options}</select>
         </div>`;
       }).join('');
     }
@@ -1740,9 +1768,9 @@
         document.getElementById('emiOriginalAmount').value=x.originalAmount||''; document.getElementById('emiOutstanding').value=x.outstandingPrincipal||''; document.getElementById('emiAmount').value=x.emiAmount||''; document.getElementById('emiInterestRate').value=x.interestRate||'';
         document.getElementById('emiTenure').value=x.tenureMonths||''; document.getElementById('emiStartDate').value=normaliseDateInput(x.startDate); document.getElementById('emiCurrentNo').value=x.currentEMINo||''; document.getElementById('emiNextDate').value=normaliseDateInput(x.nextEMIDate); document.getElementById('emiRemaining').value=x.remainingEMIs||''; document.getElementById('emiEndDate').value=normaliseDateInput(x.endDate); document.getElementById('emiStatus').value=x.status||'Active';
       }
-      const m=document.getElementById('emiLoanModal');m.style.display='flex';setTimeout(()=>m.classList.add('show'),10);
+      const m=document.getElementById('emiLoanModal');m.style.display='flex';setEMIModalLock(true);setTimeout(()=>m.classList.add('show'),10);
     }
-    function closeEMILoanModal(event){if(event&&event.target.id!=='emiLoanModal')return;const m=document.getElementById('emiLoanModal');if(!m)return;m.classList.remove('show');setTimeout(()=>m.style.display='none',250);}
+    function closeEMILoanModal(event){if(event&&event.target.id!=='emiLoanModal')return;const m=document.getElementById('emiLoanModal');if(!m)return;m.classList.remove('show');setTimeout(()=>{m.style.display='none';setEMIModalLock(false);},250);}
 
     async function saveEMILoan(){
       const name=document.getElementById('emiLoanName').value.trim(), lender=document.getElementById('emiLender').value.trim();
@@ -1787,36 +1815,73 @@
       if(!confirm('Delete this loan and its EMI schedule?'))return;
       try{await postEMI({action:'deleteLoan',loanId:String(loanId)});await refreshEMILoans();closeEMIDetails();}catch(e){alert('Could not delete loan: '+e.message);}
     }
-    function openEMIDetails(loanId){
+    function openEMIDetails(loanId, selectedEmiNo){
       const x=emiLoans.find(a=>String(a.loanId)===String(loanId));if(!x)return;
-      const rows=getScheduleForLoan(x), body=document.getElementById('emiDetailsBody');
-      const next=rows.find(r=>String(r.status).toLowerCase()!=='paid');
+      const stats=getLoanScheduleStats(x, selectedEmiNo);
+      const rows=stats.rows;
+      const selected=stats.selected;
+      const next=stats.next;
+      const body=document.getElementById('emiDetailsBody');
+      if(!body)return;
+
+      const selectedNo=selected ? Number(selected.emiNo) : Number(x.currentEMINo||0)+1;
+      const selectedStatus=selected ? String(selected.status||'Pending') : 'Pending';
+      const selectedDate=selected?.date||x.nextEMIDate||'';
+      const selectedOutstanding=selected ? Number(selected.outstanding||0) : Number(x.outstandingPrincipal||0);
+      const selectedMonth=selectedDate ? new Date(selectedDate+'T00:00:00') : null;
+      const amountLeft=rows.length
+        ? rows.filter(r=>Number(r.emiNo)>=selectedNo && String(r.status||'Pending').toLowerCase()!=='paid').reduce((s,r)=>s+Number(r.emi||0),0)
+        : Number(x.emiAmount||0)*Number(x.remainingEMIs||0);
+      const dueThisMonth=rows.length && selectedMonth && !isNaN(selectedMonth.getTime())
+        ? rows.filter(r=>{
+            const d=new Date((r.date||'')+'T00:00:00');
+            return String(r.status||'Pending').toLowerCase()!=='paid' && !isNaN(d.getTime()) && d.getFullYear()===selectedMonth.getFullYear() && d.getMonth()===selectedMonth.getMonth();
+          }).reduce((s,r)=>s+Number(r.emi||0),0)
+        : (selectedMonth && selectedMonth.getFullYear()===new Date().getFullYear() && selectedMonth.getMonth()===new Date().getMonth() ? Number(x.emiAmount||0) : 0);
+      const finalDate=rows.length ? rows[rows.length-1].date : (x.endDate||'');
       const nextNo=next?Number(next.emiNo):Number(x.currentEMINo||0)+1;
-      const displayNextDate=next?.date||x.nextEMIDate||'';
-      const displayRemaining=rows.length?rows.filter(r=>String(r.status).toLowerCase()!=='paid').length:Number(x.remainingEMIs||0);
-      const paidRows=rows.filter(r=>String(r.status).toLowerCase()==='paid');
-      const displayCurrent=rows.length?(paidRows.length?Math.max.apply(null,paidRows.map(r=>Number(r.emiNo)||0)):0):Number(x.currentEMINo||0);
-      const payButton = (x.status !== 'Closed' && next) ? `<button class="emi-btn primary" onclick="markEMIPaid('${escEMI(x.loanId)}',${nextNo})">Mark EMI #${nextNo} Paid</button>` : '';
-      body.innerHTML=`<div class="emi-form-grid">
-        <div><b>Lender</b><br>${escEMI(x.lender)}</div><div><b>Borrower</b><br>${escEMI(x.borrower)}</div>
-        <div><b>Loan account</b><br>${escEMI(x.loanAccount||'—')}</div><div><b>Original amount</b><br>${money(x.originalAmount)}</div>
-        <div><b>Outstanding</b><br>${money(x.outstandingPrincipal)}</div><div><b>EMI</b><br>${money(x.emiAmount)}</div>
-        <div><b>Interest rate</b><br>${x.interestRate||0}%</div><div><b>Tenure</b><br>${x.tenureMonths||0} months</div>
-        <div><b>Current / last paid EMI</b><br>#${displayCurrent}</div><div><b>Next EMI</b><br>${emiDate(displayNextDate)}</div>
-        <div><b>Remaining</b><br>${displayRemaining}</div><div><b>End date</b><br>${emiDate(x.endDate||(rows.length?rows[rows.length-1].date:''))}</div>
-      </div>
-      <div class="emi-actions" style="margin-top:15px"><button class="emi-btn" onclick="openEMILoanModal('${escEMI(x.loanId)}');closeEMIDetails()">Edit</button>${payButton}<button class="emi-btn" onclick="deleteEMILoan('${escEMI(x.loanId)}')">Delete</button></div>
-      <div class="emi-schedule"><div class="emi-schedule-head"><span>#</span><span>Date</span><span>EMI</span><span>Principal</span><span>Status</span></div>${rows.length?rows.map(r=>`<div class="emi-schedule-row"><span>${Number(r.emiNo)}</span><span>${emiDate(r.date)}</span><span>${money(r.emi)}</span><span>${money(r.principal)}</span><span class="${String(r.status).toLowerCase()==='paid'?'emi-paid':'emi-pending'}">${escEMI(r.status)}</span></div>`).join(''):'<div style="padding:14px;color:var(--text-muted);font-size:10px">No detailed schedule found in EMI_Schedule.</div>'}</div>`;
-      const m=document.getElementById('emiDetailsModal');m.style.display='flex';setTimeout(()=>m.classList.add('show'),10);
+      const payButton=(x.status!=='Closed' && selected && String(selected.status).toLowerCase()!=='paid')
+        ? `<button class="emi-btn primary" onclick="markEMIPaid('${escEMI(x.loanId)}',${selectedNo})">Mark EMI #${selectedNo} Paid</button>`
+        : (x.status!=='Closed' && next ? `<button class="emi-btn primary" onclick="markEMIPaid('${escEMI(x.loanId)}',${nextNo})">Mark EMI #${nextNo} Paid</button>` : '');
+
+      const selector=rows.length ? `<label class="emi-selected-label">Selected EMI<select class="emi-card-select" onchange="openEMIDetails('${escEMI(x.loanId)}', this.value)">${rows.map(r=>`<option value="${Number(r.emiNo)}" ${Number(r.emiNo)===selectedNo?'selected':''}>EMI #${Number(r.emiNo)} · ${emiDate(r.date)} · ${money(r.emi)} · ${String(r.status||'Pending')}</option>`).join('')}</select></label>` : '';
+      const scheduleHTML=rows.length ? rows.map(r=>{
+        const no=Number(r.emiNo);
+        const cls=String(r.status).toLowerCase()==='paid'?'emi-paid':'emi-pending';
+        return `<div class="emi-schedule-row ${no===selectedNo?'selected':''}" onclick="openEMIDetails('${escEMI(x.loanId)}',${no})"><span>${no}</span><span>${emiDate(r.date)}</span><span>${money(r.emi)}</span><span>${money(r.principal)}</span><span class="${cls}">${escEMI(r.status)}</span></div>`;
+      }).join('') : '<div style="padding:14px;color:var(--text-muted);font-size:10px">No detailed schedule found in EMI_Schedule.</div>';
+
+      body.innerHTML=`<div class="emi-detail-scroll">
+        <div class="emi-selected-label">Selected EMI #${selectedNo} · ${escEMI(selectedStatus)}</div>
+        <div class="emi-selected-grid">
+          <div class="emi-selected-stat"><span>Total Outstanding</span><strong>${money(selectedOutstanding)}</strong></div>
+          <div class="emi-selected-stat"><span>Amount Left to Pay</span><strong>${money(amountLeft)}</strong></div>
+          <div class="emi-selected-stat"><span>Due This Month</span><strong>${money(dueThisMonth)}</strong></div>
+          <div class="emi-selected-stat"><span>Final EMI Date</span><strong>${emiDate(finalDate)}</strong></div>
+        </div>
+        <div class="emi-selected-note">Figures above are based on the EMI you selected. Outstanding is the schedule balance for that EMI; amount left includes unpaid EMIs from the selected EMI onward; due this month uses the selected EMI's month.</div>
+        ${selector}
+        <div class="emi-form-grid" style="margin-top:12px">
+          <div><b>Lender</b><br>${escEMI(x.lender)}</div><div><b>Borrower</b><br>${escEMI(x.borrower)}</div>
+          <div><b>Loan account</b><br>${escEMI(x.loanAccount||'—')}</div><div><b>Original amount</b><br>${money(x.originalAmount)}</div>
+          <div><b>EMI amount</b><br>${money(selected?.emi||x.emiAmount)}</div><div><b>Interest</b><br>${money(selected?.interest||0)}</div>
+          <div><b>Principal</b><br>${money(selected?.principal||0)}</div><div><b>Selected EMI date</b><br>${emiDate(selectedDate)}</div>
+          <div><b>Current / last paid EMI</b><br>#${stats.current}</div><div><b>Next unpaid EMI</b><br>#${nextNo} · ${emiDate(next?.date||x.nextEMIDate)}</div>
+          <div><b>Remaining EMIs</b><br>${rows.length?stats.unpaid.length:Number(x.remainingEMIs||0)}</div><div><b>Loan final date</b><br>${emiDate(finalDate)}</div>
+        </div>
+        <div class="emi-actions" style="margin-top:15px"><button class="emi-btn" onclick="openEMILoanModal('${escEMI(x.loanId)}');closeEMIDetails()">Edit</button>${payButton}<button class="emi-btn" onclick="deleteEMILoan('${escEMI(x.loanId)}')">Delete</button></div>
+        <div class="emi-schedule"><div class="emi-schedule-head"><span>#</span><span>Date</span><span>EMI</span><span>Principal</span><span>Status</span></div>${scheduleHTML}</div>
+      </div>`;
+      const m=document.getElementById('emiDetailsModal');m.style.display='flex';setEMIModalLock(true);setTimeout(()=>m.classList.add('show'),10);
     }
-    function closeEMIDetails(event){if(event&&event.target.id!=='emiDetailsModal')return;const m=document.getElementById('emiDetailsModal');if(!m)return;m.classList.remove('show');setTimeout(()=>m.style.display='none',250);}
+    function closeEMIDetails(event){if(event&&event.target.id!=='emiDetailsModal')return;const m=document.getElementById('emiDetailsModal');if(!m)return;m.classList.remove('show');setTimeout(()=>{m.style.display='none';setEMIModalLock(false);},250);}
     function openEMISummary(kind){
       const active=emiLoans.filter(x=>String(x.status||'Active').toLowerCase()!=='closed'); let title='', html='';
-      if(kind==='monthly'){title='Monthly EMI Breakdown';html=active.map(x=>`<div class="transaction-item" onclick="openEMIDetails('${escEMI(x.loanId)}')"><div class="tx-left"><div class="tx-desc">${escEMI(x.loanName)}</div><div class="tx-meta">${escEMI(x.lender)} · ${emiDate(x.nextEMIDate)}</div></div><div class="tx-amt">${money(x.emiAmount)}</div></div>`).join('')||'<div class="insight-empty">No active loans.</div>';}
+      if(kind==='monthly'){title='Monthly EMI Breakdown';html=active.map(x=>{const s=getLoanScheduleStats(x);return `<div class="transaction-item" onclick="openEMIDetails('${escEMI(x.loanId)}',${s.next?Number(s.next.emiNo):0})"><div class="tx-left"><div class="tx-desc">${escEMI(x.loanName)}</div><div class="tx-meta">${escEMI(x.lender)} · ${emiDate(s.next?.date||x.nextEMIDate)}</div></div><div class="tx-amt">${money(x.emiAmount)}</div></div>`}).join('')||'<div class="insight-empty">No active loans.</div>';}
       if(kind==='outstanding'){title='Outstanding Loans';html=active.map(x=>`<div class="transaction-item" onclick="openEMIDetails('${escEMI(x.loanId)}')"><div class="tx-left"><div class="tx-desc">${escEMI(x.loanName)}</div><div class="tx-meta">${escEMI(x.lender)}</div></div><div class="tx-amt">${money(x.outstandingPrincipal)}</div></div>`).join('')||'<div class="insight-empty">No active loans.</div>';}
-      if(kind==='due'){title='EMIs Due This Month';const now=new Date();html=active.filter(x=>{const d=new Date((x.nextEMIDate||'')+'T00:00:00');return !isNaN(d.getTime())&&d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();}).map(x=>`<div class="transaction-item" onclick="openEMIDetails('${escEMI(x.loanId)}')"><div class="tx-left"><div class="tx-desc">${escEMI(x.loanName)}</div><div class="tx-meta">Due ${emiDate(x.nextEMIDate)}</div></div><div class="tx-amt">${money(x.emiAmount)}</div></div>`).join('')||'<div class="insight-empty">No EMI due this month.</div>';}
-      if(kind==='remaining'){title='Remaining EMIs';html=active.map(x=>`<div class="transaction-item" onclick="openEMIDetails('${escEMI(x.loanId)}')"><div class="tx-left"><div class="tx-desc">${escEMI(x.loanName)}</div><div class="tx-meta">${escEMI(x.lender)}</div></div><div class="tx-amt">${displayRemaining}</div></div>`).join('')||'<div class="insight-empty">No active loans.</div>';}
-      const m=document.getElementById('emiDetailsModal');document.getElementById('emiDetailsTitle').textContent=title;document.getElementById('emiDetailsBody').innerHTML=html;m.style.display='flex';setTimeout(()=>m.classList.add('show'),10);
+      if(kind==='due'){title='EMIs Due This Month';const now=new Date();html=active.map(x=>{const s=getLoanScheduleStats(x);return s.next&&s.next.date?{x,s}:null}).filter(Boolean).filter(o=>{const d=new Date(o.s.next.date+'T00:00:00');return !isNaN(d.getTime())&&d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();}).map(o=>`<div class="transaction-item" onclick="openEMIDetails('${escEMI(o.x.loanId)}',${Number(o.s.next.emiNo)})"><div class="tx-left"><div class="tx-desc">${escEMI(o.x.loanName)}</div><div class="tx-meta">Due ${emiDate(o.s.next.date)}</div></div><div class="tx-amt">${money(o.s.next.emi||o.x.emiAmount)}</div></div>`).join('')||'<div class="insight-empty">No EMI due this month.</div>';}
+      if(kind==='remaining'){title='Remaining EMIs';html=active.map(x=>{const s=getLoanScheduleStats(x);const rem=s.rows.length?s.unpaid.length:Number(x.remainingEMIs||0);return `<div class="transaction-item" onclick="openEMIDetails('${escEMI(x.loanId)}',${s.next?Number(s.next.emiNo):0})"><div class="tx-left"><div class="tx-desc">${escEMI(x.loanName)}</div><div class="tx-meta">${escEMI(x.lender)}</div></div><div class="tx-amt">${rem}</div></div>`}).join('')||'<div class="insight-empty">No active loans.</div>';}
+      const m=document.getElementById('emiDetailsModal');document.getElementById('emiDetailsTitle').textContent=title;document.getElementById('emiDetailsBody').innerHTML='<div class="emi-detail-scroll">'+html+'</div>';m.style.display='flex';setEMIModalLock(true);setTimeout(()=>m.classList.add('show'),10);
     }
 
 
