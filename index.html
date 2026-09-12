@@ -965,7 +965,7 @@
 
 /* Fixed navigation never covers page content; detail sheets hide it. */
 .app-container{padding-bottom:145px}
-body.emi-modal-open .nav-wrapper{display:none!important}
+body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:none!important} body:has(.modal-overlay.show) .nav-wrapper{display:none!important}
 .modal-content{padding-bottom:calc(24px + env(safe-area-inset-bottom) + 18px)}
 #recordDetailModal .modal-content,#categoryModal .modal-content,#insightsRecordsModal .modal-content,#searchModal .modal-content{width:100%;max-width:393px;max-height:82vh;height:82vh;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 #recordDetailBody,#modalTransactionList,#insightsRecordsList,#searchResultsList{overflow:visible!important;max-height:none!important;touch-action:auto!important}
@@ -2705,7 +2705,7 @@ body.emi-modal-open .nav-wrapper{display:none!important}
             const sign = row.type === 'Income' ? '+' : '−';
             const subtitle = `${row.type} • ${row.cat}${row.paymentMethod ? ' • ' + row.paymentMethod : ''}`;
             html += `
-              <div class="ledger-record" role="button" tabindex="0" aria-label="View transaction details" onclick='openRecordDetailEncoded("${encodeURIComponent(JSON.stringify(row))}")'>
+              <div class="ledger-record" data-ledger-action="record" data-tx-index="${periodRecords.indexOf(row)}" role="button" tabindex="0" aria-label="View transaction details" onclick="openLedgerRecord(${periodRecords.indexOf(row)})">
                 <div class="ledger-record-icon">${ledgerIconFor(row)}</div>
                 <div class="ledger-record-main">
                   <div class="ledger-record-title">${row.desc || row.cat}</div>
@@ -2731,7 +2731,7 @@ body.emi-modal-open .nav-wrapper{display:none!important}
             const share = totalExp ? ((amt / totalExp) * 100).toFixed(1) : '0.0';
             const catCount = periodRecords.filter(tx => { const displayCat = (tx.type === 'Fuel' || tx.type === 'Service') ? `Veh - ${tx.cat}` : tx.cat; return displayCat === catName; }).length;
             html += `
-              <div class="ledger-category-card" data-ledger-action="category" data-category="${encodeURIComponent(catName)}" role="button" tabindex="0" onclick='showCategoryDetailsEncoded("${encodeURIComponent(catName)}")'>
+              <div class="ledger-category-card" data-ledger-action="category" data-category="${encodeURIComponent(catName)}" onclick="showCategoryDetailsEncoded(this.dataset.category)">
                 <div class="ledger-category-top">
                   <div class="ledger-category-left">
                     <div class="ledger-category-icon" style="background:${color}20;">${emoji}</div>
@@ -2747,7 +2747,7 @@ body.emi-modal-open .nav-wrapper{display:none!important}
         }
       } else if(viewMode === 'savings') {
         html += `<div class="ledger-section-head"><div><div class="ledger-section-title">Savings portfolio</div><div class="ledger-section-subtitle">All-time savings for the selected person</div></div></div>`;
-        html += `<div class="ledger-savings-hero" data-ledger-action="category" data-category="All%20Savings" role="button" tabindex="0" onclick='showCategoryDetailsEncoded("All%20Savings")'><div class="ledger-savings-hero-row"><div><div class="ledger-savings-hero-label">Total saved</div><div class="ledger-savings-hero-value">${formatINR(totalCumulativeSavings)}</div><div class="ledger-savings-hero-note">${formatINR(totalSavingsPeriod)} added in this period</div></div><div style="font-size:28px; opacity:.9;">💰</div></div></div>`;
+        html += `<div class="ledger-savings-hero" data-ledger-action="category" data-category="All%20Savings" onclick="showCategoryDetailsEncoded(this.dataset.category)"><div class="ledger-savings-hero-row"><div><div class="ledger-savings-hero-label">Total saved</div><div class="ledger-savings-hero-value">${formatINR(totalCumulativeSavings)}</div><div class="ledger-savings-hero-note">${formatINR(totalSavingsPeriod)} added in this period</div></div><div style="font-size:28px; opacity:.9;">💰</div></div></div>`;
         const entries = Object.entries(savingsPortfolio).sort((a,b)=>b[1]-a[1]);
         html += `<div style="height:8px"></div><div class="ledger-section-head"><div><div class="ledger-section-title">By savings type</div><div class="ledger-section-subtitle">Tap any item to see the underlying records</div></div></div>`;
         if(!entries.length) {
@@ -2761,7 +2761,7 @@ body.emi-modal-open .nav-wrapper{display:none!important}
             const pct = Math.max(3, Math.round((amt / maxSav) * 100));
             const catCount = periodRecords.filter(tx => tx.type === 'Savings' && tx.cat === catName).length;
             html += `
-              <div class="ledger-category-card" data-ledger-action="category" data-category="${encodeURIComponent(catName)}" role="button" tabindex="0" onclick='showCategoryDetailsEncoded("${encodeURIComponent(catName)}")'>
+              <div class="ledger-category-card" data-ledger-action="category" data-category="${encodeURIComponent(catName)}" onclick="showCategoryDetailsEncoded(this.dataset.category)">
                 <div class="ledger-category-top"><div class="ledger-category-left"><div class="ledger-category-icon" style="background:${color}20;">${emoji}</div><div><div class="ledger-category-name">${catName}</div><div class="ledger-category-count">${catCount} transaction${catCount===1?'':'s'}</div></div></div><div class="ledger-category-amt">${formatINR(amt)}</div></div>
                 <div class="ledger-category-track"><div class="ledger-category-fill" style="width:${pct}%; background:${color};"></div></div>
               </div>`;
@@ -2772,12 +2772,6 @@ body.emi-modal-open .nav-wrapper{display:none!important}
 
       container.innerHTML = html;
     }
-
-    // Robust Ledger interaction: use one delegated pointer/click handler on the
-    // stable container instead of inline onclick handlers on dynamically-created
-    // cards. This avoids iOS Safari issues with regenerated DOM nodes and
-    // guarantees Recent Records / Categories / Savings remain clickable.
-
 
     function normalizeTransactionType(value) {
       const t = String(value == null ? '' : value).trim().toLowerCase();
@@ -3254,6 +3248,19 @@ body.emi-modal-open .nav-wrapper{display:none!important}
       modal.classList.remove('show');
       document.body.classList.remove('ui-detail-open');
       setTimeout(() => modal.style.display = 'none', 250);
+    }
+
+    // Ledger uses direct click handlers just like the working Insights detail rows.
+    // This avoids conflicts with delegated handlers when the Ledger list is regenerated.
+    function openLedgerRecord(index) {
+      try {
+        const rows = Array.isArray(window.__ledgerPeriodRecords) ? window.__ledgerPeriodRecords : [];
+        const tx = rows[Number(index)];
+        if (!tx) return;
+        openRecordDetail(tx);
+      } catch (e) {
+        console.error('Ledger record detail error:', e);
+      }
     }
 
     function openRecordDetail(tx) {
