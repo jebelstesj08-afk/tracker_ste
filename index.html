@@ -386,8 +386,8 @@
     .modal-overlay { position: fixed; inset: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; opacity: 0; transition: opacity 0.3s ease; overflow: hidden; overscroll-behavior: none; touch-action: auto; }
     .modal-overlay.show { display: flex; opacity: 1; }
     
-    #categoryModal { z-index: 2147483647 !important; }
-    #recordDetailModal { z-index: 2147483647 !important; }
+    #categoryModal { z-index: 2147483647 !important; pointer-events: auto !important; }
+    #recordDetailModal { z-index: 2147483647 !important; pointer-events: auto !important; }
 
     .modal-content { background: var(--bg-color); width: 100%; max-height: 85vh; min-height: 50vh; border-radius: 32px 32px 0 0; padding: 24px; padding-bottom: calc(24px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
     .modal-overlay.show .modal-content { transform: translateY(0); }
@@ -988,7 +988,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 .ledger-category-card::after,.ledger-savings-hero::after{position:absolute;right:12px;top:50%;transform:translateY(-50%)}
 .ledger-category-card{padding-right:34px}
 .ledger-savings-hero{padding-right:42px;cursor:pointer}
-.ledger-record{padding-right:8px}
+.ledger-record{padding-right:8px;position:relative;z-index:2;pointer-events:auto!important;touch-action:manipulation}
 .ledger-record-amount{margin-left:auto}
 .ledger-record .ledger-record-main{min-width:0}
 
@@ -2717,7 +2717,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
             const sign = row.type === 'Income' ? '+' : '−';
             const subtitle = `${row.type} • ${row.cat}${row.paymentMethod ? ' • ' + row.paymentMethod : ''}`;
             html += `
-              <div class="ledger-record" role="button" tabindex="0" aria-label="View transaction details" onclick='openRecordDetail(${JSON.stringify(row).replace(/'/g, "&#39;")})'>
+              <div class="ledger-record" role="button" tabindex="0" aria-label="View transaction details" data-ledger-index="${periodRecords.indexOf(row)}" onclick="openLedgerRecordByIndex(${periodRecords.indexOf(row)})" onpointerup="openLedgerRecordByIndex(${periodRecords.indexOf(row)})">
                 <div class="ledger-record-icon">${ledgerIconFor(row)}</div>
                 <div class="ledger-record-main">
                   <div class="ledger-record-title">${row.desc || row.cat}</div>
