@@ -9,6 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Tracker">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
   <style>
     :root {
@@ -917,7 +918,15 @@
   .nav-pill{width:min(92vw,360px)!important}
 }
 
-</style>
+
+/* Tab 4: EMI-first mode */
+.tab4-mode-switch{display:flex;gap:6px;padding:5px;background:var(--input-bg);border:1px solid var(--border-color);border-radius:16px;margin:0 0 12px}
+.tab4-mode-btn{flex:1;border:0;background:transparent;color:var(--text-muted);padding:11px 12px;border-radius:12px;font-size:12px;font-weight:850;cursor:pointer}
+.tab4-mode-btn.active{background:var(--card-bg);color:var(--text-main);box-shadow:0 4px 14px rgba(0,0,0,.07)}
+.tab4-mode-view{display:none}.tab4-mode-view.active{display:block}
+.emi-dashboard{max-width:1120px;margin:0 auto;padding-bottom:20px}.emi-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:4px 0 12px}.emi-title{font-size:24px;font-weight:950;letter-spacing:-1px}.emi-sub{font-size:10px;color:var(--text-muted);font-weight:650;margin-top:4px}.emi-add{border:0;border-radius:13px;background:var(--text-main);color:var(--card-bg);padding:10px 13px;font-weight:850;cursor:pointer;white-space:nowrap}.emi-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:12px}.emi-summary-card{padding:14px;border-radius:18px}.emi-summary-card span{display:block;font-size:9px;color:var(--text-muted);font-weight:750;text-transform:uppercase;letter-spacing:.4px}.emi-summary-card strong{display:block;font-size:19px;margin-top:6px;letter-spacing:-.5px}.emi-loans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.emi-card{border-radius:20px;padding:15px;position:relative}.emi-card-head{display:flex;justify-content:space-between;gap:10px}.emi-card-name{font-size:15px;font-weight:900}.emi-card-lender{font-size:9px;color:var(--text-muted);margin-top:3px;font-weight:700}.emi-badge{font-size:8px;font-weight:900;padding:6px 8px;border-radius:999px;background:var(--input-bg);white-space:nowrap}.emi-card-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:13px}.emi-metric span{display:block;font-size:8px;color:var(--text-muted);font-weight:700}.emi-metric strong{display:block;font-size:13px;margin-top:3px}.emi-actions{display:flex;gap:7px;margin-top:13px}.emi-actions button{flex:1;border:1px solid var(--border-color);background:var(--input-bg);color:var(--text-main);border-radius:11px;padding:9px;font-size:10px;font-weight:850;cursor:pointer}.emi-actions .danger{color:var(--accent-red)}.emi-empty{padding:28px 16px;text-align:center;border:1px dashed var(--border-color);border-radius:20px;color:var(--text-muted);font-size:11px;font-weight:700;grid-column:1/-1}.emi-modal{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:3000;display:none;align-items:flex-end;justify-content:center;padding:12px}.emi-modal.open{display:flex}.emi-modal-card{width:min(680px,100%);max-height:90vh;overflow:auto;background:var(--card-bg);border-radius:24px;padding:17px;box-shadow:0 24px 70px rgba(0,0,0,.28)}.emi-modal-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px}.emi-close{border:0;background:var(--input-bg);color:var(--text-main);width:34px;height:34px;border-radius:11px;font-size:18px;cursor:pointer}.emi-form{display:grid;grid-template-columns:1fr 1fr;gap:9px}.emi-form label{font-size:9px;color:var(--text-muted);font-weight:800}.emi-form input{margin-top:5px;padding:11px;font-size:13px}.emi-form .full{grid-column:1/-1}.emi-file{padding:11px;border:1px dashed var(--border-color);border-radius:13px;background:var(--input-bg);width:100%;margin-top:5px;font-size:11px}.emi-import-status{font-size:10px;color:var(--text-muted);line-height:1.45;padding:9px;border-radius:12px;background:var(--input-bg);margin-top:8px}.emi-schedule-preview{margin-top:10px;border:1px solid var(--border-color);border-radius:14px;overflow:auto;max-height:190px}.emi-schedule-preview table{width:100%;border-collapse:collapse;font-size:9px}.emi-schedule-preview th,.emi-schedule-preview td{padding:7px;border-bottom:1px solid var(--border-color);text-align:left;white-space:nowrap}.emi-save{width:100%;border:0;background:var(--text-main);color:var(--card-bg);border-radius:13px;padding:13px;margin-top:10px;font-weight:900;cursor:pointer}.emi-detail-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--border-color);font-size:10px}.emi-detail-row:last-child{border-bottom:0}.emi-detail-row span:first-child{color:var(--text-muted);font-weight:700}.emi-detail-row strong{text-align:right}@media(max-width:760px){.emi-summary{grid-template-columns:repeat(2,1fr)}.emi-loans{grid-template-columns:1fr}.emi-form{grid-template-columns:1fr}.emi-form .full{grid-column:auto}}
+
+  </style>
 </head>
 <body>
 
@@ -1197,6 +1206,22 @@
 
   <!-- TAB 4: INSIGHTS / ANALYTICS TAB -->
   <div id="Insights" class="tab-content">
+    <div class="tab4-mode-switch" role="tablist" aria-label="Tab 4 sections">
+      <button id="tab4ModeEmi" class="tab4-mode-btn active" type="button" onclick="setTab4Mode('emi')">🏦 EMI Loans</button>
+      <button id="tab4ModeInsights" class="tab4-mode-btn" type="button" onclick="setTab4Mode('insights')">📊 Insights</button>
+    </div>
+    <div id="tab4EmiView" class="tab4-mode-view active">
+      <div class="emi-dashboard">
+        <div class="emi-head"><div><div class="emi-title">EMI Loans</div><div class="emi-sub">Existing and ongoing loans. Upload a payment schedule PDF to pre-fill details.</div></div><button type="button" class="emi-add" onclick="openEmiModal()">＋ Add Loan</button></div>
+        <div class="emi-summary">
+          <div class="insights-card emi-summary-card"><span>Monthly EMI</span><strong id="emiMonthlyTotal">₹0</strong></div>
+          <div class="insights-card emi-summary-card"><span>Outstanding</span><strong id="emiOutstandingTotal">₹0</strong></div>
+          <div class="insights-card emi-summary-card"><span>Due this month</span><strong id="emiDueCount">0</strong></div>
+          <div class="insights-card emi-summary-card"><span>Active loans</span><strong id="emiActiveCount">0</strong></div>
+        </div>
+        <div id="emiLoansList" class="emi-loans"></div>
+      </div>
+    </div>
     <div id="householdInsightPanel" class="insight-mode-panel active">
 
     <div class="insights-page">
@@ -1468,6 +1493,21 @@
  
 
   </div>
+
+
+    <div id="emiModal" class="emi-modal" aria-hidden="true" onclick="closeEmiModal(event)">
+      <div class="emi-modal-card" onclick="event.stopPropagation()">
+        <div class="emi-modal-head"><div><div class="insights-panel-title">Add / Import EMI Loan</div><div class="insights-panel-sub">Upload the payment schedule PDF, review the detected details, then save.</div></div><button type="button" class="emi-close" onclick="closeEmiModal()">×</button></div>
+        <div class="emi-form">
+          <label>Loan name<input id="emiLoanName" type="text" placeholder="Personal Loan"></label><label>Lender<input id="emiLender" type="text" placeholder="HDFC Bank"></label>
+          <label>EMI amount<input id="emiAmount" type="number" min="0" step="0.01" placeholder="12450"></label><label>Next payment<input id="emiNextDate" type="date"></label>
+          <label>Outstanding balance<input id="emiOutstanding" type="number" min="0" step="0.01" placeholder="214850"></label><label>Remaining EMIs<input id="emiRemaining" type="number" min="0" step="1" placeholder="18"></label>
+          <label>Current EMI number<input id="emiCurrentNo" type="number" min="0" step="1" placeholder="19"></label><label>Total tenure<input id="emiTenure" type="number" min="0" step="1" placeholder="36"></label>
+          <label class="full">Payment schedule PDF<input id="emiPdf" class="emi-file" type="file" accept="application/pdf" onchange="importEmiPdf(event)"></label>
+        </div>
+        <div id="emiImportStatus" class="emi-import-status">No PDF imported yet.</div><div id="emiSchedulePreview" class="emi-schedule-preview" style="display:none"></div><button type="button" class="emi-save" onclick="saveEmiLoan()">Save Loan</button>
+      </div>
+    </div>
 
   <!-- GLOBAL MODALS: kept outside all tab-content containers -->
   <!-- SEARCH MODAL -->
@@ -3336,7 +3376,24 @@ function showSpendingDay(day){
   var summary=document.getElementById('spendingCalendarSummary');
   if(summary)summary.textContent=new Date(y,m,day).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})+' · ₹'+Math.round(total).toLocaleString('en-IN')+' spent · '+count+' transaction'+(count===1?'':'s');
 }
-function initTab4Extras(){loadRecurringPayments();renderSpendingCalendar();}
+
+/* EMI Loans — default Tab 4 view. Data is stored locally and PDF text is parsed in-browser. */
+var emiLoans=[]; var emiPdfSchedule=[];
+function loadEmiLoans(){try{emiLoans=JSON.parse(localStorage.getItem('emiLoans')||'[]');if(!Array.isArray(emiLoans))emiLoans=[];}catch(e){emiLoans=[];}renderEmiLoans();}
+function saveEmiLoans(){localStorage.setItem('emiLoans',JSON.stringify(emiLoans));}
+function emiMoney(v){return '₹'+Math.round(Number(v)||0).toLocaleString('en-IN');}
+function setTab4Mode(mode){var isEmi=mode==='emi';var ev=document.getElementById('tab4EmiView'),iv=document.getElementById('householdInsightPanel'),tools=document.querySelector('.tab4-tools-grid');if(ev)ev.classList.toggle('active',isEmi);if(iv)iv.style.display=isEmi?'none':'';if(tools)tools.style.display=isEmi?'none':'';document.getElementById('tab4ModeEmi').classList.toggle('active',isEmi);document.getElementById('tab4ModeInsights').classList.toggle('active',!isEmi);localStorage.setItem('tab4Mode',mode);if(isEmi)renderEmiLoans();else generateInsights();}
+function openEmiModal(){var m=document.getElementById('emiModal');if(m){m.classList.add('open');m.setAttribute('aria-hidden','false');}}
+function closeEmiModal(e){var m=document.getElementById('emiModal');if(e&&e.target!==m)return;if(m){m.classList.remove('open');m.setAttribute('aria-hidden','true');}}
+function renderEmiLoans(){var list=document.getElementById('emiLoansList');if(!list)return;var active=emiLoans.filter(function(l){return l.status!=='Closed';});var monthly=active.reduce(function(a,l){return a+(Number(l.emi)||0);},0);var out=active.reduce(function(a,l){return a+(Number(l.outstanding)||0);},0);var ym=new Date().toISOString().slice(0,7);var due=active.filter(function(l){return (l.nextDate||'').slice(0,7)===ym;}).length;document.getElementById('emiMonthlyTotal').textContent=emiMoney(monthly);document.getElementById('emiOutstandingTotal').textContent=emiMoney(out);document.getElementById('emiDueCount').textContent=due;document.getElementById('emiActiveCount').textContent=active.length;if(!emiLoans.length){list.innerHTML='<div class="emi-empty">No EMI loans added yet.<br>Upload a payment-schedule PDF to import an existing loan.</div>';return;}list.innerHTML=emiLoans.map(function(l,i){var dueText=l.status==='Closed'?'Closed':(l.nextDate&&l.nextDate<new Date().toISOString().slice(0,10)?'Payment due':'Active');return '<div class="insights-card emi-card"><div class="emi-card-head"><div><div class="emi-card-name">'+escapeHtml(l.name||'EMI Loan')+'</div><div class="emi-card-lender">'+escapeHtml(l.lender||'')+'</div></div><span class="emi-badge">'+dueText+'</span></div><div class="emi-card-grid"><div class="emi-metric"><span>EMI</span><strong>'+emiMoney(l.emi)+'</strong></div><div class="emi-metric"><span>Next payment</span><strong>'+escapeHtml(l.nextDate||'—')+'</strong></div><div class="emi-metric"><span>Outstanding</span><strong>'+emiMoney(l.outstanding)+'</strong></div><div class="emi-metric"><span>Remaining</span><strong>'+(Number(l.remaining)||0)+' EMI</strong></div></div><div class="emi-actions"><button type="button" onclick="openEmiDetails('+i+')">Details</button><button type="button" onclick="markEmiPaid('+i+')">Mark paid</button><button type="button" class="danger" onclick="deleteEmiLoan('+i+')">Delete</button></div></div>';}).join('');}
+function openEmiDetails(i){var l=emiLoans[i];if(!l)return;var rows=(l.schedule||[]).slice(0,60).map(function(r){return '<div class="emi-detail-row"><span>EMI '+escapeHtml(String(r.no||''))+'</span><strong>'+escapeHtml(r.date||'—')+' · '+emiMoney(r.amount||l.emi)+'</strong></div>';}).join('');var html='<div class="emi-detail-row"><span>Lender</span><strong>'+escapeHtml(l.lender||'—')+'</strong></div><div class="emi-detail-row"><span>EMI</span><strong>'+emiMoney(l.emi)+'</strong></div><div class="emi-detail-row"><span>Next payment</span><strong>'+escapeHtml(l.nextDate||'—')+'</strong></div><div class="emi-detail-row"><span>Outstanding</span><strong>'+emiMoney(l.outstanding)+'</strong></div><div class="emi-detail-row"><span>Current / tenure</span><strong>'+(l.currentNo||'—')+' / '+(l.tenure||'—')+'</strong></div><div class="emi-detail-row"><span>Remaining</span><strong>'+(l.remaining||0)+' EMIs</strong></div>'+(rows?'<div style="margin-top:10px;font-size:10px;font-weight:850">Imported schedule</div>'+rows:'');if(typeof showSimpleModal==='function')showSimpleModal((l.name||'EMI Loan')+' Details',html);else alert(html.replace(/<[^>]+>/g,''));}
+function deleteEmiLoan(i){if(!confirm('Delete this EMI loan?'))return;emiLoans.splice(i,1);saveEmiLoans();renderEmiLoans();}
+function markEmiPaid(i){var l=emiLoans[i];if(!l)return;var nextNo=(Number(l.currentNo)||0)+1;l.currentNo=nextNo;if(Number(l.remaining)>0)l.remaining--;if(l.schedule&&l.schedule.length){var next=l.schedule.find(function(r){return Number(r.no)===nextNo;});if(next){l.nextDate=next.date;l.emi=Number(next.amount)||l.emi;}}else if(l.nextDate){var d=new Date(l.nextDate+'T00:00:00');if(!isNaN(d)){d.setMonth(d.getMonth()+1);l.nextDate=d.toISOString().slice(0,10);}}if(l.remaining<=0&&l.tenure>0)l.status='Closed';saveEmiLoans();renderEmiLoans();}
+function emiDetectNumber(text,re){var m=text.match(re);return m?parseFloat(String(m[1]).replace(/,/g,'')):null;}
+async function importEmiPdf(ev){var file=ev.target.files&&ev.target.files[0];if(!file)return;var status=document.getElementById('emiImportStatus');status.textContent='Reading PDF…';emiPdfSchedule=[];try{if(typeof pdfjsLib==='undefined')throw new Error('PDF reader unavailable');var pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise,text='';for(var n=1;n<=pdf.numPages;n++){var page=await pdf.getPage(n),tc=await page.getTextContent();text+='\n'+tc.items.map(function(x){return x.str;}).join(' ');}var emi=emiDetectNumber(text,/(?:emi|installment)\s*(?:amount)?\s*[:\-]?\s*(?:₹|rs\.?\s*)?([\d,]+(?:\.\d+)?)/i);var out=emiDetectNumber(text,/(?:outstanding|principal\s+outstanding|balance)\s*(?:amount)?\s*[:\-]?\s*(?:₹|rs\.?\s*)?([\d,]+(?:\.\d+)?)/i);var tenure=emiDetectNumber(text,/(?:tenure|total\s+installments?|total\s+emis?)\s*[:\-]?\s*(\d+)/i);var cur=emiDetectNumber(text,/(?:current\s+(?:emi|installment)|installment\s+(?:no|number))\s*[:\-]?\s*(\d+)/i);if(emi!==null)document.getElementById('emiAmount').value=emi;if(out!==null)document.getElementById('emiOutstanding').value=out;if(tenure!==null)document.getElementById('emiTenure').value=tenure;if(cur!==null)document.getElementById('emiCurrentNo').value=cur;var dateM=text.match(/(?:next\s+(?:emi|payment)|due\s+date|payment\s+date)[^\n:]*[:\-]?\s*(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})/i);if(dateM){var a=dateM[1].split(/[\/-]/),y=Number(a[2]);if(y<100)y+=2000;var d=new Date(y,Number(a[1])-1,Number(a[0]));if(!isNaN(d))document.getElementById('emiNextDate').value=d.toISOString().slice(0,10);}status.textContent='PDF read. Detected values have been filled where possible. Please review before saving.';}catch(err){status.textContent='PDF could not be fully parsed. You can enter/correct the loan details manually.';}}
+function saveEmiLoan(){var l={id:Date.now().toString(),name:document.getElementById('emiLoanName').value.trim()||'EMI Loan',lender:document.getElementById('emiLender').value.trim(),emi:Number(document.getElementById('emiAmount').value)||0,nextDate:document.getElementById('emiNextDate').value,outstanding:Number(document.getElementById('emiOutstanding').value)||0,remaining:Number(document.getElementById('emiRemaining').value)||0,currentNo:Number(document.getElementById('emiCurrentNo').value)||0,tenure:Number(document.getElementById('emiTenure').value)||0,status:'Active',schedule:emiPdfSchedule.slice()};if(!l.emi&&!l.nextDate&&!l.outstanding){alert('Enter loan details or upload a PDF first.');return;}emiLoans.push(l);saveEmiLoans();closeEmiModal();['emiLoanName','emiLender','emiAmount','emiNextDate','emiOutstanding','emiRemaining','emiCurrentNo','emiTenure'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('emiPdf').value='';document.getElementById('emiImportStatus').textContent='No PDF imported yet.';document.getElementById('emiSchedulePreview').style.display='none';emiPdfSchedule=[];renderEmiLoans();}
+
+function initTab4Extras(){loadRecurringPayments();renderSpendingCalendar();loadEmiLoans();setTab4Mode(localStorage.getItem('tab4Mode')||'emi');}
 </script>
 
 
