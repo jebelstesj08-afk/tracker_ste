@@ -1766,7 +1766,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 
           <div class="emi-card-grid">
             <div><div class="emi-metric-label">EMI</div><div class="emi-metric-value">${money(x.emiAmount)}</div></div>
-            <div><div class="emi-metric-label">Outstanding</div><div class="emi-metric-value">${money(x.outstandingPrincipal)}</div></div>
+            <div><div class="emi-metric-label">Outstanding</div><div class="emi-metric-value">${money(rows.length ? stats.unpaid.reduce((sum,r)=>sum+Number(r.emi||0),0) : (Number(x.remainingEMIs||0)*Number(x.emiAmount||0)))}</div></div>
             <div><div class="emi-metric-label">Next EMI</div><div class="emi-metric-value">${emiDate(displayNextDate)}</div></div>
             <div><div class="emi-metric-label">Remaining</div><div class="emi-metric-value">${displayRemaining} EMI${displayRemaining===1?'':'s'}</div></div>
           </div>
@@ -1891,8 +1891,8 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 
       body.innerHTML=`<div class="emi-detail-scroll">
         <div class="emi-detail-hero">
-          <div class="emi-detail-hero-label">Outstanding Principal</div>
-          <div class="emi-detail-hero-value">${money(x.outstandingPrincipal)}</div>
+          <div class="emi-detail-hero-label">Outstanding</div>
+          <div class="emi-detail-hero-value">${money(rows.length ? stats.unpaid.reduce((sum,r)=>sum+Number(r.emi||0),0) : (Number(x.remainingEMIs||0)*Number(x.emiAmount||0)))}</div>
           <div class="emi-detail-next"><span>Next payment</span><strong>${next?money(nextAmount)+' · '+emiDate(nextDate):'All EMIs paid'}</strong></div>
         </div>
 
@@ -1953,7 +1953,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     function openEMISummary(kind){
       const active=emiLoans.filter(x=>String(x.status||'Active').toLowerCase()!=='closed'); let title='', html='';
       if(kind==='monthly'){title='Monthly EMI Breakdown';html=active.map(x=>{const s=getLoanScheduleStats(x);return `<div class="transaction-item" onclick="openEMIDetails('${escEMI(x.loanId)}',${s.next?Number(s.next.emiNo):0})"><div class="tx-left"><div class="tx-desc">${escEMI(x.loanName)}</div><div class="tx-meta">${escEMI(x.lender)} · ${emiDate(s.next?.date||x.nextEMIDate)}</div></div><div class="tx-amt">${money(x.emiAmount)}</div></div>`}).join('')||'<div class="insight-empty">No active loans.</div>';}
-      if(kind==='outstanding'){title='Outstanding Loans';html=active.map(x=>`<div class="transaction-item" onclick="openEMIDetails('${escEMI(x.loanId)}')"><div class="tx-left"><div class="tx-desc">${escEMI(x.loanName)}</div><div class="tx-meta">${escEMI(x.lender)}</div></div><div class="tx-amt">${money(x.outstandingPrincipal)}</div></div>`).join('')||'<div class="insight-empty">No active loans.</div>';}
+      if(kind==='outstanding'){title='Outstanding Loans';html=active.map(x=>{const s=getLoanScheduleStats(x);const pending=s.rows.length?s.unpaid.reduce((sum,r)=>sum+Number(r.emi||0),0):(Number(x.remainingEMIs||0)*Number(x.emiAmount||0));return `<div class="transaction-item" onclick="openEMIDetails('${escEMI(x.loanId)}')"><div class="tx-left"><div class="tx-desc">${escEMI(x.loanName)}</div><div class="tx-meta">${escEMI(x.lender)}</div></div><div class="tx-amt">${money(pending)}</div></div>`}).join('')||'<div class="insight-empty">No active loans.</div>';}
       if(kind==='due'){title='EMIs Due This Month';const now=new Date();html=active.map(x=>{const s=getLoanScheduleStats(x);return s.next&&s.next.date?{x,s}:null}).filter(Boolean).filter(o=>{const d=new Date(o.s.next.date+'T00:00:00');return !isNaN(d.getTime())&&d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();}).map(o=>`<div class="transaction-item" onclick="openEMIDetails('${escEMI(o.x.loanId)}',${Number(o.s.next.emiNo)})"><div class="tx-left"><div class="tx-desc">${escEMI(o.x.loanName)}</div><div class="tx-meta">Due ${emiDate(o.s.next.date)}</div></div><div class="tx-amt">${money(o.s.next.emi||o.x.emiAmount)}</div></div>`).join('')||'<div class="insight-empty">No EMI due this month.</div>';}
       if(kind==='completion'){
         title='When You Will Be EMI-Free';
