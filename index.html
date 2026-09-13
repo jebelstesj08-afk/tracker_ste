@@ -1880,6 +1880,15 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       const nextNo=next?Number(next.emiNo):Number(x.currentEMINo||0)+1;
       const nextDate=next?.date||x.nextEMIDate||'';
       const nextAmount=next?.emi||x.emiAmount||0;
+
+      // Interest still payable = interest component of all unpaid EMIs.
+      // The Outstanding figure above is the total of pending EMI amounts
+      // (principal + interest), so this gives the user the remaining
+      // interest separately.
+      const pendingInterest=rows.length
+        ? stats.unpaid.reduce((sum,r)=>sum+Number(r.interest||0),0)
+        : 0;
+
       const finalDate=stats.actualRows?.length?stats.actualRows[stats.actualRows.length-1].date:(x.endDate||'');
       const progressPercent=totalEMIs>0?Math.min(100,Math.max(0,(current/totalEMIs)*100)):0;
       const body=document.getElementById('emiDetailsBody');
@@ -1907,6 +1916,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
             <div class="emi-loan-detail-item"><span>Original Amount</span><strong>${money(x.originalAmount)}</strong></div>
             <div class="emi-loan-detail-item"><span>EMI Amount</span><strong>${money(x.emiAmount)}</strong></div>
             <div class="emi-loan-detail-item"><span>Interest Rate</span><strong>${Number(x.interestRate||0)}%</strong></div>
+            <div class="emi-loan-detail-item"><span>Interest on Remaining EMIs</span><strong>${money(pendingInterest)}</strong></div>
             <div class="emi-loan-detail-item"><span>Total Tenure</span><strong>${Number(x.tenureMonths||totalEMIs)} months</strong></div>
             <div class="emi-loan-detail-item"><span>Start Date</span><strong>${emiDate(x.startDate)}</strong></div>
             <div class="emi-loan-detail-item"><span>Final EMI Date</span><strong>${emiDate(finalDate)}</strong></div>
