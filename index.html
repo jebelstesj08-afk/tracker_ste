@@ -1703,7 +1703,18 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     function renderEMILoans(){
       const active=emiLoans.filter(x=>String(x.status||'Active').toLowerCase()!=='closed');
       const monthly=active.reduce((s,x)=>s+Number(x.emiAmount||0),0);
-      const outstanding=active.reduce((s,x)=>s+Number(x.outstandingPrincipal||0),0);
+
+      // Outstanding = total amount of all PENDING EMIs, not the loan's
+      // stored outstandingPrincipal value. This keeps the dashboard
+      // Outstanding figure aligned with the actual EMI schedule.
+      const outstanding=active.reduce((s,x)=>{
+        const stats=getLoanScheduleStats(x);
+        if(stats.rows.length){
+          return s + stats.unpaid.reduce((sum,r)=>sum+Number(r.emi||0),0);
+        }
+        return s + (Number(x.remainingEMIs||0) * Number(x.emiAmount||0));
+      },0);
+
       const now=new Date(); now.setHours(0,0,0,0);
       const dueAmount=active.reduce((s,x)=>{
         const stats=getLoanScheduleStats(x);
