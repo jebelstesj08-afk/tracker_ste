@@ -350,7 +350,16 @@
     .emi-card-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.emi-loan-name{font-size:16px;font-weight:900}.emi-lender{font-size:10px;color:var(--text-muted);margin-top:3px}.emi-status{padding:5px 8px;border-radius:999px;font-size:9px;font-weight:900;background:rgba(52,199,89,.12);color:#1f9d53}.emi-status.closed{background:var(--input-bg);color:var(--text-muted)}
     .emi-card-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:15px}.emi-metric-label{font-size:9px;color:var(--text-muted);font-weight:750}.emi-metric-value{font-size:14px;font-weight:850;margin-top:3px}.emi-next{background:var(--input-bg);border-radius:14px;padding:10px;margin-top:12px;display:flex;justify-content:space-between;gap:10px;align-items:center}.emi-next strong{font-size:12px}.emi-next span{font-size:10px;color:var(--text-muted)}
     .emi-empty{background:var(--card-bg);border:1px dashed var(--border-color);border-radius:20px;padding:35px 18px;text-align:center;color:var(--text-muted);font-size:12px}
-    .emi-modal-content{height:min(88vh,760px);max-height:88vh;min-height:0;overflow:hidden;overscroll-behavior:contain;touch-action:auto}.emi-modal-content>.modal-header{flex:0 0 auto}.emi-modal-content>#emiDetailsBody{min-height:0;flex:1;display:flex;flex-direction:column;overflow:hidden}.emi-modal-content>#emiDetailsBody>.emi-detail-scroll{flex:1;min-height:0;max-height:none;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}.emi-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.emi-form-grid label{font-size:11px;color:var(--text-muted);font-weight:750}.emi-form-grid input{margin-top:6px}.emi-full{grid-column:1/-1}.emi-schedule{margin-top:12px;border:1px solid var(--border-color);border-radius:15px;overflow:auto;max-height:48vh;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}.emi-schedule-head,.emi-schedule-row{display:grid;grid-template-columns:52px 1.2fr .9fr .9fr .8fr;gap:7px;align-items:center;padding:9px 10px;font-size:10px}.emi-schedule-head{background:var(--input-bg);font-weight:850;color:var(--text-muted);position:sticky;top:0;z-index:2}.emi-schedule-row{border-top:1px solid var(--border-color);cursor:pointer}.emi-schedule-row:hover{background:var(--card-bg)}.emi-schedule-row.selected{background:rgba(0,122,255,.09);outline:1px solid var(--accent-blue)}.emi-paid{color:var(--accent-green);font-weight:850}.emi-pending{color:var(--accent-red);font-weight:850}.emi-import-note{padding:10px 12px;border-radius:12px;background:var(--input-bg);font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.5}.emi-card-select{width:100%;margin-top:10px;padding:9px 10px;border-radius:11px;border:1px solid var(--border-color);background:var(--input-bg);color:var(--text-main);font-size:10px;font-weight:800}.emi-selected-label{font-size:9px;color:var(--text-muted);font-weight:800;text-transform:uppercase;letter-spacing:.45px;margin-top:14px}.emi-selected-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:7px}.emi-selected-stat{background:var(--input-bg);border-radius:11px;padding:10px;min-width:0}.emi-selected-stat span{display:block;font-size:8px;color:var(--text-muted);font-weight:750}.emi-selected-stat strong{display:block;font-size:13px;font-weight:900;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.emi-selected-note{margin-top:8px;padding:9px 10px;border-radius:11px;background:var(--input-bg);font-size:9px;color:var(--text-muted);font-weight:700}.emi-detail-scroll{max-height:calc(88vh - 70px);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:10px}
+    .emi-modal-content{height:min(88vh,760px);max-height:88vh;min-height:0;overflow:hidden;overscroll-behavior:contain;touch-action:auto}
+    #emiLoanModal .emi-modal-content{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;}
+    .emi-refresh-btn{width:38px;height:38px;padding:0!important;border-radius:13px!important;display:inline-flex;align-items:center;justify-content:center;font-size:18px!important;line-height:1;}
+    .emi-refresh-btn span{display:block;transform:translateY(-1px);transition:transform .35s ease;}
+    .emi-refresh-btn:active span{transform:rotate(180deg);}
+    .emi-schedule-full{margin-top:0;border:1px solid var(--border-color);border-radius:15px;overflow:auto;max-height:none;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
+    .emi-schedule-full .emi-schedule-row{cursor:default;}
+    .emi-schedule-full .emi-schedule-row:hover{background:transparent;}
+    .emi-schedule-full .emi-schedule-head,.emi-schedule-full .emi-schedule-row{grid-template-columns:52px 1.1fr .9fr .9fr .9fr .9fr 1fr;min-width:620px;}
+.emi-modal-content>.modal-header{flex:0 0 auto}.emi-modal-content>#emiDetailsBody{min-height:0;flex:1;display:flex;flex-direction:column;overflow:hidden}.emi-modal-content>#emiDetailsBody>.emi-detail-scroll{flex:1;min-height:0;max-height:none;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}.emi-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.emi-form-grid label{font-size:11px;color:var(--text-muted);font-weight:750}.emi-form-grid input{margin-top:6px}.emi-full{grid-column:1/-1}.emi-schedule{margin-top:12px;border:1px solid var(--border-color);border-radius:15px;overflow:auto;max-height:48vh;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}.emi-schedule-head,.emi-schedule-row{display:grid;grid-template-columns:52px 1.2fr .9fr .9fr .8fr;gap:7px;align-items:center;padding:9px 10px;font-size:10px}.emi-schedule-head{background:var(--input-bg);font-weight:850;color:var(--text-muted);position:sticky;top:0;z-index:2}.emi-schedule-row{border-top:1px solid var(--border-color);cursor:pointer}.emi-schedule-row:hover{background:var(--card-bg)}.emi-schedule-row.selected{background:rgba(0,122,255,.09);outline:1px solid var(--accent-blue)}.emi-paid{color:var(--accent-green);font-weight:850}.emi-pending{color:var(--accent-red);font-weight:850}.emi-import-note{padding:10px 12px;border-radius:12px;background:var(--input-bg);font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.5}.emi-card-select{width:100%;margin-top:10px;padding:9px 10px;border-radius:11px;border:1px solid var(--border-color);background:var(--input-bg);color:var(--text-main);font-size:10px;font-weight:800}.emi-selected-label{font-size:9px;color:var(--text-muted);font-weight:800;text-transform:uppercase;letter-spacing:.45px;margin-top:14px}.emi-selected-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:7px}.emi-selected-stat{background:var(--input-bg);border-radius:11px;padding:10px;min-width:0}.emi-selected-stat span{display:block;font-size:8px;color:var(--text-muted);font-weight:750}.emi-selected-stat strong{display:block;font-size:13px;font-weight:900;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.emi-selected-note{margin-top:8px;padding:9px 10px;border-radius:11px;background:var(--input-bg);font-size:9px;color:var(--text-muted);font-weight:700}.emi-detail-scroll{max-height:calc(88vh - 70px);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:10px}
     @media(max-width:650px){.emi-summary-grid{grid-template-columns:1fr 1fr}.emi-card-grid{grid-template-columns:1fr 1fr}.emi-form-grid{grid-template-columns:1fr}.emi-full{grid-column:auto}.emi-schedule{overflow:auto}.emi-schedule-head,.emi-schedule-row{min-width:430px}.emi-toolbar{align-items:flex-start}.emi-actions{flex-wrap:wrap}}
 
     /* ===== FINAL INSIGHTS MAKEOVER ===== */
@@ -1138,8 +1147,8 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         </div>
 
         <div class="emi-toolbar">
-          <div><div class="emi-toolbar-title">Your Loans</div><div class="emi-toolbar-sub" id="emiLoanCount">0 active loans</div><div class="emi-toolbar-sub">Detailed installments are read from EMI_Schedule</div></div>
-          <div class="emi-actions"><button class="emi-btn" type="button" onclick="refreshEMILoans()">↻ Refresh</button><button class="emi-btn primary" type="button" onclick="openEMILoanModal()">＋ Add Loan</button></div>
+          <div><div class="emi-toolbar-title">Your Loans</div><div class="emi-toolbar-sub" id="emiLoanCount">0 active loans</div></div>
+          <div class="emi-actions"><button class="emi-btn emi-refresh-btn" type="button" onclick="refreshEMILoans()" aria-label="Refresh EMI loans" title="Refresh EMI loans"><span aria-hidden="true">⟳</span></button><button class="emi-btn primary" type="button" onclick="openEMILoanModal()">＋ Add Loan</button></div>
         </div>
         <div id="emiLoansList" class="emi-list"></div>
       </div>
@@ -1169,6 +1178,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         <div class="input-group">
           <select id="insightsTimeRange" onchange="generateInsights()" aria-label="Time range">
             <option value="all">All Time</option>
+            <option value="cycle">Current Cycle</option>
             <option value="90d">Last 3 months</option>
             <option value="30d">Last 30 days</option>
             <option value="7d">Last 7 days</option>
@@ -1689,7 +1699,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
           ${next ? `<div class="emi-next" style="margin-top:5px;"><strong>EMI #${Number(next.emiNo)}</strong><span>${emiDate(next.date)} · ${money(next.emi)}</span></div>` : '<div class="emi-next"><strong>All EMIs paid</strong><span>Loan complete</span></div>'}
           <select class="emi-card-select" aria-label="Select EMI for ${escEMI(x.loanName)}" onclick="event.stopPropagation()" onchange="openEMIDetails('${escEMI(x.loanId)}', this.value)">${options}</select>
           ${next ? `<button type="button" class="emi-btn primary" style="width:100%;margin-top:9px" onclick="event.stopPropagation();markEMIPaid('${escEMI(x.loanId)}',${Number(next.emiNo)})">✓ Mark Current EMI #${Number(next.emiNo)} as Paid</button>` : ''}
-          <button type="button" class="emi-view-schedule" onclick="event.stopPropagation();openEMIDetails('${escEMI(x.loanId)}')">View full EMI schedule ›</button>
+          <button type="button" class="emi-view-schedule" onclick="event.stopPropagation();openEMISchedule('${escEMI(x.loanId)}')">View full EMI schedule ›</button>
         </div>`;
       }).join('');
     }
@@ -1753,8 +1763,24 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       if(!confirm('Delete this loan and its EMI schedule?'))return;
       try{await postEMI({action:'deleteLoan',loanId:String(loanId)});await refreshEMILoans();closeEMIDetails();}catch(e){alert('Could not delete loan: '+e.message);}
     }
+    function openEMISchedule(loanId){
+      const x=emiLoans.find(a=>String(a.loanId)===String(loanId));if(!x)return;
+      const rows=getScheduleForLoan(x).slice().sort((a,b)=>Number(a.emiNo)-Number(b.emiNo));
+      const body=document.getElementById('emiDetailsBody');
+      if(!body)return;
+      const scheduleHTML=rows.length ? rows.map(r=>{
+        const no=Number(r.emiNo);
+        const cls=String(r.status||'Pending').toLowerCase()==='paid'?'emi-paid':'emi-pending';
+        return `<div class="emi-schedule-row"><span>${no}</span><span>${emiDate(r.date)}</span><span>${money(r.emi)}</span><span>${money(r.principal)}</span><span>${money(r.interest)}</span><span>${money(r.outstanding)}</span><span class="${cls}">${escEMI(r.status||'Pending')}</span></div>`;
+      }).join('') : '<div style="padding:14px;color:var(--text-muted);font-size:10px">No detailed schedule found in EMI_Schedule.</div>';
+      body.innerHTML=`<div class="emi-detail-scroll"><div class="emi-schedule-full"><div class="emi-schedule-head"><span>#</span><span>Date</span><span>EMI</span><span>Principal</span><span>Interest</span><span>Outstanding</span><span>Status</span></div>${scheduleHTML}</div></div>`;
+      document.getElementById('emiDetailsTitle').textContent='Full EMI Schedule';
+      const m=document.getElementById('emiDetailsModal');m.style.display='flex';setEMIModalLock(true);setTimeout(()=>m.classList.add('show'),10);
+    }
+
     function openEMIDetails(loanId, selectedEmiNo){
       const x=emiLoans.find(a=>String(a.loanId)===String(loanId));if(!x)return;
+      document.getElementById('emiDetailsTitle').textContent='Loan Details';
       const stats=getLoanScheduleStats(x, selectedEmiNo);
       const rows=stats.rows;
       const selected=stats.selected;
@@ -2412,6 +2438,25 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       return allTransactions.slice(start).filter(Array.isArray);
     }
 
+    function getLastWorkingDayForInsights(year, monthIndex) {
+      const d = new Date(year, monthIndex + 1, 0);
+      while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
+      d.setHours(0,0,0,0);
+      return d;
+    }
+
+    function getCurrentSalaryCycleRange(referenceDate) {
+      const now = new Date(referenceDate || new Date());
+      now.setHours(0,0,0,0);
+      const currentSalaryDay = getLastWorkingDayForInsights(now.getFullYear(), now.getMonth());
+      const previousSalaryDay = getLastWorkingDayForInsights(now.getFullYear(), now.getMonth() - 1);
+      const startDate = new Date(previousSalaryDay);
+      const endDate = new Date(currentSalaryDay);
+      endDate.setDate(endDate.getDate() - 1);
+      endDate.setHours(23,59,59,999);
+      return { startDate, endDate };
+    }
+
     function getInsightTransactions() {
       const userEl = document.getElementById('insightsFilterUser');
       const rangeEl = document.getElementById('insightsTimeRange');
@@ -2419,11 +2464,16 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       const timeRange = rangeEl ? rangeEl.value : 'all';
 
       const now = new Date();
-      const startDate = new Date(now);
+      let startDate = new Date(now);
+      let endDate = null;
       if (timeRange === '7d') startDate.setDate(now.getDate() - 7);
       else if (timeRange === '30d') startDate.setDate(now.getDate() - 30);
       else if (timeRange === '90d') startDate.setDate(now.getDate() - 90);
-      else startDate.setFullYear(now.getFullYear() - 50);
+      else if (timeRange === 'cycle') {
+        const cycle = getCurrentSalaryCycleRange(now);
+        startDate = cycle.startDate;
+        endDate = cycle.endDate;
+      } else startDate.setFullYear(now.getFullYear() - 50);
       startDate.setHours(0,0,0,0);
 
       const rows = getInsightRows();
@@ -2437,11 +2487,11 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       })).filter(tx => {
         if (!tx.date) return false;
         const userOk = selectedUser === 'Us' || tx.user.toLowerCase() === selectedUser.toLowerCase();
-        const dateOk = tx.date >= startDate;
+        const dateOk = tx.date >= startDate && (!endDate || tx.date <= endDate);
         return userOk && dateOk && tx.amount >= 0;
       }).sort((a,b) => a.date - b.date);
 
-      return { txs, startDate, timeRange, selectedUser };
+      return { txs, startDate, endDate, timeRange, selectedUser };
     }
 
     function moneyShort(value) {
@@ -2610,7 +2660,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 
     function generateInsights() {
       try {
-        const { txs, timeRange, selectedUser } = getInsightTransactions();
+        const { txs, timeRange, selectedUser, startDate, endDate } = getInsightTransactions();
         const monthGroups = groupByMonth(txs);
 
         let totalInc = 0, totalExp = 0, totalSav = 0;
@@ -2634,7 +2684,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         const highest = expenseTxs.slice().sort((a,b) => b.amount - a.amount).slice(0,4);
         const topCat = sortedCats[0];
         renderInsightFeatures(txs, totalInc, totalExp, totalSav, expenseCategories);
-        const periodLabel = timeRange === 'all' ? 'All available history' : (timeRange === '7d' ? 'Last 7 days' : timeRange === '30d' ? 'Last 30 days' : 'Last 3 months');
+        const periodLabel = timeRange === 'all' ? 'All available history' : (timeRange === 'cycle' ? `Current cycle · ${startDate.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'})} – ${endDate.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'})}` : (timeRange === '7d' ? 'Last 7 days' : timeRange === '30d' ? 'Last 30 days' : 'Last 3 months'));
 
         const setText = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
         const setWidth = (id, pct) => { const el = document.getElementById(id); if (el) el.style.width = Math.max(0, Math.min(100, pct)) + '%'; };
