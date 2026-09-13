@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
   <title>Household Management System</title>
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Tracker">
@@ -2046,7 +2048,9 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 
       setTxType('Expense');
       const insightRange = document.getElementById('insightsTimeRange');
-      if (insightRange) insightRange.value = 'all';
+      if (insightRange) {
+        insightRange.value = 'cycle';
+      }
 
       let curYear = today.getFullYear();
       let curMonth = today.getMonth();
@@ -2299,7 +2303,12 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       let resetBtn = document.getElementById('sectionResetBtn');
       let headerSection = document.getElementById('headerBalanceSection');
 
-      if(tabName === 'EMI' || tabName === 'Insights') {
+      if(tabName === 'Transactions') {
+        headerSection.style.display = "none";
+        mainBalanceContainer.style.display = "none";
+        document.getElementById('secondaryBalanceBlock').style.display = "none";
+        resetBtn.style.display = "none";
+      } else if(tabName === 'EMI' || tabName === 'Insights') {
         headerSection.style.display = "none";
         if(tabName === 'EMI') {
           refreshEMILoans();
