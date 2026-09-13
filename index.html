@@ -983,6 +983,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     .emi-overdue-box{margin-top:12px;padding:11px 12px;border-radius:14px;background:rgba(255,59,48,.08);border:1px solid rgba(255,59,48,.16);display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:10px}
     .emi-overdue-box strong{color:var(--accent-red);font-weight:900}.emi-overdue-box span{color:var(--text-muted);font-weight:800}
     .emi-history-list{background:var(--input-bg);border-radius:14px;overflow:hidden}.emi-history-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border-color);font-size:10px}.emi-history-row:last-child{border-bottom:0}.emi-history-row div{display:flex;flex-direction:column;gap:2px}.emi-history-row div strong{font-weight:900;color:var(--accent-green)}.emi-history-row div span{font-size:9px;color:var(--text-muted);font-weight:700}.emi-history-row>strong{font-weight:900}.emi-history-empty{padding:13px;text-align:center;color:var(--text-muted);font-size:10px;font-weight:700}
+
 </style>
 </head>
 <body>
@@ -1228,7 +1229,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         <div class="input-group">
           <select id="insightsTimeRange" onchange="generateInsights()" aria-label="Time range">
             <option value="all">All Time</option>
-            <option value="cycle">Current Cycle</option>
+            <option value="cycle" selected>Current Cycle</option>
             <option value="90d">Last 3 months</option>
             <option value="30d">Last 30 days</option>
             <option value="7d">Last 7 days</option>
@@ -1372,9 +1373,6 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       <div id="savingsRing"></div><span id="dashHighestSpend">0</span><span id="dashHighestSpendLabel">No expense data</span><span id="dashTopCategoryAmount">0</span>
       <div id="balanceProgressFill"></div>
     </div>
-  </div>
-
-
 
       <div class="tab4-tools-grid">
         <section class="insights-card tab4-feature-card">
@@ -1473,7 +1471,12 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
           </div>
         </div>
       </div>
+
   </div>
+
+
+
+
 
  
 
