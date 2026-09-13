@@ -211,98 +211,6 @@
     .portfolio-mini:last-child { grid-column:1/-1; }
   }
 
-    /* =========================
-       TAB 3 / LEDGER MAKEOVER
-       ========================= */
-    #Ledger { padding-bottom: 150px; }
-    .ledger-shell { display:flex; flex-direction:column; gap:14px; }
-    .ledger-toolbar {
-      background: var(--card-bg); border:1px solid var(--border-color);
-      border-radius:22px; padding:14px; box-shadow:0 8px 24px rgba(0,0,0,.035);
-    }
-    .ledger-toolbar-top { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
-    .ledger-heading { display:flex; flex-direction:column; gap:2px; }
-    .ledger-heading h2 { margin:0; font-size:21px; line-height:1.1; letter-spacing:-.6px; font-weight:850; }
-    .ledger-heading p { margin:0; color:var(--text-muted); font-size:11px; font-weight:600; }
-    .ledger-sync {
-      width:34px; height:34px; border-radius:12px; border:1px solid var(--border-color);
-      background:var(--input-bg); color:var(--text-main); display:flex; align-items:center; justify-content:center;
-      cursor:pointer; flex:0 0 auto;
-    }
-    .ledger-filter-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-    .ledger-filter-grid .input-group { margin-bottom:0; }
-    .ledger-filter-grid label { font-size:9px; margin-bottom:5px; }
-    .ledger-filter-grid select, .ledger-filter-grid input { padding:12px; border-radius:13px; font-size:13px; }
-    .ledger-date-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
-    .ledger-date-pill { position:relative; }
-    .ledger-date-pill label { display:block; font-size:9px; color:var(--text-muted); font-weight:700; text-transform:uppercase; margin:0 0 5px 2px; letter-spacing:.4px; }
-
-    .ledger-kpis { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-    .ledger-kpi {
-      background:var(--card-bg); border:1px solid var(--border-color); border-radius:18px; padding:14px;
-      box-shadow:0 7px 20px rgba(0,0,0,.025); min-height:94px; position:relative; overflow:hidden;
-    }
-    .ledger-kpi::after { content:""; position:absolute; width:50px; height:50px; right:-14px; bottom:-14px; border-radius:50%; background:var(--input-bg); }
-    .ledger-kpi-label { color:var(--text-muted); font-size:9px; text-transform:uppercase; letter-spacing:.5px; font-weight:800; }
-    .ledger-kpi-value { font-size:22px; font-weight:850; letter-spacing:-.7px; margin-top:8px; position:relative; z-index:1; }
-    .ledger-kpi.expense .ledger-kpi-value { color:var(--accent-red); }
-    .ledger-kpi.income .ledger-kpi-value { color:var(--accent-green); }
-    .ledger-kpi.savings .ledger-kpi-value { color:var(--accent-blue); }
-    .ledger-kpi.records .ledger-kpi-value { color:var(--text-main); }
-
-    .ledger-view-card { background:var(--card-bg); border:1px solid var(--border-color); border-radius:18px; padding:12px; box-shadow:0 7px 20px rgba(0,0,0,.025); }
-    .ledger-view-label { font-size:9px; text-transform:uppercase; letter-spacing:.5px; font-weight:800; color:var(--text-muted); margin:0 0 8px 2px; }
-    .ledger-view-tabs { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; background:var(--input-bg); border-radius:14px; padding:4px; }
-    .ledger-view-tab { border:0; background:transparent; color:var(--text-muted); padding:10px 6px; border-radius:10px; font-size:11px; font-weight:800; cursor:pointer; transition:.2s ease; }
-    .ledger-view-tab.active { background:var(--card-bg); color:var(--text-main); box-shadow:0 2px 8px rgba(0,0,0,.06); }
-
-    .ledger-section-head { display:flex; align-items:flex-end; justify-content:space-between; gap:10px; margin:2px 2px 8px; }
-    .ledger-section-title { font-size:14px; font-weight:850; letter-spacing:-.2px; }
-    .ledger-section-subtitle { font-size:10px; color:var(--text-muted); font-weight:600; margin-top:2px; }
-    .ledger-count-chip { padding:5px 8px; border-radius:999px; background:var(--input-bg); color:var(--text-muted); font-size:9px; font-weight:800; }
-
-    .ledger-records-card { background:var(--card-bg); border:1px solid var(--border-color); border-radius:20px; padding:4px 14px; box-shadow:0 8px 24px rgba(0,0,0,.03); }
-    .ledger-record {
-      display:flex; align-items:center; gap:11px; padding:13px 0; border-bottom:1px solid var(--border-color); cursor:pointer;
-    }
-    .ledger-record:last-child { border-bottom:none; }
-    .ledger-record-icon { width:38px; height:38px; border-radius:13px; background:var(--input-bg); display:flex; align-items:center; justify-content:center; font-size:18px; flex:0 0 auto; }
-    .ledger-record-main { min-width:0; flex:1; }
-    .ledger-record-title { font-size:13px; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .ledger-record-meta { font-size:10px; color:var(--text-muted); font-weight:600; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .ledger-record-amount { font-size:13px; font-weight:850; text-align:right; white-space:nowrap; }
-    .ledger-record-amount.expense { color:var(--accent-red); }
-    .ledger-record-amount.income { color:var(--accent-green); }
-    .ledger-record-amount.savings { color:var(--accent-blue); }
-     .ledger-details-btn{border:1px solid var(--border-color);background:var(--input-bg);color:var(--text-main);border-radius:9px;padding:6px 8px;font-size:9px;font-weight:800;cursor:pointer;white-space:nowrap}
-
-    .ledger-category-list { display:flex; flex-direction:column; gap:9px; }
-    .ledger-category-card { background:var(--card-bg); border:1px solid var(--border-color); border-radius:18px; padding:13px; box-shadow:0 7px 20px rgba(0,0,0,.025); cursor:pointer; }
-    .ledger-category-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-    .ledger-category-left { display:flex; align-items:center; gap:10px; min-width:0; }
-    .ledger-category-icon { width:38px; height:38px; border-radius:13px; display:flex; align-items:center; justify-content:center; font-size:18px; flex:0 0 auto; }
-    .ledger-category-name { font-size:12px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .ledger-category-amt { font-size:13px; font-weight:850; white-space:nowrap; }
-    .ledger-category-track { height:7px; background:var(--input-bg); border-radius:999px; margin-top:10px; overflow:hidden; }
-    .ledger-category-fill { height:100%; border-radius:999px; }
-    .ledger-category-foot { display:flex; justify-content:space-between; margin-top:5px; font-size:9px; color:var(--text-muted); font-weight:700; }
-
-    .ledger-savings-hero { background:linear-gradient(135deg, var(--accent-green), #27ae60); color:white; border-radius:20px; padding:16px; box-shadow:0 10px 28px rgba(52,199,89,.18); }
-    .ledger-savings-hero-row { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
-    .ledger-savings-hero-label { font-size:9px; text-transform:uppercase; font-weight:800; letter-spacing:.6px; opacity:.78; }
-    .ledger-savings-hero-value { font-size:28px; font-weight:900; letter-spacing:-1px; margin-top:3px; }
-    .ledger-savings-hero-note { font-size:10px; opacity:.82; font-weight:600; margin-top:4px; }
-
-    .ledger-empty { background:var(--card-bg); border:1px dashed var(--border-color); border-radius:20px; padding:35px 20px; text-align:center; }
-    .ledger-empty-icon { font-size:30px; margin-bottom:8px; }
-    .ledger-empty-title { font-size:13px; font-weight:800; }
-    .ledger-empty-sub { font-size:10px; color:var(--text-muted); margin-top:4px; font-weight:600; }
-
-    @media(min-width:700px) {
-      .ledger-kpis { grid-template-columns:repeat(4,1fr); }
-      .ledger-toolbar { padding:18px; }
-      .ledger-filter-grid { grid-template-columns:1.2fr 1.8fr; }
-    }
 
     .nav-wrapper {
       position: fixed;
@@ -395,7 +303,7 @@
     .modal-header h3 { margin: 0; font-size: 22px; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px; }
     .close-btn { background: var(--input-bg); border: none; color: var(--text-main); width: 36px; height: 36px; border-radius: 18px; font-size: 16px; font-weight: bold; cursor: pointer; display:flex; justify-content:center; align-items:center; }
     .transaction-list { overflow-y: auto; flex: 1; padding-bottom: 20px; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
-     /* Ledger/detail sheets: the sheet itself is the scroll container.
+     /* Detail sheets: the sheet itself is the scroll container.
         This avoids nested iOS scroll containers and prevents the frozen-page
         behaviour caused by locking body/html while a fixed modal is open. */
      #recordDetailModal .modal-content, #categoryModal .modal-content, #insightsRecordsModal .modal-content, #searchModal .modal-content {
@@ -983,17 +891,8 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 .emi-free-label{white-space:nowrap}
 
 /* Clear clickable affordances. */
-.ledger-record,.ledger-category-card,.ledger-savings-hero,.insight-category-row,.insight-record{position:relative}
-.ledger-category-card::after,.ledger-savings-hero::after,.insight-category-row::after,.insight-record::after{content:'›';font-size:20px;line-height:1;color:var(--text-muted);font-weight:700;opacity:.65}
-.ledger-category-card::after,.ledger-savings-hero::after{position:absolute;right:12px;top:50%;transform:translateY(-50%)}
-.ledger-category-card{padding-right:34px}
-.ledger-savings-hero{padding-right:42px;cursor:pointer}
-.ledger-record{padding-right:8px;position:relative;z-index:2;pointer-events:auto!important;touch-action:manipulation}
-.ledger-record-amount{margin-left:auto}
-.ledger-record .ledger-record-main{min-width:0}
 
 /* Counts make category/savings rows more informative. */
-.ledger-category-count{font-size:9px;color:var(--text-muted);font-weight:700;margin-top:2px}
 
 /* Insights breakdown rows are explicitly interactive. */
 .insight-category-row,.insight-record{cursor:pointer;border-radius:12px;padding:8px 6px;transition:background .15s ease}
@@ -1008,14 +907,12 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 #lastServiceCard::after{content:'›';font-size:20px;color:var(--text-muted);margin-left:8px}
 
 /* Comfortable touch targets on the phone canvas. */
-.ledger-record,.ledger-category-card,.insight-category-row,.insight-record,.emi-card{min-height:52px}
+.insight-category-row,.insight-record,.emi-card{min-height:52px}
 @media(max-width:393px){.app-container{max-width:100%}.emi-selected-grid{grid-template-columns:1fr 1fr}}
 
 
 /* Desktop preview intentionally uses the same internal geometry as iPhone 13/15. */
 @media (min-width:394px){
-  .ledger-kpis{grid-template-columns:1fr 1fr!important}
-  .ledger-filter-grid{grid-template-columns:1fr 1fr!important}
   .insights-hero{grid-template-columns:1fr!important}
   .insights-side{display:grid!important;grid-template-columns:repeat(3,1fr)!important}
   .insights-kpi-grid{grid-template-columns:1fr 1fr!important}
@@ -1221,90 +1118,8 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     <button class="save-btn btn-fuel" id="vehicleLogBtn" onclick="saveFuelData()">Log Fuel Fill</button>
   </div>
 
-  <!-- TAB 3: LEDGER / VIEW MODES TAB -->
-  <div id="Ledger" class="tab-content">
-    <div class="ledger-shell">
-      <div class="ledger-toolbar">
-        <div class="ledger-toolbar-top">
-          <div class="ledger-heading">
-            <h2>Ledger</h2>
-            <p>Track spending, income and savings in one view</p>
-          </div>
-          <button class="ledger-sync" onclick="forceSync()" title="Sync data">↻</button>
-        </div>
-
-        <div class="ledger-filter-grid">
-          <div class="input-group">
-            <label>Who</label>
-            <select id="ledgerFilterUser" onchange="generateLedger()" style="font-weight:700; background:var(--input-bg);">
-              <option value="Us">Us</option>
-              <option value="Jebel">Jebel</option>
-              <option value="Reshma">Reshma</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label>View period</label>
-            <select id="ledgerQuickRange" onchange="applyLedgerQuickRange()" style="font-weight:700; background:var(--input-bg);">
-              <option value="cycle">Current Cycle</option>
-              <option value="month">This Month</option>
-              <option value="30d">Last 30 Days</option>
-              <option value="90d">Last 90 Days</option>
-              <option value="all">All Time</option>
-              <option value="custom">Custom Range</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="ledger-date-row">
-          <div class="ledger-date-pill">
-            <label>From</label>
-            <input type="date" id="ledgerStartDate" onchange="ledgerCustomDateChanged(); generateLedger()">
-          </div>
-          <div class="ledger-date-pill">
-            <label>To</label>
-            <input type="date" id="ledgerEndDate" onchange="ledgerCustomDateChanged(); generateLedger()">
-          </div>
-        </div>
-      </div>
-
-      <div class="ledger-kpis">
-        <div class="ledger-kpi savings">
-          <div class="ledger-kpi-label">Savings</div>
-          <div class="ledger-kpi-value" id="ledgerKpiSavings">0</div>
-        </div>
-        <div class="ledger-kpi records">
-          <div class="ledger-kpi-label">Records</div>
-          <div class="ledger-kpi-value" id="ledgerKpiRecords">0</div>
-        </div>
-      </div>
-
-      <div class="ledger-view-card">
-        <div class="ledger-view-label">View</div>
-        <div class="ledger-view-tabs">
-          <button class="ledger-view-tab active" id="ledgerViewRecordsBtn" onclick="setLedgerViewMode('records')">Records</button>
-          <button class="ledger-view-tab" id="ledgerViewCategoriesBtn" onclick="setLedgerViewMode('categories')">Categories</button>
-          <button class="ledger-view-tab" id="ledgerViewSavingsBtn" onclick="setLedgerViewMode('savings')">Savings</button>
-        </div>
-        <select id="ledgerViewMode" onchange="syncLedgerViewTab(); generateLedger()" style="display:none;">
-          <option value="records">Period Records</option>
-          <option value="categories">Top Categories Breakdown</option>
-          <option value="savings">Savings Summary</option>
-        </select>
-      </div>
-
-      <div id="ledgerLoadingIndicator" style="text-align:center; color:var(--text-muted); display:none; padding:4px 0; font-size:11px; font-weight:700;">Syncing data...</div>
-      <div id="ledgerDynamicContainer"></div>
-    </div>
-  </div>
-
-  <!-- TAB 4: INSIGHTS / ANALYTICS TAB -->
-  <div id="Insights" class="tab-content">
-    <div class="emi-mode-switch" role="tablist" aria-label="Tab 4 sections">
-      <button id="emiModeBtn" class="emi-mode-btn active" onclick="setTab4Mode('emi')" type="button">🏦 EMI Loans</button>
-      <button id="insightsModeBtn" class="emi-mode-btn" onclick="setTab4Mode('insights')" type="button">📊 Insights</button>
-    </div>
-
-    <div id="emiLoansPanel" class="emi-panel active">
+  <!-- TAB 3: EMI LOANS TAB -->
+  <div id="EMI" class="tab-content">
       <div class="emi-page">
         <div class="insights-command">
           <div class="insights-command-left">
@@ -1328,9 +1143,10 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         </div>
         <div id="emiLoansList" class="emi-list"></div>
       </div>
-    </div>
+  </div>
 
-    <div id="householdInsightPanel" class="insight-mode-panel">
+  <!-- TAB 4: INSIGHTS / ANALYTICS TAB -->
+  <div id="Insights" class="tab-content">
 
     <div class="insights-page">
       <div class="insights-command">
@@ -1597,7 +1413,8 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
           </div>
         </div>
       </div>
-    </div>
+  </div>
+
  
 
   <!-- SEARCH MODAL -->
@@ -1734,22 +1551,10 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         const m=document.getElementById(id);
         if(m){ m.classList.remove('show','detail-scroll-overlay'); m.style.display='none'; }
       });
-      // Always release the Ledger/detail page lock when changing tabs.
+      // Always release the detail page lock when changing tabs.
       lockDetailModal(false);
       document.body.classList.remove('ui-detail-open');
     }
-
-    function getTab4Mode(){ return localStorage.getItem('tab4Mode') || 'emi'; }
-    function setTab4Mode(mode){
-      const emi = mode === 'emi';
-      document.getElementById('emiLoansPanel')?.classList.toggle('active', emi);
-      document.getElementById('householdInsightPanel')?.classList.toggle('active', !emi);
-      document.getElementById('emiModeBtn')?.classList.toggle('active', emi);
-      document.getElementById('insightsModeBtn')?.classList.toggle('active', !emi);
-      localStorage.setItem('tab4Mode', mode);
-      if(emi) refreshEMILoans(); else generateInsights();
-    }
-
     function jsonHeaders(){ return { 'Content-Type':'text/plain;charset=utf-8' }; }
     async function postEMI(payload){
       const res = await fetch(URL, {method:'POST', headers:jsonHeaders(), body:JSON.stringify(payload)});
@@ -2113,9 +1918,6 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       let startDefault = prevMonthLast.toISOString().split('T')[0];
       let endDefault = cycleEnd.toISOString().split('T')[0];
 
-      document.getElementById('ledgerStartDate').value = startDefault;
-      document.getElementById('ledgerEndDate').value = endDefault;
-
       calculateTopBalance();
       syncWithGoogle(false);
       refreshEMILoans();
@@ -2137,8 +1939,6 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       if (emiBorrower && (user === 'Jebel' || user === 'Reshma')) emiBorrower.value = user;
       const insightsUser = document.getElementById('insightsFilterUser');
       if (insightsUser && (user === 'Jebel' || user === 'Reshma')) insightsUser.value = user;
-      const ledgerUser = document.getElementById('ledgerFilterUser');
-      if (ledgerUser && (user === 'Jebel' || user === 'Reshma')) ledgerUser.value = user;
     }
 
     function resetActiveTabFields() {
@@ -2329,7 +2129,8 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     function showTab(tabName) {
       // Never carry a detail modal from one tab into another.
       forceCloseTransientModals();
-      if(tabName !== 'Insights'){
+
+      if(tabName !== 'EMI'){
         const emiDetails=document.getElementById('emiDetailsModal');
         const emiLoan=document.getElementById('emiLoanModal');
         if(emiDetails){emiDetails.classList.remove('show');emiDetails.style.display='none';}
@@ -2339,7 +2140,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active-tab'));
       document.getElementById(tabName).classList.add('active-tab');
-      
+
       document.querySelectorAll('.nav-pill button').forEach(btn => btn.classList.remove('active-nav'));
       document.getElementById('nav-' + tabName).classList.add('active-nav');
 
@@ -2349,17 +2150,13 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       let resetBtn = document.getElementById('sectionResetBtn');
       let headerSection = document.getElementById('headerBalanceSection');
 
-      if(tabName === 'Insights') {
+      if(tabName === 'EMI' || tabName === 'Insights') {
         headerSection.style.display = "none";
-        setTab4Mode(getTab4Mode());
-      } else if(tabName === 'Ledger') {
-        headerSection.style.display = "block";
-        mainBalanceContainer.style.display = "block";
-        document.getElementById('topLabel').innerText = "Total spending";
-        document.getElementById('topBalance').classList.add('small');
-        document.getElementById('secondaryBalanceBlock').style.display = "block";
-        resetBtn.style.display = "none";
-        generateLedger(); 
+        if(tabName === 'EMI') {
+          refreshEMILoans();
+        } else {
+          generateInsights();
+        }
       } else if(tabName === 'Fuel') {
         headerSection.style.display = "block";
         mainBalanceContainer.style.display = "none";
@@ -2381,7 +2178,6 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
-      if(document.getElementById('Ledger').classList.contains('active-tab')) generateLedger();
       if(document.getElementById('Insights').classList.contains('active-tab')) generateInsights();
     }
 
@@ -2495,14 +2291,14 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     function forceSync() { syncWithGoogle(true); }
 
     async function syncWithGoogle(showLoading = false) {
-      const loading = document.getElementById('ledgerLoadingIndicator');
+      const loading = document.getElementById('loadingIndicator');
       if(showLoading && loading) {
         loading.textContent = 'Syncing data…';
         loading.style.display = 'block';
       }
 
       try {
-        // Cache-bust the GET so the ledger does not receive an old cached response.
+        // Cache-bust the GET so the app does not receive an old cached response.
         const syncUrl = URL + (URL.includes('?') ? '&' : '?') + '_ts=' + Date.now();
         const response = await fetch(syncUrl, {
           method: 'GET',
@@ -2534,9 +2330,8 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         try { renderRecurringPayments(); renderSpendingCalendar(); } catch (e) { console.warn('Tab 4 extras refresh failed', e); }
 
         try {
-          if(document.getElementById('Ledger').classList.contains('active-tab')) generateLedger();
           if(document.getElementById('Insights').classList.contains('active-tab')) generateInsights();
-          if(!document.getElementById('Ledger').classList.contains('active-tab') && !document.getElementById('Insights').classList.contains('active-tab')) calculateTopBalance();
+          if(!document.getElementById('EMI').classList.contains('active-tab') && !document.getElementById('Insights').classList.contains('active-tab')) calculateTopBalance();
         } catch (renderErr) {
           console.error('Dashboard render error after sync:', renderErr);
         }
@@ -2551,7 +2346,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         }
       } catch (err) {
         console.error('Google Sheets sync failed:', err);
-        // Do not replace the working local cache. The ledger can continue offline.
+        // Do not replace the working local cache. The app can continue offline.
         if(showLoading && loading) {
           loading.textContent = 'Offline • showing saved data';
           loading.style.color = 'var(--accent-red)';
@@ -2560,231 +2355,8 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
             loading.style.color = 'var(--text-muted)';
           }, 1800);
         }
-        if(document.getElementById('Ledger').classList.contains('active-tab')) generateLedger();
       }
     }
-
-    function setLedgerViewMode(mode) {
-      document.getElementById('ledgerViewMode').value = mode;
-      syncLedgerViewTab();
-      generateLedger();
-    }
-
-    function syncLedgerViewTab() {
-      const mode = document.getElementById('ledgerViewMode').value;
-      document.querySelectorAll('.ledger-view-tab').forEach(btn => btn.classList.remove('active'));
-      if(mode === 'records') document.getElementById('ledgerViewRecordsBtn').classList.add('active');
-      if(mode === 'categories') document.getElementById('ledgerViewCategoriesBtn').classList.add('active');
-      if(mode === 'savings') document.getElementById('ledgerViewSavingsBtn').classList.add('active');
-    }
-
-    function applyLedgerQuickRange() {
-      const range = document.getElementById('ledgerQuickRange').value;
-      const today = new Date();
-      let start = new Date(today);
-      let end = new Date(today);
-      today.setHours(0,0,0,0); end = new Date(today); end.setHours(23,59,59,999);
-
-      if(range === 'cycle') {
-        const y = today.getFullYear(), m = today.getMonth();
-        function lastWorkingDay(yy, mm) {
-          let d = new Date(yy, mm + 1, 0);
-          while(d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate()-1);
-          return d;
-        }
-        const prev = lastWorkingDay(y, m - 1);
-        const cur = lastWorkingDay(y, m);
-        start = new Date(prev); start.setHours(0,0,0,0);
-        end = new Date(cur); end.setDate(end.getDate()-1); end.setHours(23,59,59,999);
-      } else if(range === 'month') {
-        start = new Date(today.getFullYear(), today.getMonth(), 1); start.setHours(0,0,0,0);
-      } else if(range === '30d' || range === '90d') {
-        start = new Date(today); start.setDate(start.getDate() - (range === '30d' ? 29 : 89)); start.setHours(0,0,0,0);
-      } else if(range === 'all') {
-        const allDates = [...allTransactions.slice(1)].map(r => parseSafeDate(String(r[0]))).filter(d => !isNaN(d.getTime()));
-        if(allDates.length) start = new Date(Math.min(...allDates.map(d => d.getTime()))); else start = new Date(today);
-        start.setHours(0,0,0,0);
-      } else {
-        return;
-      }
-
-      document.getElementById('ledgerStartDate').value = start.toISOString().split('T')[0];
-      document.getElementById('ledgerEndDate').value = end.toISOString().split('T')[0];
-      generateLedger();
-    }
-
-    function ledgerCustomDateChanged() {
-      const quick = document.getElementById('ledgerQuickRange');
-      if(quick) quick.value = 'custom';
-    }
-
-    function ledgerIconFor(tx) {
-      if(tx.type === 'Income') return '💵';
-      if(tx.type === 'Savings') return '📈';
-      if(tx.type === 'Fuel') return '⛽';
-      if(tx.type === 'Service') return '🔧';
-      return emojis[tx.cat] || '🧾';
-    }
-
-    function ledgerAmountClass(type) {
-      if(type === 'Income') return 'income';
-      if(type === 'Savings') return 'savings';
-      return 'expense';
-    }
-
-    function openLedgerRecordByIndex(index) {
-      const rows = Array.isArray(window.__ledgerPeriodRecords) ? window.__ledgerPeriodRecords : [];
-      const tx = rows[Number(index)];
-      if (!tx) { console.warn('Ledger transaction not found:', index); return; }
-      openRecordDetail(tx);
-    }
-
-    function openLedgerCategoryByEncoded(encoded) {
-      try { showCategoryDetails(decodeURIComponent(encoded || '')); }
-      catch (e) { console.error('Ledger category details error:', e); }
-    }
-
-    function generateLedger() {
-      let startStr = document.getElementById('ledgerStartDate').value;
-      let endStr = document.getElementById('ledgerEndDate').value;
-      let selectedUser = document.getElementById('ledgerFilterUser').value;
-      let viewMode = document.getElementById('ledgerViewMode').value;
-      syncLedgerViewTab();
-
-      let startDate = new Date(startStr + 'T00:00:00');
-      let endDate = new Date(endStr + 'T23:59:59');
-
-      let totalExp = 0; let totalInc = 0; let totalSavingsPeriod = 0;
-      let categoryTotals = {};
-      let savingsPortfolio = {};
-      let periodRecords = [];
-      let totalCumulativeSavings = 0;
-
-      let sortedTxs = [...allTransactions.slice(1)].map(row => ({
-        date: parseSafeDate(String(row[0])), type: String(row[1]).trim(),
-        cat: String(row[2]).trim(), amount: parseFloat(row[3]) || 0,
-        desc: String(row[4] || ''), user: String(row[5] || 'Jebel').trim(),
-        project: String(row[6] || 'General').trim(), receipt: String(row[7] || ''),
-        odo: parseFloat(row[8]) || 0, litres: parseFloat(row[9]) || 0,
-        paymentMethod: String(row[10] || '')
-      })).filter(tx => !isNaN(tx.date.getTime())).sort((a, b) => b.date - a.date);
-
-      for(let tx of sortedTxs) {
-        if(tx.type === 'Savings' && (selectedUser === 'Us' || tx.user === selectedUser)) {
-          savingsPortfolio[tx.cat] = (savingsPortfolio[tx.cat] || 0) + tx.amount;
-          totalCumulativeSavings += tx.amount;
-        }
-        if(tx.date >= startDate && tx.date <= endDate && (selectedUser === 'Us' || tx.user === selectedUser)) {
-          if(tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') {
-            totalExp += tx.amount;
-            const displayCat = (tx.type === 'Fuel' || tx.type === 'Service') ? `Veh - ${tx.cat}` : tx.cat;
-            categoryTotals[displayCat] = (categoryTotals[displayCat] || 0) + tx.amount;
-            periodRecords.push(tx);
-          } else if(tx.type === 'Income') {
-            totalInc += tx.amount;
-            periodRecords.push(tx);
-          } else if(tx.type === 'Savings') {
-            totalSavingsPeriod += tx.amount;
-            periodRecords.push(tx);
-          }
-        }
-      }
-
-      document.getElementById('topBalance').innerText = formatINR(totalExp);
-      document.getElementById('secondaryBalance').innerText = formatINR(totalInc);
-      if(document.getElementById('ledgerKpiExpense')) document.getElementById('ledgerKpiExpense').innerText = formatINR(totalExp);
-      if(document.getElementById('ledgerKpiIncome')) document.getElementById('ledgerKpiIncome').innerText = formatINR(totalInc);
-      document.getElementById('ledgerKpiSavings').innerText = formatINR(totalSavingsPeriod);
-      document.getElementById('ledgerKpiRecords').innerText = periodRecords.length;
-
-      const container = document.getElementById('ledgerDynamicContainer');
-      // Stable click target for dynamically rendered Ledger records.
-      window.__ledgerPeriodRecords = periodRecords;
-      container.innerHTML = '';
-
-      const total = totalExp + totalInc + totalSavingsPeriod;
-      let html = '';
-
-      if(viewMode === 'records') {
-        html += `<div class="ledger-section-head"><div><div class="ledger-section-title">Recent records</div><div class="ledger-section-subtitle">Newest entries for the selected period</div></div><div class="ledger-count-chip">${periodRecords.length} records</div></div>`;
-        if(periodRecords.length === 0) {
-          html += `<div class="ledger-empty"><div class="ledger-empty-icon">📭</div><div class="ledger-empty-title">No records found</div><div class="ledger-empty-sub">Try a wider date range or another person.</div></div>`;
-        } else {
-          html += `<div class="ledger-records-card">`;
-          periodRecords.forEach(row => {
-            const dateStr = row.date.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
-            const amtClass = ledgerAmountClass(row.type);
-            const sign = row.type === 'Income' ? '+' : '−';
-            const subtitle = `${row.type} • ${row.cat}${row.paymentMethod ? ' • ' + row.paymentMethod : ''}`;
-            html += `
-              <div class="ledger-record" role="button" tabindex="0" aria-label="View transaction details" data-ledger-index="${periodRecords.indexOf(row)}" onclick="openLedgerRecordByIndex(${periodRecords.indexOf(row)})" onpointerup="openLedgerRecordByIndex(${periodRecords.indexOf(row)})">
-                <div class="ledger-record-icon">${ledgerIconFor(row)}</div>
-                <div class="ledger-record-main">
-                  <div class="ledger-record-title">${row.desc || row.cat}</div>
-                  <div class="ledger-record-meta">${subtitle} • ${dateStr} • ${row.user}</div>
-                </div>
-                <div class="ledger-record-amount ${amtClass}">${sign}${formatINR(row.amount)}</div>
-              </div>`;
-          });
-          html += `</div>`;
-        }
-      } else if(viewMode === 'categories') {
-        const entries = Object.entries(categoryTotals).sort((a,b)=>b[1]-a[1]);
-        html += `<div class="ledger-section-head"><div><div class="ledger-section-title">Where the money went</div><div class="ledger-section-subtitle">Spending by category</div></div><div class="ledger-count-chip">${entries.length} categories</div></div>`;
-        if(!entries.length) {
-          html += `<div class="ledger-empty"><div class="ledger-empty-icon">🏷️</div><div class="ledger-empty-title">No spending categories</div><div class="ledger-empty-sub">There is no expense data in this period.</div></div>`;
-        } else {
-          const maxVal = entries[0][1] || 1;
-          html += `<div class="ledger-category-list">`;
-          entries.forEach(([catName, amt], index) => {
-            const color = appColors[index % appColors.length];
-            const emoji = emojis[catName.replace('Veh - ', '')] || emojis[catName] || '🏷️';
-            const pct = Math.max(3, Math.round((amt / maxVal) * 100));
-            const share = totalExp ? ((amt / totalExp) * 100).toFixed(1) : '0.0';
-            const catCount = periodRecords.filter(tx => { const displayCat = (tx.type === 'Fuel' || tx.type === 'Service') ? `Veh - ${tx.cat}` : tx.cat; return displayCat === catName; }).length;
-            html += `
-              <div class="ledger-category-card" data-ledger-action="category" data-category="${encodeURIComponent(catName)}" role="button" tabindex="0" onclick="openLedgerCategoryByEncoded(this.getAttribute('data-category'))">
-                <div class="ledger-category-top">
-                  <div class="ledger-category-left">
-                    <div class="ledger-category-icon" style="background:${color}20;">${emoji}</div>
-                    <div><div class="ledger-category-name">${catName}</div><div class="ledger-category-count">${catCount} transaction${catCount===1?'':'s'}</div></div>
-                  </div>
-                  <div class="ledger-category-amt">${formatINR(amt)}</div>
-                </div>
-                <div class="ledger-category-track"><div class="ledger-category-fill" style="width:${pct}%; background:${color};"></div></div>
-                <div class="ledger-category-foot"><span>${share}% of spending</span><span>Tap for details</span></div>
-              </div>`;
-          });
-          html += `</div>`;
-        }
-      } else if(viewMode === 'savings') {
-        html += `<div class="ledger-section-head"><div><div class="ledger-section-title">Savings portfolio</div><div class="ledger-section-subtitle">All-time savings for the selected person</div></div></div>`;
-        html += `<div class="ledger-savings-hero" data-ledger-action="category" data-category="All%20Savings" role="button" tabindex="0" onclick="openLedgerCategoryByEncoded(this.getAttribute('data-category'))"><div class="ledger-savings-hero-row"><div><div class="ledger-savings-hero-label">Total saved</div><div class="ledger-savings-hero-value">${formatINR(totalCumulativeSavings)}</div><div class="ledger-savings-hero-note">${formatINR(totalSavingsPeriod)} added in this period</div></div><div style="font-size:28px; opacity:.9;">💰</div></div></div>`;
-        const entries = Object.entries(savingsPortfolio).sort((a,b)=>b[1]-a[1]);
-        html += `<div style="height:8px"></div><div class="ledger-section-head"><div><div class="ledger-section-title">By savings type</div><div class="ledger-section-subtitle">Tap any item to see the underlying records</div></div></div>`;
-        if(!entries.length) {
-          html += `<div class="ledger-empty"><div class="ledger-empty-icon">💤</div><div class="ledger-empty-title">No savings yet</div><div class="ledger-empty-sub">Start recording an investment or savings entry.</div></div>`;
-        } else {
-          const maxSav = entries[0][1] || 1;
-          html += `<div class="ledger-category-list">`;
-          entries.forEach(([catName, amt], index) => {
-            const color = appColors[index % appColors.length];
-            const emoji = emojis[catName] || '📈';
-            const pct = Math.max(3, Math.round((amt / maxSav) * 100));
-            const catCount = periodRecords.filter(tx => tx.type === 'Savings' && tx.cat === catName).length;
-            html += `
-              <div class="ledger-category-card" data-ledger-action="category" data-category="${encodeURIComponent(catName)}" role="button" tabindex="0" onclick="openLedgerCategoryByEncoded(this.getAttribute('data-category'))">
-                <div class="ledger-category-top"><div class="ledger-category-left"><div class="ledger-category-icon" style="background:${color}20;">${emoji}</div><div><div class="ledger-category-name">${catName}</div><div class="ledger-category-count">${catCount} transaction${catCount===1?'':'s'}</div></div></div><div class="ledger-category-amt">${formatINR(amt)}</div></div>
-                <div class="ledger-category-track"><div class="ledger-category-fill" style="width:${pct}%; background:${color};"></div></div>
-              </div>`;
-          });
-          html += `</div>`;
-        }
-      }
-
-      container.innerHTML = html;
-    }
-
     function normalizeTransactionType(value) {
       const t = String(value == null ? '' : value).trim().toLowerCase();
       if (t === 'income') return 'Income';
@@ -3300,12 +2872,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       catch(e) { alert('Unable to open record details.'); }
     }
 
-    function showCategoryDetailsEncoded(encoded) {
-      try { showCategoryDetails(decodeURIComponent(encoded)); }
-      catch(e) { alert('Unable to open category details.'); }
-    }
-
-    // Never lock body/html for Ledger details. On iOS that can freeze the
+    // Never lock body/html for detail sheets. On iOS that can freeze the
     // document after a modal is opened/closed. The modal overlay blocks only
     // background swipes; the modal-content remains a native scroll container.
     function lockDetailModal(lock) {
@@ -3313,7 +2880,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       // There is intentionally no document scroll locking here.
     }
 
-    // Ledger details use normal browser click/touch behavior. No global touch
+    // Detail sheets use normal browser click/touch behavior. No global touch
     // interception is required.
 
     function openVehicleServiceHistory(){
@@ -3329,53 +2896,6 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       document.body.classList.add('ui-detail-open');
       requestAnimationFrame(()=>modal.classList.add('show'));
     }
-
-    function showCategoryDetails(categoryName) {
-      try {
-        document.getElementById('modalCategoryTitle').innerText = categoryName;
-        const listContainer = document.getElementById('modalTransactionList');
-        listContainer.innerHTML = ''; 
-
-        let startStr = document.getElementById('ledgerStartDate').value;
-        let endStr = document.getElementById('ledgerEndDate').value;
-        let selectedUser = document.getElementById('ledgerFilterUser').value;
-        let startDate = new Date(startStr + 'T00:00:00');
-        let endDate = new Date(endStr + 'T23:59:59');
-
-        let allParsed = getInsightRows();
-
-        let filteredTxs = allParsed.filter(row => {
-          let txDate = parseRobustDate(row[0]);
-          let txType = normalizeTransactionType(row[1]);
-          let txCat = String(row[2] == null ? '' : row[2]).trim();
-          let txUser = String(row[5] == null ? '' : row[5]).trim();
-
-          let matchesCat = false;
-          if (categoryName === 'All Savings') {
-            matchesCat = (txType === 'Savings');
-          } else if (categoryName.startsWith('Veh - ')) {
-            matchesCat = (txType === 'Fuel' || txType === 'Service') && txCat === categoryName.replace('Veh - ', '');
-          } else {
-            matchesCat = (txCat === categoryName);
-          }
-
-          let isSavingsPortfolio = ['All Savings', 'Savings this month', 'Chit', 'Gold Chit', 'Mutual Funds', 'Fixed Deposit', 'Stocks', 'Other Investment'].includes(categoryName);
-          let dateCondition = isSavingsPortfolio ? true : (txDate && txDate >= startDate && txDate <= endDate);
-          return dateCondition && (selectedUser === 'Us' || txUser === selectedUser) && matchesCat;
-        }).reverse();
-
-        renderTxList(listContainer, filteredTxs);
-
-        const modal = document.getElementById('categoryModal');
-        modal.style.display = 'flex';
-        document.body.classList.add('ui-detail-open');
-        lockDetailModal(true);
-        setTimeout(() => modal.classList.add('show'), 10);
-      } catch(e) {
-        alert("Failed to load details: " + e.message);
-      }
-    }
-
     function renderTxList(container, txArray, isSearch = false) {
        if(txArray.length === 0) {
           container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 30px;">No records found.</div>';
@@ -3709,11 +3229,11 @@ function initTab4Extras(){loadRecurringPayments();renderSpendingCalendar();}
           <path d="M19 11h1.5"></path><circle cx="18.5" cy="19" r="1.5"></circle>
         </svg>
       </button>
-      <button id="nav-Ledger" onclick="showTab('Ledger')" title="Ledger & Records" aria-label="Ledger and Records">
+      <button id="nav-EMI" onclick="showTab('EMI')" title="EMI Loans" aria-label="EMI Loans">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
           <rect x="4" y="4" width="16" height="16" rx="3"></rect>
-          <path d="M8 9h8M8 13h5M8 17h4"></path>
-          <path d="M16 13h0"></path>
+          <path d="M7 9h10M7 13h6M7 17h8"></path>
+          <path d="M16 13h2"></path>
         </svg>
       </button>
       <button id="nav-Insights" onclick="showTab('Insights')" title="Analytics" aria-label="Analytics">
