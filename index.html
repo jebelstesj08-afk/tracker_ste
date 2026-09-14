@@ -2256,7 +2256,6 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     };
 
     window.onload = function() {
-      try { initTab4Extras(); } catch (e) { console.error('Tab-4 extras init failed:', e); }
       applySavedTheme();
       let savedUser = localStorage.getItem('globalUser') || 'Jebel';
       document.getElementById('globalUserSelect').value = savedUser;
@@ -2275,14 +2274,9 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       const fuelVehicleEl = document.getElementById('fuelVehicle');
       if (fuelVehicleEl && fuelVehicleEl.options.length) fuelVehicleEl.selectedIndex = 0;
       updateFuelEntryHeader();
-      renderFuelVehicleStrip();
-      updateFuelEntryHeader();
       toggleFuelFields();
-      refreshFuelDashboard();
-      refreshVehiclePhase3And4();
       updateFuelPricePreview();
 
-      setTxType('Expense');
       applyGlobalUser(savedUser);
       const insightRange = document.getElementById('insightsTimeRange');
       if (insightRange) insightRange.value = 'cycle';
@@ -2309,30 +2303,14 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       // Performance V2: build indexes from local cache first so the app is interactive immediately.
       rebuildDataIndex();
       calculateTopBalance();
-      refreshEMILoans();
-      calculateMileagePreview();
-      refreshFuelDashboard();
-      refreshVehiclePhase3And4();
-      renderCreditCards();
-      populateSearchFilters();
-      // Sync in the background; cached UI remains usable while Google Sheets responds.
-      // Open the app on Tab 4 (Insights) by default.
-      // Run this after startup rendering so all cached data is already available.
-      try {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active-tab'));
-        const insightsTab = document.getElementById('Insights');
-        if (insightsTab) insightsTab.classList.add('active-tab');
 
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        const insightNav = document.querySelector('.nav-item[onclick*="Insights"], .nav-item[data-tab="Insights"]');
-        if (insightNav) insightNav.classList.add('active');
-
-        if (typeof generateInsights === 'function') generateInsights();
-      } catch (e) {
-        console.warn('Default Insights tab setup skipped:', e);
-      }
-
-      setTimeout(() => syncWithGoogle(false), 60);
+      // Render the lightweight local Insights view first. Heavy/optional
+      // sections are refreshed when their tab/modal is opened.
+      try { initTab4Extras(); } catch (e) { console.warn('Tab-4 extras init skipped:', e); }
+      try { showTab('Insights'); } catch (e) { console.warn('Default tab setup skipped:', e); }
+      // Sync in the background; the local cache is already rendered above.
+      // The sync completion handler will refresh whichever tab is active.
+      setTimeout(() => syncWithGoogle(false), 80);
     };
 
 
@@ -2357,9 +2335,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       const global = document.getElementById('globalUserSelect');
       if (global) global.value = safeUser;
       const txUser = document.getElementById('txUser');
-      const fuelUser = document.getElementById('fuelUser');
       if (txUser) txUser.value = safeUser;
-      if (fuelUser) fuelUser.value = safeUser;
       const emiBorrower = document.getElementById('emiBorrower');
       if (emiBorrower) emiBorrower.value = safeUser;
       const insightsUser = document.getElementById('insightsFilterUser');
@@ -2483,19 +2459,13 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     }
 
     function getLastServiceOdo(vehicleName) {
-      let lastOdo = null;
-      for(let i = allTransactions.length - 1; i >= 1; i--) {
-        let type = String(allTransactions[i][1]).trim();
-        let cat = String(allTransactions[i][2]).trim();
-        if(type === 'Service' && cat === vehicleName) {
-          let odo = parseFloat(allTransactions[i][8]) || 0;
-          if(odo > 0) {
-            lastOdo = odo;
-            break;
-          }
-        }
+      rebuildDataIndex();
+      const rows = dataIndex.serviceByVehicle[vehicleName] || [];
+      for (let i = rows.length - 1; i >= 0; i--) {
+        const odo = parseFloat(rows[i][8]) || 0;
+        if (odo > 0) return odo;
       }
-      return lastOdo;
+      return null;
     }
 
     function getFuelRecordsForVehicle(vehicle) {
@@ -2669,11 +2639,6 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         report.innerHTML=`<div class="vehicle-kpi"><span>Fuel Spend</span><strong>₹${formatINR(fuelSpend)}</strong><div class="fuel-report-note">${litres.toFixed(2)} L</div></div><div class="vehicle-kpi"><span>Fuel Price</span><strong>${litres?`₹${(fuelSpend/litres).toFixed(2)}/L`:'—'}</strong><div class="fuel-report-note">Monthly average</div></div><div class="vehicle-kpi"><span>Distance</span><strong>${distance?distance.toLocaleString('en-IN')+' km':'—'}</strong><div class="fuel-report-note">Based on logged odometer</div></div><div class="vehicle-kpi"><span>Service Spend</span><strong>₹${formatINR(serviceSpend)}</strong><div class="fuel-report-note">${ms.length} service record${ms.length===1?'':'s'}</div></div>`;
       }
 
-      const overview=document.getElementById('vehicleOverviewList');
-      if(overview){
-        overview.innerHTML=vehicles.map(v=>{const x=getVehicleStatus(v), last=x.lastFuel, lastS=x.lastService; return `<div class="vehicle-overview-row"><div><div class="vehicle-overview-name">${emojis[v]||'🚗'} ${v}</div><div class="vehicle-overview-meta">${last?'Last fill '+last.odo.toLocaleString('en-IN')+' km':'No fuel data'}</div></div><div><b>${x.latestMileage?x.latestMileage.toFixed(1)+' km/L':'—'}</b><div class="vehicle-overview-meta">Latest mileage</div></div><div><b>${last?'₹'+formatINR(last.amount):'—'}</b><div class="vehicle-overview-meta">Last fill</div></div><div><b>${lastS?'₹'+formatINR(lastS.amount):'—'}</b><div class="vehicle-overview-meta">Last service</div></div></div>`;}).join('');
-      }
-      refreshVehiclePhase3And4();
     }
 
     function calculateMileagePreview() {
@@ -2839,15 +2804,17 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     }
 
     function calculateTopBalance() {
-      let totalInc = 0; let totalExp = 0; let totalSav = 0;
-      for(let i = 1; i < allTransactions.length; i++) {
-        let type = String(allTransactions[i][1]).trim();
-        let amount = parseFloat(allTransactions[i][3]) || 0;
-        if(type === 'Income') totalInc += amount;
-        if(type === 'Expense' || type === 'Fuel' || type === 'Service') totalExp += amount;
-        if(type === 'Savings') totalSav += amount;
+      rebuildDataIndex();
+      let totalInc = 0, totalExp = 0, totalSav = 0;
+      for (const row of dataIndex.rows) {
+        const type = normalizeTransactionType(row[1]);
+        const amount = parseTransactionAmount(row[3]);
+        if (type === 'Income') totalInc += amount;
+        else if (type === 'Expense' || type === 'Fuel' || type === 'Service') totalExp += amount;
+        else if (type === 'Savings') totalSav += amount;
       }
-      document.getElementById('topBalance').innerText = formatINR(totalInc - totalExp - totalSav);
+      const el = document.getElementById('topBalance');
+      if (el) el.innerText = formatINR(totalInc - totalExp - totalSav);
     }
 
     function updateCameraBtn() {
@@ -2872,80 +2839,95 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         btn.disabled = true;
       }
 
-      // Optimistic local update: the UI remains responsive even if the
-      // network is temporarily unavailable.
+      // Save locally first so the app never depends on the Google response
+      // to finish the UI operation.
       if (!Array.isArray(allTransactions)) allTransactions = [];
       if (!allTransactions.length || !Array.isArray(allTransactions[0])) {
         allTransactions.unshift(["Date","Type","Category","Amount","Description","User","Project","Receipt","Odometer","Litres","Payment Method"]);
       }
+
       allTransactions.push([
         payload.date, payload.type, payload.category, payload.amount,
         payload.description || '', payload.user || '', payload.project || 'General',
         '', payload.odometer || '', payload.litres || '', payload.paymentMethod || ''
       ]);
+
       invalidateDataIndex();
       rebuildDataIndex();
       localStorage.setItem('trackerData', JSON.stringify(allTransactions));
       calculateTopBalance();
+
       if (payload.type === 'Fuel' || payload.type === 'Service') {
         refreshFuelDashboard();
         refreshVehiclePhase3And4();
       }
 
+      /*
+       * IMPORTANT:
+       * Do not await the Apps Script POST here.
+       *
+       * Google Apps Script web-app POSTs can remain pending in some
+       * mobile/browser combinations even after the server has received
+       * the request. Waiting for response.text()/json() made the Fuel
+       * button look permanently stuck on "Processing".
+       *
+       * Fire the request and let the UI complete immediately. The entry
+       * is already in localStorage and will be reconciled on the next sync.
+       */
+      let requestStarted = false;
+
       try {
-        const response = await fetch(URL, {
+        const body = JSON.stringify(payload);
+        requestStarted = true;
+
+        // keepalive lets the browser finish the POST without making the
+        // form wait for the Apps Script response.
+        fetch(URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
+          body: body,
+          keepalive: true
+        }).then(() => {
+          localStorage.removeItem(TX_SYNC_META_KEY);
+        }).catch(err => {
+          console.warn('Background Google Sheets save failed; local copy retained:', err);
         });
-        const raw = await response.text();
-        let result = null;
-        try { result = JSON.parse(raw); } catch (_) {}
-        if (!response.ok || (result && result.result === 'error')) {
-          throw new Error(result?.message || ('HTTP ' + response.status));
-        }
 
-        // Backend has accepted the write. Update the revision metadata so
-        // the next V2 sync will not download stale data unnecessarily.
-        localStorage.removeItem(TX_SYNC_META_KEY);
-
-        if (btn) {
-          btn.innerText = payload.type === 'Service' ? 'Service Logged ✓' :
-                          payload.type === 'Fuel' ? 'Fuel Saved ✓' : 'Saved ✓';
-          btn.style.backgroundColor = 'var(--accent-green)';
-          btn.style.color = '#ffffff';
-        }
-
-        if (payload.type === 'Fuel' || payload.type === 'Service') {
-          resetFuelFields();
-          toggleFuelFields();
-          refreshFuelDashboard();
-          refreshVehiclePhase3And4();
-        } else {
-          resetActiveTabFields();
-          setTxType(currentTxType);
-        }
-        return true;
       } catch (err) {
-        console.error('Save failed:', err);
-        alert('Could not save to Google Sheets. The entry is kept locally and will sync when the connection is restored.\n\n' + err.message);
-        return false;
-      } finally {
-        if (btn) {
-          btn.classList.remove('loading');
-          btn.disabled = false;
-          if (btn.innerText.includes('✓')) {
-            setTimeout(() => {
-              btn.innerText = payload.type === 'Service' ? 'Log Service' :
-                              payload.type === 'Fuel' ? 'Log Fuel Fill' :
-                              currentTxType === 'Income' ? 'Add Income' :
-                              currentTxType === 'Savings' ? 'Record Investment' : 'Add Expense';
-              btn.style.backgroundColor = '';
-              btn.style.color = '';
-            }, 1200);
-          }
-        }
+        console.warn('Could not start Google Sheets save; local copy retained:', err);
       }
+
+      // Treat the local save as complete immediately.
+      if (btn) {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+        btn.innerText = payload.type === 'Service' ? 'Service Logged ✓' :
+                        payload.type === 'Fuel' ? 'Fuel Saved ✓' : 'Saved ✓';
+        btn.style.backgroundColor = 'var(--accent-green)';
+        btn.style.color = '#ffffff';
+      }
+
+      if (payload.type === 'Fuel' || payload.type === 'Service') {
+        resetFuelFields();
+        toggleFuelFields();
+        refreshFuelDashboard();
+        refreshVehiclePhase3And4();
+      } else {
+        resetActiveTabFields();
+        setTxType(currentTxType);
+      }
+
+      setTimeout(() => {
+        if (!btn) return;
+        btn.innerText = payload.type === 'Service' ? 'Log Service' :
+                        payload.type === 'Fuel' ? 'Log Fuel Fill' :
+                        currentTxType === 'Income' ? 'Add Income' :
+                        currentTxType === 'Savings' ? 'Record Investment' : 'Add Expense';
+        btn.style.backgroundColor = '';
+        btn.style.color = '';
+      }, 1200);
+
+      return requestStarted;
     }
 
     function saveUnifiedData() {
@@ -2981,7 +2963,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         return;
       }
 
-      await executeSave({
+      return executeSave({
         date,
         type,
         category: vehicle,
@@ -3083,12 +3065,13 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
             }
           }
 
-          if(changed){
-            const active=document.querySelector('.tab-content.active-tab')?.id||'';
-            if(active==='Insights') generateInsights();
-            else if(active!=='EMI') calculateTopBalance();
-            if(active==='Fuel') { refreshFuelDashboard(); refreshVehiclePhase3And4(); }
-          }
+          // Always refresh the visible lightweight view after sync. This fixes
+          // the case where the cached revision is unchanged but the initial
+          // Insights render happened before the cache was available.
+          const active=document.querySelector('.tab-content.active-tab')?.id||'';
+          if(active==='Insights') generateInsights();
+          else if(active!=='EMI') calculateTopBalance();
+          if(active==='Fuel') { refreshFuelDashboard(); refreshVehiclePhase3And4(); }
 
           lastSyncAt=Date.now();
           if(showLoading && loading){
@@ -3186,19 +3169,11 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       } else startDate.setFullYear(now.getFullYear() - 50);
       startDate.setHours(0,0,0,0);
 
-      const rows = getInsightRows();
-      const txs = rows.map(row => ({
-        date: parseRobustDate(row[0]),
-        type: normalizeTransactionType(row[1]),
-        cat: String(row[2] == null ? '' : row[2]).trim(),
-        amount: parseTransactionAmount(row[3]),
-        desc: String(row[4] == null ? '' : row[4]).trim(),
-        user: String(row[5] == null ? '' : row[5]).trim(),
-        // Tab 4 / Insights must carry the payment method from the sheet into the transaction detail modal.
-        paymentMethod: String(row[10] == null ? '' : row[10]).trim()
-      })).filter(tx => {
-        if (!tx.date) return false;
-        const userOk = selectedUser === 'Us' || tx.user.toLowerCase() === selectedUser.toLowerCase();
+      // Reuse the normalized transaction cache. The previous implementation
+      // rebuilt a full transaction object for every Insights refresh.
+      const rows = getSearchableTransactions();
+      const txs = rows.filter(tx => {
+        const userOk = tx.user.toLowerCase() === selectedUser.toLowerCase();
         const dateOk = tx.date >= startDate && (!endDate || tx.date <= endDate);
         return userOk && dateOk && tx.amount >= 0;
       }).sort((a,b) => a.date - b.date);
@@ -3977,7 +3952,7 @@ function initTab4Extras(){loadRecurringPayments();renderSpendingCalendar();}
 <!-- NAVIGATION BAR -->
   <div class="nav-wrapper">
     <div class="nav-pill">
-      <button id="nav-Transactions" class="active-nav" onclick="showTab('Transactions')" title="Add Entry" aria-label="Add Entry">
+      <button id="nav-Transactions" onclick="showTab('Transactions')" title="Add Entry" aria-label="Add Entry">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 5v14"></path><path d="M5 12h14"></path>
           <circle cx="12" cy="12" r="8.5"></circle>
@@ -3998,7 +3973,7 @@ function initTab4Extras(){loadRecurringPayments();renderSpendingCalendar();}
           <path d="M16 13h2"></path>
         </svg>
       </button>
-      <button id="nav-Insights" onclick="showTab('Insights')" title="Analytics" aria-label="Analytics">
+      <button id="nav-Insights" class="active-nav" onclick="showTab('Insights')" title="Analytics" aria-label="Analytics">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 19V5"></path><path d="M4 19h16"></path>
           <path d="m7 15 3-4 3 2 5-6"></path>
