@@ -1995,6 +1995,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       <option value="Education">Education</option>
       <option value="Debt / Loan EMI">Debt / Loan EMI</option>
       <option value="Trip">Trip</option>
+      <option value="Outing">Outing</option>
       <option value="Miscellaneous">Miscellaneous</option>
     `;
 
@@ -2600,7 +2601,9 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         cat: String(row[2] == null ? '' : row[2]).trim(),
         amount: parseTransactionAmount(row[3]),
         desc: String(row[4] == null ? '' : row[4]).trim(),
-        user: String(row[5] == null ? '' : row[5]).trim()
+        user: String(row[5] == null ? '' : row[5]).trim(),
+        // Tab 4 / Insights must carry the payment method from the sheet into the transaction detail modal.
+        paymentMethod: String(row[10] == null ? '' : row[10]).trim()
       })).filter(tx => {
         if (!tx.date) return false;
         const userOk = selectedUser === 'Us' || tx.user.toLowerCase() === selectedUser.toLowerCase();
