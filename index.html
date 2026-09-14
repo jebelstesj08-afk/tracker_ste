@@ -1113,7 +1113,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
   </div>
 
   <!-- TAB 1: TRANSACTIONS & SAVINGS -->
-  <div id="Transactions" class="tab-content active-tab">
+  <div id="Transactions" class="tab-content">
     <div style="display: flex; background: var(--input-bg); padding: 4px; border-radius: var(--radius-md); margin-bottom: 16px;">
       <button type="button" id="typeExpBtn" onclick="setTxType('Expense')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: all 0.2s;">Expense</button>
       <button type="button" id="typeIncBtn" onclick="setTxType('Income')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;">Income</button>
@@ -1150,7 +1150,27 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         </div>
       </div>
       <select id="txCat">
-        <!-- Dynamically Populated -->
+        <option value="" disabled selected>Select Category...</option>
+        <option value="Housing / Rent">Housing / Rent</option>
+        <option value="Food - Groceries">Food - Groceries</option>
+        <option value="Food - Dining Out">Food - Dining Out</option>
+        <option value="Food - HungerBox">Food - HungerBox</option>
+        <option value="Maintenance">Maintenance</option>
+        <option value="Utilities - Electricity">Utilities - Electricity</option>
+        <option value="Utilities - Internet">Utilities - Internet</option>
+        <option value="Utilities - Phone">Utilities - Phone</option>
+        <option value="Hardware / Equipment">Hardware / Equipment</option>
+        <option value="Health &amp; Medical">Health &amp; Medical</option>
+        <option value="Entertainment">Entertainment</option>
+        <option value="Shopping">Shopping</option>
+        <option value="Personal Care">Personal Care</option>
+        <option value="Credit Card">Credit Card</option>
+        <option value="Subscription">Subscription</option>
+        <option value="Education">Education</option>
+        <option value="Debt / Loan EMI">Debt / Loan EMI</option>
+        <option value="Trip">Trip</option>
+        <option value="Outing">Outing</option>
+        <option value="Miscellaneous">Miscellaneous</option>
       </select>
     </div>
 
@@ -1310,7 +1330,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
   </div>
 
   <!-- TAB 4: INSIGHTS / ANALYTICS TAB -->
-  <div id="Insights" class="tab-content">
+  <div id="Insights" class="tab-content active-tab">
 
     <div class="insights-page">
       <div class="insights-command">
@@ -1325,7 +1345,6 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       <div class="insights-controls">
         <div class="input-group">
           <select id="insightsFilterUser" onchange="generateInsights()" aria-label="Filter user">
-            <option value="Us">Us</option>
             <option value="Jebel">Jebel</option>
             <option value="Reshma">Reshma</option>
           </select>
@@ -2237,16 +2256,22 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     };
 
     window.onload = function() {
-      initTab4Extras();
+      try { initTab4Extras(); } catch (e) { console.error('Tab-4 extras init failed:', e); }
       applySavedTheme();
       let savedUser = localStorage.getItem('globalUser') || 'Jebel';
       document.getElementById('globalUserSelect').value = savedUser;
       applyGlobalUser(savedUser);
 
       let today = new Date();
-      let todayStr = today.toISOString().split('T')[0];
-      document.getElementById('txDate').value = todayStr;
-      document.getElementById('fuelDate').value = getLocalDateString();
+      let todayStr = getLocalDateString();
+      document.getElementById('txDate').value = getLocalDateString();
+      document.getElementById('fuelDate').value = todayStr;
+
+      // Core Tab-1 initialization: always show Expense categories immediately.
+      setTxType('Expense');
+      const txCatEl = document.getElementById('txCat');
+      if (txCatEl && txCatEl.options.length) txCatEl.selectedIndex = 0;
+
       const fuelVehicleEl = document.getElementById('fuelVehicle');
       if (fuelVehicleEl && fuelVehicleEl.options.length) fuelVehicleEl.selectedIndex = 0;
       updateFuelEntryHeader();
@@ -2258,6 +2283,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       updateFuelPricePreview();
 
       setTxType('Expense');
+      applyGlobalUser(savedUser);
       const insightRange = document.getElementById('insightsTimeRange');
       if (insightRange) insightRange.value = 'cycle';
 
@@ -2290,6 +2316,22 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       renderCreditCards();
       populateSearchFilters();
       // Sync in the background; cached UI remains usable while Google Sheets responds.
+      // Open the app on Tab 4 (Insights) by default.
+      // Run this after startup rendering so all cached data is already available.
+      try {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active-tab'));
+        const insightsTab = document.getElementById('Insights');
+        if (insightsTab) insightsTab.classList.add('active-tab');
+
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        const insightNav = document.querySelector('.nav-item[onclick*="Insights"], .nav-item[data-tab="Insights"]');
+        if (insightNav) insightNav.classList.add('active');
+
+        if (typeof generateInsights === 'function') generateInsights();
+      } catch (e) {
+        console.warn('Default Insights tab setup skipped:', e);
+      }
+
       setTimeout(() => syncWithGoogle(false), 60);
     };
 
@@ -2303,23 +2345,33 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     }
 
     function onGlobalUserChange() {
-      let selectedUser = document.getElementById('globalUserSelect').value;
+      const selectedUser = document.getElementById('globalUserSelect')?.value || 'Jebel';
       localStorage.setItem('globalUser', selectedUser);
       applyGlobalUser(selectedUser);
+      // Insights always follows the person selected in the Hello selector.
+      generateInsights();
     }
 
     function applyGlobalUser(user) {
-      document.getElementById('txUser').value = user;
-      document.getElementById('fuelUser').value = user;
+      const safeUser = user === 'Reshma' ? 'Reshma' : 'Jebel';
+      const global = document.getElementById('globalUserSelect');
+      if (global) global.value = safeUser;
+      const txUser = document.getElementById('txUser');
+      const fuelUser = document.getElementById('fuelUser');
+      if (txUser) txUser.value = safeUser;
+      if (fuelUser) fuelUser.value = safeUser;
       const emiBorrower = document.getElementById('emiBorrower');
-      if (emiBorrower && (user === 'Jebel' || user === 'Reshma')) emiBorrower.value = user;
+      if (emiBorrower) emiBorrower.value = safeUser;
       const insightsUser = document.getElementById('insightsFilterUser');
-      if (insightsUser && (user === 'Jebel' || user === 'Reshma')) insightsUser.value = user;
+      if (insightsUser) {
+        insightsUser.value = safeUser;
+        insightsUser.disabled = true;
+      }
     }
 
     function resetActiveTabFields() {
       let activeTabId = document.querySelector('.tab-content.active-tab').id;
-      let todayStr = new Date().toISOString().split('T')[0];
+      let todayStr = getLocalDateString();
       let currentUser = document.getElementById('globalUserSelect').value;
 
       if(activeTabId === 'Transactions') {
@@ -2808,38 +2860,92 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       }
     }
 
-    function executeSave(payload, btnId) {
-      if(!payload.amount || !payload.category || !payload.date) return alert("Date, Amount, and Category/Source/Savings Type are required.");
-
+    async function executeSave(payload, btnId) {
       const btn = document.getElementById(btnId);
-      btn.classList.add('loading');
-
-      if(allTransactions.length === 0) {
-        allTransactions.push(["Date", "Type", "Category", "Amount", "Description", "User", "Project", "Receipt", "Odometer", "Litres", "Payment Method"]);
+      if (!payload.date || !payload.category || !payload.amount) {
+        alert("Date, Amount, and Category/Vehicle are required.");
+        return false;
       }
-      
-      allTransactions.push([payload.date, payload.type, payload.category, payload.amount, payload.description, payload.user, payload.project, payload.image, payload.odometer, payload.litres, payload.paymentMethod]);
+
+      if (btn) {
+        btn.classList.add('loading');
+        btn.disabled = true;
+      }
+
+      // Optimistic local update: the UI remains responsive even if the
+      // network is temporarily unavailable.
+      if (!Array.isArray(allTransactions)) allTransactions = [];
+      if (!allTransactions.length || !Array.isArray(allTransactions[0])) {
+        allTransactions.unshift(["Date","Type","Category","Amount","Description","User","Project","Receipt","Odometer","Litres","Payment Method"]);
+      }
+      allTransactions.push([
+        payload.date, payload.type, payload.category, payload.amount,
+        payload.description || '', payload.user || '', payload.project || 'General',
+        '', payload.odometer || '', payload.litres || '', payload.paymentMethod || ''
+      ]);
       invalidateDataIndex();
+      rebuildDataIndex();
       localStorage.setItem('trackerData', JSON.stringify(allTransactions));
       calculateTopBalance();
+      if (payload.type === 'Fuel' || payload.type === 'Service') {
+        refreshFuelDashboard();
+        refreshVehiclePhase3And4();
+      }
 
-      fetch(URL, {
-        method: 'POST',
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      }).then(res => res.json()).then(() => {
-        btn.classList.remove('loading');
-        btn.innerText = "Done ✓";
-        btn.style.backgroundColor = "var(--accent-green)";
-        btn.style.color = "#ffffff";
-        setTimeout(() => location.reload(), 800);
-      }).catch(() => {
-        btn.classList.remove('loading');
-        btn.innerText = "Done ✓";
-        btn.style.backgroundColor = "var(--accent-green)";
-        btn.style.color = "#ffffff";
-        setTimeout(() => location.reload(), 800);
-      });
+      try {
+        const response = await fetch(URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const raw = await response.text();
+        let result = null;
+        try { result = JSON.parse(raw); } catch (_) {}
+        if (!response.ok || (result && result.result === 'error')) {
+          throw new Error(result?.message || ('HTTP ' + response.status));
+        }
+
+        // Backend has accepted the write. Update the revision metadata so
+        // the next V2 sync will not download stale data unnecessarily.
+        localStorage.removeItem(TX_SYNC_META_KEY);
+
+        if (btn) {
+          btn.innerText = payload.type === 'Service' ? 'Service Logged ✓' :
+                          payload.type === 'Fuel' ? 'Fuel Saved ✓' : 'Saved ✓';
+          btn.style.backgroundColor = 'var(--accent-green)';
+          btn.style.color = '#ffffff';
+        }
+
+        if (payload.type === 'Fuel' || payload.type === 'Service') {
+          resetFuelFields();
+          toggleFuelFields();
+          refreshFuelDashboard();
+          refreshVehiclePhase3And4();
+        } else {
+          resetActiveTabFields();
+          setTxType(currentTxType);
+        }
+        return true;
+      } catch (err) {
+        console.error('Save failed:', err);
+        alert('Could not save to Google Sheets. The entry is kept locally and will sync when the connection is restored.\n\n' + err.message);
+        return false;
+      } finally {
+        if (btn) {
+          btn.classList.remove('loading');
+          btn.disabled = false;
+          if (btn.innerText.includes('✓')) {
+            setTimeout(() => {
+              btn.innerText = payload.type === 'Service' ? 'Log Service' :
+                              payload.type === 'Fuel' ? 'Log Fuel Fill' :
+                              currentTxType === 'Income' ? 'Add Income' :
+                              currentTxType === 'Savings' ? 'Record Investment' : 'Add Expense';
+              btn.style.backgroundColor = '';
+              btn.style.color = '';
+            }, 1200);
+          }
+        }
+      }
     }
 
     function saveUnifiedData() {
@@ -2858,22 +2964,36 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       executeSave(payload, 'txSaveBtn');
     }
 
-    function saveFuelData() {
-      let isService = document.getElementById('fuelLogType').value === 'Service';
-      let payload = {
-        date: document.getElementById('fuelDate').value,
-        type: isService ? "Service" : "Fuel",
-        category: document.getElementById('fuelVehicle').value,
-        amount: document.getElementById('fuelAmount').value,
-        description: document.getElementById('fuelDesc').value,
-        user: document.getElementById('fuelUser').value,
-        project: "Automotive",
-        image: "",
-        odometer: document.getElementById('fuelOdo').value,
-        litres: isService ? "" : document.getElementById('fuelLitres').value,
-        paymentMethod: document.getElementById('fuelPaymentMethod').value
-      };
-      executeSave(payload, 'vehicleLogBtn');
+    async function saveFuelData() {
+      const type = document.getElementById('fuelLogType')?.value === 'Service' ? 'Service' : 'Fuel';
+      const date = document.getElementById('fuelDate')?.value || getLocalDateString();
+      const vehicle = document.getElementById('fuelVehicle')?.value || '';
+      const amount = document.getElementById('fuelAmount')?.value || '';
+      const odo = document.getElementById('fuelOdo')?.value || '';
+      const litres = document.getElementById('fuelLitres')?.value || '';
+
+      if (!date || !vehicle || !amount || !odo) {
+        alert('Please enter Date, Vehicle, Total Price and Odometer.');
+        return;
+      }
+      if (type === 'Fuel' && !litres) {
+        alert('Please enter Litres for a fuel fill-up.');
+        return;
+      }
+
+      await executeSave({
+        date,
+        type,
+        category: vehicle,
+        amount,
+        description: document.getElementById('fuelDesc')?.value || '',
+        user: document.getElementById('fuelUser')?.value || 'Jebel',
+        project: 'Automotive',
+        image: '',
+        odometer: odo,
+        litres: type === 'Fuel' ? litres : '',
+        paymentMethod: document.getElementById('fuelPaymentMethod')?.value || ''
+      }, 'vehicleLogBtn');
     }
 
     function forceSync() { syncWithGoogle(true); }
@@ -2909,8 +3029,16 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
               try{packet=JSON.parse(raw);}catch(e){}
               if(packet && packet.apiVersion===2 && packet.result==='success'){
                 v2Succeeded=true;
-                if(packet.changed){
-                  const data=Array.isArray(packet.data)?packet.data:[];
+                if(packet.changed || (Number(packet.rowCount||0) > (Array.isArray(allTransactions) ? allTransactions.length : 0))){
+                  let data=Array.isArray(packet.data)?packet.data:[];
+                  // If the revision matched but this browser has no/partial local data,
+                  // request the full snapshot once instead of accepting a false no-change.
+                  if(!packet.changed && Number(packet.rowCount||0) > data.length){
+                    const repairUrl=URL+'?api=v2&action=sync&rev=&t='+Date.now();
+                    const repairResponse=await fetch(repairUrl,{method:'GET',cache:'no-store',redirect:'follow'});
+                    const repairPacket=await repairResponse.json();
+                    if(repairPacket && repairPacket.apiVersion===2 && repairPacket.result==='success' && Array.isArray(repairPacket.data)) data=repairPacket.data;
+                  }
                   if(data.length){
                     const newJson=JSON.stringify(data);
                     const oldJson=localStorage.getItem('trackerData');
@@ -3042,7 +3170,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     function getInsightTransactions() {
       const userEl = document.getElementById('insightsFilterUser');
       const rangeEl = document.getElementById('insightsTimeRange');
-      const selectedUser = userEl ? userEl.value : 'Us';
+      const selectedUser = userEl ? (userEl.value || 'Jebel') : 'Jebel';
       const timeRange = rangeEl ? rangeEl.value : 'all';
 
       const now = new Date();
