@@ -1679,7 +1679,13 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
   </div>
 
   <script>
-    const URL = "https://script.google.com/macros/s/AKfycbwETC4mZPqfomKjCKmIjdXbFktmKBqplCREtHWgoBPET2OCfPcqlCt-QVFMRdFonFytfA/exec"; 
+    const URL = "https://script.google.com/macros/s/AKfycbwETC4mZPqfomKjCKmIjdXbFktmKBqplCREtHWgoBPET2OCfPcqlCt-QVFMRdFonFytfA/exec";
+    // API V2: the Apps Script patch supplied with this file adds revision-based
+    // sync, server-side caching, and lightweight no-change responses. The client
+    // automatically falls back to the existing GET API until V2 is deployed.
+    const API_V2 = true;
+    const TX_SYNC_META_KEY = 'trackerSyncMetaV2';
+    const EMI_CACHE_TTL = 5 * 60 * 1000;
     
     let allTransactions = JSON.parse(localStorage.getItem('trackerData')) || [];
     let receiptBase64 = "";
@@ -1832,12 +1838,32 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
      function emiMonthYear(d){ if(!d)return '—'; const x=new Date(String(d).includes('T')?d:d+'T00:00:00'); return isNaN(x.getTime())?'—':x.toLocaleDateString('en-IN',{month:'short',year:'numeric'}); }
     function escEMI(v){ return tab4Escape(v); }
 
-    async function refreshEMILoans(){
+    async function refreshEMILoans(force=false){
       const status=document.getElementById('emiDataStatus');
-      if(status) status.innerHTML='<span class="insights-status-dot"></span><span>Syncing…</span>';
+      const now=Date.now();
+      let cached=false;
       try{
-        const res=await fetch(URL+'?action='+EMI_SHEET_ACTION+'&t='+Date.now(), {cache:'no-store'});
-        const data=await res.json();
+        const cachedLoans=JSON.parse(localStorage.getItem('emiLoansCache')||'null');
+        const cachedSchedules=JSON.parse(localStorage.getItem('emiSchedulesCache')||'null');
+        const cachedAt=Number(localStorage.getItem('emiCacheAt')||0);
+        if(Array.isArray(cachedLoans)){
+          emiLoans=cachedLoans;
+          emiSchedules=cachedSchedules && typeof cachedSchedules==='object' ? cachedSchedules : {};
+          cached=true;
+          renderEMILoans();
+          if(status) status.innerHTML='<span class="insights-status-dot"></span><span>Cached data</span>';
+          if(!force && now-cachedAt < EMI_CACHE_TTL) return;
+        }
+      }catch(e){}
+
+      if(status) status.innerHTML='<span class="insights-status-dot"></span><span>'+(cached?'Updating…':'Syncing…')+'</span>';
+      try{
+        let res=await fetch(URL+'?api=v2&action=loans&fresh='+(force?'1':'0')+'&t='+Date.now(), {cache:'no-store'});
+        let data=await res.json();
+        if(data.apiVersion!==2 || data.result!=='success'){
+          res=await fetch(URL+'?action='+EMI_SHEET_ACTION+'&t='+Date.now(), {cache:'no-store'});
+          data=await res.json();
+        }
         if(data.result!=='success') throw new Error(data.message||'Unable to load EMI loans');
         emiLoans=(data.data||[]).slice(1).map(normalizeEMILoan).filter(x=>x.loanId && x.loanId !== 'LoanID');
         emiSchedules={};
@@ -1850,12 +1876,15 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         Object.keys(emiSchedules).forEach(k=>emiSchedules[k].sort((a,b)=>Number(a.emiNo)-Number(b.emiNo)));
         localStorage.setItem('emiLoansCache',JSON.stringify(emiLoans));
         localStorage.setItem('emiSchedulesCache',JSON.stringify(emiSchedules));
+        localStorage.setItem('emiCacheAt',String(Date.now()));
         renderEMILoans();
         if(status) status.innerHTML='<span class="insights-status-dot"></span><span>Live data</span>';
       }catch(e){
-        try{ emiLoans=JSON.parse(localStorage.getItem('emiLoansCache')||'[]'); }catch(_){ emiLoans=[]; }
-        try{ emiSchedules=JSON.parse(localStorage.getItem('emiSchedulesCache')||'{}'); }catch(_){ emiSchedules={}; }
-        renderEMILoans();
+        if(!cached){
+          try{ emiLoans=JSON.parse(localStorage.getItem('emiLoansCache')||'[]'); }catch(_){ emiLoans=[]; }
+          try{ emiSchedules=JSON.parse(localStorage.getItem('emiSchedulesCache')||'{}'); }catch(_){ emiSchedules={}; }
+          renderEMILoans();
+        }
         if(status) status.innerHTML='<span class="insights-status-dot" style="background:var(--accent-red)"></span><span>Offline cache</span>';
       }
     }
@@ -2014,21 +2043,21 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       } else {
         payload.loan.remainingEMIs=Number(document.getElementById('emiRemaining')?.value)||Math.max(0,payload.loan.tenureMonths-currentNo);
       }
-      try{ await postEMI(payload); closeEMILoanModal(); await refreshEMILoans(); }catch(e){alert('Could not save loan: '+e.message);}finally{btn.classList.remove('loading');}
+      try{ await postEMI(payload); closeEMILoanModal(); await refreshEMILoans(true); }catch(e){alert('Could not save loan: '+e.message);}finally{btn.classList.remove('loading');}
     }
 
     async function markEMIPaid(loanId,emiNo){
       if(!confirm('Mark EMI #'+emiNo+' as paid?'))return;
       try{
         await postEMI({action:'markEMIPaid',loanId:String(loanId),emiNo:Number(emiNo)});
-        await refreshEMILoans();
+        await refreshEMILoans(true);
         openEMIDetails(loanId);
       }catch(e){alert('Could not update EMI: '+e.message);}
     }
 
     async function deleteEMILoan(loanId){
       if(!confirm('Delete this loan and its EMI schedule?'))return;
-      try{await postEMI({action:'deleteLoan',loanId:String(loanId)});await refreshEMILoans();closeEMIDetails();}catch(e){alert('Could not delete loan: '+e.message);}
+      try{await postEMI({action:'deleteLoan',loanId:String(loanId)});await refreshEMILoans(true);closeEMIDetails();}catch(e){alert('Could not delete loan: '+e.message);}
     }
     function openEMISchedule(loanId){
       const x=emiLoans.find(a=>String(a.loanId)===String(loanId));
@@ -2866,25 +2895,67 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 
       syncInFlight=(async()=>{
         try {
-          const syncUrl = URL + (URL.includes('?') ? '&' : '?') + '_ts=' + Date.now();
-          const response = await fetch(syncUrl, {method:'GET',cache:'no-store',redirect:'follow'});
-          if(!response.ok) throw new Error('HTTP ' + response.status);
-          const raw = await response.text();
-          let data;
-          try { data=JSON.parse(raw); } catch(e){ throw new Error('Google Sheets returned a non-JSON response'); }
-          if(!Array.isArray(data)) throw new Error('Unexpected Google Sheets response');
+          const meta=JSON.parse(localStorage.getItem(TX_SYNC_META_KEY)||'{}');
+          let v2Succeeded=false;
+          let changed=false;
+          let statusText='Up to date ✓';
 
-          // Avoid JSON.stringify/localStorage/UI work when nothing changed.
-          const newJson=JSON.stringify(data);
-          const oldJson=localStorage.getItem('trackerData');
-          if(newJson!==oldJson){
-            allTransactions=data;
-            invalidateDataIndex();
-            localStorage.setItem('trackerData',newJson);
-            rebuildDataIndex();
+          if(API_V2){
+            const v2Url=URL+'?api=v2&action=sync&rev='+encodeURIComponent(meta.revision||'')+'&t='+Date.now();
+            const response=await fetch(v2Url,{method:'GET',cache:'no-store',redirect:'follow'});
+            if(response.ok){
+              const raw=await response.text();
+              let packet=null;
+              try{packet=JSON.parse(raw);}catch(e){}
+              if(packet && packet.apiVersion===2 && packet.result==='success'){
+                v2Succeeded=true;
+                if(packet.changed){
+                  const data=Array.isArray(packet.data)?packet.data:[];
+                  if(data.length){
+                    const newJson=JSON.stringify(data);
+                    const oldJson=localStorage.getItem('trackerData');
+                    if(newJson!==oldJson){
+                      allTransactions=data;
+                      invalidateDataIndex();
+                      localStorage.setItem('trackerData',newJson);
+                      rebuildDataIndex();
+                      changed=true;
+                    }
+                  }
+                }
+                localStorage.setItem(TX_SYNC_META_KEY,JSON.stringify({
+                  revision:String(packet.revision||''),
+                  rowCount:Number(packet.rowCount||0),
+                  syncedAt:Date.now()
+                }));
+                statusText=changed?'Synced ✓':'Up to date ✓';
+              }
+            }
+          }
 
-            const insights=document.getElementById('Insights');
-            const emi=document.getElementById('EMI');
+          // Backward-compatible fallback to the existing endpoint. This means
+          // the app keeps working even before the Apps Script V2 patch is deployed.
+          if(!v2Succeeded){
+            const syncUrl = URL + (URL.includes('?') ? '&' : '?') + '_ts=' + Date.now();
+            const response = await fetch(syncUrl, {method:'GET',cache:'no-store',redirect:'follow'});
+            if(!response.ok) throw new Error('HTTP ' + response.status);
+            const raw = await response.text();
+            let data;
+            try { data=JSON.parse(raw); } catch(e){ throw new Error('Google Sheets returned a non-JSON response'); }
+            if(!Array.isArray(data)) throw new Error('Unexpected Google Sheets response');
+            const newJson=JSON.stringify(data);
+            const oldJson=localStorage.getItem('trackerData');
+            if(newJson!==oldJson){
+              allTransactions=data;
+              invalidateDataIndex();
+              localStorage.setItem('trackerData',newJson);
+              rebuildDataIndex();
+              changed=true;
+              statusText='Synced ✓';
+            }
+          }
+
+          if(changed){
             const active=document.querySelector('.tab-content.active-tab')?.id||'';
             if(active==='Insights') generateInsights();
             else if(active!=='EMI') calculateTopBalance();
@@ -2893,7 +2964,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 
           lastSyncAt=Date.now();
           if(showLoading && loading){
-            loading.textContent = newJson===oldJson ? 'Up to date ✓' : 'Synced ✓';
+            loading.textContent = statusText;
             loading.style.color='var(--accent-green)';
             setTimeout(()=>{loading.style.display='none';loading.style.color='var(--text-muted)';},900);
           }
