@@ -1246,7 +1246,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 
     <div class="fuel-vehicle-summary">
       <div class="fuel-summary-head">
-        <div><div class="fuel-summary-name" id="fuelSummaryVehicle">Yamaha FZ</div><div class="fuel-summary-meta" id="fuelSummaryLastFill">No fuel records yet</div></div>
+        <div><div class="fuel-summary-name" id="fuelSummaryVehicle"></div><div class="fuel-summary-meta" id="fuelSummaryLastFill">No fuel records yet</div></div>
         <div class="fuel-odo-pill" role="button" tabindex="0" onclick="openVehicleServiceHistory()"><span>🏁 Current Odometer</span><b id="lastServiceOdoText">—</b><span>›</span></div>
       </div>
       <div id="fuelDashboard" class="fuel-kpi-grid">
@@ -2357,7 +2357,12 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     function refreshFuelDashboard() {
       const vehicleEl=document.getElementById('fuelVehicle');
       if(!vehicleEl) return;
-      const vehicle=vehicleEl.value;
+      if(!vehicleEl.value && vehicleEl.options.length) vehicleEl.selectedIndex=0;
+      const vehicle=vehicleEl.value || (vehicleEl.options[0] ? vehicleEl.options[0].value : '');
+      const summaryVehicle=document.getElementById('fuelSummaryVehicle');
+      if(summaryVehicle) summaryVehicle.textContent=vehicle;
+      const entryVehicle=document.getElementById('fuelEntryVehicle');
+      if(entryVehicle) entryVehicle.textContent=vehicle;
       const records=getFuelRecordsForVehicle(vehicle);
       const now=new Date();
       const monthRecords=records.filter(r=>r.date && r.date.getMonth()===now.getMonth() && r.date.getFullYear()===now.getFullYear());
@@ -2418,13 +2423,33 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     }
 
     function renderFuelVehicleStrip(){
-      const strip=document.getElementById('fuelVehicleStrip'), select=document.getElementById('fuelVehicle'); if(!strip||!select)return;
-      const vehicles=Array.from(select.options).map(o=>o.value).filter(Boolean), current=select.value;
-      strip.innerHTML=vehicles.map(v=>`<button type="button" class="fuel-vehicle-chip ${v===current?'active':''}" onclick="selectFuelVehicle('${v}')"><span class="emoji">${emojis[v]||'🚗'}</span><b>${v}</b><small>${v===current?'Selected':'Switch'}</small></button>`).join('');
-      const title=document.getElementById('fuelEntryVehicle'); if(title)title.textContent=current;
-      const summary=document.getElementById('fuelSummaryVehicle'); if(summary)summary.textContent=current;
+      const select=document.getElementById('fuelVehicle');
+      if(!select) return;
+      if(!select.value && select.options.length) select.selectedIndex=0;
+      const current=select.value || (select.options[0] ? select.options[0].value : '');
+
+      // The horizontal vehicle strip was removed from the iPhone UI, but this
+      // function remains as the single source of truth for the selected vehicle.
+      const title=document.getElementById('fuelEntryVehicle');
+      if(title) title.textContent=current;
+      const summary=document.getElementById('fuelSummaryVehicle');
+      if(summary) summary.textContent=current;
+
+      const strip=document.getElementById('fuelVehicleStrip');
+      if(strip){
+        const vehicles=Array.from(select.options).map(o=>o.value).filter(Boolean);
+        strip.innerHTML=vehicles.map(v=>`<button type="button" class="fuel-vehicle-chip ${v===current?'active':''}" onclick="selectFuelVehicle('${v}')"><span class="emoji">${emojis[v]||'🚗'}</span><b>${v}</b><small>${v===current?'Selected':'Switch'}</small></button>`).join('');
+      }
     }
-    function selectFuelVehicle(vehicle){const select=document.getElementById('fuelVehicle');if(!select)return;select.value=vehicle;calculateMileagePreview();refreshFuelDashboard();refreshVehiclePhase3And4();renderFuelVehicleStrip();}
+    function selectFuelVehicle(vehicle){
+      const select=document.getElementById('fuelVehicle');
+      if(!select) return;
+      select.value=vehicle;
+      updateFuelEntryHeader();
+      calculateMileagePreview();
+      refreshFuelDashboard();
+      refreshVehiclePhase3And4();
+    }
     function updateFuelPricePreview(){const amount=parseFloat(document.getElementById('fuelAmount')?.value)||0,litres=parseFloat(document.getElementById('fuelLitres')?.value)||0,el=document.getElementById('fuelPricePreview');if(el)el.value=amount>0&&litres>0?`₹${(amount/litres).toFixed(2)} / L`:'';}
 
     function getVehicleNames(){
@@ -2613,6 +2638,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         resetBtn.style.display = "none";
         const fuelDate = document.getElementById('fuelDate');
         if (fuelDate && !fuelDate.value) fuelDate.value = getLocalDateString();
+        updateFuelEntryHeader();
         calculateMileagePreview();
         refreshFuelDashboard();
       } else {
