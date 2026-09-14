@@ -976,12 +976,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 .emi-schedule-only .emi-schedule-full{max-height:none}
 @media(max-width:650px){.emi-loan-detail-grid{grid-template-columns:1fr 1fr}.emi-card-grid{grid-template-columns:1fr 1fr}}
 
-      .emi-status.overdue{background:rgba(255,59,48,.12);color:var(--accent-red)}
-    .emi-detail-status.overdue{color:var(--accent-red)}
-    .emi-overdue-box{margin-top:12px;padding:11px 12px;border-radius:14px;background:rgba(255,59,48,.08);border:1px solid rgba(255,59,48,.16);display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:10px}
-    .emi-overdue-box strong{color:var(--accent-red);font-weight:900}.emi-overdue-box span{color:var(--text-muted);font-weight:800}
-    .emi-history-list{background:var(--input-bg);border-radius:14px;overflow:hidden}.emi-history-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border-color);font-size:10px}.emi-history-row:last-child{border-bottom:0}.emi-history-row div{display:flex;flex-direction:column;gap:2px}.emi-history-row div strong{font-weight:900;color:var(--accent-green)}.emi-history-row div span{font-size:9px;color:var(--text-muted);font-weight:700}.emi-history-row>strong{font-weight:900}.emi-history-empty{padding:13px;text-align:center;color:var(--text-muted);font-size:10px;font-weight:700}
-</style>
+  </style>
 </head>
 <body>
 
@@ -1075,6 +1070,9 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
           <option value="Axis indianoil cc">Axis indianoil cc</option>
           <option value="Hdfc moneyback cc">Hdfc moneyback cc</option>
           <option value="Icici amazon pay cc">Icici amazon pay cc</option>
+          <option value="Paytm">Paytm</option>
+          <option value="Cred">Cred</option>
+          <option value="Hdfc Rupay cc">Hdfc Rupay cc</option>
         </select>
       </div>
       <input type="text" id="txDesc" placeholder="Add a note (optional)">
@@ -1167,6 +1165,9 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
           <option value="Axis indianoil cc">Axis indianoil cc</option>
           <option value="Hdfc moneyback cc">Hdfc moneyback cc</option>
           <option value="Icici amazon pay cc">Icici amazon pay cc</option>
+          <option value="Paytm">Paytm</option>
+          <option value="Cred">Cred</option>
+          <option value="Hdfc Rupay cc">Hdfc Rupay cc</option>
         </select>
       </div>
       <input type="text" id="fuelDesc" placeholder="e.g. NTP Petroleum or Oil Change">
@@ -1226,7 +1227,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         <div class="input-group">
           <select id="insightsTimeRange" onchange="generateInsights()" aria-label="Time range">
             <option value="all">All Time</option>
-            <option value="cycle">Current Cycle</option>
+            <option value="cycle" selected>Current Cycle</option>
             <option value="90d">Last 3 months</option>
             <option value="30d">Last 30 days</option>
             <option value="7d">Last 7 days</option>
@@ -1705,33 +1706,6 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       return { rows, actualRows, unpaid, next, current, selected };
     }
 
-    function getEMIFinancialStats(x){
-      const stats=getLoanScheduleStats(x);
-      const rows=stats.actualRows;
-      const unpaid=stats.unpaid;
-      const totalPayable=rows.length ? rows.reduce((sum,r)=>sum+Number(r.emi||0),0) : Number(x.emiAmount||0)*Number(x.tenureMonths||0);
-      const totalInterest=rows.length ? rows.reduce((sum,r)=>sum+Number(r.interest||0),0) : Math.max(0,totalPayable-Number(x.originalAmount||0));
-      const remainingPrincipal=rows.length ? unpaid.reduce((sum,r)=>sum+Number(r.principal||0),0) : Math.max(0,Number(x.outstandingPrincipal||0));
-      const remainingInterest=rows.length ? unpaid.reduce((sum,r)=>sum+Number(r.interest||0),0) : Math.max(0,(Number(x.emiAmount||0)*Number(x.remainingEMIs||0))-remainingPrincipal);
-      const outstanding=rows.length ? unpaid.reduce((sum,r)=>sum+Number(r.emi||0),0) : Number(x.remainingEMIs||0)*Number(x.emiAmount||0);
-      const today=new Date(); today.setHours(0,0,0,0);
-      const overdue=unpaid.filter(r=>{ if(!r.date)return false; const d=new Date(String(r.date).includes('T')?r.date:r.date+'T00:00:00'); return !isNaN(d.getTime()) && d<today; });
-      const isClosed=String(x.status||'').toLowerCase()==='closed' || (rows.length>0 && unpaid.length===0);
-      return {stats,rows,unpaid,totalPayable,totalInterest,remainingPrincipal,remainingInterest,outstanding,overdue,isClosed};
-    }
-
-    function emiRelativeDueText(date){
-      if(!date)return '';
-      const d=new Date(String(date).includes('T')?date:date+'T00:00:00');
-      if(isNaN(d.getTime()))return '';
-      const today=new Date(); today.setHours(0,0,0,0);
-      const diff=Math.round((d-today)/86400000);
-      if(diff<0)return 'Overdue by '+Math.abs(diff)+' day'+(Math.abs(diff)===1?'':'s');
-      if(diff===0)return 'Due today';
-      if(diff===1)return 'Due tomorrow';
-      return 'Due in '+diff+' days';
-    }
-
     function renderEMILoans(){
       const active=emiLoans.filter(x=>String(x.status||'Active').toLowerCase()!=='closed');
       const monthly=active.reduce((s,x)=>s+Number(x.emiAmount||0),0);
@@ -1777,10 +1751,8 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       }
 
       list.innerHTML=emiLoans.slice().sort((a,b)=>String(a.nextEMIDate).localeCompare(String(b.nextEMIDate))).map(x=>{
-        const financial=getEMIFinancialStats(x);
-        const closed=financial.isClosed;
-        const overdue=financial.overdue.length>0 && !closed;
-        const stats=financial.stats;
+        const closed=String(x.status||'Active').toLowerCase()==='closed';
+        const stats=getLoanScheduleStats(x);
         const rows=stats.rows;
         const next=stats.next;
         const displayRemaining=rows.length?stats.unpaid.length:Number(x.remainingEMIs||0);
@@ -1788,8 +1760,6 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         const totalEMIs=rows.length?stats.actualRows.length:Number(x.tenureMonths||0);
         const displayNextDate=next?.date||x.nextEMIDate||'';
         const progressPercent=totalEMIs>0?Math.min(100,Math.max(0,(displayCurrent/totalEMIs)*100)):0;
-        const cardOutstanding=financial.outstanding;
-        const cardStatus=closed?'Closed':(overdue?'Overdue':(x.status||'Active'));
 
         return `<div class="emi-card" role="button" tabindex="0" onclick="openEMIDetails('${escEMI(x.loanId)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openEMIDetails('${escEMI(x.loanId)}')}" aria-label="Open loan details for ${escEMI(x.loanName||'Unnamed Loan')}">
           <div class="emi-card-head">
@@ -1797,18 +1767,18 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
               <div class="emi-loan-name">${escEMI(x.loanName||'Unnamed Loan')}</div>
               <div class="emi-lender">${escEMI(x.lender||'')} · ${escEMI(x.borrower||'')}</div>
             </div>
-            <span class="emi-status ${closed?'closed':(overdue?'overdue':'')}">${escEMI(cardStatus)}</span>
+            <span class="emi-status ${closed?'closed':''}">${escEMI(x.status||'Active')}</span>
           </div>
 
           <div class="emi-card-grid">
             <div><div class="emi-metric-label">EMI</div><div class="emi-metric-value">${money(x.emiAmount)}</div></div>
-            <div><div class="emi-metric-label">Outstanding</div><div class="emi-metric-value">${money(cardOutstanding)}</div></div>
+            <div><div class="emi-metric-label">Outstanding</div><div class="emi-metric-value">${money(rows.length ? stats.unpaid.reduce((sum,r)=>sum+Number(r.emi||0),0) : (Number(x.remainingEMIs||0)*Number(x.emiAmount||0)))}</div></div>
             <div><div class="emi-metric-label">Next EMI</div><div class="emi-metric-value">${emiDate(displayNextDate)}</div></div>
             <div><div class="emi-metric-label">Remaining</div><div class="emi-metric-value">${displayRemaining} EMI${displayRemaining===1?'':'s'}</div></div>
           </div>
 
           <div class="emi-next-label">NEXT PAYMENT</div>
-          ${next?`<div class="emi-next"><strong>EMI #${Number(next.emiNo)}</strong><span>${emiDate(next.date)} · ${money(next.emi)} · ${emiRelativeDueText(next.date)}</span></div>`:'<div class="emi-next"><strong>All EMIs paid</strong><span>Loan complete</span></div>'}
+          ${next?`<div class="emi-next"><strong>EMI #${Number(next.emiNo)}</strong><span>${emiDate(next.date)} · ${money(next.emi)}</span></div>`:'<div class="emi-next"><strong>All EMIs paid</strong><span>Loan complete</span></div>'}
 
           <div class="emi-progress-wrap">
             <div class="emi-progress-head"><span>EMI progress</span><strong>${displayCurrent} of ${totalEMIs} paid</strong></div>
@@ -1872,14 +1842,6 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       try{
         await postEMI({action:'markEMIPaid',loanId:String(loanId),emiNo:Number(emiNo)});
         await refreshEMILoans();
-        const updated=emiLoans.find(a=>String(a.loanId)===String(loanId));
-        if(updated){
-          const f=getEMIFinancialStats(updated);
-          if(f.rows.length && f.unpaid.length===0 && String(updated.status||'').toLowerCase()!=='closed'){
-            await postEMI({action:'updateLoan',loan:{...updated,status:'Closed',lastUpdated:new Date().toISOString()}});
-            await refreshEMILoans();
-          }
-        }
         openEMIDetails(loanId);
       }catch(e){alert('Could not update EMI: '+e.message);}
     }
@@ -1914,59 +1876,90 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     function openEMIDetails(loanId){
       const x=emiLoans.find(a=>String(a.loanId)===String(loanId));
       if(!x)return;
-      const financial=getEMIFinancialStats(x);
-      const stats=financial.stats, rows=financial.rows, unpaid=financial.unpaid, next=stats.next;
+
+      const stats=getLoanScheduleStats(x);
+      const rows=stats.rows;
+      const next=stats.next;
       const current=rows.length?stats.current:Number(x.currentEMINo||0);
-      const remaining=rows.length?unpaid.length:Number(x.remainingEMIs||0);
-      const totalEMIs=rows.length?rows.length:Number(x.tenureMonths||0);
+      const remaining=rows.length?stats.unpaid.length:Number(x.remainingEMIs||0);
+      const totalEMIs=rows.length?stats.actualRows.length:Number(x.tenureMonths||0);
       const nextNo=next?Number(next.emiNo):Number(x.currentEMINo||0)+1;
       const nextDate=next?.date||x.nextEMIDate||'';
       const nextAmount=next?.emi||x.emiAmount||0;
-      const finalDate=rows.length?rows[rows.length-1].date:(x.endDate||'');
+      const finalDate=stats.actualRows?.length?stats.actualRows[stats.actualRows.length-1].date:(x.endDate||'');
       const progressPercent=totalEMIs>0?Math.min(100,Math.max(0,(current/totalEMIs)*100)):0;
-      const body=document.getElementById('emiDetailsBody'); if(!body)return;
-      const statusLabel=financial.isClosed?'Closed':(financial.overdue.length?'Overdue':(x.status||'Active'));
-      const statusClass=financial.isClosed?'closed':(financial.overdue.length?'overdue':'');
-      const overdueHTML=financial.overdue.length&&!financial.isClosed ? `<div class="emi-overdue-box"><strong>⚠ ${financial.overdue.length} overdue EMI${financial.overdue.length===1?'':'s'}</strong><span>${money(financial.overdue.reduce((sum,r)=>sum+Number(r.emi||0),0))} overdue</span></div>` : '';
-      const payButton=(x.status!=='Closed'&&next) ? `<button class="emi-btn primary" onclick="markEMIPaid('${escEMI(x.loanId)}',${nextNo})">✓ Mark EMI #${nextNo} Paid</button>` : '';
-      const paymentHistory=rows.filter(r=>String(r.status||'Pending').toLowerCase()==='paid').slice().reverse();
-      const historyHTML=paymentHistory.length ? paymentHistory.map(r=>`<div class="emi-history-row"><div><strong>✓ EMI #${Number(r.emiNo)}</strong><span>${emiDate(r.date)}</span></div><strong>${money(r.emi)}</strong></div>`).join('') : '<div class="emi-history-empty">No EMI payments recorded yet.</div>';
+      const body=document.getElementById('emiDetailsBody');
+      if(!body)return;
+
+      const payButton=(x.status!=='Closed'&&next)
+        ? `<button class="emi-btn primary" onclick="markEMIPaid('${escEMI(x.loanId)}',${nextNo})">✓ Mark EMI #${nextNo} Paid</button>`
+        : '';
+
       body.innerHTML=`<div class="emi-detail-scroll">
-        <div class="emi-detail-hero"><div class="emi-detail-hero-label">Outstanding with interest</div><div class="emi-detail-hero-value">${money(financial.outstanding)}</div><div class="emi-detail-next"><span>Next payment</span><strong>${next?money(nextAmount)+' · '+emiDate(nextDate):'All EMIs paid'}</strong></div></div>
-        ${overdueHTML}
-        <div class="emi-detail-section"><div class="emi-detail-section-title">Loan Information</div><div class="emi-loan-detail-grid">
-          <div class="emi-loan-detail-item"><span>Loan Name</span><strong>${escEMI(x.loanName||'—')}</strong></div>
-          <div class="emi-loan-detail-item"><span>Status</span><strong class="emi-detail-status ${statusClass}">${escEMI(statusLabel)}</strong></div>
-          <div class="emi-loan-detail-item"><span>Lender</span><strong>${escEMI(x.lender||'—')}</strong></div>
-          <div class="emi-loan-detail-item"><span>Borrower</span><strong>${escEMI(x.borrower||'—')}</strong></div>
-          <div class="emi-loan-detail-item"><span>Loan Account</span><strong>${escEMI(x.loanAccount||'—')}</strong></div>
-          <div class="emi-loan-detail-item"><span>Original Amount</span><strong>${money(x.originalAmount)}</strong></div>
-          <div class="emi-loan-detail-item"><span>Total Payable (incl. interest)</span><strong>${money(financial.totalPayable)}</strong></div>
-          <div class="emi-loan-detail-item"><span>Total Interest</span><strong>${money(financial.totalInterest)}</strong></div>
-          <div class="emi-loan-detail-item"><span>Remaining Principal</span><strong>${money(financial.remainingPrincipal)}</strong></div>
-          <div class="emi-loan-detail-item"><span>Interest on Remaining EMIs</span><strong>${money(financial.remainingInterest)}</strong></div>
-          <div class="emi-loan-detail-item"><span>EMI Amount</span><strong>${money(x.emiAmount)}</strong></div>
-          <div class="emi-loan-detail-item"><span>Interest Rate</span><strong>${Number(x.interestRate||0)}%</strong></div>
-          <div class="emi-loan-detail-item"><span>Total Tenure</span><strong>${Number(x.tenureMonths||totalEMIs)} months</strong></div>
-          <div class="emi-loan-detail-item"><span>Start Date</span><strong>${emiDate(x.startDate)}</strong></div>
-          <div class="emi-loan-detail-item"><span>Final EMI Date</span><strong>${emiDate(finalDate)}</strong></div>
-          <div class="emi-loan-detail-item"><span>Remaining EMIs</span><strong>${remaining}</strong></div>
-        </div></div>
-        <div class="emi-detail-section"><div class="emi-detail-section-title">Payment Progress</div><div class="emi-loan-detail-item"><div class="emi-progress-head"><span>EMIs paid</span><strong>${current} of ${totalEMIs} · ${Math.round(progressPercent)}%</strong></div><div class="emi-progress-track"><span style="width:${progressPercent}%"></span></div><div style="display:flex;justify-content:space-between;margin-top:7px;font-size:9px;color:var(--text-muted);font-weight:700"><span>${current} paid</span><span>${remaining} remaining</span></div></div></div>
-        <div class="emi-detail-section"><div class="emi-detail-section-title">Next EMI</div><div class="emi-loan-detail-grid"><div class="emi-loan-detail-item"><span>EMI Number</span><strong>${next?'#'+nextNo:'Complete'}</strong></div><div class="emi-loan-detail-item"><span>Due Date</span><strong>${next?emiDate(nextDate):'—'}</strong></div><div class="emi-loan-detail-item"><span>EMI Amount</span><strong>${next?money(nextAmount):'—'}</strong></div><div class="emi-loan-detail-item"><span>Due Status</span><strong>${next?emiRelativeDueText(nextDate):'Loan complete'}</strong></div></div></div>
-        <div class="emi-detail-section"><div class="emi-detail-section-title">Payment History</div><div class="emi-history-list">${historyHTML}</div></div>
-        <div class="emi-actions" style="margin-top:15px"><button class="emi-btn" onclick="openEMILoanModal('${escEMI(x.loanId)}');closeEMIDetails()">Edit</button>${payButton}<button class="emi-btn" onclick="deleteEMILoan('${escEMI(x.loanId)}')">Delete</button></div>
-        <button type="button" class="emi-view-schedule" style="margin-top:12px" onclick="event.stopPropagation();openEMISchedule('${escEMI(x.loanId)}')">View full EMI schedule →</button>
+        <div class="emi-detail-hero">
+          <div class="emi-detail-hero-label">Outstanding</div>
+          <div class="emi-detail-hero-value">${money(rows.length ? stats.unpaid.reduce((sum,r)=>sum+Number(r.emi||0),0) : (Number(x.remainingEMIs||0)*Number(x.emiAmount||0)))}</div>
+          <div class="emi-detail-next"><span>Next payment</span><strong>${next?money(nextAmount)+' · '+emiDate(nextDate):'All EMIs paid'}</strong></div>
+        </div>
+
+        <div class="emi-detail-section">
+          <div class="emi-detail-section-title">Loan Information</div>
+          <div class="emi-loan-detail-grid">
+            <div class="emi-loan-detail-item"><span>Loan Name</span><strong>${escEMI(x.loanName||'—')}</strong></div>
+            <div class="emi-loan-detail-item"><span>Status</span><strong>${escEMI(x.status||'Active')}</strong></div>
+            <div class="emi-loan-detail-item"><span>Lender</span><strong>${escEMI(x.lender||'—')}</strong></div>
+            <div class="emi-loan-detail-item"><span>Borrower</span><strong>${escEMI(x.borrower||'—')}</strong></div>
+            <div class="emi-loan-detail-item"><span>Loan Account</span><strong>${escEMI(x.loanAccount||'—')}</strong></div>
+            <div class="emi-loan-detail-item"><span>Original Amount</span><strong>${money(x.originalAmount)}</strong></div>
+            <div class="emi-loan-detail-item"><span>EMI Amount</span><strong>${money(x.emiAmount)}</strong></div>
+            <div class="emi-loan-detail-item"><span>Interest Rate</span><strong>${Number(x.interestRate||0)}%</strong></div>
+            <div class="emi-loan-detail-item"><span>Total Tenure</span><strong>${Number(x.tenureMonths||totalEMIs)} months</strong></div>
+            <div class="emi-loan-detail-item"><span>Start Date</span><strong>${emiDate(x.startDate)}</strong></div>
+            <div class="emi-loan-detail-item"><span>Final EMI Date</span><strong>${emiDate(finalDate)}</strong></div>
+            <div class="emi-loan-detail-item"><span>Remaining EMIs</span><strong>${remaining}</strong></div>
+          </div>
+        </div>
+
+        <div class="emi-detail-section">
+          <div class="emi-detail-section-title">Payment Progress</div>
+          <div class="emi-loan-detail-item">
+            <div class="emi-progress-head"><span>EMIs paid</span><strong>${current} of ${totalEMIs}</strong></div>
+            <div class="emi-progress-track"><span style="width:${progressPercent}%"></span></div>
+            <div style="display:flex;justify-content:space-between;margin-top:7px;font-size:9px;color:var(--text-muted);font-weight:700"><span>${current} paid</span><span>${remaining} remaining</span></div>
+          </div>
+        </div>
+
+        <div class="emi-detail-section">
+          <div class="emi-detail-section-title">Next EMI</div>
+          <div class="emi-loan-detail-grid">
+            <div class="emi-loan-detail-item"><span>EMI Number</span><strong>${next?'#'+nextNo:'Complete'}</strong></div>
+            <div class="emi-loan-detail-item"><span>Due Date</span><strong>${next?emiDate(nextDate):'—'}</strong></div>
+            <div class="emi-loan-detail-item"><span>EMI Amount</span><strong>${next?money(nextAmount):'—'}</strong></div>
+            <div class="emi-loan-detail-item"><span>Current / Last Paid</span><strong>#${current}</strong></div>
+          </div>
+        </div>
+
+        <div class="emi-actions" style="margin-top:16px">
+          <button class="emi-btn" onclick="openEMILoanModal('${escEMI(x.loanId)}');closeEMIDetails()">Edit</button>
+          ${payButton}
+          <button class="emi-btn" onclick="deleteEMILoan('${escEMI(x.loanId)}')">Delete</button>
+        </div>
+
+        <button type="button" class="emi-view-schedule" style="margin-top:12px" onclick="openEMISchedule('${escEMI(x.loanId)}')">View full EMI schedule →</button>
       </div>`;
+
       document.getElementById('emiDetailsTitle').textContent='Loan Details';
-      const m=document.getElementById('emiDetailsModal'); m.style.display='flex'; setEMIModalLock(true); setTimeout(()=>m.classList.add('show'),10);
+      const m=document.getElementById('emiDetailsModal');
+      m.style.display='flex';
+      setEMIModalLock(true);
+      setTimeout(()=>m.classList.add('show'),10);
     }
 
     function closeEMIDetails(event){if(event&&event.target.id!=='emiDetailsModal')return;const m=document.getElementById('emiDetailsModal');if(!m)return;m.classList.remove('show');setTimeout(()=>{m.style.display='none';setEMIModalLock(false);},250);}
     function openEMISummary(kind){
       const active=emiLoans.filter(x=>String(x.status||'Active').toLowerCase()!=='closed'); let title='', html='';
       if(kind==='monthly'){title='Monthly EMI Breakdown';html=active.map(x=>{const s=getLoanScheduleStats(x);return `<div class="transaction-item" onclick="openEMIDetails('${escEMI(x.loanId)}',${s.next?Number(s.next.emiNo):0})"><div class="tx-left"><div class="tx-desc">${escEMI(x.loanName)}</div><div class="tx-meta">${escEMI(x.lender)} · ${emiDate(s.next?.date||x.nextEMIDate)}</div></div><div class="tx-amt">${money(x.emiAmount)}</div></div>`}).join('')||'<div class="insight-empty">No active loans.</div>';}
-      if(kind==='outstanding'){title='Outstanding Loans';html=active.map(x=>{const f=getEMIFinancialStats(x);const pending=f.outstanding;return `<div class="transaction-item" onclick="openEMIDetails('${escEMI(x.loanId)}')"><div class="tx-left"><div class="tx-desc">${escEMI(x.loanName)}</div><div class="tx-meta">${escEMI(x.lender)}</div></div><div class="tx-amt">${money(pending)}</div></div>`}).join('')||'<div class="insight-empty">No active loans.</div>';}
+      if(kind==='outstanding'){title='Outstanding Loans';html=active.map(x=>{const s=getLoanScheduleStats(x);const pending=s.rows.length?s.unpaid.reduce((sum,r)=>sum+Number(r.emi||0),0):(Number(x.remainingEMIs||0)*Number(x.emiAmount||0));return `<div class="transaction-item" onclick="openEMIDetails('${escEMI(x.loanId)}')"><div class="tx-left"><div class="tx-desc">${escEMI(x.loanName)}</div><div class="tx-meta">${escEMI(x.lender)}</div></div><div class="tx-amt">${money(pending)}</div></div>`}).join('')||'<div class="insight-empty">No active loans.</div>';}
       if(kind==='due'){title='EMIs Due This Month';const now=new Date();html=active.map(x=>{const s=getLoanScheduleStats(x);return s.next&&s.next.date?{x,s}:null}).filter(Boolean).filter(o=>{const d=new Date(o.s.next.date+'T00:00:00');return !isNaN(d.getTime())&&d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();}).map(o=>`<div class="transaction-item" onclick="openEMIDetails('${escEMI(o.x.loanId)}',${Number(o.s.next.emiNo)})"><div class="tx-left"><div class="tx-desc">${escEMI(o.x.loanName)}</div><div class="tx-meta">Due ${emiDate(o.s.next.date)}</div></div><div class="tx-amt">${money(o.s.next.emi||o.x.emiAmount)}</div></div>`).join('')||'<div class="insight-empty">No EMI due this month.</div>';}
       if(kind==='completion'){
         title='When You Will Be EMI-Free';
