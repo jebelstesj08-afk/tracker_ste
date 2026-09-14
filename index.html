@@ -1049,6 +1049,30 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
   .fuel-two-card-grid{grid-template-columns:1fr 1fr;}
 }
 
+
+/* Tiny reset control for the Fuel form */
+.fuel-reset-icon{
+  width:32px;
+  height:32px;
+  min-width:32px;
+  border:0;
+  border-radius:50%;
+  background:var(--input-bg);
+  color:var(--text-muted);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:17px;
+  font-weight:700;
+  cursor:pointer;
+  padding:0;
+  -webkit-tap-highlight-color:transparent;
+}
+.fuel-reset-icon:active{transform:scale(.94);}
+.fuel-reset-icon:focus-visible{outline:2px solid var(--accent-blue);outline-offset:2px;}
+@media(max-width:600px){
+  .fuel-reset-icon{width:30px;height:30px;min-width:30px;font-size:16px;}
+}
 </style>
 </head>
 <body>
@@ -1166,7 +1190,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       </div>
       <div class="input-group fuel-control">
         <label>Vehicle</label>
-        <select id="fuelVehicle" onchange="calculateMileagePreview();refreshFuelDashboard();refreshVehiclePhase3And4();renderFuelVehicleStrip();">
+        <select id="fuelVehicle" onchange="updateFuelEntryHeader();calculateMileagePreview();refreshFuelDashboard();refreshVehiclePhase3And4();renderFuelVehicleStrip();">
           <option value="Hornet 2.0">Hornet 2.0</option>
           <option value="Yamaha FZ">Yamaha FZ</option>
           <option value="Dio">Dio</option>
@@ -1181,9 +1205,9 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       <div class="fuel-entry-head">
         <div>
           <div class="fuel-entry-title" id="fuelEntryTitle">⛽ Fuel Fill-up</div>
-          <div class="fuel-entry-sub">Add a new fuel entry for <b id="fuelEntryVehicle">Yamaha FZ</b></div>
+          <div class="fuel-entry-sub">Add a new fuel entry for <b id="fuelEntryVehicle"></b></div>
         </div>
-        <div class="fuel-entry-icon">+</div>
+        <button type="button" class="fuel-reset-icon" onclick="resetFuelFields()" title="Clear entered fields" aria-label="Clear entered fields">↺</button>
       </div>
 
       <div class="fuel-form-grid fuel-form-grid-4">
@@ -2119,8 +2143,10 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       let today = new Date();
       let todayStr = today.toISOString().split('T')[0];
       document.getElementById('txDate').value = todayStr;
-      document.getElementById('fuelDate').value = todayStr;
+      document.getElementById('fuelDate').value = getLocalDateString();
       renderFuelVehicleStrip();
+      updateFuelEntryHeader();
+      toggleFuelFields();
       refreshFuelDashboard();
       refreshVehiclePhase3And4();
       updateFuelPricePreview();
@@ -2158,6 +2184,15 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       populateSearchFilters();
     };
 
+
+    function getLocalDateString() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
     function onGlobalUserChange() {
       let selectedUser = document.getElementById('globalUserSelect').value;
       localStorage.setItem('globalUser', selectedUser);
@@ -2191,7 +2226,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     }
 
     function resetFuelFields() {
-      let todayStr = new Date().toISOString().split('T')[0];
+      let todayStr = getLocalDateString();
       let currentUser = document.getElementById('globalUserSelect').value;
       document.getElementById('fuelDate').value = todayStr;
       document.getElementById('fuelUser').value = currentUser;
@@ -2200,6 +2235,8 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       document.getElementById('fuelOdo').value = '';
       document.getElementById('fuelDesc').value = '';
       document.getElementById('fuelPaymentMethod').selectedIndex = 0;
+      document.getElementById('fuelPricePreview').value = '';
+      document.getElementById('mileagePreviewText').textContent = '';
       document.getElementById('mileagePreviewBox').style.display = 'none';
     }
 
@@ -2245,16 +2282,25 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       }
     }
 
+    function updateFuelEntryHeader() {
+      const typeEl = document.getElementById('fuelLogType');
+      const vehicleEl = document.getElementById('fuelVehicle');
+      const title = document.getElementById('fuelEntryTitle');
+      const vehicleText = document.getElementById('fuelEntryVehicle');
+      const type = typeEl ? typeEl.value : 'Fuel';
+      const vehicle = vehicleEl ? vehicleEl.value : '';
+      if (title) title.innerText = type === 'Service' ? '🔧 Service' : '⛽ Fuel Fill-up';
+      if (vehicleText) vehicleText.textContent = vehicle;
+    }
+
     function toggleFuelFields() {
       let type = document.getElementById('fuelLogType').value;
-      const title=document.getElementById('fuelEntryTitle');
+      updateFuelEntryHeader();
       if(type === 'Service') {
-        if(title) title.innerText='🔧 Service';
         document.getElementById('litresGroup').style.display = 'none';
         document.getElementById('vehicleLogBtn').innerText = "Log Service";
         document.getElementById('mileagePreviewBox').style.display = 'none';
       } else {
-        if(title) title.innerText='⛽ Fuel Fill-up';
         document.getElementById('litresGroup').style.display = 'block';
         document.getElementById('vehicleLogBtn').innerText = "Log Fuel Fill";
         calculateMileagePreview();
@@ -2547,6 +2593,9 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         headerSection.style.display = "block";
         mainBalanceContainer.style.display = "none";
         document.getElementById('secondaryBalanceBlock').style.display = "none";
+        resetBtn.style.display = "none";
+        const fuelDate = document.getElementById('fuelDate');
+        if (fuelDate && !fuelDate.value) fuelDate.value = getLocalDateString();
         calculateMileagePreview();
         refreshFuelDashboard();
       } else {
