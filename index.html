@@ -976,7 +976,35 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 .emi-schedule-only .emi-schedule-full{max-height:none}
 @media(max-width:650px){.emi-loan-detail-grid{grid-template-columns:1fr 1fr}.emi-card-grid{grid-template-columns:1fr 1fr}}
 
-  </style>
+  
+    .fuel-stat-card,.fuel-section-card{background:var(--card-bg);border:1px solid var(--border-color);border-radius:var(--radius-md);padding:12px 14px;}
+    .fuel-stat-card{min-width:0;}
+    .fuel-stat-card span{display:block;color:var(--text-muted);font-size:11px;font-weight:700;margin-bottom:5px;}
+    .fuel-stat-card b{display:block;font-size:17px;line-height:1.2;}
+    .fuel-stat-card small{display:block;color:var(--text-muted);font-size:10px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .fuel-section-title{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:13px;margin-bottom:10px;}
+    .fuel-section-title span:last-child{font-size:10px;color:var(--text-muted);font-weight:600;}
+    .fuel-trend-chart{display:flex;align-items:flex-end;gap:8px;height:130px;padding:8px 4px 0;overflow-x:auto;}
+    .fuel-bar-wrap{height:100%;min-width:44px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;}
+    .fuel-bar{width:30px;min-height:4px;border-radius:6px 6px 2px 2px;background:var(--accent-blue);transition:height .25s ease;}
+    .fuel-bar-value{font-size:9px;font-weight:800;white-space:nowrap;}
+    .fuel-bar-label{font-size:9px;color:var(--text-muted);white-space:nowrap;}
+    .fuel-empty{text-align:center;color:var(--text-muted);font-size:12px;width:100%;padding:20px 5px;}
+    .fuel-history-row{display:grid;grid-template-columns:72px 1fr auto;gap:8px;align-items:center;padding:9px 0;border-top:1px solid var(--border-color);font-size:12px;}
+    .fuel-history-main{font-weight:750;}
+    .fuel-history-meta{color:var(--text-muted);font-size:10px;margin-top:2px;}
+    .fuel-history-amt{text-align:right;font-weight:800;}
+
+    .fuel-alert{padding:10px 12px;border-radius:10px;background:var(--input-bg);margin-top:7px;font-size:12px;font-weight:650;}
+    .fuel-alert.warn{border-left:4px solid #ff9f0a;} .fuel-alert.danger{border-left:4px solid var(--accent-red);} .fuel-alert.good{border-left:4px solid var(--accent-green);}
+    .vehicle-overview-row{display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr;gap:8px;align-items:center;padding:10px 0;border-top:1px solid var(--border-color);font-size:11px;}
+    .vehicle-overview-row:first-child{border-top:0;} .vehicle-overview-name{font-weight:800;font-size:12px;}
+    .vehicle-overview-meta{color:var(--text-muted);font-size:10px;margin-top:2px;}
+    .vehicle-kpi-grid .vehicle-kpi{border:1px solid var(--border-color);}
+    .fuel-report-note{color:var(--text-muted);font-size:10px;margin-top:2px;}
+    @media(max-width:600px){.vehicle-overview-row{grid-template-columns:1fr 1fr;gap:6px}.vehicle-overview-row>div:nth-child(1){grid-column:1/-1}}
+    @media(max-width:600px){#fuelDashboard{grid-template-columns:repeat(2,minmax(0,1fr))}.fuel-stat-card b{font-size:15px}.fuel-history-row{grid-template-columns:62px 1fr auto}}
+</style>
 </head>
 <body>
 
@@ -1093,7 +1121,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       </div>
       <div class="input-group">
         <label>Select Vehicle</label>
-        <select id="fuelVehicle" onchange="calculateMileagePreview()">
+        <select id="fuelVehicle" onchange="calculateMileagePreview();refreshFuelDashboard();refreshVehiclePhase3And4();">
           <option value="Hornet 2.0">Hornet 2.0</option>
           <option value="Yamaha FZ">Yamaha FZ</option>
           <option value="Dio">Dio</option>
@@ -1102,6 +1130,19 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
           <option value="Qualis">Qualis</option>
         </select>
       </div>
+    </div>
+
+    <!-- Fuel Dashboard -->
+    <div id="fuelDashboard" style="display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-bottom:16px;">
+      <div class="fuel-stat-card"><span>⛽ Last Fill</span><b id="fuelStatLastFill">—</b><small id="fuelStatLastFillSub">No fuel records</small></div>
+      <div class="fuel-stat-card"><span>📏 Mileage</span><b id="fuelStatMileage">—</b><small id="fuelStatMileageSub">Latest calculated</small></div>
+      <div class="fuel-stat-card"><span>💰 Avg ₹/km</span><b id="fuelStatCostKm">—</b><small id="fuelStatCostKmSub">Based on logged fills</small></div>
+      <div class="fuel-stat-card"><span>📊 This Month</span><b id="fuelStatMonthCost">₹0</b><small id="fuelStatMonthSub">0 L fuel</small></div>
+    </div>
+
+    <div class="fuel-section-card" id="fuelTrendCard" style="margin-bottom:16px;">
+      <div class="fuel-section-title"><span>📈 Mileage Trend</span><span id="fuelTrendVehicleLabel">Selected vehicle</span></div>
+      <div id="fuelTrendChart" class="fuel-trend-chart"><div class="fuel-empty">Add at least two fuel fills to see mileage trend.</div></div>
     </div>
 
     <!-- Last Service Odometer Info Card -->
@@ -1171,6 +1212,28 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         </select>
       </div>
       <input type="text" id="fuelDesc" placeholder="e.g. NTP Petroleum or Oil Change">
+    </div>
+
+    <div class="fuel-section-card" id="fuelHistoryCard" style="margin:16px 0;">
+      <div class="fuel-section-title"><span>🧾 Fuel History</span><span id="fuelHistoryCount">0 fills</span></div>
+      <div id="fuelHistoryList"><div class="fuel-empty">No fuel records for this vehicle.</div></div>
+    </div>
+
+    <!-- Phase 3: Alerts & Reports -->
+    <div class="fuel-section-card" id="fuelAlertsCard" style="margin:16px 0;">
+      <div class="fuel-section-title"><span>🔔 Vehicle Alerts</span><span id="fuelAlertSummary">Checking…</span></div>
+      <div id="fuelAlertsList" class="fuel-empty">Checking service and mileage status…</div>
+    </div>
+
+    <div class="fuel-section-card" id="fuelMonthlyReportCard" style="margin:16px 0;">
+      <div class="fuel-section-title"><span>📅 Monthly Vehicle Report</span><span id="fuelReportMonthLabel">This month</span></div>
+      <div id="fuelMonthlyReport" class="vehicle-kpi-grid"></div>
+    </div>
+
+    <!-- Phase 4: Multi-vehicle overview -->
+    <div class="fuel-section-card" id="vehicleOverviewCard" style="margin:16px 0;">
+      <div class="fuel-section-title"><span>🚗 All Vehicles Overview</span><span>Fuel + Service</span></div>
+      <div id="vehicleOverviewList"></div>
     </div>
 
     <button class="save-btn btn-fuel" id="vehicleLogBtn" onclick="saveFuelData()">Log Fuel Fill</button>
@@ -2022,54 +2085,10 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     
     const appColors = ['#007aff', '#34c759', '#5856d6', '#ff9f0a', '#ff3b30', '#32ade6', '#ff2d55', '#af52de'];
     const emojis = {
-  // Vehicles
-  'Hornet 2.0': '🏍️',
-  'Yamaha FZ': '🏍️',
-  'Dio': '🛵',
-  'i20': '🚗',
-  'XUV 500': '🚙',
-  'Qualis': '🚐',
-
-  // Expenses
-  'Housing / Rent': '🏠',
-  'Food - Groceries': '🛒',
-  'Food - Dining Out': '🍽️',
-  'Food - HungerBox': '🍱',
-  'Maintenance': '🛠️',
-  'Utilities - Electricity': '⚡',
-  'Utilities - Internet': '🌐',
-  'Utilities - Phone': '📱',
-  'Hardware / Equipment': '💻',
-  'Health & Medical': '🏥',
-  'Entertainment': '🎬',
-  'Shopping': '🛍️',
-  'Personal Care': '🧴',
-  'Credit Card': '💳',
-  'Subscription': '🔄',
-  'Education': '📚',
-  'Debt / Loan EMI': '🏦',
-  'Trip': '✈️',
-  'Outing': '🎉',
-  'Miscellaneous': '📦',
-
-  // Income
-  'Salary': '💼',
-  'Insurance claim': '🛡️',
-  'Business / Freelance': '💻',
-  'Investments / Returns': '📈',
-  'Gifts / Refunds': '🎁',
-  'Other Income': '💵',
-  'Leftover': '💰',
-
-  // Savings
-  'Savings this month': '🐷',
-  'Chit': '📜',
-  'Gold Chit': '🪙',
-  'Mutual Funds': '📊',
-  'Fixed Deposit': '🔒',
-  'Stocks': '📉',
-  'Other Investment': '💎'
-};
+      'Hornet 2.0': '🏍️', 'Yamaha FZ': '🏍️', 'Dio': '🛵', 'i20': '🚗', 'XUV 500': '🚙', 'Qualis': '🚐',
+      'Housing / Rent': '🏠', 'Food - Groceries': '🛒', 'Food - Dining Out': '🍿', 'Maintenance': '🔧', 'Trip': '✈️', 'Utilities - Electricity': '⚡', 'Utilities - Internet': '🌐', 'Utilities - Phone': '📱', 'Hardware / Equipment': '💻',
+      'Savings this month': '💵', 'Chit': '📜', 'Gold Chit': '🪙', 'Mutual Funds': '📈', 'Fixed Deposit': '🏦', 'Stocks': '📊', 'Other Investment': '💎'
+    };
 
     window.onload = function() {
       initTab4Extras();
@@ -2110,6 +2129,8 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       syncWithGoogle(false);
       refreshEMILoans();
       calculateMileagePreview();
+      refreshFuelDashboard();
+      refreshVehiclePhase3And4();
       renderCreditCards();
       populateSearchFilters();
     };
@@ -2228,6 +2249,140 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         }
       }
       return lastOdo;
+    }
+
+    function getFuelRecordsForVehicle(vehicle) {
+      return getInsightRows().filter(row => normalizeTransactionType(row[1]) === 'Fuel' && String(row[2] || '').trim() === vehicle && parseFloat(row[8]) > 0 && parseFloat(row[9]) > 0)
+        .map(row => ({
+          row,
+          date: parseRobustDate(row[0]),
+          amount: parseFloat(row[3]) || 0,
+          litres: parseFloat(row[9]) || 0,
+          odo: parseFloat(row[8]) || 0,
+          desc: String(row[4] || '').trim(),
+          method: String(row[10] || '').trim()
+        }))
+        .sort((a,b) => (a.date ? a.date.getTime() : 0) - (b.date ? b.date.getTime() : 0) || a.odo - b.odo);
+    }
+
+    function refreshFuelDashboard() {
+      const vehicleEl=document.getElementById('fuelVehicle');
+      if(!vehicleEl) return;
+      const vehicle=vehicleEl.value;
+      const records=getFuelRecordsForVehicle(vehicle);
+      const now=new Date();
+      const monthRecords=records.filter(r=>r.date && r.date.getMonth()===now.getMonth() && r.date.getFullYear()===now.getFullYear());
+      const last=records.length ? records[records.length-1] : null;
+      const lastPrev=records.length>1 ? records[records.length-2] : null;
+
+      const set=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val;};
+      set('fuelTrendVehicleLabel',vehicle);
+      set('fuelHistoryCount',`${records.length} fill${records.length===1?'':'s'}`);
+      set('fuelStatLastFill',last ? `₹${formatINR(last.amount)}` : '—');
+      set('fuelStatLastFillSub',last ? `${last.litres.toFixed(2)} L • ${last.odo.toLocaleString('en-IN')} km` : 'No fuel records');
+
+      let latestMileage=null, latestCostKm=null;
+      if(last && lastPrev && last.odo>lastPrev.odo){
+        latestMileage=(last.odo-lastPrev.odo)/last.litres;
+        latestCostKm=last.amount/(last.odo-lastPrev.odo);
+      }
+      set('fuelStatMileage',latestMileage ? `${latestMileage.toFixed(2)} km/L` : '—');
+      set('fuelStatMileageSub',latestMileage ? `Since ${lastPrev.odo.toLocaleString('en-IN')} km` : 'Need 2 fuel fills');
+      set('fuelStatCostKm',latestCostKm ? `₹${latestCostKm.toFixed(2)}` : '—');
+      set('fuelStatCostKmSub',latestCostKm ? 'Latest fill distance' : 'Need 2 fuel fills');
+      const monthAmount=monthRecords.reduce((a,r)=>a+r.amount,0), monthLitres=monthRecords.reduce((a,r)=>a+r.litres,0);
+      set('fuelStatMonthCost',`₹${formatINR(monthAmount)}`);
+      set('fuelStatMonthSub',`${monthLitres.toFixed(2)} L • ${monthRecords.length} fill${monthRecords.length===1?'':'s'}`);
+
+      const chart=document.getElementById('fuelTrendChart');
+      if(chart){
+        const points=[];
+        for(let i=1;i<records.length;i++){
+          const prev=records[i-1], cur=records[i], km=cur.odo-prev.odo;
+          if(km>0 && cur.litres>0) points.push({date:cur.date,mileage:km/cur.litres});
+        }
+        if(points.length){
+          const recent=points.slice(-8), max=Math.max(...recent.map(p=>p.mileage),1), min=Math.min(...recent.map(p=>p.mileage));
+          chart.innerHTML=recent.map(p=>{const h=Math.max(10,(p.mileage/max)*82);const label=p.date?p.date.toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'—';return `<div class="fuel-bar-wrap"><span class="fuel-bar-value">${p.mileage.toFixed(1)}</span><div class="fuel-bar" style="height:${h}px" title="${p.mileage.toFixed(2)} km/L"></div><span class="fuel-bar-label">${label}</span></div>`}).join('');
+        } else chart.innerHTML='<div class="fuel-empty">Add at least two fuel fills to see mileage trend.</div>';
+      }
+
+      const list=document.getElementById('fuelHistoryList');
+      if(list){
+        if(!records.length){list.innerHTML='<div class="fuel-empty">No fuel records for this vehicle.</div>';return;}
+        list.innerHTML=records.slice().reverse().slice(0,12).map((r,idx,arr)=>{
+          const newer=idx===0 ? null : arr[idx-1];
+          const km=newer && r.odo<newer.odo ? newer.odo-r.odo : null;
+          const mileage=km && r.litres ? km/r.litres : null;
+          const price=r.litres ? r.amount/r.litres : 0;
+          const date=r.date?r.date.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'2-digit'}):'—';
+          return `<div class="fuel-history-row"><div><b>${date}</b><div class="fuel-history-meta">${r.odo.toLocaleString('en-IN')} km</div></div><div><div class="fuel-history-main">${r.litres.toFixed(2)} L @ ₹${price.toFixed(2)}/L</div><div class="fuel-history-meta">${mileage?mileage.toFixed(2)+' km/L':''}${r.desc?' • '+r.desc:''}${r.method?' • '+r.method:''}</div></div><div class="fuel-history-amt">₹${formatINR(r.amount)}</div></div>`;
+        }).join('');
+      }
+    }
+
+    function getVehicleNames(){
+      const el=document.getElementById('fuelVehicle');
+      return el ? Array.from(el.options).map(o=>o.value).filter(Boolean) : [];
+    }
+
+    function getVehicleServiceRecords(vehicle){
+      return getInsightRows().filter(row=>normalizeTransactionType(row[1])==='Service' && String(row[2]||'').trim()===vehicle)
+        .map(row=>({date:parseRobustDate(row[0]),amount:parseFloat(row[3])||0,odo:parseFloat(row[8])||0,desc:String(row[4]||'').trim(),method:String(row[10]||'').trim()}))
+        .sort((a,b)=>(a.date?a.date.getTime():0)-(b.date?b.date.getTime():0)||(a.odo-b.odo));
+    }
+
+    function getVehicleStatus(vehicle){
+      const fuels=getFuelRecordsForVehicle(vehicle), services=getVehicleServiceRecords(vehicle);
+      const lastFuel=fuels.length?fuels[fuels.length-1]:null, lastService=services.length?services[services.length-1]:null;
+      const threshold=bikesList.includes(vehicle)?3000:10000;
+      let serviceStatus='No service record', serviceKm=null;
+      if(lastService && lastService.odo>0 && lastFuel && lastFuel.odo>lastService.odo){
+        serviceKm=lastFuel.odo-lastService.odo;
+        serviceStatus=serviceKm>=threshold?'Service due':`${Math.max(0,threshold-serviceKm)} km to service`;
+      } else if(lastService && lastService.odo>0 && lastFuel){
+        serviceKm=Math.max(0,lastFuel.odo-lastService.odo);
+        serviceStatus=serviceKm>=threshold?'Service due':`${Math.max(0,threshold-serviceKm)} km to service`;
+      }
+      let latestMileage=null;
+      if(fuels.length>1){const a=fuels[fuels.length-2],b=fuels[fuels.length-1],km=b.odo-a.odo;if(km>0)latestMileage=km/b.litres;}
+      return {fuels,services,lastFuel,lastService,threshold,serviceStatus,serviceKm,latestMileage};
+    }
+
+    function refreshVehiclePhase3And4(){
+      const vehicles=getVehicleNames(), now=new Date(), month=now.getMonth(), year=now.getFullYear();
+      const selected=(document.getElementById('fuelVehicle')||{}).value||vehicles[0]||'';
+      const st=getVehicleStatus(selected);
+      const alerts=[];
+      if(st.lastService && st.serviceKm!==null){
+        const left=st.threshold-st.serviceKm;
+        if(left<=0) alerts.push(`<div class="fuel-alert danger">⚠️ <b>Service overdue:</b> ${selected} is ${Math.abs(left).toLocaleString('en-IN')} km past its service interval.</div>`);
+        else if(left<=Math.max(250,Math.round(st.threshold*.1))) alerts.push(`<div class="fuel-alert warn">🔧 <b>Service soon:</b> ${selected} has about ${left.toLocaleString('en-IN')} km remaining.</div>`);
+      } else alerts.push(`<div class="fuel-alert warn">🔧 <b>Service tracking:</b> no odometer-based service record found for ${selected}.</div>`);
+      if(st.latestMileage!==null){
+        const baseline= bikesList.includes(selected)?35:15;
+        if(st.latestMileage < baseline*.7) alerts.push(`<div class="fuel-alert warn">📉 <b>Low mileage:</b> latest fill is ${st.latestMileage.toFixed(2)} km/L. Check tyre pressure, traffic, load or vehicle condition.</div>`);
+        else alerts.push(`<div class="fuel-alert good">✅ <b>Mileage:</b> latest calculated mileage is ${st.latestMileage.toFixed(2)} km/L.</div>`);
+      }
+      const alertList=document.getElementById('fuelAlertsList'); if(alertList) alertList.innerHTML=alerts.join('')||'<div class="fuel-empty">No alerts.</div>';
+      const summary=document.getElementById('fuelAlertSummary'); if(summary) summary.textContent=alerts.length?`${alerts.length} item${alerts.length===1?'':'s'}`:'All clear';
+
+      const report=document.getElementById('fuelMonthlyReport');
+      const label=document.getElementById('fuelReportMonthLabel');
+      if(label) label.textContent=now.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+      if(report){
+        const mr=st.fuels.filter(r=>r.date&&r.date.getMonth()===month&&r.date.getFullYear()===year);
+        const ms=st.services.filter(r=>r.date&&r.date.getMonth()===month&&r.date.getFullYear()===year);
+        const fuelSpend=mr.reduce((a,r)=>a+r.amount,0), litres=mr.reduce((a,r)=>a+r.litres,0), serviceSpend=ms.reduce((a,r)=>a+r.amount,0);
+        const distance=mr.length>1?Math.max(0,mr[mr.length-1].odo-mr[0].odo):0;
+        report.innerHTML=`<div class="vehicle-kpi"><span>Fuel Spend</span><strong>₹${formatINR(fuelSpend)}</strong><div class="fuel-report-note">${litres.toFixed(2)} L</div></div><div class="vehicle-kpi"><span>Fuel Price</span><strong>${litres?`₹${(fuelSpend/litres).toFixed(2)}/L`:'—'}</strong><div class="fuel-report-note">Monthly average</div></div><div class="vehicle-kpi"><span>Distance</span><strong>${distance?distance.toLocaleString('en-IN')+' km':'—'}</strong><div class="fuel-report-note">Based on logged odometer</div></div><div class="vehicle-kpi"><span>Service Spend</span><strong>₹${formatINR(serviceSpend)}</strong><div class="fuel-report-note">${ms.length} service record${ms.length===1?'':'s'}</div></div>`;
+      }
+
+      const overview=document.getElementById('vehicleOverviewList');
+      if(overview){
+        overview.innerHTML=vehicles.map(v=>{const x=getVehicleStatus(v), last=x.lastFuel, lastS=x.lastService; return `<div class="vehicle-overview-row"><div><div class="vehicle-overview-name">${emojis[v]||'🚗'} ${v}</div><div class="vehicle-overview-meta">${last?'Last fill '+last.odo.toLocaleString('en-IN')+' km':'No fuel data'}</div></div><div><b>${x.latestMileage?x.latestMileage.toFixed(1)+' km/L':'—'}</b><div class="vehicle-overview-meta">Latest mileage</div></div><div><b>${last?'₹'+formatINR(last.amount):'—'}</b><div class="vehicle-overview-meta">Last fill</div></div><div><b>${lastS?'₹'+formatINR(lastS.amount):'—'}</b><div class="vehicle-overview-meta">Last service</div></div></div>`;}).join('');
+      }
+      refreshVehiclePhase3And4();
     }
 
     function calculateMileagePreview() {
@@ -2350,6 +2505,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         mainBalanceContainer.style.display = "none";
         document.getElementById('secondaryBalanceBlock').style.display = "none";
         calculateMileagePreview();
+        refreshFuelDashboard();
       } else {
         headerSection.style.display = "block";
         mainBalanceContainer.style.display = "block";
