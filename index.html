@@ -2144,6 +2144,9 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       let todayStr = today.toISOString().split('T')[0];
       document.getElementById('txDate').value = todayStr;
       document.getElementById('fuelDate').value = getLocalDateString();
+      const fuelVehicleEl = document.getElementById('fuelVehicle');
+      if (fuelVehicleEl && fuelVehicleEl.options.length) fuelVehicleEl.selectedIndex = 0;
+      updateFuelEntryHeader();
       renderFuelVehicleStrip();
       updateFuelEntryHeader();
       toggleFuelFields();
@@ -2287,12 +2290,18 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       const vehicleEl = document.getElementById('fuelVehicle');
       const title = document.getElementById('fuelEntryTitle');
       const vehicleText = document.getElementById('fuelEntryVehicle');
-      const type = typeEl ? typeEl.value : 'Fuel';
-      const vehicle = vehicleEl ? vehicleEl.value : '';
+      const type = typeEl && typeEl.value === 'Service' ? 'Service' : 'Fuel';
+      // Always use the actual selected vehicle; fall back to the first vehicle.
+      if (vehicleEl && (!vehicleEl.value || vehicleEl.selectedIndex < 0) && vehicleEl.options.length) {
+        vehicleEl.selectedIndex = 0;
+      }
+      const vehicle = vehicleEl ? (vehicleEl.value || (vehicleEl.options[0] ? vehicleEl.options[0].value : '')) : '';
       if (title) title.innerText = type === 'Service' ? '🔧 Service' : '⛽ Fuel Fill-up';
       if (vehicleText) vehicleText.textContent = vehicle;
       const typeText = document.getElementById('fuelEntryTypeText');
       if (typeText) typeText.textContent = type === 'Service' ? 'Service' : 'fuel';
+      const summaryVehicle = document.getElementById('fuelSummaryVehicle');
+      if (summaryVehicle) summaryVehicle.textContent = vehicle;
     }
 
     function toggleFuelFields() {
