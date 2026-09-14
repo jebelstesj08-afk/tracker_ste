@@ -1205,7 +1205,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       <div class="fuel-entry-head">
         <div>
           <div class="fuel-entry-title" id="fuelEntryTitle">⛽ Fuel Fill-up</div>
-          <div class="fuel-entry-sub">Add a new fuel entry for <b id="fuelEntryVehicle"></b></div>
+          <div class="fuel-entry-sub">Add a new <span id="fuelEntryTypeText">fuel</span> entry for <b id="fuelEntryVehicle"></b></div>
         </div>
         <button type="button" class="fuel-reset-icon" onclick="resetFuelFields()" title="Clear entered fields" aria-label="Clear entered fields">↺</button>
       </div>
@@ -2291,6 +2291,8 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       const vehicle = vehicleEl ? vehicleEl.value : '';
       if (title) title.innerText = type === 'Service' ? '🔧 Service' : '⛽ Fuel Fill-up';
       if (vehicleText) vehicleText.textContent = vehicle;
+      const typeText = document.getElementById('fuelEntryTypeText');
+      if (typeText) typeText.textContent = type === 'Service' ? 'Service' : 'fuel';
     }
 
     function toggleFuelFields() {
@@ -2298,10 +2300,16 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       updateFuelEntryHeader();
       if(type === 'Service') {
         document.getElementById('litresGroup').style.display = 'none';
+        const priceGroup = document.getElementById('fuelPriceGroup');
+        if (priceGroup) priceGroup.style.display = 'none';
+        const pricePreview = document.getElementById('fuelPricePreview');
+        if (pricePreview) pricePreview.value = '';
         document.getElementById('vehicleLogBtn').innerText = "Log Service";
         document.getElementById('mileagePreviewBox').style.display = 'none';
       } else {
         document.getElementById('litresGroup').style.display = 'block';
+        const priceGroup = document.getElementById('fuelPriceGroup');
+        if (priceGroup) priceGroup.style.display = 'block';
         document.getElementById('vehicleLogBtn').innerText = "Log Fuel Fill";
         calculateMileagePreview();
       }
