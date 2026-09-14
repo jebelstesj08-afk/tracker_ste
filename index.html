@@ -1683,6 +1683,80 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     
     let allTransactions = JSON.parse(localStorage.getItem('trackerData')) || [];
     let receiptBase64 = "";
+
+    // ===== PERFORMANCE V2: in-memory data indexes =====
+    // Build once after a sync/local write instead of repeatedly scanning and sorting
+    // the complete Google Sheets dataset for every dashboard section.
+    const dataIndex = {
+      rows: [],
+      headerIndex: -1,
+      fuelByVehicle: Object.create(null),
+      serviceByVehicle: Object.create(null),
+      searchable: null,
+      dateTotals: Object.create(null),
+      version: 0
+    };
+    let dataIndexBuiltFor = null;
+
+    function invalidateDataIndex(){
+      dataIndexBuiltFor = null;
+      dataIndex.searchable = null;
+    }
+
+    function rebuildDataIndex(){
+      if(dataIndexBuiltFor === allTransactions) return;
+      const rows = Array.isArray(allTransactions) ? allTransactions : [];
+      let headerIndex = -1;
+      for(let i=0;i<Math.min(rows.length,8);i++){
+        const row=rows[i];
+        if(Array.isArray(row)){
+          const joined=row.map(v=>String(v==null?'':v).trim().toLowerCase()).join('|');
+          if(joined.includes('date') && joined.includes('type') && joined.includes('amount')){ headerIndex=i; break; }
+        }
+      }
+      const start=headerIndex>=0?headerIndex+1:0;
+      const insightRows=rows.slice(start).filter(Array.isArray);
+      dataIndex.rows=insightRows;
+      dataIndex.headerIndex=headerIndex;
+      dataIndex.fuelByVehicle=Object.create(null);
+      dataIndex.serviceByVehicle=Object.create(null);
+      dataIndex.dateTotals=Object.create(null);
+
+      insightRows.forEach(row=>{
+        const type=normalizeTransactionType(row[1]);
+        const vehicle=String(row[2]||'').trim();
+        if(type==='Fuel' && vehicle){
+          if(!dataIndex.fuelByVehicle[vehicle]) dataIndex.fuelByVehicle[vehicle]=[];
+          dataIndex.fuelByVehicle[vehicle].push(row);
+        }else if(type==='Service' && vehicle){
+          if(!dataIndex.serviceByVehicle[vehicle]) dataIndex.serviceByVehicle[vehicle]=[];
+          dataIndex.serviceByVehicle[vehicle].push(row);
+        }
+        const d=parseRobustDate(row[0]);
+        const amount=parseTransactionAmount(row[3]);
+        if(d && ['Expense','Fuel','Service'].includes(type)){
+          const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+          if(!dataIndex.dateTotals[key]) dataIndex.dateTotals[key]={amount:0,count:0};
+          dataIndex.dateTotals[key].amount+=amount;
+          dataIndex.dateTotals[key].count++;
+        }
+      });
+
+      // Sort only the two vehicle-specific collections once.
+      Object.values(dataIndex.fuelByVehicle).forEach(a=>a.sort(compareTransactionRows));
+      Object.values(dataIndex.serviceByVehicle).forEach(a=>a.sort(compareTransactionRows));
+      dataIndex.searchable=null;
+      dataIndex.version++;
+      dataIndexBuiltFor=allTransactions;
+    }
+
+    function compareTransactionRows(a,b){
+      const da=parseRobustDate(a[0]), db=parseRobustDate(b[0]);
+      return (da?da.getTime():0)-(db?db.getTime():0) || (parseFloat(a[8])||0)-(parseFloat(b[8])||0);
+    }
+
+    function getIndexedRows(){ rebuildDataIndex(); return dataIndex.rows; }
+
     let currentTxType = 'Expense';
 
     /* ===== EMI LOANS ===== */
@@ -2177,14 +2251,17 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       let startDefault = prevMonthLast.toISOString().split('T')[0];
       let endDefault = cycleEnd.toISOString().split('T')[0];
 
+      // Performance V2: build indexes from local cache first so the app is interactive immediately.
+      rebuildDataIndex();
       calculateTopBalance();
-      syncWithGoogle(false);
       refreshEMILoans();
       calculateMileagePreview();
       refreshFuelDashboard();
       refreshVehiclePhase3And4();
       renderCreditCards();
       populateSearchFilters();
+      // Sync in the background; cached UI remains usable while Google Sheets responds.
+      setTimeout(() => syncWithGoogle(false), 60);
     };
 
 
@@ -2341,17 +2418,17 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     }
 
     function getFuelRecordsForVehicle(vehicle) {
-      return getInsightRows().filter(row => normalizeTransactionType(row[1]) === 'Fuel' && String(row[2] || '').trim() === vehicle && parseFloat(row[8]) > 0 && parseFloat(row[9]) > 0)
-        .map(row => ({
-          row,
-          date: parseRobustDate(row[0]),
-          amount: parseFloat(row[3]) || 0,
-          litres: parseFloat(row[9]) || 0,
-          odo: parseFloat(row[8]) || 0,
-          desc: String(row[4] || '').trim(),
-          method: String(row[10] || '').trim()
-        }))
-        .sort((a,b) => (a.date ? a.date.getTime() : 0) - (b.date ? b.date.getTime() : 0) || a.odo - b.odo);
+      rebuildDataIndex();
+      const rows=dataIndex.fuelByVehicle[vehicle] || [];
+      return rows.map(row => ({
+        row,
+        date: parseRobustDate(row[0]),
+        amount: parseFloat(row[3]) || 0,
+        litres: parseFloat(row[9]) || 0,
+        odo: parseFloat(row[8]) || 0,
+        desc: String(row[4] || '').trim(),
+        method: String(row[10] || '').trim()
+      }));
     }
 
     function refreshFuelDashboard() {
@@ -2458,9 +2535,11 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     }
 
     function getVehicleServiceRecords(vehicle){
-      return getInsightRows().filter(row=>normalizeTransactionType(row[1])==='Service' && String(row[2]||'').trim()===vehicle)
-        .map(row=>({date:parseRobustDate(row[0]),amount:parseFloat(row[3])||0,odo:parseFloat(row[8])||0,desc:String(row[4]||'').trim(),method:String(row[10]||'').trim()}))
-        .sort((a,b)=>(a.date?a.date.getTime():0)-(b.date?b.date.getTime():0)||(a.odo-b.odo));
+      rebuildDataIndex();
+      return (dataIndex.serviceByVehicle[vehicle] || []).map(row=>({
+        date:parseRobustDate(row[0]),amount:parseFloat(row[3])||0,odo:parseFloat(row[8])||0,
+        desc:String(row[4]||'').trim(),method:String(row[10]||'').trim()
+      }));
     }
 
     function getVehicleStatus(vehicle){
@@ -2711,6 +2790,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       }
       
       allTransactions.push([payload.date, payload.type, payload.category, payload.amount, payload.description, payload.user, payload.project, payload.image, payload.odometer, payload.litres, payload.paymentMethod]);
+      invalidateDataIndex();
       localStorage.setItem('trackerData', JSON.stringify(allTransactions));
       calculateTopBalance();
 
@@ -2769,73 +2849,64 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 
     function forceSync() { syncWithGoogle(true); }
 
+    let syncInFlight = null;
+    let lastSyncAt = 0;
+    const SYNC_MIN_INTERVAL = 30000;
+
     async function syncWithGoogle(showLoading = false) {
       const loading = document.getElementById('loadingIndicator');
+      const now=Date.now();
+      if(syncInFlight) return syncInFlight;
+      if(!showLoading && now-lastSyncAt<SYNC_MIN_INTERVAL) return;
+
       if(showLoading && loading) {
         loading.textContent = 'Syncing data…';
         loading.style.display = 'block';
       }
 
-      try {
-        // Cache-bust the GET so the app does not receive an old cached response.
-        const syncUrl = URL + (URL.includes('?') ? '&' : '?') + '_ts=' + Date.now();
-        const response = await fetch(syncUrl, {
-          method: 'GET',
-          cache: 'no-store',
-          redirect: 'follow'
-        });
-
-        if(!response.ok) {
-          throw new Error('HTTP ' + response.status);
-        }
-
-        const contentType = response.headers.get('content-type') || '';
-        const raw = await response.text();
-        let data;
-
+      syncInFlight=(async()=>{
         try {
-          data = JSON.parse(raw);
-        } catch(e) {
-          throw new Error('Google Sheets returned a non-JSON response');
-        }
+          const syncUrl = URL + (URL.includes('?') ? '&' : '?') + '_ts=' + Date.now();
+          const response = await fetch(syncUrl, {method:'GET',cache:'no-store',redirect:'follow'});
+          if(!response.ok) throw new Error('HTTP ' + response.status);
+          const raw = await response.text();
+          let data;
+          try { data=JSON.parse(raw); } catch(e){ throw new Error('Google Sheets returned a non-JSON response'); }
+          if(!Array.isArray(data)) throw new Error('Unexpected Google Sheets response');
 
-        if(!Array.isArray(data)) {
-          throw new Error('Unexpected Google Sheets response');
-        }
+          // Avoid JSON.stringify/localStorage/UI work when nothing changed.
+          const newJson=JSON.stringify(data);
+          const oldJson=localStorage.getItem('trackerData');
+          if(newJson!==oldJson){
+            allTransactions=data;
+            invalidateDataIndex();
+            localStorage.setItem('trackerData',newJson);
+            rebuildDataIndex();
 
-        // Keep the sheet header + rows exactly as expected by the rest of the app.
-        allTransactions = data;
-        localStorage.setItem('trackerData', JSON.stringify(data));
-        try { renderRecurringPayments(); renderSpendingCalendar(); } catch (e) { console.warn('Tab 4 extras refresh failed', e); }
+            const insights=document.getElementById('Insights');
+            const emi=document.getElementById('EMI');
+            const active=document.querySelector('.tab-content.active-tab')?.id||'';
+            if(active==='Insights') generateInsights();
+            else if(active!=='EMI') calculateTopBalance();
+            if(active==='Fuel') { refreshFuelDashboard(); refreshVehiclePhase3And4(); }
+          }
 
-        try {
-          if(document.getElementById('Insights').classList.contains('active-tab')) generateInsights();
-          if(!document.getElementById('EMI').classList.contains('active-tab') && !document.getElementById('Insights').classList.contains('active-tab')) calculateTopBalance();
-        } catch (renderErr) {
-          console.error('Dashboard render error after sync:', renderErr);
+          lastSyncAt=Date.now();
+          if(showLoading && loading){
+            loading.textContent = newJson===oldJson ? 'Up to date ✓' : 'Synced ✓';
+            loading.style.color='var(--accent-green)';
+            setTimeout(()=>{loading.style.display='none';loading.style.color='var(--text-muted)';},900);
+          }
+        }catch(err){
+          console.error('Google Sheets sync failed:',err);
+          if(showLoading && loading){loading.textContent='Using cached data';setTimeout(()=>loading.style.display='none',1200);}
+        }finally{
+          syncInFlight=null;
         }
-
-        if(showLoading && loading) {
-          loading.textContent = 'Synced ✓';
-          loading.style.color = 'var(--accent-green)';
-          setTimeout(() => {
-            loading.style.display = 'none';
-            loading.style.color = 'var(--text-muted)';
-          }, 900);
-        }
-      } catch (err) {
-        console.error('Google Sheets sync failed:', err);
-        // Do not replace the working local cache. The app can continue offline.
-        if(showLoading && loading) {
-          loading.textContent = 'Offline • showing saved data';
-          loading.style.color = 'var(--accent-red)';
-          setTimeout(() => {
-            loading.style.display = 'none';
-            loading.style.color = 'var(--text-muted)';
-          }, 1800);
-        }
-      }
+      })();
+      return syncInFlight;
     }
+
     function normalizeTransactionType(value) {
       const t = String(value == null ? '' : value).trim().toLowerCase();
       if (t === 'income') return 'Income';
@@ -2875,20 +2946,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     }
 
     function getInsightRows() {
-      if (!Array.isArray(allTransactions)) return [];
-      // Find the header row rather than assuming it is always row 1.
-      let headerIndex = -1;
-      for (let i = 0; i < Math.min(allTransactions.length, 8); i++) {
-        const row = allTransactions[i];
-        if (Array.isArray(row)) {
-          const joined = row.map(v => String(v == null ? '' : v).trim().toLowerCase()).join('|');
-          if (joined.includes('date') && joined.includes('type') && joined.includes('amount')) {
-            headerIndex = i; break;
-          }
-        }
-      }
-      const start = headerIndex >= 0 ? headerIndex + 1 : 0;
-      return allTransactions.slice(start).filter(Array.isArray);
+      return getIndexedRows();
     }
 
     function getLastWorkingDayForInsights(year, monthIndex) {
@@ -3460,7 +3518,9 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 let creditCards = JSON.parse(localStorage.getItem('householdCreditCards') || '[]');
 
 function getSearchableTransactions(){
-  return getInsightRows().map(row => ({
+  rebuildDataIndex();
+  if(dataIndex.searchable) return dataIndex.searchable;
+  dataIndex.searchable=dataIndex.rows.map(row => ({
     raw: row,
     date: parseRobustDate(row[0]),
     type: normalizeTransactionType(row[1]),
@@ -3472,6 +3532,7 @@ function getSearchableTransactions(){
     receipt: String(row[7] == null ? '' : row[7]).trim(),
     paymentMethod: String(row[10] == null ? '' : row[10]).trim()
   })).filter(x => x.date && !isNaN(x.date.getTime()));
+  return dataIndex.searchable;
 }
 
 function populateSearchFilters(){
@@ -3639,13 +3700,11 @@ function renderSpendingCalendar(){
   var y=spendingCalendarDate.getFullYear(),m=spendingCalendarDate.getMonth();
   var title=document.getElementById('spendingCalendarMonth');
   if(title)title.textContent=spendingCalendarDate.toLocaleDateString('en-IN',{month:'short',year:'numeric'});
+  rebuildDataIndex();
   var totals={};
-  var rows=Array.isArray(allTransactions)?allTransactions.slice(1):[];
-  rows.forEach(function(r){
-    var d=parseSafeDate(String(r[0]||'')),type=String(r[1]||'').trim(),amount=parseFloat(r[3])||0;
-    if(!d||isNaN(d.getTime())||d.getFullYear()!==y||d.getMonth()!==m)return;
-    if(['Expense','Fuel','Service'].indexOf(type)<0)return;
-    totals[d.getDate()]=(totals[d.getDate()]||0)+amount;
+  Object.keys(dataIndex.dateTotals).forEach(function(key){
+    var parts=key.split('-').map(Number);
+    if(parts[0]===y && parts[1]===m+1) totals[parts[2]]=dataIndex.dateTotals[key].amount;
   });
   var monthTotal=Object.keys(totals).reduce(function(s,k){return s+totals[k];},0);
   var totalEl=document.getElementById('spendingCalendarTotal');
@@ -3665,11 +3724,10 @@ function renderSpendingCalendar(){
 }
 function showSpendingDay(day){
   var y=spendingCalendarDate.getFullYear(),m=spendingCalendarDate.getMonth(),total=0,count=0;
-  (Array.isArray(allTransactions)?allTransactions.slice(1):[]).forEach(function(r){
-    var d=parseSafeDate(String(r[0]||'')),type=String(r[1]||'').trim(),amount=parseFloat(r[3])||0;
-    if(!d||isNaN(d.getTime()))return;
-    if(d.getFullYear()===y&&d.getMonth()===m&&d.getDate()===day&&['Expense','Fuel','Service'].indexOf(type)>=0){total+=amount;count++;}
-  });
+  rebuildDataIndex();
+  var key=y+'-'+String(m+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+  var hit=dataIndex.dateTotals[key];
+  if(hit){ total=hit.amount; count=hit.count; }
   var summary=document.getElementById('spendingCalendarSummary');
   if(summary)summary.textContent=new Date(y,m,day).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})+' · ₹'+Math.round(total).toLocaleString('en-IN')+' spent · '+count+' transaction'+(count===1?'':'s');
 }
