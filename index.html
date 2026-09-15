@@ -1004,7 +1004,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 .insight-category-row::after,.insight-record::after{position:absolute;right:0;top:50%;transform:translateY(-50%)}
 .insight-category-row{padding-right:22px}
 .insight-record{padding-right:22px}
-.insight-kpi-clickable::after{content:'Tap for details ›';display:block;font-size:8px;color:var(--accent-blue);font-weight:800;margin-top:3px}
+.insight-kpi-clickable:not(.credit-card-usage-card)::after{content:'Tap for details ›';display:block;font-size:8px;color:var(--accent-blue);font-weight:800;margin-top:3px}
 
 /* Service status is an informational card with a clear history affordance. */
 #lastServiceCard{cursor:pointer;padding:12px 14px!important}
@@ -1204,29 +1204,32 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 
 /* ===== CREDIT CARD USAGE KPI ===== */
 .credit-card-usage-card{
-  min-height:82px;
+  min-height:96px;
   margin:0 0 12px;
-  padding:13px 15px;
-  border-radius:20px;
+  padding:14px 16px;
+  border-radius:24px;
   overflow:hidden;
   position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
   background:radial-gradient(circle at 86% 15%, rgba(139,92,246,.12), transparent 30%),linear-gradient(135deg,var(--card-bg),var(--input-bg));
 }
-.credit-card-usage-main{min-width:0;flex:1}
-.credit-card-usage-main .insight-kpi-value{margin-top:5px;font-size:24px}
-.credit-card-usage-side{width:34%;min-width:110px;display:flex;flex-direction:column;align-items:flex-end;gap:9px}
-.credit-card-usage-chip{padding:5px 9px;border-radius:999px;background:rgba(52,199,89,.11);color:var(--accent-blue);font-size:9px;font-weight:850;white-space:nowrap}
-.credit-card-usage-side .insight-kpi-track{width:100%;margin-top:0}
+.credit-card-usage-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-right:2px}
+.credit-card-usage-title{font-size:9px;font-weight:900;color:var(--text-muted);text-transform:uppercase;letter-spacing:.55px}
+.credit-card-usage-value{font-size:25px;font-weight:920;letter-spacing:-1px;line-height:1;margin-top:8px}
+.credit-card-usage-sub{font-size:9px;color:var(--text-muted);font-weight:700;margin-top:7px}
+.credit-card-usage-chip{padding:6px 11px;border-radius:999px;background:rgba(52,199,89,.11);color:var(--accent-blue);font-size:9px;font-weight:850;white-space:nowrap}
+.credit-card-usage-tap{position:absolute;right:16px;bottom:15px;font-size:9px;color:var(--accent-blue);font-weight:800;white-space:nowrap}
 @media(max-width:520px){
-  .credit-card-usage-card{min-height:78px;padding:12px 13px;border-radius:18px;gap:10px}
-  .credit-card-usage-main .insight-kpi-value{font-size:21px}
-  .credit-card-usage-side{width:31%;min-width:92px}
-  .credit-card-usage-chip{font-size:8px;padding:4px 8px}
+ .credit-card-usage-card{min-height:94px;padding:13px 14px;border-radius:22px}
+ .credit-card-usage-value{font-size:22px;margin-top:7px}
+ .credit-card-usage-chip{font-size:8px;padding:5px 9px}
+ .credit-card-usage-tap{right:14px;bottom:14px;font-size:8px}
 }
+
+/* Credit Card Usage: clean header with details action in top-right */
+.credit-card-usage-card{position:relative!important;}
+.credit-card-usage-head{justify-content:flex-start!important;padding-right:0!important;}
+.credit-card-usage-tap{position:absolute!important;right:16px!important;top:14px!important;margin:0!important;font-size:9px!important;color:var(--accent-blue)!important;font-weight:800!important;white-space:nowrap!important;}
+.credit-card-usage-chip{display:none!important;}
 </style>
 </head>
 <body>
@@ -1533,15 +1536,13 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       </div>
 
       <div class="insights-card credit-card-usage-card insight-kpi-clickable" onclick="openInsightsRecords('CreditCardUsage')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightsRecords('CreditCardUsage')}" aria-label="View credit card purchases">
-        <div class="credit-card-usage-main">
-          <div class="insight-kpi-title">Credit card usage</div>
-          <div class="insight-kpi-value" id="dashCreditCardUsage">0</div>
-          <div class="insight-kpi-sub" id="creditCardUsageSub">0 purchases · Tap to view</div>
+        <div class="credit-card-usage-head">
+          <div class="credit-card-usage-title">Credit card usage</div>
+          
         </div>
-        <div class="credit-card-usage-side">
-          <div class="credit-card-usage-chip">Card spend</div>
-          <div class="insight-kpi-track track-blue"><span id="creditCardUsageFill"></span></div>
-        </div>
+        <div class="credit-card-usage-value" id="dashCreditCardUsage">0</div>
+        <div class="credit-card-usage-sub" id="creditCardUsageSub">0 purchases</div>
+        <div class="credit-card-usage-tap">Tap for details ›</div>
       </div>
 
       <div class="insights-kpi-grid insights-kpi-grid-bottom">
@@ -3639,7 +3640,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         setText('dashSavingsValue', formatINR(totalSav));
         setText('dashCashLeftKpi', formatINR(cashLeft));
         setText('dashCreditCardUsage', formatINR(totalCCUsage));
-        setText('creditCardUsageSub', `${txs.filter(tx => isExpenseRecord(tx) && String(tx.cat || '').trim().toLowerCase() !== 'credit card repayment' && isCreditCardPaymentMethod(tx.paymentMethod)).length} purchases · Tap to view`);
+        setText('creditCardUsageSub', `${txs.filter(tx => isExpenseRecord(tx) && String(tx.cat || '').trim().toLowerCase() !== 'credit card repayment' && isCreditCardPaymentMethod(tx.paymentMethod)).length} purchases`);
         setText('dashSavingsRateChip', `${savingsRate.toFixed(0)}% of income`);
         setText('dashTransactionCount', txs.length.toLocaleString('en-IN'));
         setText('analyticsCategories', sortedCats.length.toString());
