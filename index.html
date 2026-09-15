@@ -3123,9 +3123,22 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         return false;
       }
 
+      // Keep the exact action label so every save always returns to the
+      // correct action (Add Expense / Add Income / Record Investment /
+      // Log Fuel Fill / Log Service).
+      const defaultLabel = payload.type === 'Service' ? 'Log Service' :
+                           payload.type === 'Fuel' ? 'Log Fuel Fill' :
+                           payload.type === 'Income' ? 'Add Income' :
+                           payload.type === 'Savings' ? 'Record Investment' :
+                           'Add Expense';
+
+      // Phase 1: Processing spinner. Keep the button locked until the
+      // complete visual sequence is finished so repeated taps cannot create
+      // duplicate entries.
       if (btn) {
         btn.classList.add('loading');
         btn.disabled = true;
+        btn.setAttribute('aria-busy', 'true');
       }
 
       // Save locally first so the app never depends on the Google response
@@ -3151,26 +3164,12 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         refreshVehiclePhase3And4();
       }
 
-      /*
-       * IMPORTANT:
-       * Do not await the Apps Script POST here.
-       *
-       * Google Apps Script web-app POSTs can remain pending in some
-       * mobile/browser combinations even after the server has received
-       * the request. Waiting for response.text()/json() made the Fuel
-       * button look permanently stuck on "Processing".
-       *
-       * Fire the request and let the UI complete immediately. The entry
-       * is already in localStorage and will be reconciled on the next sync.
-       */
+      // Send to Google Sheets in the background. The local save is already
+      // complete, so the UI must never wait for the Apps Script response.
       let requestStarted = false;
-
       try {
         const body = JSON.stringify(payload);
         requestStarted = true;
-
-        // keepalive lets the browser finish the POST without making the
-        // form wait for the Apps Script response.
         fetch(URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -3181,21 +3180,12 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         }).catch(err => {
           console.warn('Background Google Sheets save failed; local copy retained:', err);
         });
-
       } catch (err) {
         console.warn('Could not start Google Sheets save; local copy retained:', err);
       }
 
-      // Treat the local save as complete immediately.
-      if (btn) {
-        btn.classList.remove('loading');
-        btn.disabled = false;
-        btn.innerText = payload.type === 'Service' ? 'Service Logged ✓' :
-                        payload.type === 'Fuel' ? 'Fuel Saved ✓' : 'Saved ✓';
-        btn.style.backgroundColor = 'var(--accent-green)';
-        btn.style.color = '#ffffff';
-      }
-
+      // Clear the entry fields before showing the completion message, so the
+      // form is ready for the next entry while the button still says Saved.
       if (payload.type === 'Fuel' || payload.type === 'Service') {
         resetFuelFields();
         toggleFuelFields();
@@ -3206,12 +3196,26 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         setTxType(currentTxType);
       }
 
+      // Phase 2: Saved confirmation. Remove the spinner and show the
+      // confirmation for a short, consistent moment.
+      if (btn) {
+        btn.classList.remove('loading');
+        btn.disabled = true;
+        btn.removeAttribute('aria-busy');
+        btn.innerText = payload.type === 'Service' ? 'Service Saved ✓' :
+                        payload.type === 'Fuel' ? 'Fuel Saved ✓' :
+                        'Saved ✓';
+        btn.style.backgroundColor = 'var(--accent-green)';
+        btn.style.color = '#ffffff';
+      }
+
+      // Phase 3: Always fall back to the original action label.
       setTimeout(() => {
         if (!btn) return;
-        btn.innerText = payload.type === 'Service' ? 'Log Service' :
-                        payload.type === 'Fuel' ? 'Log Fuel Fill' :
-                        currentTxType === 'Income' ? 'Add Income' :
-                        currentTxType === 'Savings' ? 'Record Investment' : 'Add Expense';
+        btn.classList.remove('loading');
+        btn.disabled = false;
+        btn.removeAttribute('aria-busy');
+        btn.innerText = defaultLabel;
         btn.style.backgroundColor = '';
         btn.style.color = '';
       }, 1200);
