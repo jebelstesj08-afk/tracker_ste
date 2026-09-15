@@ -1496,6 +1496,32 @@ button.save-btn.loading{opacity:.78!important}
   .nav-pill{width:calc(100% - 16px)!important}
 }
 
+
+/* ===== iOS SAFE-AREA FIX =====
+   Prevent the translucent iPhone status-bar area from sitting over the header.
+   viewport-fit=cover requires the top inset to be explicitly included. */
+html {
+  background: var(--bg-color) !important;
+}
+body {
+  padding-top: env(safe-area-inset-top) !important;
+}
+.header {
+  padding-top: 14px !important;
+  min-height: 68px !important;
+  background: var(--bg-color) !important;
+  z-index: 10 !important;
+}
+/* Compensate for the body safe-area padding so the app still fills the screen. */
+.app-container {
+  min-height: calc(100vh - env(safe-area-inset-top)) !important;
+}
+@supports (-webkit-touch-callout: none) {
+  .header {
+    padding-top: 14px !important;
+  }
+}
+
 </style>
 </head>
 <body>
