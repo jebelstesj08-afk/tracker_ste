@@ -377,7 +377,7 @@
     .insights-controls select { padding:11px 12px; border-radius:14px; background:var(--card-bg); font-size:12px; font-weight:800; }
     .insights-hero { display:grid; grid-template-columns:minmax(0,1fr) 220px; gap:12px; margin-bottom:12px; }
     .insights-card { background:var(--card-bg); border:1px solid var(--border-color); box-shadow:0 10px 28px rgba(0,0,0,.04); }
-    .insights-balance { min-height:290px; border-radius:24px; padding:18px; overflow:hidden; position:relative; background:
+    .insights-balance { min-height:155px; border-radius:24px; padding:16px; overflow:hidden; position:relative; background:
       radial-gradient(circle at 86% 15%, rgba(139,92,246,.12), transparent 30%),
       linear-gradient(135deg, var(--card-bg), var(--input-bg)); }
     .insights-balance-head { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
@@ -480,7 +480,7 @@
       .insights-title { font-size:22px; }
       .insights-status { padding:7px 9px; }
       .insights-controls { grid-template-columns:1fr 1fr; }
-      .insights-balance { min-height:270px; padding:15px; }
+      .insights-balance { min-height:145px; padding:14px; }
       .insights-balance-value { font-size:32px; }
       .insights-side { gap:7px; }
       .insight-metric { min-height:82px; padding:11px; }
@@ -735,7 +735,7 @@
 @media(max-width:520px){.spending-calendar-card{padding:12px!important}.calendar-day{height:40px!important;min-height:40px!important;padding:4px!important;border-radius:9px!important}.calendar-weekdays,.calendar-grid{gap:3px!important}.calendar-monthbar button{width:30px;height:30px}.calendar-month-label{font-size:12px}}
 
 
-.balance-breakdown-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}.balance-breakdown-item{padding:11px 8px;border-radius:12px;background:var(--input-bg);text-align:center;min-width:0}.balance-breakdown-item span{display:block;font-size:10px;color:var(--text-secondary);margin-bottom:5px}.balance-breakdown-item b{display:block;font-size:13px;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@media(max-width:390px){.balance-breakdown-grid{gap:6px}.balance-breakdown-item{padding:10px 5px}.balance-breakdown-item b{font-size:12px}}
+.insights-balance-compact-line{margin-top:7px;font-size:11px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.insights-balance-tap{margin-top:8px;font-size:10px;color:var(--accent-blue);font-weight:700}.insights-balance{padding-bottom:14px!important}
 /* ===== OVERALL BALANCE: MOUNTAIN CHART ===== */
 .balance-mountain-wrap{
   height:160px;
@@ -1371,11 +1371,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
             </div>
             <div class="insights-balance-chip" id="balanceHealthChip">Positive</div>
           </div>
-          <div class="balance-breakdown-grid">
-            <div class="balance-breakdown-item"><span>Income</span><b id="dashTotalIncome">₹0</b></div>
-            <div class="balance-breakdown-item"><span>Expenses</span><b id="dashTotalExpense">₹0</b></div>
-            <div class="balance-breakdown-item"><span>Savings</span><b id="dashSavingsValue">₹0</b></div>
-          </div>
+
         </div>
 
       <div class="insights-kpi-grid">
@@ -3392,7 +3388,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 
         setText('insightsPeriodText', `${periodLabel} · ${selectedUser === 'Us' ? 'Jebel + Reshma' : selectedUser}`);
         setText('dashBalanceValue', formatINR(balance));
-        setText('dashBalanceSub', `Income ${formatINR(totalInc)} − Expenses ${formatINR(totalExp)} − Savings ${formatINR(totalSav)}`);
+        setText('dashBalanceSub', 'Income − expenses − savings');
         setText('dashTotalIncome', formatINR(totalInc));
         setText('dashTotalExpense', formatINR(totalExp));
         setText('dashSavingsValue', formatINR(totalSav));
