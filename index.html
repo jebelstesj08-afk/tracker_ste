@@ -991,9 +991,19 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
   touch-action:pan-y;
 }
 #insightsRecordsModal .insights-records-modal-content #insightsRecordsList{
-  touch-action:pan-y;
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto !important;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
   overscroll-behavior:contain;
+  touch-action:pan-y;
 }
+#insightsRecordsModal.cc-records-open .insights-records-modal-content{
+  height:82vh;
+  max-height:82vh;
+}
+
 
 
 /* EMI summary: 2 x 2 gives important dates/amounts room to breathe. */
@@ -1556,8 +1566,8 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
           <div class="insight-kpi-sub" id="incomeKpiSub">0 records · Tap to view</div>
           <div class="insight-kpi-track track-green"><span id="incomeKpiFill"></span></div>
         </div>
-        <div class="insights-card insight-kpi insight-kpi-clickable" onclick="openInsightsRecords('Expense')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightsRecords('Expense')}" aria-label="View all expense records">
-          <div class="insight-kpi-title">Expenses</div>
+        <div class="insights-card insight-kpi insight-kpi-clickable" onclick="openInsightsRecords('Expense')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInsightsRecords('Expense')}" aria-label="View expenses excluding credit card records">
+          <div class="insight-kpi-title">Expenses &lt;&gt; CC</div>
           <div class="insight-kpi-value" id="dashTotalExpense">0</div>
           <div class="insight-kpi-sub" id="expenseKpiSub">0 records · Tap to view</div>
           <div class="insight-kpi-track track-red"><span id="expenseKpiFill"></span></div>
@@ -3640,12 +3650,14 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         txs.forEach(tx => {
           if (tx.type === 'Income') { totalInc += tx.amount; incomeTxs.push(tx); }
           else if (isExpenseRecord(tx)) {
-            totalExp += tx.amount;
+            if (!isCreditCardPaymentMethod(tx.paymentMethod)) totalExp += tx.amount;
             if (isBalanceExpense(tx)) totalBalanceExp += tx.amount;
             if (String(tx.cat || '').trim().toLowerCase() !== 'credit card repayment' && isCreditCardPaymentMethod(tx.paymentMethod)) totalCCUsage += tx.amount;
-            expenseTxs.push(tx);
-            const displayCat = (tx.type === 'Fuel' || tx.type === 'Service') ? `Veh - ${tx.cat || 'Vehicle'}` : (tx.cat || 'Uncategorised');
-            expenseCategories[displayCat] = (expenseCategories[displayCat] || 0) + tx.amount;
+            if (!isCreditCardPaymentMethod(tx.paymentMethod)) {
+              expenseTxs.push(tx);
+              const displayCat = (tx.type === 'Fuel' || tx.type === 'Service') ? `Veh - ${tx.cat || 'Vehicle'}` : (tx.cat || 'Uncategorised');
+              expenseCategories[displayCat] = (expenseCategories[displayCat] || 0) + tx.amount;
+            }
           } else if (tx.type === 'Savings') totalSav += tx.amount;
         });
 
@@ -3676,7 +3688,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         setText('analyticsCategories', sortedCats.length.toString());
         setText('savingsRingText', `${savingsRate.toFixed(0)}%`);
         setText('incomeKpiSub', `${incomeTxs.length} income records`);
-        setText('expenseKpiSub', `${sortedCats.length} spending categories`);
+        setText('expenseKpiSub', `${sortedCats.length} spending categories · CC excluded`);
         setText('insightsFooterNote', `${txs.length.toLocaleString('en-IN')} records included · ${monthGroups.length} months of activity`);
         setText('dashTopCategory', topCat ? topCat[0] : 'No spending yet');
         setText('dashTopCategoryAmount', topCat ? formatINR(topCat[1]) : '0');
@@ -3821,31 +3833,67 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       const list = document.getElementById('insightsRecordsList');
       if (!modal || !list) return;
 
-      const { txs, selectedUser, timeRange } = getInsightTransactions();
+      const { txs, selectedUser } = getInsightTransactions();
+
+      // Credit-card purchases get their own dedicated records sheet.
+      // Expenses intentionally exclude all CC purchases and CC repayments.
       const wanted = type === 'Income'
         ? txs.filter(tx => tx.type === 'Income')
         : type === 'Savings'
           ? txs.filter(tx => tx.type === 'Savings')
           : type === 'CreditCardUsage'
-            ? txs.filter(tx => isExpenseRecord(tx) && String(tx.cat || '').trim().toLowerCase() !== 'credit card repayment' && isCreditCardPaymentMethod(tx.paymentMethod))
-            : type === 'BalanceExpense'
-              ? txs.filter(isBalanceExpense)
+            ? txs.filter(tx =>
+                isExpenseRecord(tx) &&
+                String(tx.cat || '').trim().toLowerCase() !== 'credit card repayment' &&
+                isCreditCardPaymentMethod(tx.paymentMethod)
+              )
+            : type === 'Expense'
+              ? txs.filter(tx =>
+                  isExpenseRecord(tx) &&
+                  !isCreditCardPaymentMethod(tx.paymentMethod)
+                )
               : txs.filter(isExpenseRecord);
 
       const total = wanted.reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
-      if (title) title.textContent = type === 'Income' ? 'Income Records' : type === 'Savings' ? 'Savings Records' : type === 'CreditCardUsage' ? 'Credit Card Usage' : 'Expense Records';
+
+      if (title) {
+        title.textContent =
+          type === 'Income' ? 'Income Records' :
+          type === 'Savings' ? 'Savings Records' :
+          type === 'CreditCardUsage' ? 'Credit Card Records' :
+          'Expenses <> CC';
+      }
+
       if (totalEl) totalEl.textContent = formatINR(total);
-      if (countEl) countEl.textContent = `${wanted.length.toLocaleString('en-IN')} records · ${selectedUser === 'Us' ? 'Jebel + Reshma' : selectedUser}${type === 'BalanceExpense' ? ' · Cash-impacting only' : type === 'CreditCardUsage' ? ' · Purchases only' : ''}`;
+
+      if (countEl) {
+        countEl.textContent =
+          `${wanted.length.toLocaleString('en-IN')} records · ${selectedUser === 'Us' ? 'Jebel + Reshma' : selectedUser}` +
+          (type === 'CreditCardUsage' ? ' · Credit card purchases only' : type === 'Expense' ? ' · Excluding credit card records' : '');
+      }
+
+      modal.classList.toggle('cc-records-open', type === 'CreditCardUsage');
 
       if (!wanted.length) {
-        const emptyLabel = type === 'BalanceExpense' ? 'cash-impacting expense' : type === 'CreditCardUsage' ? 'credit card usage' : type.toLowerCase();
-        list.innerHTML = `<div class="insight-empty" style="padding:28px 12px;text-align:center;">No ${emptyLabel} records in the selected period.</div>`;
+        const emptyLabel =
+          type === 'CreditCardUsage' ? 'credit card' :
+          type === 'Expense' ? 'non-credit-card expense' :
+          type.toLowerCase();
+
+        list.innerHTML =
+          `<div class="insight-empty" style="padding:28px 12px;text-align:center;">No ${emptyLabel} records in the selected period.</div>`;
       } else {
         const sorted = wanted.slice().sort((a,b) => b.date - a.date);
         list.innerHTML = sorted.map(tx => {
-          const emoji = emojis[tx.cat] || (tx.type === 'Fuel' ? '⛽' : tx.type === 'Service' ? '🔧' : type === 'Income' ? '↘' : '↗');
-          const date = tx.date.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+          const emoji = emojis[tx.cat] ||
+            (tx.type === 'Fuel' ? '⛽' :
+             tx.type === 'Service' ? '🔧' :
+             type === 'Income' ? '↘' : '↗');
+          const date = tx.date.toLocaleDateString('en-IN', {
+            day:'numeric', month:'short', year:'numeric'
+          });
           const amount = formatINR(tx.amount);
+
           return `<div class="insights-popup-record" onclick='openRecordDetail(${JSON.stringify(tx).replace(/'/g, "&#39;")})'>
             <div class="insights-popup-record-icon">${emoji}</div>
             <div class="insights-popup-record-main">
