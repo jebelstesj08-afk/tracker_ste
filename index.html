@@ -735,6 +735,7 @@
 @media(max-width:520px){.spending-calendar-card{padding:12px!important}.calendar-day{height:40px!important;min-height:40px!important;padding:4px!important;border-radius:9px!important}.calendar-weekdays,.calendar-grid{gap:3px!important}.calendar-monthbar button{width:30px;height:30px}.calendar-month-label{font-size:12px}}
 
 
+.balance-breakdown-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}.balance-breakdown-item{padding:11px 8px;border-radius:12px;background:var(--input-bg);text-align:center;min-width:0}.balance-breakdown-item span{display:block;font-size:10px;color:var(--text-secondary);margin-bottom:5px}.balance-breakdown-item b{display:block;font-size:13px;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@media(max-width:390px){.balance-breakdown-grid{gap:6px}.balance-breakdown-item{padding:10px 5px}.balance-breakdown-item b{font-size:12px}}
 /* ===== OVERALL BALANCE: MOUNTAIN CHART ===== */
 .balance-mountain-wrap{
   height:160px;
@@ -1284,7 +1285,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 
     <div class="fuel-two-card-grid">
       <div class="fuel-section-card" id="fuelHistoryCard">
-        <div class="fuel-section-title"><span>🧾 Recent Fuel History</span><button class="fuel-mini-link" onclick="openSearchModal()">View all ›</button></div>
+        <div class="fuel-section-title"><span>🧾 Recent Fuel History</span><button class="fuel-mini-link" onclick="openFuelVehicleHistory()">View all ›</button></div>
         <div id="fuelHistoryList"><div class="fuel-empty">No fuel records for this vehicle.</div></div>
         <div class="fuel-count" id="fuelHistoryCount">0 fills</div>
       </div>
@@ -1370,12 +1371,10 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
             </div>
             <div class="insights-balance-chip" id="balanceHealthChip">Positive</div>
           </div>
-          <div class="insights-chart-wrap balance-mountain-wrap">
-            <svg id="overviewBars" class="balance-mountain-chart" viewBox="0 0 600 190" preserveAspectRatio="none" role="img" aria-label="Overall balance mountain chart"></svg>
-          </div>
-          <div class="balance-mountain-footer">
-            <span>Monthly net balance</span>
-            <span id="balanceMountainRange">Last 12 months</span>
+          <div class="balance-breakdown-grid">
+            <div class="balance-breakdown-item"><span>Income</span><b id="dashTotalIncome">₹0</b></div>
+            <div class="balance-breakdown-item"><span>Expenses</span><b id="dashTotalExpense">₹0</b></div>
+            <div class="balance-breakdown-item"><span>Savings</span><b id="dashSavingsValue">₹0</b></div>
           </div>
         </div>
 
@@ -1600,6 +1599,20 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
   </div>
 
  
+
+  <!-- VEHICLE FUEL HISTORY MODAL -->
+  <div id="fuelVehicleHistoryModal" class="modal-overlay" onclick="closeFuelVehicleHistory(event)">
+    <div class="modal-content" onclick="event.stopPropagation()" style="height:82vh;max-height:82vh;overflow-y:auto;">
+      <div class="modal-header">
+        <div>
+          <h3 id="fuelVehicleHistoryTitle">Fuel History</h3>
+          <div class="search-subtitle" id="fuelVehicleHistorySubtitle">Selected vehicle</div>
+        </div>
+        <button class="close-btn" onclick="closeFuelVehicleHistory()">✕</button>
+      </div>
+      <div id="fuelVehicleHistoryList" style="display:flex;flex-direction:column;gap:8px;padding-bottom:20px;"></div>
+    </div>
+  </div>
 
   <!-- SEARCH MODAL -->
   <div id="searchModal" class="modal-overlay" onclick="closeSearchModal(event)">
@@ -3415,7 +3428,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         setWidth('activityKpiFill', Math.min(100, txs.length * 5));
         setWidth('savingsProgressLong', savingsRate);
 
-        renderOverviewBars(monthGroups);
+        // Overall balance graph removed; KPI breakdown is rendered above.
 
         const catEl = document.getElementById('insightsCategoryList');
         if (catEl) {
@@ -3759,6 +3772,47 @@ function clearSearchFilters(){
   ['searchType','searchCategory','searchPayment','searchUser'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   performSearch();
 }
+function openFuelVehicleHistory(){
+  const modal=document.getElementById('fuelVehicleHistoryModal');
+  const list=document.getElementById('fuelVehicleHistoryList');
+  const title=document.getElementById('fuelVehicleHistoryTitle');
+  const subtitle=document.getElementById('fuelVehicleHistorySubtitle');
+  const vehicle=document.getElementById('fuelVehicle')?.value || 'Selected vehicle';
+  if(!modal || !list) return;
+
+  let records=[];
+  try { records=getFuelRecordsForVehicle(vehicle).slice().reverse(); } catch(e) {
+    console.error('Fuel history error:',e);
+  }
+
+  if(title) title.textContent=vehicle+' · Fuel History';
+  if(subtitle) subtitle.textContent=records.length+' fill'+(records.length===1?'':'s');
+
+  if(!records.length){
+    list.innerHTML='<div class="fuel-empty">No fuel records for '+vehicle+'.</div>';
+  } else {
+    list.innerHTML=records.map(function(r){
+      const date=r.date?r.date.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'—';
+      const ppl=(r.litres>0&&r.amount>0)?(r.amount/r.litres):null;
+      return '<div style="padding:12px;border:1px solid var(--border-color);border-radius:12px;background:var(--card-bg)">'+
+        '<div style="display:flex;justify-content:space-between;gap:10px"><b>'+date+'</b><b>₹'+formatINR(r.amount)+'</b></div>'+
+        '<div style="margin-top:5px;font-size:11px;color:var(--text-secondary)">Odometer: '+(r.odo||0).toLocaleString('en-IN')+' km · '+(r.litres||0).toFixed(2)+' L'+
+        (ppl?' · ₹'+ppl.toFixed(2)+'/L':'')+(r.method?' · '+r.method:'')+'</div></div>';
+    }).join('');
+  }
+
+  modal.style.display='flex';
+  setTimeout(function(){modal.classList.add('show');},10);
+}
+
+function closeFuelVehicleHistory(event){
+  if(event && event.target!==event.currentTarget) return;
+  const modal=document.getElementById('fuelVehicleHistoryModal');
+  if(!modal)return;
+  modal.classList.remove('show');
+  modal.style.display='none';
+}
+
 function openSearchModal(){
   const modal=document.getElementById('searchModal'); if(!modal)return;
   populateSearchFilters();
