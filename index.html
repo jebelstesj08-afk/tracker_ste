@@ -1440,8 +1440,9 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       <div class="insights-controls">
         <div class="input-group">
           <select id="insightsFilterUser" onchange="generateInsights()" aria-label="Filter user">
-            <option value="Jebel">Jebel</option>
+            <option value="Jebel" selected>Jebel</option>
             <option value="Reshma">Reshma</option>
+            <option value="Us">Us</option>
           </select>
         </div>
         <div class="input-group">
@@ -2418,7 +2419,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       applySavedTheme();
       let savedUser = localStorage.getItem('globalUser') || 'Jebel';
       document.getElementById('globalUserSelect').value = savedUser;
-      applyGlobalUser(savedUser);
+      applyGlobalUser(savedUser, true);
 
       let today = new Date();
       let todayStr = getLocalDateString();
@@ -2484,12 +2485,15 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     function onGlobalUserChange() {
       const selectedUser = document.getElementById('globalUserSelect')?.value || 'Jebel';
       localStorage.setItem('globalUser', selectedUser);
-      applyGlobalUser(selectedUser);
-      // Insights always follows the person selected in the Hello selector.
+
+      // Whenever the Hello selector changes, Insights resets to that person.
+      // From there, the Insights selector remains independently selectable so
+      // you can switch to the other person or to the combined "Us" view.
+      applyGlobalUser(selectedUser, true);
       generateInsights();
     }
 
-    function applyGlobalUser(user) {
+    function applyGlobalUser(user, setInsightsDefault) {
       const safeUser = user === 'Reshma' ? 'Reshma' : 'Jebel';
       const global = document.getElementById('globalUserSelect');
       if (global) global.value = safeUser;
@@ -2497,10 +2501,12 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       if (txUser) txUser.value = safeUser;
       const emiBorrower = document.getElementById('emiBorrower');
       if (emiBorrower) emiBorrower.value = safeUser;
-      const insightsUser = document.getElementById('insightsFilterUser');
-      if (insightsUser) {
-        insightsUser.value = safeUser;
-        insightsUser.disabled = true;
+      // When explicitly requested (initial load or Hello-selector change),
+      // Insights starts with the same person as the Hello selector. The user
+      // can then manually switch Insights to Jebel, Reshma, or Us.
+      if (setInsightsDefault) {
+        const insightsUser = document.getElementById('insightsFilterUser');
+        if (insightsUser) insightsUser.value = safeUser;
       }
     }
 
@@ -3332,7 +3338,10 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       // rebuilt a full transaction object for every Insights refresh.
       const rows = getSearchableTransactions();
       const txs = rows.filter(tx => {
-        const userOk = tx.user.toLowerCase() === selectedUser.toLowerCase();
+        const txUser = String(tx.user || '').trim().toLowerCase();
+        const userOk = selectedUser === 'Us'
+          ? (txUser === 'jebel' || txUser === 'reshma')
+          : txUser === selectedUser.toLowerCase();
         const dateOk = tx.date >= startDate && (!endDate || tx.date <= endDate);
         return userOk && dateOk && tx.amount >= 0;
       }).sort((a,b) => a.date - b.date);
