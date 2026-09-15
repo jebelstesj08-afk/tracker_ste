@@ -763,6 +763,9 @@
 /* Recurring payment rows: payment is the primary action; deletion is intentionally not shown here. */
 .recurring-pay-arrow{width:24px;height:32px;display:grid;place-items:center;color:var(--text-muted);font-size:24px;font-weight:400;line-height:1}
 .recurring-item:hover .recurring-pay-arrow{color:var(--accent-blue)}
+.recurring-pay-action{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;margin-top:5px;padding:0;border:0;background:transparent;color:var(--accent-blue);font:inherit;font-size:9px;font-weight:850;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.recurring-pay-action span{display:block}.recurring-pay-action:active{opacity:.65}.recurring-item{cursor:pointer;-webkit-tap-highlight-color:transparent}.recurring-item button{pointer-events:auto}
+
 
 /* ===== CREDIT CARD TRACKER + TRANSACTION SEARCH ===== */
 .credit-card-dashboard{margin-top:12px;border-radius:20px;padding:14px;min-width:0;overflow:hidden}
@@ -4078,7 +4081,10 @@ function openRecurringPayModal(id){
   var method=document.getElementById('recurringPayMethod');if(method)method.selectedIndex=0;
   var btn=document.getElementById('recurringPayBtn');if(btn){btn.disabled=false;btn.textContent='Mark Paid & Log Expense';}
   var m=document.getElementById('recurringPaymentPayModal');
-  if(m){m.classList.add('open');m.setAttribute('aria-hidden','false');}
+  if(m){
+    if(m.parentElement!==document.body) document.body.appendChild(m);
+    m.classList.add('open');m.setAttribute('aria-hidden','false');
+  }
 }
 function closeRecurringPayModal(){
   var m=document.getElementById('recurringPaymentPayModal');
@@ -4226,11 +4232,11 @@ function renderRecurringPayments(){
     var due=recurringDueLabel(x),icon=recurringIconFor(x);
     var meta=tab4Escape(x.category||'Bills')+' · '+tab4Escape(x.frequency||'Monthly');
     if(x.lastPaid)meta+=' · Last paid '+tab4Escape(recurringDueText(x.lastPaid));
-    return '<div class="recurring-item" onclick="openRecurringPayModal('+JSON.stringify(String(x.id))+')" role="button" tabindex="0" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openRecurringPayModal('+JSON.stringify(String(x.id))+')}" aria-label="Pay '+tab4Escape(x.name)+'">'
+    return '<div class="recurring-item" data-recurring-id="'+tab4Escape(String(x.id))+ '">'
       +'<div class="recurring-item-icon '+due.cls+'">'+icon+'</div>'
-      +'<div class="recurring-main"><div class="recurring-name">'+tab4Escape(x.name)+'</div><div class="recurring-meta">'+meta+'</div><span class="recurring-due-pill '+due.cls+'">'+due.text+'</span><div class="recurring-pay-hint">Tap to mark paid &amp; log expense</div></div>'
+      +'<div class="recurring-main"><div class="recurring-name">'+tab4Escape(x.name)+'</div><div class="recurring-meta">'+meta+'</div><span class="recurring-due-pill '+due.cls+'">'+due.text+'</span>'
+      +'<button type="button" class="recurring-pay-action"><span>Tap to mark paid &amp; log expense</span><span class="recurring-pay-arrow" aria-hidden="true">›</span></button></div>'
       +'<div class="recurring-amount">'+recurringMoney(x.amount)+'</div>'
-      +'<div class="recurring-pay-arrow" aria-hidden="true">›</div>'
       +'</div>';
   }).join('');
   if(sorted.length>5)box.innerHTML+='<div class="recurring-more">Showing 5 upcoming · '+(sorted.length-5)+' more payment'+(sorted.length-5===1?'':'s')+'</div>';
@@ -4277,6 +4283,23 @@ function showSpendingDay(day){
   if(summary)summary.textContent=new Date(y,m,day).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})+' · ₹'+Math.round(total).toLocaleString('en-IN')+' spent · '+count+' transaction'+(count===1?'':'s');
 }
 function initTab4Extras(){loadRecurringPayments();renderSpendingCalendar();}
+
+/* RECURRING_CLICK_FALLBACK */
+document.addEventListener('click',function(e){
+  var action=e.target&&e.target.closest?e.target.closest('#recurringPaymentsList .recurring-pay-action'):null;
+  var row=e.target&&e.target.closest?e.target.closest('#recurringPaymentsList .recurring-item'):null;
+  if(!row)return;
+  var id=row.getAttribute('data-recurring-id');
+  var item=recurringPayments.find(function(x){return String(x.id)===String(id);});
+  if(!item)return;
+  if(action){
+    e.preventDefault();
+    e.stopPropagation();
+    openRecurringPayModal(item.id);
+  }else if(e.target===row || e.target.closest('.recurring-main') || e.target.closest('.recurring-item-icon')){
+    openRecurringPayModal(item.id);
+  }
+});
 
 /* ===== FINAL INTERACTION SAFETY PATCH ===== */
 (function(){
