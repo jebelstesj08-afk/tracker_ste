@@ -1371,9 +1371,13 @@ body{font-size:14px;letter-spacing:-.01em}
 
 /* Header / command bar */
 .header{padding:18px 18px 10px!important;min-height:70px;position:relative;z-index:5}
-.header>div:first-child{gap:4px!important}
-.header>div:first-child span{font-size:12px!important;font-weight:700!important;color:var(--text-muted)!important}
-#globalUserSelect{font-size:16px!important;font-weight:850!important;padding:5px 22px 5px 5px!important;border-radius:12px!important;background:transparent!important;appearance:auto!important}
+.header-greeting{display:flex!important;align-items:center!important;gap:5px!important;min-width:0!important;white-space:nowrap!important;flex:1 1 auto!important;overflow:hidden!important}
+.welcome-greeting{font-size:18px!important;font-weight:750!important;letter-spacing:-.35px!important;color:var(--text-muted)!important;flex:0 0 auto!important}
+.user-switch-wrap{position:relative;display:inline-flex;align-items:center;flex:0 0 auto;cursor:pointer}
+#globalUserSelect{font-size:19px!important;font-weight:900!important;padding:4px 0!important;min-height:42px!important;border-radius:0!important;background:var(--bg-color)!important;appearance:none!important;-webkit-appearance:none!important;border:0!important;box-shadow:none!important;cursor:pointer!important;outline:none!important;width:auto!important;min-width:0!important;color:var(--text-main)!important}
+#globalUserSelect:focus{border:0!important;box-shadow:none!important;background:var(--bg-color)!important}
+#globalUserSelect:active{transform:none!important}
+.time-greeting{display:none!important}
 .header>div:last-child{gap:7px!important}
 .header-btn{width:36px!important;height:36px!important;border-radius:12px!important;border:1px solid var(--border-color)!important;background:var(--card-bg)!important;box-shadow:var(--shadow-soft);font-size:15px!important}
 .header-btn:active{transform:scale(.94)}
@@ -1653,12 +1657,15 @@ body {
 <div class="app-container">
 
   <div class="header">
-    <div style="display: flex; align-items: center; gap: 6px;">
-      <span style="font-size: 15px; font-weight: 600; color: var(--text-muted);">Hello,</span>
-      <select id="globalUserSelect" onchange="onGlobalUserChange()" style="padding: 4px 8px; border-radius: 10px; font-size: 15px; font-weight: 700; background: transparent; color: var(--text-main); border: none; outline: none; cursor: pointer; width: auto; display: inline-block;">
-        <option value="Jebel" style="background: var(--card-bg); color: var(--text-main);">Jebel</option>
-        <option value="Reshma" style="background: var(--card-bg); color: var(--text-main);">Reshma</option>
-      </select>
+    <div class="header-greeting">
+      <span id="welcomeGreeting" class="welcome-greeting">Hello,</span>
+      <span class="user-switch-wrap" title="Tap to switch user">
+        <select id="globalUserSelect" onchange="onGlobalUserChange()" aria-label="Switch user">
+          <option value="Jebel" style="background: var(--card-bg); color: var(--text-main);">Jebel</option>
+          <option value="Reshma" style="background: var(--card-bg); color: var(--text-main);">Reshma</option>
+        </select>
+      </span>
+      <span id="timeGreeting" class="time-greeting" aria-live="polite"></span>
     </div>
     <div style="display:flex; gap:10px; align-items: center;">
       <button class="header-btn" onclick="openSearchModal()" title="Search History">🔍</button>
@@ -2964,9 +2971,17 @@ body {
       return `${y}-${m}-${d}`;
     }
 
+    function updateWelcomeGreeting() {
+      const el = document.getElementById('welcomeGreeting');
+      if (el) el.textContent = 'Hello,';
+      const timeEl = document.getElementById('timeGreeting');
+      if (timeEl) timeEl.textContent = '';
+    }
+
     function onGlobalUserChange() {
       const selectedUser = document.getElementById('globalUserSelect')?.value || 'Jebel';
       localStorage.setItem('globalUser', selectedUser);
+      updateWelcomeGreeting();
 
       // Whenever the Hello selector changes, Insights resets to that person.
       // From there, the Insights selector remains independently selectable so
@@ -2980,6 +2995,7 @@ body {
       const safeUser = user === 'Reshma' ? 'Reshma' : 'Jebel';
       const global = document.getElementById('globalUserSelect');
       if (global) global.value = safeUser;
+      updateWelcomeGreeting();
       const txUser = document.getElementById('txUser');
       if (txUser) txUser.value = safeUser;
       const emiBorrower = document.getElementById('emiBorrower');
@@ -2992,6 +3008,8 @@ body {
         if (insightsUser) insightsUser.value = safeUser;
       }
     }
+
+    setTimeout(updateWelcomeGreeting, 0);
 
     function resetActiveTabFields() {
       let activeTabId = document.querySelector('.tab-content.active-tab').id;
