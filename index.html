@@ -1522,6 +1522,86 @@ body {
   }
 }
 
+
+
+/* ===== FINAL iPHONE ONE-SCREEN COMPACT LAYOUT =====
+   Keep the existing functionality and IDs; only tighten vertical rhythm so
+   the primary action/first content remains visible above the floating nav. */
+@media (max-width: 600px){
+  /* TAB 1 — remove the extra page title and compact the form */
+  #Transactions:before{content:none!important;display:none!important;}
+  #Transactions{padding-top:0!important;}
+  #Transactions .tx-type-selector{margin-bottom:9px!important;}
+  #Transactions .tx-amount-group{
+    padding:10px 13px 11px!important;
+    margin-bottom:8px!important;
+    border-radius:18px!important;
+  }
+  #Transactions .tx-amount-group .amount-wrapper input{
+    min-height:54px!important;
+    font-size:36px!important;
+  }
+  #Transactions .two-col{margin-bottom:0!important;gap:8px!important;}
+  #Transactions .two-col .input-group{margin-bottom:8px!important;}
+  #Transactions .tx-category-payment-group{
+    padding:10px 12px!important;
+    border-radius:17px!important;
+  }
+  #Transactions .tx-meta-field{margin-bottom:8px!important;}
+  #Transactions .input-group:has(#txDesc){margin-top:7px!important;margin-bottom:8px!important;}
+  #Transactions #txDesc{min-height:45px!important;padding:10px 13px!important;}
+  #Transactions button.save-btn{min-height:50px!important;padding:12px 16px!important;margin-top:2px!important;}
+
+  /* TAB 2 — remove the explanatory subtitle under Fuel Fill-up / Service */
+  #Fuel:before{margin-bottom:9px!important;}
+  #Fuel .fuel-entry-sub{display:none!important;}
+  #Fuel .fuel-entry-card{padding:12px!important;border-radius:20px!important;}
+  #Fuel .fuel-entry-head{margin-bottom:9px!important;}
+  #Fuel .fuel-entry-title{font-size:17px!important;}
+  #Fuel .fuel-form-grid{gap:7px!important;}
+  #Fuel .fuel-form-grid .input-group{margin-bottom:7px!important;}
+  #Fuel .fuel-form-grid-3{margin-top:0!important;}
+  #Fuel .fuel-preview-box{margin-top:5px!important;padding:8px!important;}
+  #Fuel button.save-btn{min-height:50px!important;padding:12px 15px!important;}
+
+  /* TAB 3 — slimmer four-card summary so the first loan card starts earlier */
+  #EMI .insights-command{padding-bottom:8px!important;}
+  #EMI .emi-summary-grid{gap:7px!important;margin-bottom:9px!important;}
+  #EMI .emi-summary-card{
+    min-height:64px!important;
+    height:64px!important;
+    padding:9px 11px!important;
+    border-radius:15px!important;
+  }
+  #EMI .emi-summary-label{font-size:7px!important;letter-spacing:.55px!important;}
+  #EMI .emi-summary-value{font-size:17px!important;margin-top:5px!important;line-height:1.05!important;}
+  #EMI .emi-toolbar{padding:9px 11px!important;margin-bottom:8px!important;border-radius:16px!important;}
+  #EMI .emi-toolbar-title{font-size:13px!important;}
+  #EMI .emi-toolbar-sub{font-size:8px!important;}
+  #EMI .emi-btn{min-height:34px!important;}
+  #EMI .emi-btn.primary{padding:7px 10px!important;font-size:10px!important;}
+  #EMI .emi-refresh-btn{width:34px!important;height:34px!important;}
+  #EMI .emi-card{padding:12px!important;border-radius:18px!important;}
+
+  /* TAB 4 — compact Overall Balance to expose Savings / Cash Left */
+  #Insights .insights-hero{margin-bottom:8px!important;}
+  #Insights .insights-balance{
+    min-height:0!important;
+    height:154px!important;
+    padding:13px!important;
+    border-radius:19px!important;
+  }
+  #Insights .insights-balance-kicker{font-size:9px!important;}
+  #Insights .insights-balance-value{font-size:31px!important;margin-top:4px!important;}
+  #Insights .insights-balance-note{font-size:9px!important;margin-top:3px!important;}
+  #Insights .insights-balance-chip{padding:5px 8px!important;font-size:8px!important;}
+  #Insights .insights-kpi-grid{margin-bottom:8px!important;gap:7px!important;}
+  #Insights .insights-kpi{min-height:82px!important;padding:10px!important;border-radius:17px!important;}
+  #Insights .insight-kpi-value{font-size:18px!important;}
+  #Insights .insight-kpi-sub{font-size:9px!important;}
+  #Insights .credit-card-usage-card{min-height:70px!important;padding:10px 12px!important;margin-bottom:8px!important;}
+}
+
 </style>
 </head>
 <body>
