@@ -759,6 +759,11 @@
   .recurring-pay-modal-card{max-height:90dvh!important}
 }
 
+
+/* Recurring payment rows: payment is the primary action; deletion is intentionally not shown here. */
+.recurring-pay-arrow{width:24px;height:32px;display:grid;place-items:center;color:var(--text-muted);font-size:24px;font-weight:400;line-height:1}
+.recurring-item:hover .recurring-pay-arrow{color:var(--accent-blue)}
+
 /* ===== CREDIT CARD TRACKER + TRANSACTION SEARCH ===== */
 .credit-card-dashboard{margin-top:12px;border-radius:20px;padding:14px;min-width:0;overflow:hidden}
 .credit-head{display:flex;align-items:center;gap:10px;min-width:0}
@@ -4086,37 +4091,67 @@ async function markRecurringPaymentPaid(){
   var date=(document.getElementById('recurringPayDate')||{}).value||getLocalDateString();
   var method=(document.getElementById('recurringPayMethod')||{}).value||'';
   var btn=document.getElementById('recurringPayBtn');
-  if(!item){closeRecurringPayModal();return;}
+
+  if(!item){
+    alert('Recurring payment could not be found. Please close and open it again.');
+    return;
+  }
   if(!method){alert('Please select a payment method.');return;}
   if(!date){alert('Please select the payment date.');return;}
-  if(btn){btn.disabled=true;btn.textContent='Logging expense...';}
-  try{
-    var response=await fetch(URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({
-      action:'markRecurringPaid',id:id,paidDate:date,paymentMethod:method,
-      user:(document.getElementById('globalUserSelect')||{}).value||'Jebel'
-    })});
-    if(!response.ok)throw new Error('HTTP '+response.status);
-    var result=await response.json();
-    if(result.result!=='success')throw new Error(result.message||'Unable to mark payment paid');
 
-    // Reflect the confirmed server transaction immediately in the UI.
+  if(btn){btn.disabled=true;btn.textContent='Saving expense…';}
+
+  try{
+    var controller=new AbortController();
+    var timeout=setTimeout(function(){controller.abort();},15000);
+    var response=await fetch(URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({
+        action:'markRecurringPaid',
+        id:id,
+        paidDate:date,
+        paymentMethod:method,
+        user:(document.getElementById('globalUserSelect')||{}).value||'Jebel'
+      }),
+      signal:controller.signal
+    });
+    clearTimeout(timeout);
+
+    if(!response.ok) throw new Error('Google Sheets returned HTTP '+response.status);
+    var result=await response.json();
+    if(result.result!=='success'){
+      throw new Error(result.message||'The Apps Script backend did not complete the payment.');
+    }
+
+    // The server has atomically created the Expense and advanced the recurring due date.
+    // Reflect that confirmed result locally so the dashboard updates immediately.
+    var selectedUser=(document.getElementById('globalUserSelect')||{}).value||'Jebel';
     if(!Array.isArray(allTransactions))allTransactions=[];
     if(!allTransactions.length||!Array.isArray(allTransactions[0])){
       allTransactions.unshift(['Date','Type','Category','Amount','Description','User','Project','Receipt','Odometer','Litres','Payment Method']);
     }
-    allTransactions.push([date,'Expense',item.category||'Bills',Number(item.amount)||0,'Recurring: '+(item.name||''),(document.getElementById('globalUserSelect')||{}).value||'Jebel','General','','','',''+method]);
+    allTransactions.push([
+      date,'Expense',item.category||'Bills',Number(item.amount)||0,
+      'Recurring: '+(item.name||''),selectedUser,'General','','','',''+method
+    ]);
     localStorage.setItem('trackerData',JSON.stringify(allTransactions));
     invalidateDataIndex();rebuildDataIndex();calculateTopBalance();
 
     item.lastPaid=result.paidDate||date;
     item.lastPaymentMethod=result.paymentMethod||method;
     item.due=String(result.nextDue||item.due||'').slice(0,10);
-    saveRecurringStore();renderRecurringPayments();
+    saveRecurringStore();
+    renderRecurringPayments();
     closeRecurringPayModal();
     generateInsights();
+
   }catch(e){
     console.error('Recurring payment mark-paid failed:',e);
-    alert('Could not mark this recurring payment as paid.\n\n'+(e&&e.name==='AbortError'?'Request timed out. Please try again.':e.message));
+    var msg=e&&e.name==='AbortError'
+      ? 'The request timed out. No local changes were made. Please check that the latest Apps Script deployment is active and try again.'
+      : (e&&e.message?e.message:'Unknown error');
+    alert('Could not mark this payment as paid.\n\n'+msg);
     if(btn){btn.disabled=false;btn.textContent='Mark Paid & Log Expense';}
   }
 }
@@ -4193,9 +4228,9 @@ function renderRecurringPayments(){
     if(x.lastPaid)meta+=' · Last paid '+tab4Escape(recurringDueText(x.lastPaid));
     return '<div class="recurring-item" onclick="openRecurringPayModal('+JSON.stringify(String(x.id))+')" role="button" tabindex="0" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openRecurringPayModal('+JSON.stringify(String(x.id))+')}" aria-label="Pay '+tab4Escape(x.name)+'">'
       +'<div class="recurring-item-icon '+due.cls+'">'+icon+'</div>'
-      +'<div class="recurring-main"><div class="recurring-name">'+tab4Escape(x.name)+'</div><div class="recurring-meta">'+meta+'</div><span class="recurring-due-pill '+due.cls+'">'+due.text+'</span><div class="recurring-pay-hint">Pay &amp; log expense</div></div>'
+      +'<div class="recurring-main"><div class="recurring-name">'+tab4Escape(x.name)+'</div><div class="recurring-meta">'+meta+'</div><span class="recurring-due-pill '+due.cls+'">'+due.text+'</span><div class="recurring-pay-hint">Tap to mark paid &amp; log expense</div></div>'
       +'<div class="recurring-amount">'+recurringMoney(x.amount)+'</div>'
-      +'<button class="recurring-delete" onclick="event.stopPropagation();deleteRecurringPayment('+JSON.stringify(String(x.id))+')" aria-label="Delete '+tab4Escape(x.name)+'">×</button>'
+      +'<div class="recurring-pay-arrow" aria-hidden="true">›</div>'
       +'</div>';
   }).join('');
   if(sorted.length>5)box.innerHTML+='<div class="recurring-more">Showing 5 upcoming · '+(sorted.length-5)+' more payment'+(sorted.length-5===1?'':'s')+'</div>';
