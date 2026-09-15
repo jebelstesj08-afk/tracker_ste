@@ -1259,7 +1259,8 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         <option value="Entertainment">Entertainment</option>
         <option value="Shopping">Shopping</option>
         <option value="Personal Care">Personal Care</option>
-                <option value="Credit Card Repayment">Credit Card Repayment</option>
+        <option value="Credit Card">Credit Card</option>
+        <option value="Credit Card Repayment">Credit Card Repayment</option>
         <option value="Subscription">Subscription</option>
         <option value="Education">Education</option>
         <option value="Debt / Loan EMI">Debt / Loan EMI</option>
@@ -2378,7 +2379,8 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       <option value="Entertainment">Entertainment</option>
       <option value="Shopping">Shopping</option>
       <option value="Personal Care">Personal Care</option>
-            <option value="Credit Card Repayment">Credit Card Repayment</option>
+      <option value="Credit Card">Credit Card</option>
+      <option value="Credit Card Repayment">Credit Card Repayment</option>
       <option value="Subscription">Subscription</option>
       <option value="Education">Education</option>
       <option value="Debt / Loan EMI">Debt / Loan EMI</option>
@@ -2969,17 +2971,34 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       return d;
     }
 
+    // Overall Balance rule:
+    // - Credit Card Repayment ALWAYS counts as an expense.
+    // - Any other transaction paid by a credit card does NOT reduce cash balance.
+    // - Cash/UPI/Paytm/Cred/etc. expenses DO reduce cash balance.
+    function isCreditCardPaymentMethod(paymentMethod) {
+      const p = String(paymentMethod == null ? '' : paymentMethod).trim().toLowerCase();
+      return /credit|\bcc\b/.test(p);
+    }
+
     function isBalanceExpense(tx) {
       if (!tx) return false;
       const type = typeof tx === 'string' ? tx : tx.type;
       const category = typeof tx === 'string' ? '' : String(tx.cat || tx.category || '').trim().toLowerCase();
-      return (type === 'Expense' || type === 'Fuel' || type === 'Service') && category !== 'credit card';
+      const paymentMethod = typeof tx === 'string' ? '' : tx.paymentMethod;
+
+      if (category === 'credit card repayment') return true;
+      if (type !== 'Expense' && type !== 'Fuel' && type !== 'Service') return false;
+      return !isCreditCardPaymentMethod(paymentMethod);
     }
 
     function isBalanceExpenseRow(row) {
       const type = normalizeTransactionType(row[1]);
       const category = String(row[2] == null ? '' : row[2]).trim().toLowerCase();
-      return (type === 'Expense' || type === 'Fuel' || type === 'Service') && category !== 'credit card';
+      const paymentMethod = String(row[10] == null ? '' : row[10]).trim();
+
+      if (category === 'credit card repayment') return true;
+      if (type !== 'Expense' && type !== 'Fuel' && type !== 'Service') return false;
+      return !isCreditCardPaymentMethod(paymentMethod);
     }
 
     function calculateTopBalance() {
