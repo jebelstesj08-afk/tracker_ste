@@ -1260,6 +1260,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         <option value="Shopping">Shopping</option>
         <option value="Personal Care">Personal Care</option>
         <option value="Credit Card">Credit Card</option>
+        <option value="Credit Card Repayment">Credit Card Repayment</option>
         <option value="Subscription">Subscription</option>
         <option value="Education">Education</option>
         <option value="Debt / Loan EMI">Debt / Loan EMI</option>
@@ -2379,6 +2380,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       <option value="Shopping">Shopping</option>
       <option value="Personal Care">Personal Care</option>
       <option value="Credit Card">Credit Card</option>
+      <option value="Credit Card Repayment">Credit Card Repayment</option>
       <option value="Subscription">Subscription</option>
       <option value="Education">Education</option>
       <option value="Debt / Loan EMI">Debt / Loan EMI</option>
@@ -2491,6 +2493,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       // you can switch to the other person or to the combined "Us" view.
       applyGlobalUser(selectedUser, true);
       generateInsights();
+      loadRecurringPayments();
     }
 
     function applyGlobalUser(user, setInsightsDefault) {
@@ -2968,6 +2971,19 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       return d;
     }
 
+    function isBalanceExpense(tx) {
+      if (!tx) return false;
+      const type = typeof tx === 'string' ? tx : tx.type;
+      const category = typeof tx === 'string' ? '' : String(tx.cat || tx.category || '').trim().toLowerCase();
+      return (type === 'Expense' || type === 'Fuel' || type === 'Service') && category !== 'credit card';
+    }
+
+    function isBalanceExpenseRow(row) {
+      const type = normalizeTransactionType(row[1]);
+      const category = String(row[2] == null ? '' : row[2]).trim().toLowerCase();
+      return (type === 'Expense' || type === 'Fuel' || type === 'Service') && category !== 'credit card';
+    }
+
     function calculateTopBalance() {
       rebuildDataIndex();
       let totalInc = 0, totalExp = 0, totalSav = 0;
@@ -2975,7 +2991,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         const type = normalizeTransactionType(row[1]);
         const amount = parseTransactionAmount(row[3]);
         if (type === 'Income') totalInc += amount;
-        else if (type === 'Expense' || type === 'Fuel' || type === 'Service') totalExp += amount;
+        else if (isBalanceExpenseRow(row)) totalExp += amount;
         else if (type === 'Savings') totalSav += amount;
       }
       const el = document.getElementById('topBalance');
@@ -3396,7 +3412,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         if (!map[key]) map[key] = { label: d.toLocaleDateString('en-IN', { month:'short' }), income:0, expense:0, savings:0, count:0 };
         map[key].count++;
         if (tx.type === 'Income') map[key].income += tx.amount;
-        else if (tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') map[key].expense += tx.amount;
+        else if (isBalanceExpense(tx)) map[key].expense += tx.amount;
         else if (tx.type === 'Savings') map[key].savings += tx.amount;
       });
       return Object.keys(map).sort().map(k => ({key:k, ...map[k]}));
@@ -3492,7 +3508,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       if(bl) bl.innerHTML=budgetEntries.length ? budgetEntries.map(([name,amt])=>`<div class="budget-row"><div><div class="budget-name">${name}</div><div class="budget-mini-track"><span style="width:${Math.min(100,amt/monthlyBudget*100)}%"></span></div></div><div class="budget-amt">${formatINR(amt)}</div></div>`).join('') : '<div class="insight-empty">No spending data yet.</div>';
 
       const payments={};
-      txs.filter(t=>t.type==='Expense'||t.type==='Fuel'||t.type==='Service').forEach(t=>{ const key=t.paymentMethod||'Not specified'; payments[key]=(payments[key]||0)+t.amount; });
+      txs.filter(isBalanceExpense).forEach(t=>{ const key=t.paymentMethod||'Not specified'; payments[key]=(payments[key]||0)+t.amount; });
       const payEntries=Object.entries(payments).sort((a,b)=>b[1]-a[1]).slice(0,5);
       const payList=document.getElementById('paymentAnalyticsList');
       set('paymentTotalLabel', formatINR(totalExp));
@@ -3525,7 +3541,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 
         txs.forEach(tx => {
           if (tx.type === 'Income') { totalInc += tx.amount; incomeTxs.push(tx); }
-          else if (tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service') {
+          else if (isBalanceExpense(tx)) {
             totalExp += tx.amount; expenseTxs.push(tx);
             const displayCat = (tx.type === 'Fuel' || tx.type === 'Service') ? `Veh - ${tx.cat || 'Vehicle'}` : (tx.cat || 'Uncategorised');
             expenseCategories[displayCat] = (expenseCategories[displayCat] || 0) + tx.amount;
@@ -3645,7 +3661,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       if(!modal||!list)return;
       const {txs,selectedUser,timeRange}=getInsightTransactions();
       const income=txs.filter(t=>t.type==='Income');
-      const outgoing=txs.filter(t=>t.type==='Expense'||t.type==='Fuel'||t.type==='Service');
+      const outgoing=txs.filter(isBalanceExpense);
       const savings=txs.filter(t=>t.type==='Savings');
       const sum=a=>a.reduce((n,t)=>n+Number(t.amount||0),0);
       const inc=sum(income),exp=sum(outgoing),sav=sum(savings),cash=inc-exp,balance=cash-sav;
@@ -3699,7 +3715,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         ? txs.filter(tx => tx.type === 'Income')
         : type === 'Savings'
           ? txs.filter(tx => tx.type === 'Savings')
-          : txs.filter(tx => tx.type === 'Expense' || tx.type === 'Fuel' || tx.type === 'Service');
+          : txs.filter(isBalanceExpense);
 
       const total = wanted.reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
       if (title) title.textContent = type === 'Income' ? 'Income Records' : type === 'Savings' ? 'Savings Records' : 'Expense Records';
@@ -4046,28 +4062,47 @@ function recurringDueLabel(x){
 }
 
 async function loadRecurringPayments(){
+  var currentUser=getCurrentGlobalUser();
   try{
     recurringPayments=JSON.parse(localStorage.getItem('householdRecurringPayments')||'[]');
     if(!Array.isArray(recurringPayments)) recurringPayments=[];
+    // Legacy cached rows did not have User. Treat them as belonging to the
+    // currently selected user so an offline upgrade does not expose them to
+    // the wrong person.
+    recurringPayments=recurringPayments.map(function(x){
+      if(!String(x.user||'').trim()) x.user=currentUser;
+      return x;
+    });
   }catch(e){recurringPayments=[];}
   renderRecurringPayments();
   try{
-    var response=await fetch(URL+'?action=recurring&t='+Date.now(),{method:'GET',cache:'no-store',redirect:'follow'});
+    var response=await fetch(URL+'?action=recurring&user='+encodeURIComponent(currentUser)+'&t='+Date.now(),{method:'GET',cache:'no-store',redirect:'follow'});
     if(!response.ok)throw new Error('HTTP '+response.status);
     var result=await response.json();
     if(result.result!=='success')throw new Error(result.message||'Unable to load recurring payments');
-    recurringPayments=(result.data||[]).map(function(row){
+    var serverRows=(result.data||[]).map(function(row){
       return {
         id:String(row[0]||''),name:String(row[1]||''),amount:Number(row[2])||0,
         frequency:String(row[3]||'Monthly'),due:String(row[4]||'').slice(0,10),
         category:String(row[5]||'Bills'),lastPaid:String(row[7]||'').slice(0,10),
-        lastPaymentMethod:String(row[8]||'')
+        lastPaymentMethod:String(row[8]||''),user:String(row[9]||currentUser)
       };
     }).filter(function(x){return x.id||x.name;});
+    var otherUsers=recurringPayments.filter(function(x){
+      return String(x.user||'').trim().toLowerCase()!==currentUser.toLowerCase();
+    });
+    recurringPayments=otherUsers.concat(serverRows);
     saveRecurringStore();renderRecurringPayments();
   }catch(e){console.warn('Recurring payments: Google Sheets load failed; using local cache.',e);}
 }
 function saveRecurringStore(){localStorage.setItem('householdRecurringPayments',JSON.stringify(recurringPayments));}
+function getCurrentGlobalUser(){return (document.getElementById('globalUserSelect')||{}).value||'Jebel';}
+function filterRecurringPaymentsForCurrentUser(list){
+  var current=getCurrentGlobalUser().toLowerCase();
+  return (Array.isArray(list)?list:[]).filter(function(x){
+    return String(x.user||'').trim().toLowerCase()===current;
+  });
+}
 function openRecurringPayment(){
   var m=document.getElementById('recurringPaymentModal');
   if(m){m.classList.add('open');m.setAttribute('aria-hidden','false');}
@@ -4178,14 +4213,15 @@ async function saveRecurringPayment(){
   var category=(document.getElementById('recurringCategory')||{}).value||'Bills';
   var btn=document.querySelector('#recurringPaymentModal .recurring-save-btn');
   if(!name.trim()||amount<=0||!due){alert('Please enter a name, amount and next due date.');return;}
-  var payment={id:'RP-'+Date.now(),name:name.trim(),amount:amount,frequency:frequency,nextDue:due,category:category.trim()||'Bills'};
+  var currentUser=getCurrentGlobalUser();
+   var payment={id:'RP-'+Date.now(),name:name.trim(),amount:amount,frequency:frequency,nextDue:due,category:category.trim()||'Bills',user:currentUser};
   if(btn){btn.disabled=true;btn.textContent='Saving...';}
   try{
     var controller=new AbortController(),timeout=setTimeout(function(){controller.abort();},15000);
     var response=await fetch(URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'saveRecurringPayment',payment:payment}),signal:controller.signal});
     clearTimeout(timeout);if(!response.ok)throw new Error('HTTP '+response.status);
     var result=await response.json();if(result.result!=='success')throw new Error(result.message||'Unable to save recurring payment');
-    recurringPayments.push({id:String(result.id||payment.id),name:payment.name,amount:payment.amount,frequency:payment.frequency,due:payment.nextDue,category:payment.category,lastPaid:'',lastPaymentMethod:''});
+    recurringPayments.push({id:String(result.id||payment.id),name:payment.name,amount:payment.amount,frequency:payment.frequency,due:payment.nextDue,category:payment.category,lastPaid:'',lastPaymentMethod:'',user:currentUser});
     saveRecurringStore();renderRecurringPayments();closeRecurringPayment();
     ['recurringName','recurringAmount','recurringDue','recurringCategory'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
   }catch(e){console.error('Recurring payment save failed:',e);alert('Could not save recurring payment to Google Sheets.\n\n'+(e&&e.name==='AbortError'?'Request timed out. Please check your internet connection and try again.':e.message));}
@@ -4214,9 +4250,11 @@ function recurringIconFor(x){
 }
 function renderRecurringPayments(){
   var box=document.getElementById('recurringPaymentsList');if(!box)return;
+  var visibleUser=getCurrentGlobalUser();
+  var visiblePayments=filterRecurringPaymentsForCurrentUser(recurringPayments);
   var monthly=0,upcoming=0,now=new Date();now.setHours(0,0,0,0);
   var cutoff=new Date(now.getTime()+30*86400000);
-  recurringPayments.forEach(function(x){
+  visiblePayments.forEach(function(x){
     var a=Number(x.amount)||0;
     if(x.frequency==='Monthly')monthly+=a;
     else if(x.frequency==='Weekly')monthly+=a*52/12;
@@ -4229,11 +4267,11 @@ function renderRecurringPayments(){
   if(uc)uc.textContent=String(upcoming);
   var hint=document.getElementById('recurringUpcomingHint');
   if(hint)hint.textContent=recurringPayments.length?'Tap a payment to pay & log expense':'Add your first recurring payment';
-  if(!recurringPayments.length){
+  if(!visiblePayments.length){
     box.innerHTML='<div class="recurring-empty">No recurring payments yet.<br>Tap <b>+</b> to add your first bill or subscription.</div>';
     return;
   }
-  var sorted=recurringPayments.slice().sort(function(a,b){
+  var sorted=visiblePayments.slice().sort(function(a,b){
     return recurringDaysFromToday(a.due)-recurringDaysFromToday(b.due);
   });
   var visible=sorted.slice(0,5);
