@@ -1406,19 +1406,33 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       </div>
 
       <section class="insights-card recurring-top-card">
-        <div class="tab4-feature-head">
-          <div class="tab4-feature-icon">↻</div>
-          <div class="tab4-feature-copy">
-            <div class="tab4-feature-title">Recurring Payments</div>
-            <div class="tab4-feature-sub">Bills and regular commitments</div>
+        <div class="recurring-card-inner">
+          <div class="recurring-hero-head">
+            <div class="recurring-hero-icon">↻</div>
+            <div class="recurring-hero-copy">
+              <div class="recurring-hero-title">Recurring Payments</div>
+              <div class="recurring-hero-sub">Your upcoming bills, ready to pay in one tap</div>
+            </div>
+            <button type="button" class="tab4-add-btn recurring-add-btn" onclick="openRecurringPayment()" aria-label="Add recurring payment">＋</button>
           </div>
-          <button type="button" class="tab4-add-btn" onclick="openRecurringPayment()" aria-label="Add recurring payment">＋</button>
+          <div class="recurring-summary-strip">
+            <div class="recurring-summary-box">
+              <div class="recurring-summary-label">Monthly commitment</div>
+              <div class="recurring-summary-value" id="recurringMonthlyTotal">₹0</div>
+              <div class="recurring-summary-note">Estimated recurring outflow</div>
+            </div>
+            <div class="recurring-summary-box">
+              <div class="recurring-summary-label">Next 30 days</div>
+              <div class="recurring-summary-value" id="recurringUpcomingCount">0</div>
+              <div class="recurring-summary-note">Payments due</div>
+            </div>
+          </div>
+          <div class="recurring-upcoming-label">
+            <strong>Upcoming payments</strong>
+            <span>Tap a payment to mark it paid</span>
+          </div>
+          <div id="recurringPaymentsList" class="safe-list"></div>
         </div>
-        <div class="recurring-overview">
-          <div><span>Monthly estimate</span><strong id="recurringMonthlyTotal">₹0</strong></div>
-          <div><span>Due in 30 days</span><strong id="recurringUpcomingCount">0</strong></div>
-        </div>
-        <div id="recurringPaymentsList" class="safe-list"></div>
       </section>
 
       <div class="insights-lower">
@@ -1599,6 +1613,48 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
   </div>
 
  
+
+
+      <div id="recurringPaymentPayModal" class="recurring-modal" aria-hidden="true">
+        <div class="recurring-modal-card recurring-pay-modal-card">
+          <div class="recurring-modal-head">
+            <div>
+              <div class="insights-panel-title">Mark as Paid</div>
+              <div class="insights-panel-sub">The payment will be logged as an Expense</div>
+            </div>
+            <button type="button" class="recurring-close-btn" onclick="closeRecurringPayModal()">×</button>
+          </div>
+          <div class="recurring-pay-hero">
+            <div class="recurring-pay-name" id="recurringPayName">Recurring Payment</div>
+            <div class="recurring-pay-amount" id="recurringPayAmount">₹0</div>
+            <div class="recurring-pay-meta" id="recurringPayMeta">—</div>
+          </div>
+          <div class="recurring-pay-info">
+            <div><span>Category</span><strong id="recurringPayCategory">Bills</strong></div>
+            <div><span>Current due</span><strong id="recurringPayDue">—</strong></div>
+          </div>
+          <div class="recurring-form">
+            <label>Payment Date<input id="recurringPayDate" type="date"></label>
+            <label>Payment Method
+              <select id="recurringPayMethod">
+                <option value="" disabled selected>Select payment method...</option>
+                <option value="Cash">Cash</option>
+                <option value="Google pay upi">Google pay upi</option>
+                <option value="Axis my zone cc">Axis my zone cc</option>
+                <option value="Axis flipkart cc">Axis flipkart cc</option>
+                <option value="Axis indianoil cc">Axis indianoil cc</option>
+                <option value="Hdfc moneyback cc">Hdfc moneyback cc</option>
+                <option value="Icici amazon pay cc">Icici amazon pay cc</option>
+                <option value="Paytm">Paytm</option>
+                <option value="Cred">Cred</option>
+                <option value="Hdfc Rupay cc">Hdfc Rupay cc</option>
+              </select>
+            </label>
+          </div>
+          <div class="recurring-pay-warning">This creates an <b>Expense</b> in your transaction history using the recurring payment's category and amount, then moves its next due date to the next cycle.</div>
+          <button type="button" id="recurringPayBtn" class="recurring-save-btn recurring-pay-btn" onclick="markRecurringPaymentPaid()">Mark Paid &amp; Log Expense</button>
+        </div>
+      </div>
 
   <!-- VEHICLE FUEL HISTORY MODAL -->
   <div id="fuelVehicleHistoryModal" class="modal-overlay" onclick="closeFuelVehicleHistory(event)">
@@ -3861,64 +3917,127 @@ function getCardSpend(name){
 
 /* ===== RECURRING PAYMENTS + SPENDING CALENDAR ===== */
 var recurringPayments = [];
+var recurringPayTargetId = null;
 var spendingCalendarDate = new Date();
 
 function tab4Escape(v){
   return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+function recurringMoney(n){return '₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});}
+function recurringDateObj(v){
+  if(!v)return null;
+  var d=new Date(String(v).slice(0,10)+'T00:00:00');
+  return isNaN(d.getTime())?null:d;
+}
+function recurringDaysFromToday(v){
+  var d=recurringDateObj(v);if(!d)return 99999;
+  var now=new Date();now.setHours(0,0,0,0);
+  return Math.round((d-now)/86400000);
+}
+function recurringDueText(v){
+  var d=recurringDateObj(v);return d?d.toLocaleDateString('en-IN',{day:'2-digit',month:'short'}):'No date';
+}
+function recurringDueLabel(x){
+  var days=recurringDaysFromToday(x.due);
+  if(days<0)return {text:'Overdue '+Math.abs(days)+'d',cls:'overdue'};
+  if(days===0)return {text:'Due today',cls:'soon'};
+  if(days===1)return {text:'Due tomorrow',cls:'soon'};
+  if(days<=7)return {text:'Due in '+days+'d',cls:'soon'};
+  return {text:'Due '+recurringDueText(x.due),cls:''};
+}
+
 async function loadRecurringPayments(){
-  // Render the last cached copy immediately.
   try{
     recurringPayments=JSON.parse(localStorage.getItem('householdRecurringPayments')||'[]');
     if(!Array.isArray(recurringPayments)) recurringPayments=[];
-  }catch(e){
-    recurringPayments=[];
-  }
+  }catch(e){recurringPayments=[];}
   renderRecurringPayments();
-
-  // Then replace it with the latest Google Sheets copy.
   try{
-    var response=await fetch(URL+'?action=recurring&t='+Date.now(),{
-      method:'GET',
-      cache:'no-store',
-      redirect:'follow'
-    });
-    if(!response.ok) throw new Error('HTTP '+response.status);
+    var response=await fetch(URL+'?action=recurring&t='+Date.now(),{method:'GET',cache:'no-store',redirect:'follow'});
+    if(!response.ok)throw new Error('HTTP '+response.status);
     var result=await response.json();
-    if(result.result!=='success') throw new Error(result.message||'Unable to load recurring payments');
-
+    if(result.result!=='success')throw new Error(result.message||'Unable to load recurring payments');
     recurringPayments=(result.data||[]).map(function(row){
       return {
-        id:String(row[0]||''),
-        name:String(row[1]||''),
-        amount:Number(row[2])||0,
-        frequency:String(row[3]||'Monthly'),
-        due:String(row[4]||'').slice(0,10),
-        category:String(row[5]||'Bills')
+        id:String(row[0]||''),name:String(row[1]||''),amount:Number(row[2])||0,
+        frequency:String(row[3]||'Monthly'),due:String(row[4]||'').slice(0,10),
+        category:String(row[5]||'Bills'),lastPaid:String(row[7]||'').slice(0,10),
+        lastPaymentMethod:String(row[8]||'')
       };
     }).filter(function(x){return x.id||x.name;});
-
-    saveRecurringStore();
-    renderRecurringPayments();
-  }catch(e){
-    console.warn('Recurring payments: Google Sheets load failed; using local cache.',e);
-  }
+    saveRecurringStore();renderRecurringPayments();
+  }catch(e){console.warn('Recurring payments: Google Sheets load failed; using local cache.',e);}
 }
-
-function saveRecurringStore(){
-  localStorage.setItem('householdRecurringPayments',JSON.stringify(recurringPayments));
-}
-
+function saveRecurringStore(){localStorage.setItem('householdRecurringPayments',JSON.stringify(recurringPayments));}
 function openRecurringPayment(){
   var m=document.getElementById('recurringPaymentModal');
   if(m){m.classList.add('open');m.setAttribute('aria-hidden','false');}
 }
-
 function closeRecurringPayment(){
   var m=document.getElementById('recurringPaymentModal');
   if(m){m.classList.remove('open');m.setAttribute('aria-hidden','true');}
 }
+function openRecurringPayModal(id){
+  var key=String(id), item=recurringPayments.find(function(x){return String(x.id)===key;});
+  if(!item)return;
+  recurringPayTargetId=key;
+  var set=function(id,val){var e=document.getElementById(id);if(e)e.textContent=val;};
+  set('recurringPayName',item.name||'Recurring Payment');
+  set('recurringPayAmount',recurringMoney(item.amount));
+  set('recurringPayMeta',(item.frequency||'Monthly')+' · will be logged as Expense');
+  set('recurringPayCategory',item.category||'Bills');
+  set('recurringPayDue',recurringDueText(item.due));
+  var date=document.getElementById('recurringPayDate');if(date)date.value=getLocalDateString();
+  var method=document.getElementById('recurringPayMethod');if(method)method.selectedIndex=0;
+  var btn=document.getElementById('recurringPayBtn');if(btn){btn.disabled=false;btn.textContent='Mark Paid & Log Expense';}
+  var m=document.getElementById('recurringPaymentPayModal');
+  if(m){m.classList.add('open');m.setAttribute('aria-hidden','false');}
+}
+function closeRecurringPayModal(){
+  var m=document.getElementById('recurringPaymentPayModal');
+  if(m){m.classList.remove('open');m.setAttribute('aria-hidden','true');}
+  recurringPayTargetId=null;
+}
+async function markRecurringPaymentPaid(){
+  var id=String(recurringPayTargetId||'');
+  var item=recurringPayments.find(function(x){return String(x.id)===id;});
+  var date=(document.getElementById('recurringPayDate')||{}).value||getLocalDateString();
+  var method=(document.getElementById('recurringPayMethod')||{}).value||'';
+  var btn=document.getElementById('recurringPayBtn');
+  if(!item){closeRecurringPayModal();return;}
+  if(!method){alert('Please select a payment method.');return;}
+  if(!date){alert('Please select the payment date.');return;}
+  if(btn){btn.disabled=true;btn.textContent='Logging expense...';}
+  try{
+    var response=await fetch(URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({
+      action:'markRecurringPaid',id:id,paidDate:date,paymentMethod:method,
+      user:(document.getElementById('globalUserSelect')||{}).value||'Jebel'
+    })});
+    if(!response.ok)throw new Error('HTTP '+response.status);
+    var result=await response.json();
+    if(result.result!=='success')throw new Error(result.message||'Unable to mark payment paid');
 
+    // Reflect the confirmed server transaction immediately in the UI.
+    if(!Array.isArray(allTransactions))allTransactions=[];
+    if(!allTransactions.length||!Array.isArray(allTransactions[0])){
+      allTransactions.unshift(['Date','Type','Category','Amount','Description','User','Project','Receipt','Odometer','Litres','Payment Method']);
+    }
+    allTransactions.push([date,'Expense',item.category||'Bills',Number(item.amount)||0,'Recurring: '+(item.name||''),(document.getElementById('globalUserSelect')||{}).value||'Jebel','General','','','',''+method]);
+    localStorage.setItem('trackerData',JSON.stringify(allTransactions));
+    invalidateDataIndex();rebuildDataIndex();calculateTopBalance();
+
+    item.lastPaid=result.paidDate||date;
+    item.lastPaymentMethod=result.paymentMethod||method;
+    item.due=String(result.nextDue||item.due||'').slice(0,10);
+    saveRecurringStore();renderRecurringPayments();
+    closeRecurringPayModal();
+    generateInsights();
+  }catch(e){
+    console.error('Recurring payment mark-paid failed:',e);
+    alert('Could not mark this recurring payment as paid.\n\n'+(e&&e.name==='AbortError'?'Request timed out. Please try again.':e.message));
+    if(btn){btn.disabled=false;btn.textContent='Mark Paid & Log Expense';}
+  }
+}
 async function saveRecurringPayment(){
   var name=(document.getElementById('recurringName')||{}).value||'';
   var amount=parseFloat((document.getElementById('recurringAmount')||{}).value)||0;
@@ -3926,139 +4045,56 @@ async function saveRecurringPayment(){
   var due=(document.getElementById('recurringDue')||{}).value||'';
   var category=(document.getElementById('recurringCategory')||{}).value||'Bills';
   var btn=document.querySelector('#recurringPaymentModal .recurring-save-btn');
-
-  if(!name.trim()||amount<=0||!due){
-    alert('Please enter a name, amount and next due date.');
-    return;
-  }
-
-  var payment={
-    id:'RP-'+Date.now(),
-    name:name.trim(),
-    amount:amount,
-    frequency:frequency,
-    nextDue:due,
-    category:category.trim()||'Bills'
-  };
-
-  if(btn){
-    btn.disabled=true;
-    btn.textContent='Saving...';
-  }
-
+  if(!name.trim()||amount<=0||!due){alert('Please enter a name, amount and next due date.');return;}
+  var payment={id:'RP-'+Date.now(),name:name.trim(),amount:amount,frequency:frequency,nextDue:due,category:category.trim()||'Bills'};
+  if(btn){btn.disabled=true;btn.textContent='Saving...';}
   try{
-    var controller=new AbortController();
-    var timeout=setTimeout(function(){controller.abort();},15000);
-
-    var response=await fetch(URL,{
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({
-        action:'saveRecurringPayment',
-        payment:payment
-      }),
-      signal:controller.signal
-    });
-
-    clearTimeout(timeout);
-
-    if(!response.ok) throw new Error('HTTP '+response.status);
-    var result=await response.json();
-    if(result.result!=='success') throw new Error(result.message||'Unable to save recurring payment');
-
-    recurringPayments.push({
-      id:String(result.id||payment.id),
-      name:payment.name,
-      amount:payment.amount,
-      frequency:payment.frequency,
-      due:payment.nextDue,
-      category:payment.category
-    });
-
-    saveRecurringStore();
-    renderRecurringPayments();
-    closeRecurringPayment();
-
-    ['recurringName','recurringAmount','recurringDue','recurringCategory'].forEach(function(id){
-      var e=document.getElementById(id);
-      if(e)e.value='';
-    });
-
-  }catch(e){
-    console.error('Recurring payment save failed:',e);
-    alert('Could not save recurring payment to Google Sheets.\n\n'+(e&&e.name==='AbortError'?'Request timed out. Please check your internet connection and try again.':e.message));
-  }finally{
-    if(btn){
-      btn.disabled=false;
-      btn.textContent='Save Payment';
-    }
-  }
+    var controller=new AbortController(),timeout=setTimeout(function(){controller.abort();},15000);
+    var response=await fetch(URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'saveRecurringPayment',payment:payment}),signal:controller.signal});
+    clearTimeout(timeout);if(!response.ok)throw new Error('HTTP '+response.status);
+    var result=await response.json();if(result.result!=='success')throw new Error(result.message||'Unable to save recurring payment');
+    recurringPayments.push({id:String(result.id||payment.id),name:payment.name,amount:payment.amount,frequency:payment.frequency,due:payment.nextDue,category:payment.category,lastPaid:'',lastPaymentMethod:''});
+    saveRecurringStore();renderRecurringPayments();closeRecurringPayment();
+    ['recurringName','recurringAmount','recurringDue','recurringCategory'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+  }catch(e){console.error('Recurring payment save failed:',e);alert('Could not save recurring payment to Google Sheets.\n\n'+(e&&e.name==='AbortError'?'Request timed out. Please check your internet connection and try again.':e.message));}
+  finally{if(btn){btn.disabled=false;btn.textContent='Save Payment';}}
 }
-
 async function deleteRecurringPayment(id){
-  var key=String(id);
-  var item=recurringPayments.find(function(x){return String(x.id)===key;});
-  if(!item)return;
-
+  var key=String(id),item=recurringPayments.find(function(x){return String(x.id)===key;});if(!item)return;
   if(!confirm('Delete recurring payment "'+(item.name||'this payment')+'"?'))return;
-
   try{
-    var controller=new AbortController();
-    var timeout=setTimeout(function(){controller.abort();},15000);
-
-    var response=await fetch(URL,{
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({
-        action:'deleteRecurringPayment',
-        id:key
-      }),
-      signal:controller.signal
-    });
-
-    clearTimeout(timeout);
-
-    if(!response.ok) throw new Error('HTTP '+response.status);
+    var controller=new AbortController(),timeout=setTimeout(function(){controller.abort();},15000);
+    var response=await fetch(URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'deleteRecurringPayment',id:key}),signal:controller.signal});
+    clearTimeout(timeout);if(!response.ok)throw new Error('HTTP '+response.status);
     var result=await response.json();
-
-    // A legacy local-only record may not exist in Sheets. In that case
-    // still remove it locally when the server explicitly says not found.
-    if(result.result!=='success' && String(result.message||'').indexOf('not found')===-1){
-      throw new Error(result.message||'Unable to delete recurring payment');
-    }
-
-    recurringPayments=recurringPayments.filter(function(x){return String(x.id)!==key;});
-    saveRecurringStore();
-    renderRecurringPayments();
-
-  }catch(e){
-    console.error('Recurring payment delete failed:',e);
-    alert('Could not delete recurring payment from Google Sheets.\n\n'+(e&&e.name==='AbortError'?'Request timed out. Please try again.':e.message));
-  }
+    if(result.result!=='success'&&String(result.message||'').indexOf('not found')===-1)throw new Error(result.message||'Unable to delete recurring payment');
+    recurringPayments=recurringPayments.filter(function(x){return String(x.id)!==key;});saveRecurringStore();renderRecurringPayments();
+  }catch(e){console.error('Recurring payment delete failed:',e);alert('Could not delete recurring payment from Google Sheets.\n\n'+(e&&e.name==='AbortError'?'Request timed out. Please try again.':e.message));}
 }
 function renderRecurringPayments(){
   var box=document.getElementById('recurringPaymentsList');if(!box)return;
-  var monthly=0,upcoming=0,now=new Date();now.setHours(0,0,0,0);
+  var monthly=0,upcoming=0,now=new Date();now.setHours(0,0,0,0),cutoff=new Date(now.getTime()+30*86400000);
   recurringPayments.forEach(function(x){
     var a=Number(x.amount)||0;
-    if(x.frequency==='Monthly')monthly+=a;
-    else if(x.frequency==='Weekly')monthly+=a*52/12;
-    else if(x.frequency==='Yearly')monthly+=a/12;
-    var due=new Date((x.due||'')+'T00:00:00');
-    if(x.due&&due>=now&&due<=new Date(now.getTime()+30*86400000))upcoming++;
+    if(x.frequency==='Monthly')monthly+=a;else if(x.frequency==='Weekly')monthly+=a*52/12;else if(x.frequency==='Yearly')monthly+=a/12;
+    var due=recurringDateObj(x.due);if(due&&due>=now&&due<=cutoff)upcoming++;
   });
   var mt=document.getElementById('recurringMonthlyTotal'),uc=document.getElementById('recurringUpcomingCount');
-  if(mt)mt.textContent='₹'+Math.round(monthly).toLocaleString('en-IN');
-  if(uc)uc.textContent=String(upcoming);
-  if(!recurringPayments.length){
-    box.innerHTML='<div class="calendar-summary">No recurring payments yet. Tap ＋ to add one.</div>';return;
-  }
-  var money=function(n){return '₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});};
-  box.innerHTML=recurringPayments.slice().sort(function(a,b){return String(a.due).localeCompare(String(b.due));}).map(function(x){
-    var d=new Date(x.due+'T00:00:00');
-    var due=d.toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
-    return '<div class="recurring-item"><div class="recurring-main"><div class="recurring-name">'+tab4Escape(x.name)+'</div><div class="recurring-meta">'+tab4Escape(x.category)+' · '+tab4Escape(x.frequency)+' · Due '+due+'</div></div><div class="recurring-amount">'+money(x.amount)+'</div><button class="recurring-delete" onclick="deleteRecurringPayment('+JSON.stringify(String(x.id))+')" aria-label="Delete">×</button></div>';
+  if(mt)mt.textContent=recurringMoney(Math.round(monthly));if(uc)uc.textContent=String(upcoming);
+  if(!recurringPayments.length){box.innerHTML='<div class="recurring-empty">No recurring payments yet.<br>Tap ＋ to add your first one.</div>';return;}
+  var sorted=recurringPayments.slice().sort(function(a,b){return recurringDaysFromToday(a.due)-recurringDaysFromToday(b.due);});
+  var visible=sorted.slice(0,5);
+  box.innerHTML=visible.map(function(x){
+    var due=recurringDueLabel(x), icon=/rent|house|home/i.test(x.name)?'⌂':/netflix|movie|music|subscription/i.test(x.name)?'▶':'↻';
+    var last=x.lastPaid?' · Last paid '+recurringDueText(x.lastPaid):'';
+    return '<div class="recurring-item" onclick="openRecurringPayModal('+JSON.stringify(String(x.id))+')" role="button" tabindex="0" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openRecurringPayModal('+JSON.stringify(String(x.id))+')}" aria-label="Mark '+tab4Escape(x.name)+' as paid">'
+      +'<div class="recurring-item-icon '+due.cls+'">'+icon+'</div>'
+      +'<div class="recurring-main"><div class="recurring-name">'+tab4Escape(x.name)+'</div><div class="recurring-meta">'+tab4Escape(x.category)+' · '+tab4Escape(x.frequency)+last+'</div><span class="recurring-due-pill '+due.cls+'">'+due.text+'</span><div class="recurring-pay-hint">Tap to pay &amp; log expense</div></div>'
+      +'<div class="recurring-amount">'+recurringMoney(x.amount)+'</div>'
+      +'<button class="recurring-delete" onclick="event.stopPropagation();deleteRecurringPayment('+JSON.stringify(String(x.id))+')" aria-label="Delete '+tab4Escape(x.name)+'">×</button>'
+      +'</div>';
   }).join('');
+  if(sorted.length>5)box.innerHTML+='<div class="recurring-more">Showing next 5 · '+(sorted.length-5)+' more recurring payment'+(sorted.length-5===1?'':'s')+'</div>';
 }
 function changeSpendingMonth(delta){
   spendingCalendarDate=new Date(spendingCalendarDate.getFullYear(),spendingCalendarDate.getMonth()+delta,1);
