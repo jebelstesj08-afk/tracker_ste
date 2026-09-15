@@ -1572,7 +1572,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
           <div class="recurring-modal-head">
             <div>
               <div class="insights-panel-title">Add Recurring Payment</div>
-              <div class="insights-panel-sub">Saved locally on this device</div>
+              <div class="insights-panel-sub">Synced with Google Sheets</div>
             </div>
             <button type="button" class="recurring-close-btn" onclick="closeRecurringPayment()">×</button>
           </div>
@@ -3862,34 +3862,175 @@ var spendingCalendarDate = new Date();
 function tab4Escape(v){
   return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-function loadRecurringPayments(){
-  try{recurringPayments=JSON.parse(localStorage.getItem('householdRecurringPayments')||'[]');}
-  catch(e){recurringPayments=[];}
+async function loadRecurringPayments(){
+  // Render the last cached copy immediately.
+  try{
+    recurringPayments=JSON.parse(localStorage.getItem('householdRecurringPayments')||'[]');
+    if(!Array.isArray(recurringPayments)) recurringPayments=[];
+  }catch(e){
+    recurringPayments=[];
+  }
   renderRecurringPayments();
+
+  // Then replace it with the latest Google Sheets copy.
+  try{
+    var response=await fetch(URL+'?action=recurring&t='+Date.now(),{
+      method:'GET',
+      cache:'no-store',
+      redirect:'follow'
+    });
+    if(!response.ok) throw new Error('HTTP '+response.status);
+    var result=await response.json();
+    if(result.result!=='success') throw new Error(result.message||'Unable to load recurring payments');
+
+    recurringPayments=(result.data||[]).map(function(row){
+      return {
+        id:String(row[0]||''),
+        name:String(row[1]||''),
+        amount:Number(row[2])||0,
+        frequency:String(row[3]||'Monthly'),
+        due:String(row[4]||'').slice(0,10),
+        category:String(row[5]||'Bills')
+      };
+    }).filter(function(x){return x.id||x.name;});
+
+    saveRecurringStore();
+    renderRecurringPayments();
+  }catch(e){
+    console.warn('Recurring payments: Google Sheets load failed; using local cache.',e);
+  }
 }
-function saveRecurringStore(){localStorage.setItem('householdRecurringPayments',JSON.stringify(recurringPayments));}
+
+function saveRecurringStore(){
+  localStorage.setItem('householdRecurringPayments',JSON.stringify(recurringPayments));
+}
+
 function openRecurringPayment(){
   var m=document.getElementById('recurringPaymentModal');
   if(m){m.classList.add('open');m.setAttribute('aria-hidden','false');}
 }
+
 function closeRecurringPayment(){
   var m=document.getElementById('recurringPaymentModal');
   if(m){m.classList.remove('open');m.setAttribute('aria-hidden','true');}
 }
-function saveRecurringPayment(){
+
+async function saveRecurringPayment(){
   var name=(document.getElementById('recurringName')||{}).value||'';
   var amount=parseFloat((document.getElementById('recurringAmount')||{}).value)||0;
   var frequency=(document.getElementById('recurringFrequency')||{}).value||'Monthly';
   var due=(document.getElementById('recurringDue')||{}).value||'';
   var category=(document.getElementById('recurringCategory')||{}).value||'Bills';
-  if(!name.trim()||amount<=0||!due){alert('Please enter a name, amount and next due date.');return;}
-  recurringPayments.push({id:Date.now(),name:name.trim(),amount:amount,frequency:frequency,due:due,category:category.trim()||'Bills'});
-  saveRecurringStore();renderRecurringPayments();closeRecurringPayment();
-  ['recurringName','recurringAmount','recurringDue','recurringCategory'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+  var btn=document.querySelector('#recurringPaymentModal .recurring-save-btn');
+
+  if(!name.trim()||amount<=0||!due){
+    alert('Please enter a name, amount and next due date.');
+    return;
+  }
+
+  var payment={
+    id:'RP-'+Date.now(),
+    name:name.trim(),
+    amount:amount,
+    frequency:frequency,
+    nextDue:due,
+    category:category.trim()||'Bills'
+  };
+
+  if(btn){
+    btn.disabled=true;
+    btn.textContent='Saving...';
+  }
+
+  try{
+    var controller=new AbortController();
+    var timeout=setTimeout(function(){controller.abort();},15000);
+
+    var response=await fetch(URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({
+        action:'saveRecurringPayment',
+        payment:payment
+      }),
+      signal:controller.signal
+    });
+
+    clearTimeout(timeout);
+
+    if(!response.ok) throw new Error('HTTP '+response.status);
+    var result=await response.json();
+    if(result.result!=='success') throw new Error(result.message||'Unable to save recurring payment');
+
+    recurringPayments.push({
+      id:String(result.id||payment.id),
+      name:payment.name,
+      amount:payment.amount,
+      frequency:payment.frequency,
+      due:payment.nextDue,
+      category:payment.category
+    });
+
+    saveRecurringStore();
+    renderRecurringPayments();
+    closeRecurringPayment();
+
+    ['recurringName','recurringAmount','recurringDue','recurringCategory'].forEach(function(id){
+      var e=document.getElementById(id);
+      if(e)e.value='';
+    });
+
+  }catch(e){
+    console.error('Recurring payment save failed:',e);
+    alert('Could not save recurring payment to Google Sheets.\n\n'+(e&&e.name==='AbortError'?'Request timed out. Please check your internet connection and try again.':e.message));
+  }finally{
+    if(btn){
+      btn.disabled=false;
+      btn.textContent='Save Payment';
+    }
+  }
 }
-function deleteRecurringPayment(id){
-  recurringPayments=recurringPayments.filter(function(x){return x.id!==id;});
-  saveRecurringStore();renderRecurringPayments();
+
+async function deleteRecurringPayment(id){
+  var key=String(id);
+  var item=recurringPayments.find(function(x){return String(x.id)===key;});
+  if(!item)return;
+
+  if(!confirm('Delete recurring payment "'+(item.name||'this payment')+'"?'))return;
+
+  try{
+    var controller=new AbortController();
+    var timeout=setTimeout(function(){controller.abort();},15000);
+
+    var response=await fetch(URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({
+        action:'deleteRecurringPayment',
+        id:key
+      }),
+      signal:controller.signal
+    });
+
+    clearTimeout(timeout);
+
+    if(!response.ok) throw new Error('HTTP '+response.status);
+    var result=await response.json();
+
+    // A legacy local-only record may not exist in Sheets. In that case
+    // still remove it locally when the server explicitly says not found.
+    if(result.result!=='success' && String(result.message||'').indexOf('not found')===-1){
+      throw new Error(result.message||'Unable to delete recurring payment');
+    }
+
+    recurringPayments=recurringPayments.filter(function(x){return String(x.id)!==key;});
+    saveRecurringStore();
+    renderRecurringPayments();
+
+  }catch(e){
+    console.error('Recurring payment delete failed:',e);
+    alert('Could not delete recurring payment from Google Sheets.\n\n'+(e&&e.name==='AbortError'?'Request timed out. Please try again.':e.message));
+  }
 }
 function renderRecurringPayments(){
   var box=document.getElementById('recurringPaymentsList');if(!box)return;
@@ -3912,7 +4053,7 @@ function renderRecurringPayments(){
   box.innerHTML=recurringPayments.slice().sort(function(a,b){return String(a.due).localeCompare(String(b.due));}).map(function(x){
     var d=new Date(x.due+'T00:00:00');
     var due=d.toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
-    return '<div class="recurring-item"><div class="recurring-main"><div class="recurring-name">'+tab4Escape(x.name)+'</div><div class="recurring-meta">'+tab4Escape(x.category)+' · '+tab4Escape(x.frequency)+' · Due '+due+'</div></div><div class="recurring-amount">'+money(x.amount)+'</div><button class="recurring-delete" onclick="deleteRecurringPayment('+x.id+')" aria-label="Delete">×</button></div>';
+    return '<div class="recurring-item"><div class="recurring-main"><div class="recurring-name">'+tab4Escape(x.name)+'</div><div class="recurring-meta">'+tab4Escape(x.category)+' · '+tab4Escape(x.frequency)+' · Due '+due+'</div></div><div class="recurring-amount">'+money(x.amount)+'</div><button class="recurring-delete" onclick="deleteRecurringPayment('+JSON.stringify(String(x.id))+')" aria-label="Delete">×</button></div>';
   }).join('');
 }
 function changeSpendingMonth(delta){
