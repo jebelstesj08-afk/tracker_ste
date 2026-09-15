@@ -1278,6 +1278,58 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 #Transactions{min-height:0!important;height:auto!important;transform:none;}
 #Transactions.active-tab{min-height:0!important;height:auto!important;}
 .app-container{min-height:100vh;display:block!important;}
+
+
+/* ===== TAB 2 / FUEL: MATCH TAB 4 COLOUR SYSTEM ===== */
+/* Keep the same neutral surfaces in both themes and use Tab 4's accent palette. */
+.fuel-page,
+.fuel-page * { --fuel-purple:#8b5cf6; --fuel-purple-light:#b07bff; --fuel-orange:#ff8b3d; --fuel-orange-light:#ffb267; }
+
+/* Main action follows the same orange used for Tab 4 expense visuals. */
+.btn-fuel,
+.fuel-save-main { background:linear-gradient(135deg,var(--fuel-orange-light),var(--fuel-orange)) !important; color:#fff !important; }
+
+/* Vehicle/control surfaces use the same card/input treatment as Tab 4. */
+.fuel-entry-card,
+.fuel-vehicle-summary,
+.fuel-section-card,
+.fuel-stat-card { background:var(--card-bg) !important; border-color:var(--border-color) !important; }
+.fuel-entry-icon,
+.fuel-vehicle-chip,
+.fuel-history-link,
+.fuel-mini-link,
+.fuel-odo-pill,
+.fuel-preview-box,
+.fuel-trend-chart,
+.fuel-trend-summary,
+.vehicle-kpi-grid .vehicle-kpi { background:var(--input-bg) !important; }
+
+/* Tab 4 accent mapping: expense=orange, positive/mileage=green,
+   blue=cost/action, purple=secondary/monthly. */
+.stat-fill { background:color-mix(in srgb,var(--fuel-orange) 10%,var(--card-bg)) !important; }
+.stat-mileage { background:color-mix(in srgb,#34c759 10%,var(--card-bg)) !important; }
+.stat-cost { background:color-mix(in srgb,#007aff 10%,var(--card-bg)) !important; }
+.stat-month { background:color-mix(in srgb,var(--fuel-purple) 10%,var(--card-bg)) !important; }
+
+.fuel-bar { background:linear-gradient(180deg,var(--fuel-purple-light),var(--fuel-purple)) !important; }
+.fuel-preview-title,
+#fuelPricePreview,
+.fuel-odo-pill b { color:var(--accent-blue) !important; }
+.fuel-progress-bar { background:linear-gradient(90deg,#53a8ff,#007aff) !important; }
+
+/* Alerts use the same Tab 4 orange/red/green language. */
+.fuel-alert.warn { border-left-color:var(--fuel-orange) !important; }
+.fuel-alert.danger { border-left-color:var(--accent-red) !important; }
+.fuel-alert.good { border-left-color:var(--accent-green) !important; }
+
+/* Dark mode: retain Tab 4's dark surfaces while preserving the same accents. */
+[data-theme="dark"] .fuel-entry-card,
+[data-theme="dark"] .fuel-vehicle-summary,
+[data-theme="dark"] .fuel-section-card,
+[data-theme="dark"] .fuel-stat-card { box-shadow:0 8px 24px rgba(0,0,0,.18) !important; }
+[data-theme="dark"] .fuel-vehicle-chip.active { background:var(--input-bg) !important; box-shadow:0 0 0 2px rgba(0,122,255,.16) !important; }
+[data-theme="dark"] .fuel-save-main { color:#fff !important; }
+
 </style>
 </head>
 <body>
