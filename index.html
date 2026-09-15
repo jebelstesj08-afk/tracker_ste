@@ -3029,18 +3029,34 @@ body {
     }
 
     function resetFuelFields() {
-      let todayStr = getLocalDateString();
-      let currentUser = document.getElementById('globalUserSelect').value;
-      document.getElementById('fuelDate').value = todayStr;
-      document.getElementById('fuelUser').value = currentUser;
-      document.getElementById('fuelAmount').value = '';
-      document.getElementById('fuelLitres').value = '';
-      document.getElementById('fuelOdo').value = '';
-      document.getElementById('fuelDesc').value = '';
-      document.getElementById('fuelPaymentMethod').selectedIndex = 0;
-      document.getElementById('fuelPricePreview').value = '';
-      document.getElementById('mileagePreviewText').textContent = '';
-      document.getElementById('mileagePreviewBox').style.display = 'none';
+      // Clear only the entered fuel/service details. Keep the selected vehicle,
+      // log type and current user intact so the form is ready for the next entry.
+      const dateEl = document.getElementById('fuelDate');
+      const userEl = document.getElementById('fuelUser'); // legacy/optional field
+      const amountEl = document.getElementById('fuelAmount');
+      const litresEl = document.getElementById('fuelLitres');
+      const odoEl = document.getElementById('fuelOdo');
+      const descEl = document.getElementById('fuelDesc');
+      const paymentEl = document.getElementById('fuelPaymentMethod');
+      const priceEl = document.getElementById('fuelPricePreview');
+      const mileageText = document.getElementById('mileagePreviewText');
+      const mileageBox = document.getElementById('mileagePreviewBox');
+
+      if (dateEl) dateEl.value = getLocalDateString();
+      if (userEl) userEl.value = document.getElementById('globalUserSelect')?.value || 'Jebel';
+      if (amountEl) amountEl.value = '';
+      if (litresEl) litresEl.value = '';
+      if (odoEl) odoEl.value = '';
+      if (descEl) descEl.value = '';
+      if (paymentEl) paymentEl.selectedIndex = 0;
+      if (priceEl) priceEl.value = '';
+      if (mileageText) mileageText.textContent = '';
+      if (mileageBox) mileageBox.style.display = 'none';
+
+      // Restore the correct button/form state after clearing.
+      const typeEl = document.getElementById('fuelLogType');
+      if (typeEl) toggleFuelFields();
+      if (typeof updateFuelPricePreview === 'function') updateFuelPricePreview();
     }
 
     function setTxType(type) {
@@ -3511,8 +3527,23 @@ body {
       }
     }
 
+    const activeSaveRequests = new WeakSet();
+
+    // Google Apps Script can sometimes take much longer to deliver its HTTP
+    // response than it takes to append the row to Google Sheets.  Give the
+    // user an immediate visual acknowledgement while keeping the request in
+    // flight; a later server error will still be surfaced.
+    function showQuickSavedState(btn, savedLabel) {
+      if (!btn) return;
+      btn.classList.remove('loading');
+      btn.innerHTML = savedLabel;
+      btn.style.backgroundColor = 'var(--accent-green)';
+      btn.style.color = '#ffffff';
+    }
+
     async function executeSave(payload, btnId) {
       const btn = document.getElementById(btnId);
+      if (btn && activeSaveRequests.has(btn)) return false;
       if (!payload.date || !payload.category || !payload.amount) {
         alert("Date, Amount, and Category/Vehicle are required.");
         return false;
@@ -3529,6 +3560,7 @@ body {
       // The button is always restored by the finally block below.  "Saved"
       // is shown ONLY after Google Apps Script returns {result:"success"}.
       if (btn) {
+        activeSaveRequests.add(btn);
         btn.classList.add('loading');
         btn.disabled = true;
         btn.setAttribute('aria-busy', 'true');
@@ -3537,6 +3569,20 @@ body {
 
       let confirmed = false;
       let errorMessage = '';
+      let quickSavedTimer = null;
+      let quickSavedShown = false;
+
+      // Do not make the user stare at 'Processing...' while Apps Script is
+      // still delivering a response. This is only an acknowledgement of the
+      // submitted save; the server response remains authoritative for errors.
+      if (btn) {
+        quickSavedTimer = setTimeout(() => {
+          if (!confirmed) {
+            quickSavedShown = true;
+            showQuickSavedState(btn, savedLabel);
+          }
+        }, 1200);
+      }
 
       try {
         // IMPORTANT: wait for the actual Google Apps Script response.
@@ -3574,6 +3620,7 @@ body {
         }
 
         confirmed = true;
+        if (quickSavedTimer) { clearTimeout(quickSavedTimer); quickSavedTimer = null; }
 
         // Only after server confirmation do we update the local copy/UI.
         if (!Array.isArray(allTransactions)) allTransactions = [];
@@ -3620,6 +3667,7 @@ body {
         }
 
       } catch (err) {
+        if (quickSavedTimer) { clearTimeout(quickSavedTimer); quickSavedTimer = null; }
         console.error('Google Sheets save failed:', err);
         errorMessage = err && err.name === 'AbortError'
           ? 'Save timed out. Google Sheets did not confirm the save.'
@@ -3635,6 +3683,7 @@ body {
       } finally {
         // Never leave any of the five save buttons disabled/processing.
         if (btn) {
+          activeSaveRequests.delete(btn);
           btn.classList.remove('loading');
           btn.disabled = false;
           btn.removeAttribute('aria-busy');
