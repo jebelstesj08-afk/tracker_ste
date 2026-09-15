@@ -1168,6 +1168,16 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 @media(max-width:600px){
   .fuel-reset-icon{width:30px;height:30px;min-width:30px;font-size:16px;}
 }
+
+    .tx-meta-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:12px;align-items:end;}
+    .tx-meta-field{min-width:0;}
+    .tx-meta-field label,.tx-attach-wrap label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+    .tx-attach-wrap{display:flex;flex-direction:column;align-items:center;}
+    .tx-attach-icon{width:48px;height:48px;min-width:48px;border-radius:var(--radius-md);background:var(--input-bg);display:flex;align-items:center;justify-content:center;position:relative;color:var(--accent-blue);font-size:19px;}
+    .tx-attach-icon input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;padding:0;}
+    .tx-reset-icon{width:42px;height:42px;min-width:42px;border:1px solid var(--border-color);border-radius:50%;background:var(--input-bg);color:var(--text-muted);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;cursor:pointer;padding:0;}
+    .tx-reset-icon:active{transform:scale(.94);}
+    @media(max-width:600px){.tx-meta-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:8px;}.tx-attach-icon{width:44px;height:44px;min-width:44px;}.tx-reset-icon{width:40px;height:40px;min-width:40px;}}
 </style>
 </head>
 <body>
@@ -1191,34 +1201,18 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     </div>
   </div>
 
-  <div class="balance-section" id="headerBalanceSection">
-    <div style="display: flex; gap: 15px; align-items: flex-start;">
-      <div style="flex: 1; overflow: hidden;" id="mainBalanceHeaderContainer">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-          <span class="balance-label" id="topLabel" style="margin-bottom: 0;">Main balance</span>
-          <button id="sectionResetBtn" onclick="resetActiveTabFields()" style="background: transparent; border: none; cursor: pointer; font-size: 13px; color: var(--text-muted); padding: 0 4px;" title="Clear fields">↺ Reset</button>
-        </div>
-        <h1 class="balance-amount" id="topBalance">0</h1>
-      </div>
-      <div id="secondaryBalanceBlock" style="flex: 1; display: none; overflow: hidden;">
-        <span class="balance-label" id="secondaryLabel">Total earnings</span>
-        <h1 class="balance-amount small" id="secondaryBalance" style="color: var(--accent-green);">0</h1>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB 1: TRANSACTIONS & SAVINGS -->
+<!-- TAB 1: TRANSACTIONS & SAVINGS -->
   <div id="Transactions" class="tab-content">
-    <div style="display: flex; background: var(--input-bg); padding: 4px; border-radius: var(--radius-md); margin-bottom: 16px;">
-      <button type="button" id="typeExpBtn" onclick="setTxType('Expense')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: all 0.2s;">Expense</button>
-      <button type="button" id="typeIncBtn" onclick="setTxType('Income')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;">Income</button>
-      <button type="button" id="typeSavBtn" onclick="setTxType('Savings')" style="flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;">Savings</button>
+    <div class="tx-type-selector" style="display:flex; background:var(--input-bg); padding:4px; border-radius:var(--radius-md); margin-bottom:16px;">
+      <button type="button" id="typeExpBtn" onclick="setTxType('Expense')" style="flex:1; padding:12px; border:none; border-radius:12px; font-weight:700; cursor:pointer; background:var(--card-bg); color:var(--text-main); box-shadow:0 2px 8px rgba(0,0,0,0.05); transition:all 0.2s;">Expense</button>
+      <button type="button" id="typeIncBtn" onclick="setTxType('Income')" style="flex:1; padding:12px; border:none; border-radius:12px; font-weight:700; cursor:pointer; background:transparent; color:var(--text-muted); transition:all 0.2s;">Income</button>
+      <button type="button" id="typeSavBtn" onclick="setTxType('Savings')" style="flex:1; padding:12px; border:none; border-radius:12px; font-weight:700; cursor:pointer; background:transparent; color:var(--text-muted); transition:all 0.2s;">Savings</button>
     </div>
-
     <div class="input-group">
       <label>Amount</label>
-      <div class="amount-wrapper">
-        <input type="number" id="txAmount" placeholder="0" step="0.01">
+      <div class="amount-wrapper" style="display:flex; align-items:center; gap:8px;">
+        <input type="number" id="txAmount" placeholder="0" step="0.01" style="flex:1; min-width:0;">
+        <button type="button" id="sectionResetBtn" onclick="resetActiveTabFields()" class="tx-reset-icon" title="Clear fields" aria-label="Clear fields">↺</button>
       </div>
     </div>
     <div class="two-col">
@@ -1235,59 +1229,62 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       </div>
     </div>
     
-    <!-- Category / Source / Savings Type -->
+    <!-- Category + Payment Method + Receipt -->
     <div class="input-group">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <label id="txCatLabel" style="margin-bottom: 0;">Category</label>
-        <div class="file-upload-wrapper" id="receiptRowContainer" style="cursor: pointer;" title="Attach Receipt">
-          <span id="cameraIconSpan" style="font-size: 13px; color: var(--accent-blue); font-weight: 600;">📎 Attach</span>
-          <input type="file" id="txReceipt" accept="image/*" capture="environment" onchange="updateCameraBtn()">
+      <div class="tx-meta-row">
+        <div class="tx-meta-field">
+          <label id="txCatLabel">Category</label>
+          <select id="txCat">
+            <option value="" disabled selected>Select Category...</option>
+            <option value="Housing / Rent">Housing / Rent</option>
+            <option value="Food - Groceries">Food - Groceries</option>
+            <option value="Food - Dining Out">Food - Dining Out</option>
+            <option value="Food - HungerBox">Food - HungerBox</option>
+            <option value="Maintenance">Maintenance</option>
+            <option value="Utilities - Electricity">Utilities - Electricity</option>
+            <option value="Utilities - Internet">Utilities - Internet</option>
+            <option value="Utilities - Phone">Utilities - Phone</option>
+            <option value="Hardware / Equipment">Hardware / Equipment</option>
+            <option value="Health &amp; Medical">Health &amp; Medical</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Personal Care">Personal Care</option>
+            <option value="Credit Card Repayment">Credit Card Repayment</option>
+            <option value="Subscription">Subscription</option>
+            <option value="Education">Education</option>
+            <option value="Debt / Loan EMI">Debt / Loan EMI</option>
+            <option value="Trip">Trip</option>
+            <option value="Outing">Outing</option>
+            <option value="Miscellaneous">Miscellaneous</option>
+          </select>
+        </div>
+        <div class="tx-meta-field">
+          <label>Payment Method</label>
+          <select id="txPaymentMethod">
+            <option value="" disabled selected>Select Payment Method...</option>
+            <option value="Cash">Cash</option>
+            <option value="Google pay upi">Google pay upi</option>
+            <option value="Axis my zone cc">Axis my zone cc</option>
+            <option value="Axis flipkart cc">Axis flipkart cc</option>
+            <option value="Axis indianoil cc">Axis indianoil cc</option>
+            <option value="Hdfc moneyback cc">Hdfc moneyback cc</option>
+            <option value="Icici amazon pay cc">Icici amazon pay cc</option>
+            <option value="Paytm">Paytm</option>
+            <option value="Cred">Cred</option>
+            <option value="Hdfc Rupay cc">Hdfc Rupay cc</option>
+          </select>
+        </div>
+        <div class="tx-attach-wrap">
+          <label>&nbsp;</label>
+          <div class="file-upload-wrapper tx-attach-icon" id="receiptRowContainer" style="cursor:pointer;" title="Attach Receipt" aria-label="Attach Receipt">
+            <span id="cameraIconSpan">📎</span>
+            <input type="file" id="txReceipt" accept="image/*" capture="environment" onchange="updateCameraBtn()">
+          </div>
         </div>
       </div>
-      <select id="txCat">
-        <option value="" disabled selected>Select Category...</option>
-        <option value="Housing / Rent">Housing / Rent</option>
-        <option value="Food - Groceries">Food - Groceries</option>
-        <option value="Food - Dining Out">Food - Dining Out</option>
-        <option value="Food - HungerBox">Food - HungerBox</option>
-        <option value="Maintenance">Maintenance</option>
-        <option value="Utilities - Electricity">Utilities - Electricity</option>
-        <option value="Utilities - Internet">Utilities - Internet</option>
-        <option value="Utilities - Phone">Utilities - Phone</option>
-        <option value="Hardware / Equipment">Hardware / Equipment</option>
-        <option value="Health &amp; Medical">Health &amp; Medical</option>
-        <option value="Entertainment">Entertainment</option>
-        <option value="Shopping">Shopping</option>
-        <option value="Personal Care">Personal Care</option>
-        <option value="Credit Card">Credit Card</option>
-        <option value="Credit Card Repayment">Credit Card Repayment</option>
-        <option value="Subscription">Subscription</option>
-        <option value="Education">Education</option>
-        <option value="Debt / Loan EMI">Debt / Loan EMI</option>
-        <option value="Trip">Trip</option>
-        <option value="Outing">Outing</option>
-        <option value="Miscellaneous">Miscellaneous</option>
-      </select>
     </div>
-
-    <!-- Details with Payment Method seamless selector parallel to Details Header -->
     <div class="input-group">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <label style="margin-bottom: 0;">Details</label>
-        <select id="txPaymentMethod" style="width: auto; border: none; outline: none; background: transparent; font-size: 12px; font-weight: 600; color: var(--accent-blue); cursor: pointer; padding: 0;">
-          <option value="" disabled selected>💳 Payment Method</option>
-          <option value="Cash">Cash</option>
-          <option value="Google pay upi">Google pay upi</option>
-          <option value="Axis my zone cc">Axis my zone cc</option>
-          <option value="Axis flipkart cc">Axis flipkart cc</option>
-          <option value="Axis indianoil cc">Axis indianoil cc</option>
-          <option value="Hdfc moneyback cc">Hdfc moneyback cc</option>
-          <option value="Icici amazon pay cc">Icici amazon pay cc</option>
-          <option value="Paytm">Paytm</option>
-          <option value="Cred">Cred</option>
-          <option value="Hdfc Rupay cc">Hdfc Rupay cc</option>
-        </select>
-      </div>
+      <label>Details</label>
       <input type="text" id="txDesc" placeholder="Add a note (optional)">
     </div>
     
@@ -2379,7 +2376,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       <option value="Entertainment">Entertainment</option>
       <option value="Shopping">Shopping</option>
       <option value="Personal Care">Personal Care</option>
-      <option value="Credit Card">Credit Card</option>
+
       <option value="Credit Card Repayment">Credit Card Repayment</option>
       <option value="Subscription">Subscription</option>
       <option value="Education">Education</option>
@@ -2526,7 +2523,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         document.getElementById('txDesc').value = '';
         document.getElementById('txPaymentMethod').selectedIndex = 0;
         receiptBase64 = "";
-        document.getElementById('cameraIconSpan').innerText = "📎 Attach";
+        document.getElementById('cameraIconSpan').innerText = "📎";
       }
     }
 
@@ -2912,36 +2909,16 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
       document.getElementById('nav-' + tabName).classList.add('active-nav');
 
       window.scrollTo(0, 0);
-
-      let mainBalanceContainer = document.getElementById('mainBalanceHeaderContainer');
-      let resetBtn = document.getElementById('sectionResetBtn');
-      let headerSection = document.getElementById('headerBalanceSection');
-
-      if(tabName === 'EMI' || tabName === 'Insights') {
-        headerSection.style.display = "none";
-        if(tabName === 'EMI') {
-          refreshEMILoans();
-        } else {
-          generateInsights();
-        }
+      if(tabName === 'EMI') {
+        refreshEMILoans();
+      } else if(tabName === 'Insights') {
+        generateInsights();
       } else if(tabName === 'Fuel') {
-        headerSection.style.display = "block";
-        mainBalanceContainer.style.display = "none";
-        document.getElementById('secondaryBalanceBlock').style.display = "none";
-        resetBtn.style.display = "none";
         const fuelDate = document.getElementById('fuelDate');
         if (fuelDate && !fuelDate.value) fuelDate.value = getLocalDateString();
         updateFuelEntryHeader();
         calculateMileagePreview();
         refreshFuelDashboard();
-      } else {
-        headerSection.style.display = "block";
-        mainBalanceContainer.style.display = "block";
-        document.getElementById('topLabel').innerText = "Main balance";
-        document.getElementById('topBalance').classList.remove('small');
-        document.getElementById('secondaryBalanceBlock').style.display = "none";
-        resetBtn.style.display = "inline-block";
-        calculateTopBalance();
       }
     }
 
@@ -3026,7 +3003,7 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
     function updateCameraBtn() {
       const file = document.getElementById('txReceipt').files[0];
       if (file) {
-        document.getElementById('cameraIconSpan').innerText = "✅ Attached";
+        document.getElementById('cameraIconSpan').innerText = "✅";
         const reader = new FileReader();
         reader.onload = function(e) { receiptBase64 = e.target.result; };
         reader.readAsDataURL(file);
