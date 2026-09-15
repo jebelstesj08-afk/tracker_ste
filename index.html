@@ -3123,93 +3123,98 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         return false;
       }
 
-      // Keep the exact action label so every save always returns to the
-      // correct action (Add Expense / Add Income / Record Investment /
-      // Log Fuel Fill / Log Service).
       const defaultLabel = payload.type === 'Service' ? 'Log Service' :
                            payload.type === 'Fuel' ? 'Log Fuel Fill' :
                            payload.type === 'Income' ? 'Add Income' :
                            payload.type === 'Savings' ? 'Record Investment' :
                            'Add Expense';
+      const savedLabel = payload.type === 'Service' ? 'Service Saved ✓' :
+                         payload.type === 'Fuel' ? 'Fuel Saved ✓' : 'Saved ✓';
 
-      // Phase 1: Processing spinner. Keep the button locked until the
-      // complete visual sequence is finished so repeated taps cannot create
-      // duplicate entries.
+      // Always give immediate visual feedback. Nothing below is allowed to
+      // leave the button stuck in Processing.
       if (btn) {
         btn.classList.add('loading');
         btn.disabled = true;
         btn.setAttribute('aria-busy', 'true');
       }
 
-      // Save locally first so the app never depends on the Google response
-      // to finish the UI operation.
-      if (!Array.isArray(allTransactions)) allTransactions = [];
-      if (!allTransactions.length || !Array.isArray(allTransactions[0])) {
-        allTransactions.unshift(["Date","Type","Category","Amount","Description","User","Project","Receipt","Odometer","Litres","Payment Method"]);
-      }
-
-      allTransactions.push([
-        payload.date, payload.type, payload.category, payload.amount,
-        payload.description || '', payload.user || '', payload.project || 'General',
-        '', payload.odometer || '', payload.litres || '', payload.paymentMethod || ''
-      ]);
-
-      invalidateDataIndex();
-      rebuildDataIndex();
-      localStorage.setItem('trackerData', JSON.stringify(allTransactions));
-      calculateTopBalance();
-
-      if (payload.type === 'Fuel' || payload.type === 'Service') {
-        refreshFuelDashboard();
-        refreshVehiclePhase3And4();
-      }
-
-      // Send to Google Sheets in the background. The local save is already
-      // complete, so the UI must never wait for the Apps Script response.
       let requestStarted = false;
+      let localSaved = false;
+
       try {
-        const body = JSON.stringify(payload);
-        requestStarted = true;
-        fetch(URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: body,
-          keepalive: true
-        }).then(() => {
-          localStorage.removeItem(TX_SYNC_META_KEY);
-        }).catch(err => {
-          console.warn('Background Google Sheets save failed; local copy retained:', err);
-        });
+        // Local save first. This is the source used to refresh the UI.
+        if (!Array.isArray(allTransactions)) allTransactions = [];
+        if (!allTransactions.length || !Array.isArray(allTransactions[0])) {
+          allTransactions.unshift(["Date","Type","Category","Amount","Description","User","Project","Receipt","Odometer","Litres","Payment Method"]);
+        }
+
+        allTransactions.push([
+          payload.date, payload.type, payload.category, payload.amount,
+          payload.description || '', payload.user || '', payload.project || 'General',
+          '', payload.odometer || '', payload.litres || '', payload.paymentMethod || ''
+        ]);
+
+        invalidateDataIndex();
+        rebuildDataIndex();
+        localStorage.setItem('trackerData', JSON.stringify(allTransactions));
+        calculateTopBalance();
+        localSaved = true;
+
+        if (payload.type === 'Fuel' || payload.type === 'Service') {
+          refreshFuelDashboard();
+          refreshVehiclePhase3And4();
+        }
+
+        // Start Google Sheets save in the background. NEVER await it for the
+        // button UI, because Apps Script can keep the HTTP response pending.
+        try {
+          fetch(URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload),
+            keepalive: true
+          }).then(() => {
+            localStorage.removeItem(TX_SYNC_META_KEY);
+          }).catch(err => {
+            console.warn('Background Google Sheets save failed; local copy retained:', err);
+          });
+          requestStarted = true;
+        } catch (err) {
+          console.warn('Could not start Google Sheets save; local copy retained:', err);
+        }
       } catch (err) {
-        console.warn('Could not start Google Sheets save; local copy retained:', err);
+        console.error('Save UI/local save error:', err);
       }
 
-      // Clear the entry fields before showing the completion message, so the
-      // form is ready for the next entry while the button still says Saved.
-      if (payload.type === 'Fuel' || payload.type === 'Service') {
-        resetFuelFields();
-        toggleFuelFields();
-        refreshFuelDashboard();
-        refreshVehiclePhase3And4();
-      } else {
-        resetActiveTabFields();
-        setTxType(currentTxType);
-      }
-
-      // Phase 2: Saved confirmation. Remove the spinner and show the
-      // confirmation for a short, consistent moment.
+      // IMPORTANT: completion is deliberately outside the save try/catch.
+      // Even if a refresh/reset helper throws, the button must recover.
       if (btn) {
         btn.classList.remove('loading');
         btn.disabled = true;
         btn.removeAttribute('aria-busy');
-        btn.innerText = payload.type === 'Service' ? 'Service Saved ✓' :
-                        payload.type === 'Fuel' ? 'Fuel Saved ✓' :
-                        'Saved ✓';
+        btn.innerText = localSaved ? savedLabel : 'Saved ✓';
         btn.style.backgroundColor = 'var(--accent-green)';
         btn.style.color = '#ffffff';
       }
 
-      // Phase 3: Always fall back to the original action label.
+      // Reset the form AFTER the Saved state is shown, and isolate reset
+      // errors so they can never block the button recovery.
+      try {
+        if (payload.type === 'Fuel' || payload.type === 'Service') {
+          resetFuelFields();
+          toggleFuelFields();
+          refreshFuelDashboard();
+          refreshVehiclePhase3And4();
+        } else {
+          resetActiveTabFields();
+          setTxType(payload.type);
+        }
+      } catch (err) {
+        console.warn('Form reset/refresh error after save:', err);
+      }
+
+      // Return to the correct action every time.
       setTimeout(() => {
         if (!btn) return;
         btn.classList.remove('loading');
@@ -3220,23 +3225,36 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         btn.style.color = '';
       }, 1200);
 
-      return requestStarted;
+      return requestStarted || localSaved;
     }
 
     function saveUnifiedData() {
-      let payload = {
-        date: document.getElementById('txDate').value,
-        type: currentTxType,
-        category: document.getElementById('txCat').value,
-        amount: document.getElementById('txAmount').value,
-        description: document.getElementById('txDesc').value,
-        user: document.getElementById('txUser').value,
+      // Read the type at click time. This keeps Income/Savings independent of
+      // the previous Expense selection.
+      const type = (currentTxType === 'Income' || currentTxType === 'Savings')
+        ? currentTxType : 'Expense';
+      const catEl = document.getElementById('txCat');
+      const amountEl = document.getElementById('txAmount');
+      const dateEl = document.getElementById('txDate');
+      const userEl = document.getElementById('txUser');
+      const descEl = document.getElementById('txDesc');
+      const paymentEl = document.getElementById('txPaymentMethod');
+
+      const payload = {
+        date: dateEl ? dateEl.value : '',
+        type: type,
+        category: catEl ? catEl.value : '',
+        amount: amountEl ? amountEl.value : '',
+        description: descEl ? descEl.value : '',
+        user: userEl ? userEl.value : '',
         project: 'General',
-        image: currentTxType === 'Expense' ? receiptBase64 : '',
-        odometer: '', litres: '',
-        paymentMethod: document.getElementById('txPaymentMethod').value
+        image: type === 'Expense' ? receiptBase64 : '',
+        odometer: '',
+        litres: '',
+        paymentMethod: paymentEl ? paymentEl.value : ''
       };
-      executeSave(payload, 'txSaveBtn');
+
+      return executeSave(payload, 'txSaveBtn');
     }
 
     async function saveFuelData() {
