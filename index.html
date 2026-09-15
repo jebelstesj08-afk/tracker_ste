@@ -575,6 +575,10 @@
 }
 
 
+/* Recurring Payments: prominent placement above Top spending categories */
+.recurring-top-card{margin:14px 0 14px;padding:14px;min-width:0;overflow:hidden}
+.recurring-top-card .recurring-overview{margin:12px 0 3px}
+
 /* ===== TAB 4: RECURRING PAYMENTS + SPENDING CALENDAR ===== */
 .recurring-card,.calendar-card{margin-top:14px;min-width:0;overflow:hidden}
 .recurring-add-btn,.recurring-save-btn{border:0;border-radius:12px;background:var(--text-main);color:var(--card-bg);font-weight:800;cursor:pointer}
@@ -604,9 +608,9 @@
 .calendar-day.medium .calendar-amount{color:var(--accent-blue)}
 .calendar-day.high .calendar-amount{color:var(--accent-red)}
 .calendar-summary{margin-top:10px;padding:10px 12px;background:var(--input-bg);border-radius:12px;font-size:12px;font-weight:700}
-.recurring-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);padding:18px;align-items:flex-end;justify-content:center}
+.recurring-modal{display:none;position:fixed;inset:0;z-index:2147483647!important;background:rgba(0,0,0,.45);padding:18px;align-items:flex-end;justify-content:center;box-sizing:border-box;overscroll-behavior:contain}
 .recurring-modal.open{display:flex}
-.recurring-modal-card{width:min(440px,100%);background:var(--card-bg);border-radius:22px 22px 0 0;padding:17px;max-height:90vh;overflow:auto;box-shadow:0 -10px 35px rgba(0,0,0,.18)}
+.recurring-modal-card{width:min(440px,100%);background:var(--card-bg);border-radius:22px 22px 0 0;padding:17px;max-height:min(90dvh,760px);overflow:auto;box-shadow:0 -10px 35px rgba(0,0,0,.18);box-sizing:border-box;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .recurring-modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .recurring-close-btn{border:0;background:var(--input-bg);border-radius:10px;width:32px;height:32px;font-size:21px;cursor:pointer}
 .recurring-form{display:grid;gap:10px;margin-top:15px}
@@ -1401,6 +1405,22 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
         </div>
       </div>
 
+      <section class="insights-card recurring-top-card">
+        <div class="tab4-feature-head">
+          <div class="tab4-feature-icon">↻</div>
+          <div class="tab4-feature-copy">
+            <div class="tab4-feature-title">Recurring Payments</div>
+            <div class="tab4-feature-sub">Bills and regular commitments</div>
+          </div>
+          <button type="button" class="tab4-add-btn" onclick="openRecurringPayment()" aria-label="Add recurring payment">＋</button>
+        </div>
+        <div class="recurring-overview">
+          <div><span>Monthly estimate</span><strong id="recurringMonthlyTotal">₹0</strong></div>
+          <div><span>Due in 30 days</span><strong id="recurringUpcomingCount">0</strong></div>
+        </div>
+        <div id="recurringPaymentsList" class="safe-list"></div>
+      </section>
+
       <div class="insights-lower">
         <div class="insights-card insights-panel">
           <div class="insights-panel-head">
@@ -1496,22 +1516,6 @@ body.ui-detail-open .nav-wrapper,body.emi-modal-open .nav-wrapper{display:flex!i
 
 
       <div class="tab4-tools-grid">
-        <section class="insights-card tab4-feature-card">
-          <div class="tab4-feature-head">
-            <div class="tab4-feature-icon">↻</div>
-            <div class="tab4-feature-copy">
-              <div class="tab4-feature-title">Recurring Payments</div>
-              <div class="tab4-feature-sub">Bills and regular commitments</div>
-            </div>
-            <button type="button" class="tab4-add-btn" onclick="openRecurringPayment()" aria-label="Add recurring payment">＋</button>
-          </div>
-          <div class="recurring-overview">
-            <div><span>Monthly estimate</span><strong id="recurringMonthlyTotal">₹0</strong></div>
-            <div><span>Due in 30 days</span><strong id="recurringUpcomingCount">0</strong></div>
-          </div>
-          <div id="recurringPaymentsList" class="safe-list"></div>
-        </section>
-
         <section class="insights-card tab4-feature-card">
           <div class="tab4-feature-head">
             <div class="tab4-feature-icon calendar-icon">31</div>
