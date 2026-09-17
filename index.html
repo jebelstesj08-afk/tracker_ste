@@ -1655,6 +1655,37 @@ body {
   box-shadow:none!important;
 }
 </style>
+
+<style>
+/* GEMINI_FINANCE_ASSISTANT_CSS_START */
+.gemini-ai-button{position:fixed;right:16px;bottom:calc(88px + env(safe-area-inset-bottom));z-index:10040;appearance:none;border:1px solid var(--border-color,#e5e7eb);background:var(--input-bg,#f6f7f9);color:var(--text-color,#111827);width:38px;height:38px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;flex:0 0 auto;-webkit-tap-highlight-color:transparent}
+.gemini-ai-button:active{transform:scale(.96)}
+.gemini-ai-overlay{position:fixed;inset:0;z-index:10050;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.42);padding:0}
+.gemini-ai-overlay.show{display:flex}
+.gemini-ai-panel{width:min(100%,560px);max-height:min(88vh,760px);background:var(--card-bg,#fff);color:var(--text-color,#111827);border:1px solid var(--border-color,#e5e7eb);border-bottom:0;border-radius:24px 24px 0 0;box-shadow:0 -16px 50px rgba(0,0,0,.18);display:flex;flex-direction:column;overflow:hidden;padding-bottom:env(safe-area-inset-bottom)}
+.gemini-ai-head{display:flex;align-items:center;gap:10px;padding:15px 16px 12px;border-bottom:1px solid var(--border-color,#e5e7eb)}
+.gemini-ai-title{font-size:17px;font-weight:750;flex:1}
+.gemini-ai-subtitle{font-size:11px;opacity:.62;margin-top:2px}
+.gemini-ai-close{width:34px;height:34px;border:0;border-radius:50%;background:var(--input-bg,#f3f4f6);color:inherit;font-size:20px;cursor:pointer}
+.gemini-ai-body{overflow:auto;-webkit-overflow-scrolling:touch;padding:16px}
+.gemini-ai-suggestions{display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none}
+.gemini-ai-suggestions::-webkit-scrollbar{display:none}
+.gemini-ai-suggestion{white-space:nowrap;border:1px solid var(--border-color,#e5e7eb);background:var(--input-bg,#f6f7f9);color:inherit;border-radius:999px;padding:8px 11px;font-size:12px;cursor:pointer}
+.gemini-ai-answer{min-height:130px;white-space:pre-wrap;line-height:1.55;font-size:14px;padding:14px;border-radius:16px;background:var(--input-bg,#f6f7f9);border:1px solid var(--border-color,#e5e7eb)}
+.gemini-ai-answer.empty{display:flex;align-items:center;justify-content:center;text-align:center;opacity:.58}
+.gemini-ai-form{display:flex;gap:8px;padding:12px 16px 14px;border-top:1px solid var(--border-color,#e5e7eb)}
+.gemini-ai-input{min-width:0;flex:1;border:1px solid var(--border-color,#dfe2e6);background:var(--input-bg,#fff);color:inherit;border-radius:15px;padding:12px 13px;outline:none;font:inherit}
+.gemini-ai-input:focus{border-color:var(--accent-color,#007aff)}
+.gemini-ai-send{border:0;border-radius:15px;padding:0 16px;min-width:74px;background:var(--accent-color,#007aff);color:#fff;font-weight:700;cursor:pointer}
+.gemini-ai-send:disabled{opacity:.55;cursor:wait}
+.gemini-ai-thinking{display:inline-flex;align-items:center;gap:7px;opacity:.7}
+.gemini-ai-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:geminiDot 1s infinite ease-in-out}
+.gemini-ai-dot:nth-child(2){animation-delay:.15s}.gemini-ai-dot:nth-child(3){animation-delay:.3s}
+@keyframes geminiDot{0%,60%,100%{transform:translateY(0);opacity:.35}30%{transform:translateY(-4px);opacity:1}}
+@media (min-width:700px){.gemini-ai-overlay{align-items:center;padding:20px}.gemini-ai-panel{border:1px solid var(--border-color,#e5e7eb);border-radius:24px;max-height:760px}}
+@media (max-width:600px){.gemini-ai-button{width:36px;height:36px;border-radius:11px}.gemini-ai-panel{max-height:90vh}}
+/* GEMINI_FINANCE_ASSISTANT_CSS_END */
+</style>
 </head>
 <body>
 
@@ -5109,5 +5140,43 @@ document.addEventListener('click',function(e){
       </button>
     </div>
   </div>
+
+<!-- GEMINI_FINANCE_ASSISTANT_START -->
+<button id="geminiAiButton" class="gemini-ai-button" type="button" aria-label="Open Gemini Finance Assistant" title="Gemini Finance Assistant" onclick="openGeminiAssistant()">✨</button>
+<div id="geminiAiOverlay" class="gemini-ai-overlay" aria-hidden="true">
+<section class="gemini-ai-panel" role="dialog" aria-modal="true" aria-labelledby="geminiAiTitle">
+<div class="gemini-ai-head"><div><div id="geminiAiTitle" class="gemini-ai-title">Finance Assistant</div><div class="gemini-ai-subtitle">Powered by Gemini • Uses your current transaction data</div></div><button class="gemini-ai-close" type="button" onclick="closeGeminiAssistant()" aria-label="Close">×</button></div>
+<div class="gemini-ai-body">
+<div class="gemini-ai-suggestions">
+<button class="gemini-ai-suggestion" onclick="askGeminiSuggestion('How much did I spend this month?')">This month's spending</button>
+<button class="gemini-ai-suggestion" onclick="askGeminiSuggestion('What were my biggest expenses this month?')">Biggest expenses</button>
+<button class="gemini-ai-suggestion" onclick="askGeminiSuggestion('How much did I spend on fuel?')">Fuel spending</button>
+<button class="gemini-ai-suggestion" onclick="askGeminiSuggestion('What are my upcoming liabilities?')">Upcoming liabilities</button>
+</div>
+<div id="geminiAiAnswer" class="gemini-ai-answer empty">Ask me about your household finances.</div>
+</div>
+<form class="gemini-ai-form" onsubmit="submitGeminiQuestion(event)">
+<input id="geminiAiInput" class="gemini-ai-input" type="text" autocomplete="off" placeholder="Ask about your finances..." aria-label="Ask Gemini">
+<button id="geminiAiSend" class="gemini-ai-send" type="submit">Ask</button>
+</form>
+</section>
+</div>
+<!-- GEMINI_FINANCE_ASSISTANT_END -->
+
+<script>
+/* GEMINI_FINANCE_ASSISTANT_JS_START */
+(function(){
+"use strict";
+window.openGeminiAssistant=function(){var o=document.getElementById("geminiAiOverlay"),i=document.getElementById("geminiAiInput");if(!o)return;o.classList.add("show");o.setAttribute("aria-hidden","false");document.body.classList.add("gemini-modal-open");setTimeout(function(){if(i)i.focus()},80)};
+window.closeGeminiAssistant=function(){var o=document.getElementById("geminiAiOverlay");if(!o)return;o.classList.remove("show");o.setAttribute("aria-hidden","true");document.body.classList.remove("gemini-modal-open")};
+window.askGeminiSuggestion=function(q){var i=document.getElementById("geminiAiInput");if(i)i.value=q;sendGeminiQuestion(q)};
+window.submitGeminiQuestion=function(e){if(e)e.preventDefault();var i=document.getElementById("geminiAiInput"),q=i?i.value.trim():"";if(q)sendGeminiQuestion(q)};
+window.sendGeminiQuestion=async function(q){var a=document.getElementById("geminiAiAnswer"),b=document.getElementById("geminiAiSend");if(!a||!b)return;a.classList.remove("empty");a.innerHTML='<span class="gemini-ai-thinking"><span class="gemini-ai-dot"></span><span class="gemini-ai-dot"></span><span class="gemini-ai-dot"></span><span>Thinking…</span></span>';b.disabled=true;try{var u=getGeminiSelectedUser();var r=await fetch(URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"askGemini",prompt:q,user:u}),redirect:"follow",cache:"no-store"});var x=await r.json();if(!x||x.result!=="success")throw new Error((x&&x.message)||"Gemini request failed.");a.textContent=x.answer||"No answer returned."}catch(e){a.textContent="Gemini could not answer right now.\n\n"+(e&&e.message?e.message:String(e))}finally{b.disabled=false}};
+function getGeminiSelectedUser(){var s=document.getElementById("globalUserSelect");if(s&&s.value)return s.value;var i=document.getElementById("insightsFilterUser");if(i&&i.value)return i.value;return"Jebel"}
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){var o=document.getElementById("geminiAiOverlay");if(o&&o.classList.contains("show"))closeGeminiAssistant()}});
+document.addEventListener("click",function(e){var o=document.getElementById("geminiAiOverlay");if(o&&e.target===o)closeGeminiAssistant()});
+})();
+ /* GEMINI_FINANCE_ASSISTANT_JS_END */
+</script>
 </body>
 </html>
