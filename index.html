@@ -1686,6 +1686,138 @@ body {
 @media (max-width:600px){.gemini-ai-button{width:36px;height:36px;border-radius:11px}.gemini-ai-panel{max-height:90vh}}
 /* GEMINI_FINANCE_ASSISTANT_CSS_END */
 </style>
+
+<style id="gemini-iphone-final-fix">
+/* Gemini must sit above every existing app layer. */
+body.gemini-modal-open {
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+}
+
+/* Hide the floating app navigation while Finance Assistant is open. */
+body.gemini-modal-open .nav-wrapper,
+body.gemini-modal-open .bottom-nav,
+body.gemini-modal-open .navigation,
+body.gemini-modal-open .gemini-ai-button {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Keep Gemini overlay above any existing modal/nav stacking context. */
+#geminiAiOverlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483000 !important;
+  isolation: isolate !important;
+}
+
+/* iPhone-friendly bottom sheet. */
+#geminiAiOverlay .gemini-ai-panel {
+  position: relative !important;
+  z-index: 2147483001 !important;
+  width: 100% !important;
+  max-width: 560px !important;
+  max-height: min(92dvh, 760px) !important;
+  min-height: min(560px, 82dvh) !important;
+  padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+  box-sizing: border-box !important;
+}
+
+/* Keep header visible and body independently scrollable. */
+#geminiAiOverlay .gemini-ai-head {
+  flex: 0 0 auto !important;
+}
+
+#geminiAiOverlay .gemini-ai-body {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
+}
+
+/* Quick prompts scroll sideways instead of being clipped. */
+#geminiAiOverlay .gemini-ai-suggestions {
+  flex: 0 0 auto !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  white-space: nowrap !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  padding-bottom: 10px !important;
+}
+
+#geminiAiOverlay .gemini-ai-suggestions::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* Keep the input area at the bottom of the sheet. */
+#geminiAiOverlay .gemini-ai-form {
+  flex: 0 0 auto !important;
+  position: relative !important;
+  z-index: 2 !important;
+  background: var(--card-bg, #fff) !important;
+  padding-bottom: max(14px, env(safe-area-inset-bottom)) !important;
+}
+
+/* Better touch target on iPhone. */
+#geminiAiOverlay .gemini-ai-input {
+  min-height: 48px !important;
+  box-sizing: border-box !important;
+}
+
+#geminiAiOverlay .gemini-ai-send {
+  min-height: 48px !important;
+  min-width: 78px !important;
+}
+
+/* Prevent the iPhone keyboard from making the sheet unusable. */
+@supports (-webkit-touch-callout: none) {
+  #geminiAiOverlay .gemini-ai-panel {
+    max-height: 92dvh !important;
+  }
+}
+
+/* Small phones. */
+@media (max-width: 430px) {
+  #geminiAiOverlay .gemini-ai-panel {
+    min-height: 0 !important;
+    max-height: 94dvh !important;
+    border-radius: 24px 24px 0 0 !important;
+  }
+
+  #geminiAiOverlay .gemini-ai-head {
+    padding: 18px 16px 13px !important;
+  }
+
+  #geminiAiOverlay .gemini-ai-title {
+    font-size: 18px !important;
+  }
+
+  #geminiAiOverlay .gemini-ai-subtitle {
+    font-size: 11px !important;
+  }
+
+  #geminiAiOverlay .gemini-ai-body {
+    padding: 14px !important;
+  }
+
+  #geminiAiOverlay .gemini-ai-answer {
+    min-height: 150px !important;
+  }
+
+  #geminiAiOverlay .gemini-ai-form {
+    padding: 10px 14px 14px !important;
+    gap: 8px !important;
+  }
+
+  #geminiAiOverlay .gemini-ai-input {
+    font-size: 16px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -5168,7 +5300,7 @@ document.addEventListener('click',function(e){
 (function(){
 "use strict";
 window.openGeminiAssistant=function(){var o=document.getElementById("geminiAiOverlay"),i=document.getElementById("geminiAiInput");if(!o)return;o.classList.add("show");o.setAttribute("aria-hidden","false");document.body.classList.add("gemini-modal-open");setTimeout(function(){if(i)i.focus()},80)};
-window.closeGeminiAssistant=function(){var o=document.getElementById("geminiAiOverlay");if(!o)return;o.classList.remove("show");o.setAttribute("aria-hidden","true");document.body.classList.remove("gemini-modal-open")};
+window.closeGeminiAssistant=function(){var o=document.getElementById("geminiAiOverlay");if(!o)return;o.classList.remove("show");o.setAttribute("aria-hidden","true");document.body.classList.remove("gemini-modal-open");var b=document.getElementById("geminiAiButton");if(b)setTimeout(function(){try{b.focus()}catch(_){}},0)};
 window.askGeminiSuggestion=function(q){var i=document.getElementById("geminiAiInput");if(i)i.value=q;sendGeminiQuestion(q)};
 window.submitGeminiQuestion=function(e){if(e)e.preventDefault();var i=document.getElementById("geminiAiInput"),q=i?i.value.trim():"";if(q)sendGeminiQuestion(q)};
 window.sendGeminiQuestion=async function(q){var a=document.getElementById("geminiAiAnswer"),b=document.getElementById("geminiAiSend");if(!a||!b)return;a.classList.remove("empty");a.innerHTML='<span class="gemini-ai-thinking"><span class="gemini-ai-dot"></span><span class="gemini-ai-dot"></span><span class="gemini-ai-dot"></span><span>Thinking…</span></span>';b.disabled=true;try{var u=getGeminiSelectedUser();var r=await fetch(URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"askGemini",prompt:q,user:u}),redirect:"follow",cache:"no-store"});var x=await r.json();if(!x||x.result!=="success")throw new Error((x&&x.message)||"Gemini request failed.");a.textContent=x.answer||"No answer returned."}catch(e){a.textContent="Gemini could not answer right now.\n\n"+(e&&e.message?e.message:String(e))}finally{b.disabled=false}};
